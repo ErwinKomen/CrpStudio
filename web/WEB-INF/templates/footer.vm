@@ -1,0 +1,64 @@
+		<div class="footer">CorpusStudioWeb v0.0.1 &copy; 
+      <a href="http://www.meertens.knaw.nl">Meertens Instituut</a> 2015 - 
+      Development: <a href="http://www.clarin.nl">CLARIN-NL</a> - 
+      Powered by: <a href="https://github.com/ErwinKomen/CrppServer" target="_blank">Crpp Server</a> &copy; 
+      <a href="http://www.meertens.knaw.nl">Meertens Instituut</a> 2015</div>
+		<script>
+			Crpstudio.baseUrl = location.pathname.replace(/^\/([^\/]+)\/.*$/, "/$1/page/");
+			Crpstudio.crppUrl = '$labels.getString("crppUrlExternal")/';
+			Crpstudio.blsUrl = '$labels.getString("blsUrlExternal")/$labels.getString("corpus")/';
+			
+			#if($lang)
+				Crpstudio.language = "$lang";
+			#end
+		
+			$(document).foundation();
+			
+			$(function() {
+				var state = Crpstudio.cookies.checkCookie('corpusstudio');
+				if (state !== undefined) {
+					$("div.cookies").removeClass("active");
+					$("nav.topbar").css({top : 0});
+				} else {
+					$("div.cookies").addClass("active");
+					$("nav.topbar").css({top : 50});
+				}
+				Crpstudio.tab = "$maintab";
+				#if($maintab == "home")
+					Crpstudio.home.setSizes();
+					$( window ).resize(function() {
+						Crpstudio.home.setSizes();
+					});
+				#elseif($maintab == "explore")
+					Crpstudio.explore.setSizes();
+					$( window ).resize(function() {
+						Crpstudio.explore.setSizes();
+					});
+				#elseif($maintab == "search")
+					Crpstudio.search.tab = "$tab";
+					Crpstudio.search.setSizes();
+					$( window ).resize(function() {
+						Crpstudio.search.setSizes();
+					});
+				#end
+			});
+
+			$(document).keypress(function(e) {
+			    if(e.which == 13 && Crpstudio.tab === 'search' && (Crpstudio.search.tab === 'simple' || Crpstudio.search.tab === 'extended' || Crpstudio.search.tab === 'advanced')) {
+			    	$( "#"+Crpstudio.search.tab ).find(".search").trigger( "click" );
+			    }
+			});
+			
+			$(document).mouseup(function (e) {
+			    var container = $("#advanced ul.options");
+			
+			    if (!container.is(e.target) // if the target of the click isn't the container...
+			        && container.has(e.target).length === 0) // ... nor a descendant of the container
+			    {
+			        container.parent().removeClass("active");
+			    }
+			});
+			
+		</script>
+	</body>
+</html>
