@@ -62,6 +62,8 @@
 				<div class="row">
 					<!-- Left Nav Section -->
 					<ul id="navLeft" class="left">
+
+            <!-- Define the language buttons -->
 						<li class="leftspaced langli">
 							<form method="get" action="" name="langform">
 								<a class="langlink" id="nl" onclick="Crpstudio.switchLanguage('nl')"><img class="$nl" src="./img/lang/nl.png" /></a>
@@ -75,23 +77,37 @@
 								<div style="width: 30px;">&nbsp;</div>
 							#end
 						</li>
+
+            <!-- Define the HOME button -->
 						#set($home = $labels.getString("home"))
 						#if($maintab && $maintab == "home")
 							<li id="main-home" class="leftspaced active"><a onclick="Crpstudio.switchTab('home')">$home</a></li>
 						#else
 							<li id="main-home" class="leftspaced"><a onclick="Crpstudio.switchTab('home')">$home</a></li>
 						#end
+
+            <!-- Define the EXPLORE button -->
 						#set($explore = $labels.getString("explore"))
 						#if($maintab && $maintab == "explore")
 							<li id="main-explore" class="active"><a onclick="Crpstudio.switchTab('explore')">$explore</a></li>
 						#else
 							<li id="main-explore"><a onclick="Crpstudio.switchTab('explore')">$explore</a></li>
 						#end
+
+            <!-- Define the SEARCH button -->
 						#set($search = $labels.getString("search"))
 						#if($maintab && $maintab == "search")
 							<li id="main-search" class="active"><a onclick="Crpstudio.switchTab('search')">$search</a></li>
 						#else
 							<li id="main-search"><a onclick="Crpstudio.switchTab('search')">$search</a></li>
+						#end
+
+            <!-- Define the ABOUT button -->
+            #set($about = $labels.getString("about"))
+            #if($maintab && $maintab == "about")
+							<li id="main-home" class="leftspaced active"><a onclick="Crpstudio.switchTab('about')">$about</a></li>
+						#else
+							<li id="main-home" class="leftspaced"><a onclick="Crpstudio.switchTab('about')">$about</a></li>
 						#end
 					</ul>
 

@@ -40,6 +40,11 @@
 					$( window ).resize(function() {
 						Crpstudio.search.setSizes();
 					});
+				#elseif($maintab == "about")
+					Crpstudio.about.setSizes();
+					$( window ).resize(function() {
+						Crpstudio.about.setSizes();
+					});
 				#end
 			});
 

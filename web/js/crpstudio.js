@@ -16,7 +16,7 @@ var Crpstudio = {
 	
 	cookies : {
 		accept : function() {
-			Crpstudio.cookies.setCookie("crpstudio",true,30);
+			Crpstudio.cookies.setCookie("corpusstudio",true,30);
 			$("div.cookies").removeClass("active");
 			$("nav.topbar").css({top : 0});
 		},
@@ -193,10 +193,18 @@ var Crpstudio = {
 	},
 	
 	home : {
-		
+		// Set the correct size for the iframe containing the "home.html"
 		setSizes : function() {
 			var h = $(window).innerHeight() - 135;
 			$("#homepage").css("height",h+"px");
+		}
+	},
+  
+	about : {
+		// Set the correct size for the iframe containing the "about.html"
+		setSizes : function() {
+			var h = $(window).innerHeight() - 135;
+			$("#aboutpage").css("height",h+"px");
 		}
 	}
 };

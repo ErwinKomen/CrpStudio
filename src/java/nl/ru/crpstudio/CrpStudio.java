@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Logger;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -34,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.ru.crpstudio.response.AboutResponse;
 import nl.ru.crpstudio.response.BaseResponse;
 import nl.ru.crpstudio.response.ErrorResponse;
 import nl.ru.crpstudio.response.HomeResponse;
@@ -42,7 +42,6 @@ import nl.ru.crpstudio.util.FieldDescriptor;
 import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TemplateManager;
-import nl.ru.util.FileUtil;
 import nl.ru.util.LogUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
@@ -80,7 +79,6 @@ public class CrpStudio extends HttpServlet {
   public TemplateManager getTemplateManager() {return templateMan;}
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
-	// public void log(String msg) { logger.info(msg);}
   
   // ======================= Class initialisations =============================
   public CrpStudio() {
@@ -101,8 +99,6 @@ public class CrpStudio extends HttpServlet {
    */
   public void init(ServletConfig cfg) throws ServletException {
     super.init(cfg);  // Initialize our parent
-    // Get a logger as soon as possible
-    // logger = Logger.getLogger(LOGGER_NAME);
 		try {
 			log("Initializing CrpStudio, Memory usage: "+getCurrentMemUsage());
 		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e1) {
@@ -124,6 +120,7 @@ public class CrpStudio extends HttpServlet {
       contextRoot = cfg.getServletContext().getContextPath();
 
       responses.put(contextRoot + "/home", new HomeResponse());
+      responses.put(contextRoot + "/about", new AboutResponse());
       responses.put(contextRoot + "/error", new ErrorResponse());
       responses.put("home", new HomeResponse());
       responses.put("error", new ErrorResponse());
@@ -156,7 +153,9 @@ public class CrpStudio extends HttpServlet {
         br = responses.get("home");
       }
 
+      // Perform the base response init()
       br.init(request, response, this);
+      // Process the request using the appropriate response object
       br.processRequest();
     } catch (Exception ex) {
       errHandle.DoError("processRequest: " + ex.getMessage());

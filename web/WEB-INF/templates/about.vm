@@ -1,0 +1,4 @@
+#set($aboutUrl=$labels.getString("aboutUrl"))
+#parse("header.vm")
+		<iframe id="aboutpage" src="$!aboutUrl"></iframe>
+#parse("footer.vm")

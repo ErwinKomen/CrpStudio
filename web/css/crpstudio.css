@@ -248,6 +248,14 @@ ul.nav.nav-tabs > li > a {
 	width: 100%;
 }
 
+/* About.main */
+#aboutpage {
+	border: 0;
+	margin-top: 69px;
+	border-top: 1px solid #E3E3E3;
+	width: 100%;
+}
+
 /* Explore.main */
 
 #explorepage {

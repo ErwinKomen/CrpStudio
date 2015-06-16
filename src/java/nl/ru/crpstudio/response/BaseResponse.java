@@ -283,6 +283,8 @@ public abstract class BaseResponse {
 	}
 
 	/**
+   * processRequest 
+   * 
 	 * Calls the completeRequest and logRequest implementations
 	 */
 	final public void processRequest() {
@@ -371,12 +373,6 @@ public abstract class BaseResponse {
 		return Arrays.asList(getParameterValues(name, defaultValue));
 	}
 
-	public Integer getParameter(String name, Integer defaultValue) {
-		final String stringToParse = getParameter(name, "" + defaultValue);
-
-		return new Integer(stringToParse);
-	}
-
 	/**
 	 * Returns the value of a servlet parameter, or the default value
 	 *
@@ -389,6 +385,12 @@ public abstract class BaseResponse {
 	public boolean getParameter(String name, boolean defaultValue) {
 		return getParameter(name, defaultValue ? "on" : "").equals("on");
 	}
+	public Integer getParameter(String name, Integer defaultValue) {
+		final String stringToParse = getParameter(name, "" + defaultValue);
+
+		return new Integer(stringToParse);
+	}
+
 
 	protected String loadStylesheet(String name) throws IOException {
 		// clear string builder
@@ -544,6 +546,11 @@ public abstract class BaseResponse {
 	 */
 	abstract protected void logRequest();
 
+  /**
+   * Provide a duplicate -- implemented by the actual response
+   * 
+   * @return a clone of the response
+   */
 	abstract public BaseResponse duplicate();
 
 }
