@@ -290,16 +290,18 @@ public abstract class BaseResponse {
 	 * Calls the completeRequest and logRequest implementations
 	 */
 	final public void processRequest() {
-		try {
-			this.servlet.log("("+this.getClass()+", patt="+this.getParameter("query", "")+") Start memory usage: "+this.servlet.getCurrentMemUsage());
-		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
-			e.printStackTrace();
-		}
 		this.locale = request.getLocale();
 		this.lang = this.request.getParameter("lang");
     // Initialize the user id and the user okay
-    this.bUserOkay = servlet.getUserOkay();
     this.sUserId = servlet.getUserId();
+    this.bUserOkay = servlet.getUserOkay(this.sUserId);
+		try {
+			this.servlet.log("("+this.getClass()+
+              ", user=["+sUserId+","+bUserOkay+"]"+
+              ", patt="+this.getParameter("query", "")+") Start memory usage: "+this.servlet.getCurrentMemUsage());
+		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
+			e.printStackTrace();
+		}
 		
 		if (this.lang != null && !this.lang.equals(this.locale)) {
 			this.locale = new Locale(this.lang);

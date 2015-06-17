@@ -33,7 +33,7 @@ public class LoginResponse extends BaseResponse {
       this.sUserId = sUserFound;
       // Also set it globally
       this.servlet.setUserId(this.sUserId);
-      this.servlet.setUserOkay(this.bUserOkay);
+      this.servlet.setUserOkay(this.sUserId, this.bUserOkay);
     }
     // Go to the home page
 		this.getContext().put("maintab", "home");

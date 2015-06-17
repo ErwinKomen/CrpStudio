@@ -53,8 +53,10 @@ import org.xml.sax.InputSource;
 public class CrpStudio extends HttpServlet {
   // ===================== Accessible by outsiders ===================
   public static String LOGGER_NAME = "CrpStudioLogger"; // Change here: also in velocity.properties
-  private static ErrHandle errHandle = null;
+  // ===================== Persistent between users/sessions =========
+
   // ===================== Local variables ===========================
+  private static ErrHandle errHandle = null;
 	private String realPath = "";
   // private Logger logger;
 	// private Map<String, Template> templates = new HashMap<>();
@@ -67,32 +69,20 @@ public class CrpStudio extends HttpServlet {
   private CrpUtil crpUtil;
   private String sUserId = "";
   private boolean bUserOkay = false;
+  private String sSessionId = "";
 
   // ====================== Getters and setters ======================
   public String getRealPath() { return realPath; }
 	public List<MetadataField> getMetadataFields() { return filterFields;}
   public LinkedList<FieldDescriptor> getSearchFields() { return searchFields; }
   public TemplateManager getTemplateManager() {return templateMan;}
-  public String getUserId() { return sUserId; }
-  public boolean getUserOkay() {return bUserOkay; }
+  public String getUserId() { return crpUtil.getUserId(sSessionId); }
+  public boolean getUserOkay(String sId) {this.bUserOkay = crpUtil.getUserOkay(sId, sSessionId); return bUserOkay; }
   public void setUserId(String sId) {sUserId = sId;}
-  public void setUserOkay(boolean bOkay) {bUserOkay = bOkay;}
+  public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
+  public List<String> getCorpora() { return lngIndices;}
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
-  
-  // ======================= Class initialisations =============================
-  /*
-  public CrpStudio() {
-    try {
-      errHandle = new ErrHandle(LOGGER_NAME);
-      // Default init if no log4j.properties are found
-      LogUtil.initLog4jIfNotAlready(Level.DEBUG);
-      // Other initialisations that can take place right away
-      crpUtil = new CrpUtil(errHandle);
-    } catch (Exception ex) {
-      if (errHandle != null) errHandle.DoError("Class initialisation: ", ex);
-    }
-  } */
   
   /**
    * init -- Initialise the servlet
@@ -179,7 +169,9 @@ public class CrpStudio extends HttpServlet {
         // take the "home" one as the default one
         br = responses.get("home");
       }
-
+      // Get the ID of this session
+      sSessionId = request.getSession().getId();
+      errHandle.debug("session id = " + sSessionId);
       // Perform the base response init()
       br.init(request, response, this);
       // Process the request using the appropriate response object
