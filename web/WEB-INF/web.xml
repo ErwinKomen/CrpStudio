@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:javaee="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="CrpStudio" version="3.0">
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:javaee="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="CrpStudioWeb" version="3.0">
   <display-name>Corpus Studio Web</display-name>
   <servlet>
     <servlet-name>crpstudio</servlet-name>
     <servlet-class>nl.ru.crpstudio.CrpStudio</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>crpstudio</servlet-name>
-    <url-pattern>/</url-pattern>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/static/*</url-pattern>
   </servlet-mapping>
+<!--
   <servlet-mapping>
     <servlet-name>default</servlet-name>
     <url-pattern>*.js</url-pattern>
@@ -18,8 +19,16 @@
     <url-pattern>*.jpg</url-pattern>
     <url-pattern>*.gif</url-pattern>
     <url-pattern>*.html</url-pattern>
-  </servlet-mapping>    
+  </servlet-mapping>  
+  -->  
+  <servlet-mapping>
+    <servlet-name>crpstudio</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
   <session-config>
-    <session-timeout>100</session-timeout>
+    <session-timeout>30</session-timeout>
   </session-config>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
 </web-app>

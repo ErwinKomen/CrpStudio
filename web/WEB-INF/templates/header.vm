@@ -17,24 +17,24 @@
 		<meta charset="utf-8">
 		<meta name="description" content="$!d">
 		<meta name="viewport" content="width=device-width">
-		<meta property="og:image" content="./img/apple-touch-icon-144x144-precomposed.png" />
+		<meta property="og:image" content="./static/img/apple-touch-icon-144x144-precomposed.png" />
 		<meta property="og:description" content="$!d"/>
 		<title>$!t</title>
-		<link rel="icon" type="image/png" href="./img/favicon.png">
-		<link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
-		<link rel="stylesheet" href="./css/foundation.min.css" type='text/css' />
-		<link rel="stylesheet" href="./css/crpstudio.css" type='text/css' />
-		<link rel="stylesheet" href="./css/introjs.css" type='text/css' />
+		<link rel="icon" type="image/png" href="./static/img/favicon.png">
+		<link rel="apple-touch-icon" href="./static/img/apple-touch-icon.png">
+		<link rel="stylesheet" href="./static/css/foundation.min.css" type='text/css' />
+		<link rel="stylesheet" href="./static/css/crpstudio.css" type='text/css' />
+		<link rel="stylesheet" href="./static/css/introjs.css" type='text/css' />
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script type="text/javascript" src="//www.google.com/jsapi"></script>
 	    <script type="text/javascript">google.load("visualization", "1", {packages:["corechart"]});</script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
-		<script type="text/javascript" src="./js/foundation.min.js"></script>
-		<script type="text/javascript" src="./js/foundation.accordion.js"></script>
-		<script type="text/javascript" src="./js/ajax_retriever.js"></script>
-		<script type="text/javascript" src="./js/crpstudio.js"></script>
-		<script type="text/javascript" src="./js/intro.js"></script>
+		<script type="text/javascript" src="./static/js/foundation.min.js"></script>
+		<script type="text/javascript" src="./static/js/foundation.accordion.js"></script>
+		<script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
+		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
+		<script type="text/javascript" src="./static/js/intro.js"></script>
 		<script>
 			function initTreemap() {
 				console.log("Initializing treemap");
@@ -66,13 +66,13 @@
             <!-- Define the language buttons -->
 						<li class="leftspaced langli">
 							<form method="get" action="" name="langform">
-								<a class="langlink" id="nl" onclick="Crpstudio.switchLanguage('nl')"><img class="$nl" src="./img/lang/nl.png" /></a>
-								<a class="langlink" id="en" onclick="Crpstudio.switchLanguage('en')"><img class="$en"  src="./img/lang/en.png" /></a>
+								<a class="langlink" id="nl" onclick="Crpstudio.switchLanguage('nl')"><img class="$nl" src="./static/img/lang/nl.png" /></a>
+								<a class="langlink" id="en" onclick="Crpstudio.switchLanguage('en')"><img class="$en"  src="./static/img/lang/en.png" /></a>
 							</form>
 						</li>
 						<li class="leftspaced">
 							#if($maintab && ($maintab == "explore" or $maintab == "search"))
-								<a id="tour-icon" onclick="Crpstudio.tour.start();"><img src="./img/info_icon.png"/></a>
+								<a id="tour-icon" onclick="Crpstudio.tour.start();"><img src="./static/img/info_icon.png"/></a>
 							#else
 								<div style="width: 30px;">&nbsp;</div>
 							#end
@@ -114,7 +114,7 @@
 					<!-- Right Nav Section -->
 					<div id="nav-right" class="right">
 						<div>
-							<a href="#"><img id="navLogo" src="./img/logo_cs.png" /></a>
+							<a href="#"><img id="navLogo" src="./static/img/logo_cs.png" /></a>
 						</div>
 					</div>
 				</div>
