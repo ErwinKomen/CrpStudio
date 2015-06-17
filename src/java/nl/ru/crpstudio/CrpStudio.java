@@ -65,12 +65,18 @@ public class CrpStudio extends HttpServlet {
 	private String contextRoot;
   private TemplateManager templateMan;
   private CrpUtil crpUtil;
+  private String sUserId = "";
+  private boolean bUserOkay = false;
 
   // ====================== Getters and setters ======================
   public String getRealPath() { return realPath; }
 	public List<MetadataField> getMetadataFields() { return filterFields;}
   public LinkedList<FieldDescriptor> getSearchFields() { return searchFields; }
   public TemplateManager getTemplateManager() {return templateMan;}
+  public String getUserId() { return sUserId; }
+  public boolean getUserOkay() {return bUserOkay; }
+  public void setUserId(String sId) {sUserId = sId;}
+  public void setUserOkay(boolean bOkay) {bUserOkay = bOkay;}
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
   
@@ -137,14 +143,12 @@ public class CrpStudio extends HttpServlet {
       // Find our context root
       contextRoot = cfg.getServletContext().getContextPath();
 
-      /*
-      responses.put(contextRoot + "/home", new HomeResponse());
-      responses.put(contextRoot + "/about", new AboutResponse());
-      responses.put(contextRoot + "/error", new ErrorResponse());
-      */ 
       responses.put("home", new HomeResponse());
+      responses.put("corpora", new CorporaResponse());
+      responses.put("projects", new ProjectsResponse());
       responses.put("error", new ErrorResponse());
-      responses.put("about", new AboutResponse());
+      responses.put("about", new InfoResponse());
+      responses.put("j_security_check", new LoginResponse());
     } catch (Exception ex) {
       errHandle.DoError("init (b): " + ex.getMessage());
     }
@@ -175,21 +179,6 @@ public class CrpStudio extends HttpServlet {
         // take the "home" one as the default one
         br = responses.get("home");
       }
-      /*
-      // Get the URI that is being requested
-      String sUri = request.getRequestURI();
-      // Find out which response we are going to give
-      BaseResponse br;
-      errHandle.debug("MAINSERVLET - Request URI: "+sUri);
-      // get corresponding response object
-      if(responses.containsKey(sUri)) {
-        // The request is within our limits, so return the appropriate response
-        br = responses.get(sUri).duplicate();
-      } else {
-        // if there is no corresponding response object
-        // take the "home" one as the default one
-        br = responses.get("home");
-      } */
 
       // Perform the base response init()
       br.init(request, response, this);

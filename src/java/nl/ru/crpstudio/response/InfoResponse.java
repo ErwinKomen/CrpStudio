@@ -11,7 +11,7 @@ package nl.ru.crpstudio.response;
  *
  * @author Erwin R. Komen
  */
-public class AboutResponse extends BaseResponse {
+public class InfoResponse extends BaseResponse {
   
 	@Override
 	protected void completeRequest() {
@@ -21,12 +21,12 @@ public class AboutResponse extends BaseResponse {
 
 	@Override
 	protected void logRequest() {
-		this.servlet.log("AboutResponse");
+		this.servlet.log("InfoResponse");
 	}
 
 	@Override
-	public AboutResponse duplicate() {
-		return new AboutResponse();
+	public InfoResponse duplicate() {
+		return new InfoResponse();
 	}
 
 }

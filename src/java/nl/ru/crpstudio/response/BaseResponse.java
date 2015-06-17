@@ -59,6 +59,8 @@ public abstract class BaseResponse {
 	protected Map<String,Object> params;
 	protected String lang;
   protected TemplateManager templateMan;
+  protected boolean bUserOkay = false;
+  protected String sUserId = "none";
 	
 	protected long startTime = new Date().getTime();
 
@@ -295,6 +297,9 @@ public abstract class BaseResponse {
 		}
 		this.locale = request.getLocale();
 		this.lang = this.request.getParameter("lang");
+    // Initialize the user id and the user okay
+    this.bUserOkay = servlet.getUserOkay();
+    this.sUserId = servlet.getUserId();
 		
 		if (this.lang != null && !this.lang.equals(this.locale)) {
 			this.locale = new Locale(this.lang);
