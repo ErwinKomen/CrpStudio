@@ -6,6 +6,7 @@
 package nl.ru.crpstudio;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -33,18 +34,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import nl.ru.crpstudio.response.AboutResponse;
-import nl.ru.crpstudio.response.BaseResponse;
-import nl.ru.crpstudio.response.ErrorResponse;
-import nl.ru.crpstudio.response.HomeResponse;
-import nl.ru.crpstudio.util.ErrHandle;
-import nl.ru.crpstudio.util.FieldDescriptor;
-import nl.ru.crpstudio.util.MetadataField;
-import nl.ru.crpstudio.util.QueryServiceHandler;
-import nl.ru.crpstudio.util.TemplateManager;
+import nl.ru.crpstudio.response.*;
+import nl.ru.crpstudio.util.*;
 import nl.ru.util.LogUtil;
-import nl.ru.util.json.JSONArray;
-import nl.ru.util.json.JSONObject;
+import nl.ru.util.json.*;
 import org.apache.log4j.Level;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -55,8 +48,8 @@ import org.xml.sax.InputSource;
  * 
  * @author Erwin R. Komen
  */
-@WebServlet(name = "crpstudio", 
-            urlPatterns = {"/", "/home", "/error"})
+@WebServlet(name = "crpsw", 
+            urlPatterns = {"/home", "/error", "/about"})
 public class CrpStudio extends HttpServlet {
   // ===================== Accessible by outsiders ===================
   public static String LOGGER_NAME = "CrpStudioLogger"; // Change here: also in velocity.properties
@@ -71,6 +64,7 @@ public class CrpStudio extends HttpServlet {
   private List<String> lngIndices = null;
 	private String contextRoot;
   private TemplateManager templateMan;
+  private CrpUtil crpUtil;
 
   // ====================== Getters and setters ======================
   public String getRealPath() { return realPath; }
@@ -81,32 +75,56 @@ public class CrpStudio extends HttpServlet {
   public void log(String msg) {errHandle.debug(msg);}
   
   // ======================= Class initialisations =============================
+  /*
   public CrpStudio() {
     try {
       errHandle = new ErrHandle(LOGGER_NAME);
       // Default init if no log4j.properties are found
       LogUtil.initLog4jIfNotAlready(Level.DEBUG);
+      // Other initialisations that can take place right away
+      crpUtil = new CrpUtil(errHandle);
     } catch (Exception ex) {
       if (errHandle != null) errHandle.DoError("Class initialisation: ", ex);
     }
-  }
+  } */
   
   /**
    * init -- Initialise the servlet
    * 
-   * @param cfg
    * @throws ServletException 
    */
+  @Override
+  public void init() throws ServletException {
+    InputStream is = null;  // Th config file as input stream
+    
+    try {
+      errHandle = new ErrHandle(LOGGER_NAME);
+      // Default init if no log4j.properties are found
+      LogUtil.initLog4jIfNotAlready(Level.DEBUG);
+      // Log the start of this servlet
+      errHandle.debug("Starting CrpStudio...");
+      // Perform the standard initilization of the servled I extend
+      super.init();
+      // Other initialisations that can take place right away
+      crpUtil = new CrpUtil(errHandle);
+    } catch (Exception ex) {
+      if (errHandle != null) errHandle.DoError("Class initialisation: ", ex);
+    }
+  }
+  @Override
   public void init(ServletConfig cfg) throws ServletException {
+    /*
     super.init(cfg);  // Initialize our parent
 		try {
 			log("Initializing CrpStudio, Memory usage: "+getCurrentMemUsage());
 		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e1) {
       errHandle.DoError("init (a): " + e1.getMessage());
       e1.printStackTrace();
-		}
+		} */
     
     try {
+      // Perform the 'normal' initialization
+      init();
       // Load the language indices using the default locale
       loadIndices("en");
 
@@ -119,11 +137,14 @@ public class CrpStudio extends HttpServlet {
       // Find our context root
       contextRoot = cfg.getServletContext().getContextPath();
 
+      /*
       responses.put(contextRoot + "/home", new HomeResponse());
       responses.put(contextRoot + "/about", new AboutResponse());
       responses.put(contextRoot + "/error", new ErrorResponse());
+      */ 
       responses.put("home", new HomeResponse());
       responses.put("error", new ErrorResponse());
+      responses.put("about", new AboutResponse());
     } catch (Exception ex) {
       errHandle.DoError("init (b): " + ex.getMessage());
     }
@@ -138,6 +159,23 @@ public class CrpStudio extends HttpServlet {
    */
 	private void processRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {
+      // Get the request that is being made
+      String parts[] = crpUtil.getRequestParts(request);
+      // The requested index is the first part
+      String indexName = parts.length >= 1 ? parts[0] : "";
+      // Act on the index that is being requested
+      errHandle.debug("MAINSERVLET - Request: "+indexName);
+      // get corresponding response object
+      BaseResponse br;
+      if(responses.containsKey(indexName)) {
+        // The request is within our limits, so return the appropriate response
+        br = responses.get(indexName).duplicate();
+      } else {
+        // if there is no corresponding response object
+        // take the "home" one as the default one
+        br = responses.get("home");
+      }
+      /*
       // Get the URI that is being requested
       String sUri = request.getRequestURI();
       // Find out which response we are going to give
@@ -151,7 +189,7 @@ public class CrpStudio extends HttpServlet {
         // if there is no corresponding response object
         // take the "home" one as the default one
         br = responses.get("home");
-      }
+      } */
 
       // Perform the base response init()
       br.init(request, response, this);
