@@ -2,8 +2,15 @@
 #parse("header.vm")
   #if(${userokay} && ${userokay} == "true")
     <div class="welcome">
-    <p>$labels.getString("welcome.line1") <b>${userid}</b>. 
-       $labels.getString("welcome.line2")</p>
+    <p>$labels.getString("welcome.line1") <b>${userid}</b>. </p>
+    #if($corpus.last && $corpus.last != "")
+      <p>$labels.getString("welcome.line2") $corpus.last</p>
+      #if($project.last && $project.last != "")
+        ($project.last)
+      #end
+    #else
+      <p>$labels.getString("welcome.line3")</p>
+    #end
     </div>
   #else
     <div class="login">    

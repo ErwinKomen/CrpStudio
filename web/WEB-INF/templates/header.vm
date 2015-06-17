@@ -71,7 +71,7 @@
 							</form>
 						</li>
 						<li class="leftspaced">
-							#if($maintab && ($maintab == "explore" or $maintab == "search"))
+							#if($maintab && ($maintab == "corpora" or $maintab == "search"))
 								<a id="tour-icon" onclick="Crpstudio.tour.start();"><img src="./static/img/info_icon.png"/></a>
 							#else
 								<div style="width: 30px;">&nbsp;</div>
@@ -89,9 +89,9 @@
             <!-- Define the CORPORA button -->
 						#set($corpora = $labels.getString("corpora"))
 						#if($maintab && $maintab == "corpora")
-							<li id="main-corpora" class="active"><a onclick="Crpstudio.switchTab('explore')">$corpora</a></li>
+							<li id="main-corpora" class="active"><a onclick="Crpstudio.switchTab('corpora')">$corpora</a></li>
 						#else
-							<li id="main-corpora"><a onclick="Crpstudio.switchTab('explore')">$corpora</a></li>
+							<li id="main-corpora"><a onclick="Crpstudio.switchTab('corpora')">$corpora</a></li>
 						#end
 
             <!-- Define the PROJECTS button -->

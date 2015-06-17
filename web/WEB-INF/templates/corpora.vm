@@ -1,93 +1,29 @@
 #parse("header.vm")
-		#set($simple = $labels.getString("simple"))
-		#set($extended = $labels.getString("extended"))
-		#set($advanced = $labels.getString("advanced"))
-		#set($expert = $labels.getString("expert"))
-		#set($result = $labels.getString("result"))
-		#set($document = $labels.getString("document"))
-		
-		<div class="row" id="subnav">
-			<dl id="search-nav" class="sub-nav" data-tab>
-			#if($tab == "simple")
-				<dd id="simple_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('simple')">$simple</a></dd>
-			#else
-				<dd id="simple_link"><a class="tablink" onclick="Crpstudio.search.switchTab('simple')">$simple</a></dd>
-			#end
-			#if($tab == "extended")
-				<dd id="extended_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('extended')">$extended</a></dd>
-			#else
-				<dd id="extended_link"><a class="tablink" onclick="Crpstudio.search.switchTab('extended')">$extended</a></dd>
-			#end
-			#if($tab == "advanced")
-				<dd id="advanced_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('advanced')">$advanced</a></dd>
-			#else
-				<dd id="advanced_link"><a class="tablink" onclick="Crpstudio.search.switchTab('advanced')">$advanced</a></dd>
-			#end
-			#if($tab == "expert")
-				<dd id="expert_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('expert')">$expert</a></dd>
-			#else
-				<dd id="expert_link"><a class="tablink" onclick="Crpstudio.search.switchTab('expert')">$expert</a></dd>
-			#end
-			#if($tab == "result" || $tab == "document")
-				<dd id="link-spacer">||</dd>
-			#else
-				<dd id="link-spacer" class="hide">||</dd>
-			#end
-			#if($tab == "result")
-				<dd id="result_link" class="sub-sub-nav active">|| <a class="tablink" onclick="Crpstudio.search.switchTab('result')">$result</a></dd>
-			#else
-				<dd id="result_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.search.switchTab('result')">$result</a></dd>
-			#end
-			#if($tab =="document")
-				<dd id="document_link" class="sub-sub-nav active"><a class="tablink" onclick="Crpstudio.search.switchTab('document')">$document</a></dd>
-			#else
-				<dd id="document_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.search.switchTab('document')">$document</a></dd>
-			#end
-			</dl>
-		</div>
-		
-		<div class="row tabs-content" id="search">
-			#set($meta = "")
-			#set($simple_active = "")
-			#set($extended_active = "")
-			#set($advanced_active = "")
-			#set($expert_active = "")
-			#set($result_active = "")
-		
-			#if($tab == "simple")
-				#set($simple_active = "active")
-				#set($meta = "hidden")
-			#elseif($tab == "extended")
-				#set($extended_active = "active")
-			#elseif($tab == "advanced")
-				#set($advanced_active = "active")
-			#elseif($tab == "expert")
-				#set($expert_active = "active")
-			#elseif($tab == "result")
-				#set($result_active = "active")
-				#set($meta = "hidden")
-			#end
-			
-			<div id="metadata" $meta>
-				#parse("metadata.vm")
-			</div>
-			<div id="simple" class="large-16 medium-16 small-16 content $simple_active">
-				#parse("simple.vm")
-			</div>
-			<div id="extended" class="large-16 medium-16 small-16 content $extended_active">
-				#parse("extended.vm")
-			</div>
-			<div id="advanced" class="large-16 medium-16 small-16 content $advanced_active">
-				#parse("advanced.vm")
-			</div>
-			<div id="expert" class="large-16 medium-16 small-16 content $expert_active">
-				#parse("expert.vm")
-			</div>
-			<div id="result" class="large-16 medium-16 small-16 content $result_active">
-				#parse("result.vm")
-			</div>
-			<div id="document" class="large-16 medium-16 small-16 content hide">
-			</div>
-			
-		</div>
+  <!-- do we have a list of corpora or is it empty? -->
+  #if($corpora)
+    <div id="${maintab}-meta" class="content content-meta large-16 medium-16 small-16">
+      <div class="meta-header large-16 medium-16 small-16">
+        <p>$labels.getString("corpora.header")</p>
+      </div>
+      <div class="meta-footer large-16 medium-16 small-16">
+        <p>
+          <input type="checkbox" id="group-check"> $labels.getString("meta.group")<select id="group-select" class="meta-medium">
+            <option value="hits" selected="true">$labels.getString("meta.group.hits")</option>
+            <option value="documents">$labels.getString("meta.group.documents")</option>
+          </select>per<select id="group_by-select" class="meta-medium" onchange="$('#group-check').prop('checked',true);">
+            <option value="" selected="true"></option>
+            #foreach($corpus in $corpora)
+              <!-- #set($f = $filterIds.get($field)) -->
+              $metaOptions.get($corpus)
+            #end
+          </select>
+        </p>
+      </div>
+    </div>
+  #else
+    <div id="nocorpora">
+      No corpora are available.
+    </div>
+  #end
+
 #parse("footer.vm")
