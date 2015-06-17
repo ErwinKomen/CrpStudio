@@ -1,4 +1,26 @@
 #set($homeUrl=$labels.getString("homeUrl"))
 #parse("header.vm")
-		<iframe id="homepage" src="$!homeUrl"></iframe>
+  #if(${userokay} && ${userokay} == "true")
+    <div class="welcome">
+    <p>$labels.getString("welcome.line1") <b>${userid}</b>. 
+       $labels.getString("welcome.line2")</p>
+    </div>
+  #else
+    <div class="login">    
+      <p><span class="info">$labels.getString("login.line1")</span>
+         <span class="info">$labels.getString("login.line2")</span></p>
+      <form method="post" action="j_security_check">
+        <table>
+          <tr><td>$labels.getString("login.name")</td>
+            <td><input type="text" name="j_username"></td></tr>
+            <td></td>
+          <tr><td>$labels.getString("login.password")</td>
+            <td><input type="password" name= "j_password"></td>
+            <td><button onclick="Crpstudio.login.accept();" class="tiny">OK</button></td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  #end
+  <iframe id="homepage" src="$!homeUrl"></iframe>
 #parse("footer.vm")

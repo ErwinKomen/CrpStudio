@@ -28,6 +28,19 @@
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>searching</web-resource-name>
+      <url-pattern>/search/*</url-pattern>
+      <url-pattern>/projects/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>PARTNER</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>

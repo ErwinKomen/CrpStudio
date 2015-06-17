@@ -11,9 +11,9 @@
 <html>
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=10">
-        <meta http-equiv="cache-control" content="no-cache" />
-        <meta http-equiv="expires" content="0" />
-        <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="pragma" content="no-cache" />
 		<meta charset="utf-8">
 		<meta name="description" content="$!d">
 		<meta name="viewport" content="width=device-width">
@@ -86,12 +86,20 @@
 							<li id="main-home" class="leftspaced"><a onclick="Crpstudio.switchTab('home')">$home</a></li>
 						#end
 
-            <!-- Define the EXPLORE button -->
-						#set($explore = $labels.getString("explore"))
-						#if($maintab && $maintab == "explore")
-							<li id="main-explore" class="active"><a onclick="Crpstudio.switchTab('explore')">$explore</a></li>
+            <!-- Define the CORPORA button -->
+						#set($corpora = $labels.getString("corpora"))
+						#if($maintab && $maintab == "corpora")
+							<li id="main-corpora" class="active"><a onclick="Crpstudio.switchTab('explore')">$corpora</a></li>
 						#else
-							<li id="main-explore"><a onclick="Crpstudio.switchTab('explore')">$explore</a></li>
+							<li id="main-corpora"><a onclick="Crpstudio.switchTab('explore')">$corpora</a></li>
+						#end
+
+            <!-- Define the PROJECTS button -->
+						#set($projects = $labels.getString("projects"))
+						#if($maintab && $maintab == "projects")
+							<li id="main-projects" class="active"><a onclick="Crpstudio.switchTab('projects')">$projects</a></li>
+						#else
+							<li id="main-projects"><a onclick="Crpstudio.switchTab('projects')">$projects</a></li>
 						#end
 
             <!-- Define the SEARCH button -->
