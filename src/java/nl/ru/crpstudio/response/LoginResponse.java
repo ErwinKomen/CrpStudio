@@ -16,10 +16,6 @@ import nl.ru.util.json.JSONObject;
  * @author Erwin R. Komen
  */
 public class LoginResponse extends BaseResponse {
-  // Use a fixed location for the crpstudio settings file
-  private static String sUserFile = "/etc/corpora/crpstudio-settings.json";
-  // Load the settings file as a JSONObject
-  private static JSONObject oUsers = new JSONObject(FileUtil.readFile(sUserFile));
   private String sUserFound;
 	@Override
 	protected void completeRequest() {
@@ -62,9 +58,9 @@ public class LoginResponse extends BaseResponse {
    */
   private boolean getLoginAuthorization(String sUser, String sPassword) {
     // Get the array of users
-    JSONArray arUser = oUsers.getJSONArray("users");
+    JSONArray arUser = servlet.getCrpUtil().getUsers();
     // Check if this user may log in
-    for (int i = 0 ; i < oUsers.length(); i++) {
+    for (int i = 0 ; i < arUser.length(); i++) {
       // Get this object
       JSONObject oUser = arUser.getJSONObject(i);
       // Is this the user?

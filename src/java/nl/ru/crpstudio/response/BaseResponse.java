@@ -33,6 +33,7 @@ import javax.management.ReflectionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.ru.crpstudio.CrpStudio;
+import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TemplateManager;
@@ -48,6 +49,7 @@ import org.apache.velocity.VelocityContext;
 public abstract class BaseResponse {
 
 	private final String OUTPUT_ENCODING = "UTF-8";
+  static ErrHandle logger;
 
 	protected HttpServletRequest request;
 	protected HttpServletResponse response;
@@ -82,6 +84,7 @@ public abstract class BaseResponse {
 		response = argResponse;
 		servlet = argServlet;
     templateMan = argServlet.getTemplateManager();
+    logger = argServlet.getErrHandle();
 	}
 
 	/**

@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import nl.ru.crpstudio.util.ErrHandle;
+import nl.ru.util.FileUtil;
+import nl.ru.util.json.JSONArray;
+import nl.ru.util.json.JSONObject;
 
 /**
  * CrpUtil - utilities to facilitate the work of the CrpStudio main HttpServlet
@@ -19,17 +22,76 @@ public class CrpUtil {
   // ============= private variables ==============================
   private ErrHandle logger;
   static List<UserSession> userCache = new ArrayList<>();
+  // Use a fixed location for the crpstudio settings file
+  private static final String sUserFile = "/etc/corpora/crpstudio-settings.json";
+  // Load the settings file as a JSONObject
+  private static JSONObject oUsers;
   // ============= class instantiation ============================
   public CrpUtil(ErrHandle logger) {
     // Set the error handler correct
     this.logger = logger;    
   }
   
+  /**
+   * init - Initialize the CrpUtil by loading the settings from the CrpStudio settings file
+   */
+  public void init() {
+    try {
+      oUsers = new JSONObject(FileUtil.readFile(sUserFile));
+    } catch (Exception ex) {
+      logger.DoError("Could not initialize CrpUtil", ex);
+    }
+  }
+  
+  /**
+   * getUsers -- extract the array with user information from the settings object
+   * 
+   * @return 
+   */
+  public JSONArray getUsers() {
+    try {
+      // Validate
+      if (oUsers == null) return null;
+      return oUsers.getJSONArray("users");
+    } catch (Exception ex) {
+      logger.DoError("Could not perform [getUsers]", ex);
+      return null;
+    }
+  }
+  
+  /**
+   * getCorpora -- extract the array with corpora information from the settings object
+   * 
+   * @return 
+   */
+  public JSONArray getCorpora() {
+    try {
+      // Validate
+      if (oUsers == null) return null;
+      return oUsers.getJSONArray("corpora");
+    } catch (Exception ex) {
+      logger.DoError("Could not perform [getCorpora]", ex);
+      return null;
+    }
+  }
+  /**
+   * addUserSession -- add the combination of a user and a session to the stack
+   * 
+   * @param sUserId
+   * @param sSession 
+   */
   public void addUserSession(String sUserId, String sSession) {
     // TODO: make sure it is not there (yet)
     // Add the combination to the array
     userCache.add(new UserSession(sUserId, sSession, true));
   }
+  
+  /**
+   * removeUserSession -- Remove the combination of a user/session from the stack
+   * 
+   * @param sUserId
+   * @param sSession 
+   */
   public void removeUserSession(String sUserId, String sSession) {
     // Look for the user
     for (int i=0;i<userCache.size();i++) {
@@ -44,6 +106,13 @@ public class CrpUtil {
       }
     }
   }
+  
+  /**
+   * setUserOkay -- Indicate that the combination User/Session is okay (logged-in)
+   * 
+   * @param sUserId
+   * @param sSession 
+   */
   public void setUserOkay(String sUserId, String sSession) {
     // Look for the user
     for (int i=0;i<userCache.size();i++) {
@@ -61,6 +130,14 @@ public class CrpUtil {
     addUserSession(sUserId, sSession);
     
   }
+  
+  /**
+   * getUserOkay - find out if the combination User/Session is okay (logged in)
+   * 
+   * @param sUserId
+   * @param sSession
+   * @return 
+   */
   public boolean getUserOkay(String sUserId, String sSession) {
     // Do not accept empty users or empty sessions
     if (sUserId.isEmpty() || sSession.isEmpty()) return false;
@@ -76,6 +153,13 @@ public class CrpUtil {
     // User was not found, so return failure
     return false;
   }
+  
+  /**
+   * getUserId - given the indicated session, find out what the user's ID is
+   * 
+   * @param sSession
+   * @return 
+   */
   public String getUserId(String sSession) {
     // Do not accept empty users or empty sessions
     if (sSession.isEmpty()) return "";
@@ -122,6 +206,12 @@ public class CrpUtil {
     }
   }
 }
+
+/**
+ * UserSession -- one element in the (static) User/Session stack
+ * 
+ * @author erwin
+ */
 class UserSession {
   public String userId;     // ID for this user
   public String sessionId;  // ID of the session for this user

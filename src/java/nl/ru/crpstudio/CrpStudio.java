@@ -81,6 +81,8 @@ public class CrpStudio extends HttpServlet {
   public void setUserId(String sId) {sUserId = sId;}
   public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
   public List<String> getCorpora() { return lngIndices;}
+  public CrpUtil getCrpUtil() {return crpUtil;}
+  public ErrHandle getErrHandle() {return errHandle;}
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
   
