@@ -1,24 +1,13 @@
 #parse("header.vm")
   <!-- do we have a list of corpora or is it empty? -->
   #if($corpora)
-    <div id="${maintab}-meta" class="content content-meta large-16 medium-16 small-16">
-      <div class="meta-header large-16 medium-16 small-16">
-        <p>$labels.getString("corpora.header")</p>
-      </div>
-      <div class="meta-footer large-16 medium-16 small-16">
-        <p>
-          <input type="checkbox" id="group-check"> $labels.getString("meta.group")<select id="group-select" class="meta-medium">
-            <option value="hits" selected="true">$labels.getString("meta.group.hits")</option>
-            <option value="documents">$labels.getString("meta.group.documents")</option>
-          </select>per<select id="group_by-select" class="meta-medium" onchange="$('#group-check').prop('checked',true);">
-            <option value="" selected="true"></option>
-            #foreach($corpus in $corpora)
-              <!-- #set($f = $filterIds.get($field)) -->
-              $metaOptions.get($corpus)
-            #end
-          </select>
-        </p>
-      </div>
+		<div class="large-14 medium-14 small-14 large-offset-1 medium-offset-1 small-offset-1">
+    <!-- <div id="${maintab}-meta" class="content content-meta large-16 medium-16 small-16"> -->
+      <p>$labels.getString("corpora.header")</p>
+			<div><h4>$labels.getString("corpora"):</h4></div>
+			<div id="results" class="large-16 medium-16 small-16">
+        <p>${corporatable}</p>
+			</div>
     </div>
   #else
     <div id="nocorpora">
