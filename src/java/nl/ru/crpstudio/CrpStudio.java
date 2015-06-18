@@ -36,6 +36,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.ru.crpstudio.response.*;
 import nl.ru.crpstudio.util.*;
+import nl.ru.util.ByRef;
 import nl.ru.util.LogUtil;
 import nl.ru.util.json.*;
 import org.apache.log4j.Level;
@@ -64,6 +65,7 @@ public class CrpStudio extends HttpServlet {
 	private List<MetadataField> filterFields = null;
 	private LinkedList<FieldDescriptor> searchFields = null;
   private List<String> lngIndices = null;
+  private JSONArray objCorpora = null;
 	private String contextRoot;
   private TemplateManager templateMan;
   private CrpUtil crpUtil;
@@ -80,9 +82,9 @@ public class CrpStudio extends HttpServlet {
   public boolean getUserOkay(String sId) {this.bUserOkay = crpUtil.getUserOkay(sId, sSessionId); return bUserOkay; }
   public void setUserId(String sId) {sUserId = sId;}
   public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
-  public List<String> getCorpora() { return lngIndices;}
   public CrpUtil getCrpUtil() {return crpUtil;}
   public ErrHandle getErrHandle() {return errHandle;}
+  public JSONArray getCorpora() { return objCorpora;}
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
   
@@ -161,9 +163,24 @@ public class CrpStudio extends HttpServlet {
       String indexName = parts.length >= 1 ? parts[0] : "";
       // Act on the index that is being requested
       errHandle.debug("MAINSERVLET - Request: "+indexName);
+      
+      // Possibly handle a login attempt
+      if (indexName.equals("j_security_check")) {
+        // Handle the login stuff
+        handleLogin(request);
+        // Set the index name to "home"
+        indexName = "home";
+      }
+      
       // get corresponding response object
       BaseResponse br;
-      if(responses.containsKey(indexName)) {
+      
+      // Check if this user is logged in or not
+      String sThisUser = getUserId();
+      boolean bOkay = getUserOkay(sThisUser);
+
+      // Prepare an appropriate response
+      if(bOkay && responses.containsKey(indexName)) {
         // The request is within our limits, so return the appropriate response
         br = responses.get(indexName).duplicate();
       } else {
@@ -171,6 +188,9 @@ public class CrpStudio extends HttpServlet {
         // take the "home" one as the default one
         br = responses.get("home");
       }
+      // Set the user and the okay components
+      br.setUserOkay(sThisUser, bOkay);
+      
       // Get the ID of this session
       sSessionId = request.getSession().getId();
       errHandle.debug("session id = " + sSessionId);
@@ -203,7 +223,10 @@ public class CrpStudio extends HttpServlet {
 
   
   /**
-   * loadIndices -- contact the CRPP engine and check which language indices are available
+   * loadIndices -- different tasks:
+   *    1 - contact the CRPP engine and check which language indices are available
+   *    2 - get the corpora information from the CRPP engine
+   *    3 - Get the "labels" used in CrpStudio for the specified sLocale
    * 
    * @author E.R.Komen
    */
@@ -218,8 +241,10 @@ public class CrpStudio extends HttpServlet {
       // Try and interpret this string as JSON
       if (!resp.isEmpty()) {
         JSONObject oResp = new JSONObject(resp);
+        // Get the contents from here
+        JSONObject oContent = oResp.getJSONObject("contents");
         // Get the indices from here
-        JSONArray arIndices = oResp.getJSONArray("indices");
+        JSONArray arIndices = oContent.getJSONArray("indices");
         // Add all languages to the array
         for (int i=0;i<arIndices.length(); i++) {
           lngIndices.add(arIndices.getString(i));
@@ -227,6 +252,10 @@ public class CrpStudio extends HttpServlet {
           log("loadIndices: " + arIndices.getString(i));
           // ====================================================
         }
+        // Retrieve the (string!!) with corpus information from the content
+        String sCorpora = oContent.getString("corpora");
+        JSONObject oCorpora = new JSONObject(sCorpora);
+        objCorpora = oCorpora.getJSONArray("corpora");
       }
       // Return to the caller negatively
       return false;
@@ -305,6 +334,49 @@ public class CrpStudio extends HttpServlet {
       e.printStackTrace();
     } 
     return null;
+  }
+  /**
+   * handleLogin - handle a login attempt by a user
+   */
+  public void handleLogin(HttpServletRequest request) {
+    ByRef<String> sUserFound = new ByRef("");
+    // Find out who is trying to login
+    String s_jUserName = request.getParameter("j_username");
+    String s_jPassWord = request.getParameter("j_password");
+    // Check if this person is authorized
+    if (getLoginAuthorization(s_jUserName, s_jPassWord, sUserFound)) {
+      // Okay this person may log in
+      this.bUserOkay = true;
+      this.sUserId = sUserFound.argValue;
+      // Also set it globally
+      setUserId(this.sUserId);
+      setUserOkay(this.sUserId, this.bUserOkay);
+    }
+  }
+   /**
+   * getLoginAuthorization -- Check the credentials of this user
+   * 
+   * @param sUser
+   * @param sPassword
+   * @return 
+   */
+  private boolean getLoginAuthorization(String sUser, String sPassword, ByRef<String> sUserFound) {
+    // Get the array of users
+    JSONArray arUser = getCrpUtil().getUsers();
+    // Check if this user may log in
+    for (int i = 0 ; i < arUser.length(); i++) {
+      // Get this object
+      JSONObject oUser = arUser.getJSONObject(i);
+      // Is this the user?
+      if (oUser.get("name").equals(sUser)) {
+        // Set the user name
+        sUserFound.argValue = sUser;
+        // Check the password
+        return (oUser.get("password").equals(sPassword));
+      }
+    }
+    // Getting here means we have no authentication
+    return false;
   }
 
 }

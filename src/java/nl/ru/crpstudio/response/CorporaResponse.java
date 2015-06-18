@@ -15,7 +15,7 @@ public class CorporaResponse extends BaseResponse {
 	protected void completeRequest() {
     try {
       // Get access to all the corpora the user can choose from
-      this.getContext().put("corpora", getCorpusInfo());
+      this.getContext().put("corporatable", getCorpusInfo());
       // Indicate which main tab the user has chosen
       this.getContext().put("maintab", "corpora");
       this.displayHtmlTemplate(this.templateMan.getTemplate("corpora"));
@@ -44,13 +44,28 @@ public class CorporaResponse extends BaseResponse {
     StringBuilder sb = new StringBuilder(); // Put everything into a string builder
     try {
       // Get the array of users
-      JSONArray arCorpora = servlet.getCrpUtil().getCorpora();
+      JSONArray arCorpora = servlet.getCorpora();
       // Check if anything is defined
       if (arCorpora.length() == 0) {
         
       } else {
+        // Provide necessary starting div
+        sb.append("<div class=\"large-16 medium-16 small-16\">\n"+
+                "<div id=\"perhit\" class=\"result-pane tab-pane active lightbg haspadding\">\n"+
+                "<div class=\"gradient\"></div>\n");
         // Start a table
-        sb.append("<table><tr></tr>");
+        sb.append("<table>\n");
+        // Headings of the table
+        sb.append("<thead>\n" +
+          "<tr class=\"tbl_head\">\n" +
+            "<th class=\"tbl_conc_left\">" + labels.getString("corpora.index")+"</th>\n"+
+            "<th class=\"tbl_conc_hit\">" + labels.getString("corpora.eth")+"</th>\n"+
+            "<th class=\"tbl_conc_right\">" + labels.getString("corpora.name")+"</th>\n"+
+            "<th class=\"tbl_lemma\">" + labels.getString("corpora.dir")+"</th>\n"+
+            "<th class=\"tbl_pos\">" + labels.getString("corpora.lng")+"</th>\n"+
+          "</tr></thead>\n");
+        // start table body
+        sb.append("<tbody>\n");
         // Check if this user may log in
         for (int i = 0 ; i < arCorpora.length(); i++) {
           // Get this object
@@ -70,17 +85,23 @@ public class CorporaResponse extends BaseResponse {
             String sDescr = oPart.getString("descr");
             String sUrl = oPart.getString("url");
             // Create a line for the table
-            sb.append("<tr><td>" + sLng + "</td>"+
+            String sLinkId = "crp_" + (i+1) + "_" + (j+1);
+            sb.append("<tr class=\"concordance\" onclick=\"Crpstudio.corpora.showDescr('#" + sLinkId + "');\">\n"+
+                    "<td>" + sLng + "</td>"+
                     "<td>" + sLngEth + "</td>"+
                     "<td>" + sName + "</td>"+
                     "<td>" + sDir + "</td>"+
-                    "<td>" + sLngName + "</td>"+
-                    "<td>" + sDescr + "</td>"+
-                    "<td>" + sUrl + "</td></tr>");
+                    "<td>" + sLngName + "</td></tr>\n");
+            sb.append("<tr  class=\"citationrow hidden\">"+
+                    "<td colspan='5'><div class=\"collapse inline-concordance\" id=\"" + sLinkId +"\">" + 
+                    sDescr + "<br>see: <a href='" + sUrl + "'>"+ sUrl + "</a>"+
+                    "</div></td></tr>\n");
           }
         }      
         // Finish table
-        sb.append("</table>");
+        sb.append("</tbody></table>\n");
+        // Finish div
+        sb.append("</div></div>\n");
       }
       // Return the string we made
       return sb.toString();

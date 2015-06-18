@@ -7,7 +7,6 @@
 
 package nl.ru.crpstudio.response;
 
-import nl.ru.util.FileUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 

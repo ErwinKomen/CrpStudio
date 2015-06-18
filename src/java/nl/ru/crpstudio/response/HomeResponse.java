@@ -18,7 +18,7 @@ public class HomeResponse extends BaseResponse {
     // The user is must be put in the context at any rate
     this.getContext().put("userid", this.sUserId);
 		this.getContext().put("maintab", "home");
-    String sCheck = this.getContext().get("userokay").toString();
+    // String sCheck = this.getContext().get("userokay").toString();
 		this.displayHtmlTemplate(this.templateMan.getTemplate("home"));
 	}
 

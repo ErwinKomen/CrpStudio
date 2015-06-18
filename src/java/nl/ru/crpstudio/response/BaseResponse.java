@@ -37,7 +37,9 @@ import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TemplateManager;
+import nl.ru.util.ByRef;
 import nl.ru.util.StringUtil;
+import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONException;
 import nl.ru.util.json.JSONObject;
 import org.apache.velocity.Template;
@@ -530,13 +532,13 @@ public abstract class BaseResponse {
 	}
 	
 	protected void sendCsvResponse(String csv) {
-        response.setHeader("Access-Control-Allow-Methods", "GET");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        response.setHeader("Access-Control-Max-Age", "3600");
-	    response.setHeader("Content-Type", "text/csv");
-	    response.setHeader("Content-Disposition", "attachment;filename=\"file.csv\"");
-	    
-	    BufferedWriter writer;
+    response.setHeader("Access-Control-Allow-Methods", "GET");
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    response.setHeader("Access-Control-Max-Age", "3600");
+    response.setHeader("Content-Type", "text/csv");
+    response.setHeader("Content-Disposition", "attachment;filename=\"file.csv\"");
+
+    BufferedWriter writer;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "UTF-8"));
 		    writer.append(csv);
@@ -545,7 +547,18 @@ public abstract class BaseResponse {
 			e.printStackTrace();
 		}
 	}
-
+  
+  /**
+   * setUserOkay - put the values of userid and userokay in the context
+   * 
+   * @param sUserId
+   * @param bOkay 
+   */
+  public void setUserOkay(String sUserId, boolean bOkay) {
+    this.getContext().put("userid", sUserId);
+    this.getContext().put("userokay", bOkay ? "true" : "false");
+  }
+  
 	/**
 	 * Complete the request - automatically called by processRequest()
 	 */

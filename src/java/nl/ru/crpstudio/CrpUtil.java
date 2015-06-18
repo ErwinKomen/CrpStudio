@@ -5,10 +5,12 @@
  */
 package nl.ru.crpstudio;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import nl.ru.crpstudio.util.ErrHandle;
+import nl.ru.util.ByRef;
 import nl.ru.util.FileUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
@@ -23,7 +25,8 @@ public class CrpUtil {
   private ErrHandle logger;
   static List<UserSession> userCache = new ArrayList<>();
   // Use a fixed location for the crpstudio settings file
-  private static final String sUserFile = "/etc/corpora/crpstudio-settings.json";
+  private static final String sUserFile = "/etc/crpstudio/crpstudio-settings.json";
+  private static final String sDefaultUsers = "{\"userid\": \"guest\", \"password\": \"guest\"}";
   // Load the settings file as a JSONObject
   private static JSONObject oUsers;
   // ============= class instantiation ============================
@@ -37,7 +40,11 @@ public class CrpUtil {
    */
   public void init() {
     try {
-      oUsers = new JSONObject(FileUtil.readFile(sUserFile));
+      File fUserFile = new File(sUserFile);
+      if (fUserFile.exists()) 
+        oUsers = new JSONObject(FileUtil.readFile(sUserFile));
+      else
+        oUsers = new JSONObject(sDefaultUsers);
     } catch (Exception ex) {
       logger.DoError("Could not initialize CrpUtil", ex);
     }
@@ -51,7 +58,7 @@ public class CrpUtil {
   public JSONArray getUsers() {
     try {
       // Validate
-      if (oUsers == null) return null;
+      if (oUsers == null) init();
       return oUsers.getJSONArray("users");
     } catch (Exception ex) {
       logger.DoError("Could not perform [getUsers]", ex);
@@ -59,21 +66,6 @@ public class CrpUtil {
     }
   }
   
-  /**
-   * getCorpora -- extract the array with corpora information from the settings object
-   * 
-   * @return 
-   */
-  public JSONArray getCorpora() {
-    try {
-      // Validate
-      if (oUsers == null) return null;
-      return oUsers.getJSONArray("corpora");
-    } catch (Exception ex) {
-      logger.DoError("Could not perform [getCorpora]", ex);
-      return null;
-    }
-  }
   /**
    * addUserSession -- add the combination of a user and a session to the stack
    * 
@@ -205,6 +197,8 @@ public class CrpUtil {
       return null;
     }
   }
+
+
 }
 
 /**
