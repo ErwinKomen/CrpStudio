@@ -26,7 +26,12 @@ public class CrpUtil {
   static List<UserSession> userCache = new ArrayList<>();
   // Use a fixed location for the crpstudio settings file
   private static final String sUserFile = "/etc/crpstudio/crpstudio-settings.json";
-  private static final String sDefaultUsers = "{\"userid\": \"guest\", \"password\": \"guest\"}";
+  private static final String sDefaultUsers = "{ \"users\": [\n" +
+"    {\"name\": \"erwin\",   \"password\": \"komen\"},\n" +
+"    {\"name\": \"erkomen\", \"password\": \"ronald\"},\n" +
+"    {\"name\": \"guest\",   \"password\": \"crpstudio\"}\n" +
+"  ]\n" +
+"}";
   // Load the settings file as a JSONObject
   private static JSONObject oUsers;
   // ============= class instantiation ============================

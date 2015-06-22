@@ -140,6 +140,7 @@ public class CrpStudio extends HttpServlet {
       responses.put("home", new HomeResponse());
       responses.put("corpora", new CorporaResponse());
       responses.put("projects", new ProjectsResponse());
+      responses.put("search", new SearchResponse());
       responses.put("error", new ErrorResponse());
       responses.put("about", new InfoResponse());
       responses.put("j_security_check", new LoginResponse());
@@ -294,7 +295,8 @@ public class CrpStudio extends HttpServlet {
   /**
    * getCurrentMemUsage -- find out what the current memory usage is
    * 
-   * @return
+   * @return - string containing the current memory usage
+   * 
    * @throws MalformedObjectNameException
    * @throws AttributeNotFoundException
    * @throws InstanceNotFoundException
@@ -335,8 +337,10 @@ public class CrpStudio extends HttpServlet {
     } 
     return null;
   }
+  
   /**
    * handleLogin - handle a login attempt by a user
+   * 
    */
   public void handleLogin(HttpServletRequest request) {
     ByRef<String> sUserFound = new ByRef("");

@@ -209,7 +209,51 @@ public abstract class BaseResponse {
 		return filter;
 	}
 	
-	protected String getBlackLabResponse(String corpus, String trail, Map<String,Object> params) {
+  /**
+   * getCrppResponse --
+   *    Issue a request to the /crpp machine and retuirn the response
+   * 
+   * @param index   - index within /crpp
+   * @param trail   - optional trail (not used yet)
+   * @param params  - parameters requiring & to be attached to request
+   * @return        - string returning the response
+   */
+	protected String getCrppResponse(String index, String trail, Map<String,Object> params) {
+    String parameters = "";
+    
+    // Take over the parameters
+    this.params = params;
+    // Are there any parameters?
+    if (this.params.size() >0) {
+      // Transform the parameters into a JSON object
+      JSONObject oParams = new JSONObject();
+      for (String sParam : params.keySet()) {
+        oParams.put(sParam, params.get(sParam));
+      }
+      parameters = oParams.toString();
+    }
+    // Calculate the request URL
+		String url = this.labels.getString("crppUrlInternal")+ "/" + index + trail;
+    // Keep this URL for reference
+		this.lastUrl = url;
+    // Calculate the parameter string from [this.params]
+		// String parameters = getParameterStringExcept(new String[]{});
+		
+		if (parameters.length() > 0) {
+			url = url + "?" + parameters;
+		}
+		
+		QueryServiceHandler webservice = new QueryServiceHandler(url, 1);
+		try {
+			String response = webservice.makeRequest(new HashMap<String, String[]>());
+			return response;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+  protected String getBlackLabResponse(String corpus, String trail, Map<String,Object> params) {
 		String url = this.labels.getString("blsUrlInternal")+ "/" + corpus + trail;
 		this.lastUrl = url;
 		String parameters = getParameterStringExcept(new String[]{});
