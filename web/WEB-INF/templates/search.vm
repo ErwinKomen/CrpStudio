@@ -1,43 +1,44 @@
 #parse("header.vm")
-		#set($simple = $labels.getString("simple"))
-		#set($extended = $labels.getString("extended"))
-		#set($advanced = $labels.getString("advanced"))
-		#set($expert = $labels.getString("expert"))
+		#set($project = $labels.getString("project"))
+		#set($definitions = $labels.getString("definitions"))
+		#set($queries = $labels.getString("queries"))
 		#set($result = $labels.getString("result"))
 		#set($document = $labels.getString("document"))
 		
 		<div class="row" id="subnav">
+      <!-- List of sub-navigation 'buttons' -->
 			<dl id="search-nav" class="sub-nav" data-tab>
-			#if($tab == "simple")
-				<dd id="simple_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('simple')">$simple</a></dd>
+      <!-- Sub-navigation item: [project] -->
+			#if($tab == "project")
+				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('project')">$project</a></dd>
 			#else
-				<dd id="simple_link"><a class="tablink" onclick="Crpstudio.search.switchTab('simple')">$simple</a></dd>
+				<dd id="project_link"><a class="tablink" onclick="Crpstudio.search.switchTab('project')">$project</a></dd>
 			#end
-			#if($tab == "extended")
-				<dd id="extended_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('extended')">$extended</a></dd>
+      <!-- Sub-navigation item: [Definitions] -->
+			#if($tab == "definitions")
+				<dd id="definitions_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('definitions')">$definitions</a></dd>
 			#else
-				<dd id="extended_link"><a class="tablink" onclick="Crpstudio.search.switchTab('extended')">$extended</a></dd>
+				<dd id="definitions_link"><a class="tablink" onclick="Crpstudio.search.switchTab('definitions')">$definitions</a></dd>
 			#end
-			#if($tab == "advanced")
-				<dd id="advanced_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('advanced')">$advanced</a></dd>
+      <!-- Sub-navigation item: [queries] -->
+			#if($tab == "queries")
+				<dd id="queries_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('queries')">$queries</a></dd>
 			#else
-				<dd id="advanced_link"><a class="tablink" onclick="Crpstudio.search.switchTab('advanced')">$advanced</a></dd>
+				<dd id="queries_link"><a class="tablink" onclick="Crpstudio.search.switchTab('queries')">$queries</a></dd>
 			#end
-			#if($tab == "expert")
-				<dd id="expert_link" class="active"><a class="tablink" onclick="Crpstudio.search.switchTab('expert')">$expert</a></dd>
-			#else
-				<dd id="expert_link"><a class="tablink" onclick="Crpstudio.search.switchTab('expert')">$expert</a></dd>
-			#end
+      <!-- Spacer between projects and results -->
 			#if($tab == "result" || $tab == "document")
 				<dd id="link-spacer">||</dd>
 			#else
 				<dd id="link-spacer" class="hide">||</dd>
 			#end
+      <!-- Sub-navigation item: [result] -->
 			#if($tab == "result")
 				<dd id="result_link" class="sub-sub-nav active">|| <a class="tablink" onclick="Crpstudio.search.switchTab('result')">$result</a></dd>
 			#else
 				<dd id="result_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.search.switchTab('result')">$result</a></dd>
 			#end
+      <!-- Sub-navigation item: [document] -->
 			#if($tab =="document")
 				<dd id="document_link" class="sub-sub-nav active"><a class="tablink" onclick="Crpstudio.search.switchTab('document')">$document</a></dd>
 			#else
@@ -48,21 +49,18 @@
 		
 		<div class="row tabs-content" id="search">
 			#set($meta = "")
-			#set($simple_active = "")
-			#set($extended_active = "")
-			#set($advanced_active = "")
-			#set($expert_active = "")
+			#set($project_active = "")
+			#set($definitions_active = "")
+			#set($queries_active = "")
 			#set($result_active = "")
 		
-			#if($tab == "simple")
-				#set($simple_active = "active")
+			#if($tab == "project")
+				#set($project_active = "active")
 				#set($meta = "hidden")
-			#elseif($tab == "extended")
-				#set($extended_active = "active")
-			#elseif($tab == "advanced")
-				#set($advanced_active = "active")
-			#elseif($tab == "expert")
-				#set($expert_active = "active")
+			#elseif($tab == "definitions")
+				#set($definitions_active = "active")
+			#elseif($tab == "queries")
+				#set($queries_active = "active")
 			#elseif($tab == "result")
 				#set($result_active = "active")
 				#set($meta = "hidden")
@@ -71,17 +69,14 @@
 			<div id="metadata" $meta>
 				#parse("metadata.vm")
 			</div>
-			<div id="simple" class="large-16 medium-16 small-16 content $simple_active">
-				#parse("simple.vm")
+			<div id="project" class="large-16 medium-16 small-16 content $project_active">
+				#parse("project.vm")
 			</div>
-			<div id="extended" class="large-16 medium-16 small-16 content $extended_active">
-				#parse("extended.vm")
+			<div id="extended" class="large-16 medium-16 small-16 content $definitions_active">
+				#parse("definitions.vm")
 			</div>
-			<div id="advanced" class="large-16 medium-16 small-16 content $advanced_active">
-				#parse("advanced.vm")
-			</div>
-			<div id="expert" class="large-16 medium-16 small-16 content $expert_active">
-				#parse("expert.vm")
+			<div id="advanced" class="large-16 medium-16 small-16 content $queries_active">
+				#parse("queries.vm")
 			</div>
 			<div id="result" class="large-16 medium-16 small-16 content $result_active">
 				#parse("result.vm")

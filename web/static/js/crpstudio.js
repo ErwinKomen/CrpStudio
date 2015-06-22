@@ -1,11 +1,12 @@
 var Crpstudio = {
 	baseUrl : null,
-	blsUrl : null,
-	language : null,
-	tab : null,
-	doDebug : true,
+	blsUrl : null,              // Address of the Black Lab Server
+  crppUrl : null,             // Address for Corpus Research Project Processor requests
+	language : null,            // UI language currently used
+	tab : null,   
+	doDebug : true,             // Are we debugging right now? --> console output
 	doDebugXhrResponse : false, // log full XHR responses? (long)
-	exportLimit : 50000,
+	exportLimit : 50000,        // Max size for exporting ???
 	
 	confirmExport : function() {
 		if (Crpstudio.language === "en")
@@ -14,6 +15,12 @@ var Crpstudio = {
 			return confirm("Uw zoekopdracht overschrijdt de export limiet. Alleen de eerste "+Crpstudio.exportLimit+" resultaten worden geëxporteerd.\n\nWilt u doorgaan?\n");
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: cookies
+   * Goal: handle cookies
+   * History:
+   * jun/2015 ERK Copied from WhiteLab
+   */
 	cookies : {
 		accept : function() {
 			Crpstudio.cookies.setCookie("corpusstudio",true,30);
@@ -34,6 +41,12 @@ var Crpstudio = {
 		}
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: createRequest
+   * Goal: Make a request to the indicated @url to get an XML reply
+   * History:
+   * jun/2015 ERK Copied from WhiteLab
+   */
 	createRequest : function(method, url) {
 		var xhr = new XMLHttpRequest();
 		if ("withCredentials" in xhr) {
@@ -50,18 +63,36 @@ var Crpstudio = {
 		return xhr;
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: debug
+   * Goal: Issue a debugging message to the console
+   * History:
+   * jun/2015 ERK Copied from WhiteLab
+   */
 	debug : function(msg) {
 		if (Crpstudio.doDebug) {
 			console.log(msg);
 		}
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: debugXhrResponse
+   * Goal: Place the XhrResponse on the console for debugging
+   * History:
+   * jun/2015 ERK Copied from WhiteLab
+   */
 	debugXhrResponse : function(msg) {
 		if (Crpstudio.doDebug && Crpstudio.doDebugXhrResponse) {
 			console.log(msg);
 		}
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: getBlacklabData
+   * Goal: Acquire data from the BlackLab Server
+   * History:
+   * jun/2015 ERK Copied from WhiteLab
+   */
 	getBlacklabData : function(type, params, callback, target) {
 		var xhr = Crpstudio.createRequest('GET', Crpstudio.blsUrl + type);
 		if (!xhr) {
@@ -99,7 +130,54 @@ var Crpstudio = {
 		xhr.send(params);
 	},
 	
-	getData : function(params, callback, target, update) {
+  /* --------------------------------------------------------------------------
+   * Name: getCrppData
+   * Goal: Acquire data in JSON format from the CRPP service
+   * History:
+   * 22/jun/2015 ERK Created
+   */
+	getCrppData : function(type, params, callback, target) {
+		var xhr = Crpstudio.createRequest('GET', Crpstudio.crppUrl + type);
+    // Validate
+		if (!xhr) { return; }
+		
+    // Determine what the parameters are
+		if (params != null && params.indexOf("outputformat=") == -1) {
+			params = params + "&outputformat=json";
+		} else if (params == null || params.length == 0) {
+			params = "outputformat=json";
+		}
+
+    // Debugging: show what we are sending on the console
+		Crpstudio.debug(Crpstudio.crppUrl + type + "?" + params);
+		
+		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+		
+		xhr.onload = function() {
+				Crpstudio.debugXhrResponse(xhr.responseText);
+				var resp = JSON.parse(xhr.responseText);
+				Crpstudio.debugXhrResponse("response:");
+				Crpstudio.debugXhrResponse(resp);
+				callback(resp,target);
+		};
+
+    // Action when there is an error
+		xhr.onerror = function() {
+			Crpstudio.debug("Failed to proces CRPP request.");
+		};
+
+    // Main action: send the parameters
+		xhr.send(params);
+	},
+  
+  /* --------------------------------------------------------------------------
+   * Name: getData
+   * Goal: Issue a 'POST' request and process the results using the @callback
+   *        function
+   * History:
+   * 22/jun/2015 ERK Copied from WhiteLab
+   */
+  getData : function(params, callback, target, update) {
 		var xhr = Crpstudio.createRequest('POST', Crpstudio.baseUrl+"query");
 		if (!xhr) {
 			return;
@@ -117,9 +195,12 @@ var Crpstudio = {
 			if (/^[\],:{}\s]*$/.test(xhr.responseText.replace(/\\["\\\/bfnrtu]/g, '@').
 					replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
 					replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+        // Transform the response into a JSON object
 				var resp = JSON.parse(xhr.responseText);
+        // Debugging
 				Crpstudio.debugXhrResponse("response:");
 				Crpstudio.debugXhrResponse(resp);
+        // Go to the callback function with the response object etc
 				callback(resp,target,update);
 			} else {
 				$("#status_"+target).html("ERROR");
@@ -135,7 +216,14 @@ var Crpstudio = {
 		xhr.send(params);
 	},
 	
-	readFile : function(f, callback) {
+  /* --------------------------------------------------------------------------
+   * Name: readFile
+   * Goal: Read a text file in a particular format
+   *        After reading: call the @callback function
+   * History:
+   * 22/jun/2015 ERK Copied from WhiteLab
+   */
+  readFile : function(f, callback) {
 		if (!f) {
 	        alert("Failed to load file");
 	    } else if (!f.type.match('text.*')) {
@@ -147,6 +235,12 @@ var Crpstudio = {
 	    }
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: switchTab
+   * Goal: Open a different tab
+   * History:
+   * 22/jun/2015 ERK Copied from WhiteLab
+   */  
 	switchTab : function(target) {
 		if (target !== Crpstudio.tab) {
 			if (Crpstudio.language !== null) {
@@ -157,6 +251,12 @@ var Crpstudio = {
 		}
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: switchLanguage
+   * Goal: Make sure the correct languages for the UI are *called* 
+   * History:
+   * 22/jun/2015 ERK Copied from WhiteLab
+   */  
 	switchLanguage : function(lang) {
 		Crpstudio.language = lang;
 		if (Crpstudio.tab === "search" && Crpstudio.search.tab !== "result" && Crpstudio.search.tab !== "document") {
@@ -166,6 +266,12 @@ var Crpstudio = {
 		}
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: transform
+   * Goal: Transform the [xml] using the [xslSheet]
+   * History:
+   * 22/jun/2015 ERK Copied from WhiteLab
+   */  
 	transform : function(xml, xslSheet) {	
 		// get stylesheet
 		xhttp = new XMLHttpRequest();
@@ -192,6 +298,12 @@ var Crpstudio = {
 		return result;
 	},
 	
+  /* --------------------------------------------------------------------------
+   * Name: home
+   * Goal: Set the correct size for the iframe containing the "home.html"
+   * History:
+   * 22/jun/2015 ERK Copied from WhiteLab
+   */  
 	home : {
 		// Set the correct size for the iframe containing the "home.html"
 		setSizes : function() {
@@ -200,6 +312,12 @@ var Crpstudio = {
 		}
 	},
   
+  /* --------------------------------------------------------------------------
+   * Name: about
+   * Goal: Set the correct size for the iframe containing the "about.html"
+   * History:
+   * 22/jun/2015 ERK Copied from WhiteLab
+   */  
 	about : {
 		// Set the correct size for the iframe containing the "about.html"
 		setSizes : function() {

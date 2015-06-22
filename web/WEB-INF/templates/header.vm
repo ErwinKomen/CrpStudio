@@ -35,6 +35,7 @@
 		<script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
+		<script type="text/javascript" src="./static/js/crpstudio.search.js"></script>
 		<script type="text/javascript" src="./static/js/intro.js"></script>
 		<script>
 			function initTreemap() {
