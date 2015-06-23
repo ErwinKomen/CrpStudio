@@ -29,7 +29,75 @@ Crpstudio.project = {
       // switch to the result tab
       Crpstudio.project.switchTab("result");
       $("#result_status").text("js: switched to result status: " + sPrjName);
+      // Create JSON request for the search
+      var oExeRequest = {
+        "lng": "eng_hist", 
+        "crp": sPrjName, 
+        "dir": "OE", 
+        "userid": sUserName};
+      var sExeRequest = JSON.stringify(oExeRequest);
+      // Initiate the search
+      Crpstudio.getCrppData("exe", sExeRequest, 
+          Crpstudio.project.processExecute, $("#result_status"));
     }
+  },
+  
+  /* ---------------------------------------------------------------------------
+   * Name: processExecute
+   * Goal: callback function for the execution of a project
+   * History:
+   * 23/jun/2015  ERK Created
+   */
+  processExecute : function(response, target) {
+    // Unpack the response into an object
+    var oResponse = JSON.parse(response);
+    // The initial response should contain one object: status
+    var status = oResponse.status;
+    // Initialisations
+    var bComplete = false;	
+    var jobId = "";
+    var sUserId = "";
+    var sStatusRequest = "";
+    // Part of the object is the code (which should be 'started')
+    var statusCode = status.code;
+    // Loop until complete
+    while (!bComplete) {
+      switch (statusCode.toLowerCase()) {
+        case "started":
+          // Get the jobid and the userid
+          jobId = status.jobid;
+          sUserId = status.userid;
+          // Create a status request object
+          var oStatusRequest = {
+            "jobid": jobId,
+            "userid": sUserId
+          }
+          sStatusRequest = JSON.stringify(oStatusRequest);
+          break;
+        case "working":
+          break;
+        case "completed":
+          // Signal completion
+          bComplete = true;
+          break;
+        case "error":
+          break;
+        default:
+          break;
+      }
+    }
+ /*
+  * Returned status is like:
+  * {
+  "status": {
+    "code": "started",
+    "message": "{\"total\":705,\"ready\":2,\"start\":\"cmkempe.m4.psdx\",\"count\":10,\"finish\":\"cmthorn.mx4.psdx\"}",
+    "userid": "erwin",
+    "jobid": "158",
+    "checkAgainMs": 200
+  }
+}
+  */
   },
   
   /* ---------------------------------------------------------------------------
