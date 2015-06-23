@@ -11,7 +11,9 @@ import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
 /**
- *
+ * LoginResponse
+ *    Allow someone to login
+ * 
  * @author Erwin R. Komen
  */
 public class LoginResponse extends BaseResponse {
