@@ -7,6 +7,7 @@ var Crpstudio = {
 	doDebug : true,             // Are we debugging right now? --> console output
 	doDebugXhrResponse : false, // log full XHR responses? (long)
 	exportLimit : 50000,        // Max size for exporting ???
+  currentUser : "-",          // Name of the currently logged-in user
 	
 	confirmExport : function() {
 		if (Crpstudio.language === "en")
@@ -250,6 +251,17 @@ var Crpstudio = {
 			}
 		}
 	},
+  
+  /* --------------------------------------------------------------------------
+   * Name: setUser
+   * Goal: Set the name of the user in the top-bar place
+   * History:
+   * 23/jun/2015 ERK Created
+   */  
+  setUser : function(sUserName) {
+    Crpstudio.currentUser = sUserName;
+    $("#top_bar_current_user").text(sUserName);
+  },
 	
   /* --------------------------------------------------------------------------
    * Name: switchLanguage
@@ -259,8 +271,8 @@ var Crpstudio = {
    */  
 	switchLanguage : function(lang) {
 		Crpstudio.language = lang;
-		if (Crpstudio.tab === "search" && Crpstudio.search.tab !== "result" && Crpstudio.search.tab !== "document") {
-			window.location = window.location.protocol+Crpstudio.tab+"?lang="+Crpstudio.language+"&tab="+Crpstudio.search.tab;
+		if (Crpstudio.tab === "search" && Crpstudio.project.tab !== "result" && Crpstudio.project.tab !== "document") {
+			window.location = window.location.protocol+Crpstudio.tab+"?lang="+Crpstudio.language+"&tab="+Crpstudio.project.tab;
 		} else {
 			window.location = window.location.protocol+Crpstudio.tab+"?lang="+Crpstudio.language;
 		}

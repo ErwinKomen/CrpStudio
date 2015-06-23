@@ -1547,3 +1547,62 @@ div.hitscroll {
 	padding-top: 40px;
 	padding-bottom: 50px;
 }
+
+/* ----------------------------------------------------------------------------
+   Foundation adaptations for my own custom versions 
+   ---------------------------------------------------------------------------- */
+
+.crpstudio-side-nav {
+  @include side-nav(
+    // Border color of divider
+    // $divider-color: '#ccc',
+    // Font size of nav items
+    // $font-size:1.2em,
+    // Color of navigation links
+    $link-color:'blue',
+    // Color of navigation links on active
+    $link-color-active: 'white',
+    // Color of navigation links on hover
+    $link-color-hover: 'white'
+  );
+}
+.side-nav {
+    color: darkblue;
+    background: whitesmoke;
+}
+
+.side-nav li a:not(.button) {
+    color: darkblue;
+    background: whitesmoke !important;   
+}
+
+.side-nav li a:not(.button):hover {
+    color: white;
+    background: green !important;   
+}
+
+.side-nav li.active a:not(.button) {
+    color:      white;
+    background: #222222 !important;   
+}
+.top-bar-section li div.label {
+  color:        lightblue;
+  background:   #222222;
+  font-size:    small;
+	vertical-align: middle;
+  font-weight:  500;
+  display:      inline-block;
+  white-space:  normal;
+}
+.top-bar-section li.name {
+  font-size:      small;
+  color:          darkgray;
+	vertical-align: middle;
+  display:        inline-block;
+  white-space:    normal;
+}
+.DivHelper {
+    display: inline-block;
+    vertical-align: middle;
+    height:100%;
+}

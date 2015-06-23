@@ -29,16 +29,16 @@
 					$( window ).resize(function() {
 						Crpstudio.home.setSizes();
 					});
-				#elseif($maintab == "explore")
+				#elseif($maintab == "corpora")
 					Crpstudio.explore.setSizes();
 					$( window ).resize(function() {
-						Crpstudio.explore.setSizes();
+						Crpstudio.corpora.setSizes();
 					});
-				#elseif($maintab == "search")
-					Crpstudio.search.tab = "$tab";
-					Crpstudio.search.setSizes();
+				#elseif($maintab == "projects")
+					Crpstudio.project.tab = "$tab";
+					Crpstudio.project.setSizes();
 					$( window ).resize(function() {
-						Crpstudio.search.setSizes();
+						Crpstudio.project.setSizes();
 					});
 				#elseif($maintab == "about")
 					Crpstudio.about.setSizes();
@@ -49,8 +49,11 @@
 			});
 
 			$(document).keypress(function(e) {
-			    if(e.which == 13 && Crpstudio.tab === 'search' && (Crpstudio.search.tab === 'simple' || Crpstudio.search.tab === 'extended' || Crpstudio.search.tab === 'advanced')) {
-			    	$( "#"+Crpstudio.search.tab ).find(".search").trigger( "click" );
+			    if(e.which == 13 && Crpstudio.tab === 'projects' && 
+              (Crpstudio.project.tab === 'simple' || 
+                Crpstudio.project.tab === 'extended' || 
+               Crpstudio.project.tab === 'advanced')) {
+			    	$( "#"+Crpstudio.project.tab ).find(".search").trigger( "click" );
 			    }
 			});
 			

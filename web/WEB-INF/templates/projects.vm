@@ -1,0 +1,104 @@
+#parse("header.vm")
+		#set($project = $labels.getString("project"))
+		#set($definitions = $labels.getString("definitions"))
+		#set($queries = $labels.getString("queries"))
+    #set($constructor = $labels.getString("project.qc"))
+		#set($result = $labels.getString("result"))
+		#set($document = $labels.getString("document"))
+		
+		<div class="row" id="subnav">
+      <!-- List of sub-navigation 'buttons' -->
+			<dl id="search-nav" class="sub-nav" data-tab>
+      <!-- Sub-navigation item: [project] -->
+			#if($tab == "project")
+				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('project')">$project</a></dd>
+			#else
+				<dd id="project_link"><a class="tablink" onclick="Crpstudio.project.switchTab('project')">$project</a></dd>
+			#end
+      <!-- Sub-navigation item: [Definitions] -->
+			#if($tab == "definitions")
+				<dd id="definitions_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('definitions')">$definitions</a></dd>
+			#else
+				<dd id="definitions_link"><a class="tablink" onclick="Crpstudio.project.switchTab('definitions')">$definitions</a></dd>
+			#end
+      <!-- Sub-navigation item: [queries] -->
+			#if($tab == "queries")
+				<dd id="queries_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('queries')">$queries</a></dd>
+			#else
+				<dd id="queries_link"><a class="tablink" onclick="Crpstudio.project.switchTab('queries')">$queries</a></dd>
+			#end
+      <!-- Sub-navigation item: [constructor] -->
+			#if($tab == "constructor")
+				<dd id="constructor_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor')">$constructor</a></dd>
+			#else
+				<dd id="constructor_link"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor')">$constructor</a></dd>
+			#end
+      <!-- Spacer between projects and results -->
+			#if($tab == "result" || $tab == "document")
+				<dd id="link-spacer">||</dd>
+			#else
+				<dd id="link-spacer" class="hide">||</dd>
+			#end
+      <!-- Sub-navigation item: [result] -->
+			#if($tab == "result")
+				<dd id="result_link" class="sub-sub-nav active">|| <a class="tablink" onclick="Crpstudio.project.switchTab('result')">$result</a></dd>
+			#else
+				<dd id="result_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('result')">$result</a></dd>
+			#end
+      <!-- Sub-navigation item: [document] -->
+			#if($tab =="document")
+				<dd id="document_link" class="sub-sub-nav active"><a class="tablink" onclick="Crpstudio.project.switchTab('document')">$document</a></dd>
+			#else
+				<dd id="document_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('document')">$document</a></dd>
+			#end
+			</dl>
+		</div>
+		
+		<div class="row tabs-content" id="search">
+			#set($meta = "")
+			#set($project_active = "")
+			#set($definitions_active = "")
+			#set($queries_active = "")
+			#set($constructor_active = "")
+			#set($result_active = "")
+		
+			#if($tab == "project")
+				#set($project_active = "active")
+				#set($meta = "hidden")
+			#elseif($tab == "definitions")
+				#set($definitions_active = "active")
+				#set($meta = "hidden")
+			#elseif($tab == "queries")
+				#set($queries_active = "active")
+				#set($meta = "hidden")
+			#elseif($tab == "constructor")
+				#set($constructor_active = "active")
+				#set($meta = "hidden")
+			#elseif($tab == "result")
+				#set($result_active = "active")
+				#set($meta = "hidden")
+			#end
+			
+			<div id="metadata" $meta>
+				#parse("metadata.vm")
+			</div>
+			<div id="project" class="large-16 medium-16 small-16 content $project_active">
+				#parse("projectmain.vm")
+			</div>
+			<div id="definitions" class="large-16 medium-16 small-16 content $definitions_active">
+				#parse("definitions.vm")
+			</div>
+			<div id="queries" class="large-16 medium-16 small-16 content $queries_active">
+				#parse("queries.vm")
+			</div>
+			<div id="constructor" class="large-16 medium-16 small-16 content $queries_active">
+				#parse("constructor.vm")
+			</div>
+			<div id="result" class="large-16 medium-16 small-16 content $result_active">
+				#parse("result.vm")
+			</div>
+			<div id="document" class="large-16 medium-16 small-16 content hide">
+			</div>
+			
+		</div>
+#parse("footer.vm")

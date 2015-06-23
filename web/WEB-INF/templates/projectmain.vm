@@ -1,0 +1,36 @@
+#set($new_project_manual = $labels.getString("project.create.manual"))
+#set($new_project_wizard = $labels.getString("project.create.wizard"))
+
+<!-- side bar: names of projects of this user -->
+<div id="crplist" class="large-16 medium-16 small-16 row">
+  <!-- the left side-bar used for selecting a project -->
+  <div id="project_selector" class="large-4 medium-4 small-4 columns">
+    <h5>${project}</h5>
+    <!-- place where the currently select project is stored -->
+    <div id="project_current" class="hidden"></div>
+    <!-- <ul class="crpstudio-side-nav"> -->
+    <ul class="side-nav">
+      <li><a href="#" onclick="Crpstudio.project.createManual(this)">$new_project_manual</a></li>
+      <li><a href="#" onclick="Crpstudio.project.createWizard(this)">$new_project_wizard</a></li>
+      <li class="divider"></li>
+      ${projecttable}
+    </ul>
+  </div>
+  <!-- the part to the right of the side-bar may contain contents of this project -->
+  <div id="project_description" class="large-8 medium-8 small-8 columns">
+    <p>Text of the project</p>
+  </div>
+  <!-- execution of the project through a click button -->
+  <div id="project_execution" class="large-4 medium-4 small-4 columns">
+      <button onclick="Crpstudio.project.execute()" class="search small">
+        <span>$labels.getString("project.execute")</span>
+      </button>
+      <button onclick="Crpstudio.project.reset()" class="reset small secondary">
+        <span>$labels.getString("project.cancel")</span>
+      </button>
+  </div>
+</div>
+<div id="project_status" class="large-16 medium-16 small-16">
+  <p>project status</p>
+</div>
+

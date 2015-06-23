@@ -7,6 +7,8 @@
 #end
 #set($t = $labels.getString("title"))
 #set($d = $labels.getString("description"))
+#set($project = $labels.getString("project"))
+#set($user = $labels.getString("user"))
 <!doctype html>
 <html>
 	<head>
@@ -35,7 +37,7 @@
 		<script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.search.js"></script>
+		<script type="text/javascript" src="./static/js/crpstudio.project.js"></script>
 		<script type="text/javascript" src="./static/js/intro.js"></script>
 		<script>
 			function initTreemap() {
@@ -73,7 +75,7 @@
 							</form>
 						</li>
 						<li class="leftspaced">
-							#if($maintab && ($maintab == "corpora" or $maintab == "search"))
+							#if($maintab && ($maintab == "corpora" or $maintab == "projects"))
 								<a id="tour-icon" onclick="Crpstudio.tour.start();"><img src="./static/img/info_icon.png"/></a>
 							#else
 								<div style="width: 30px;">&nbsp;</div>
@@ -104,14 +106,6 @@
 							<li id="main-projects"><a onclick="Crpstudio.switchTab('projects')">$projects</a></li>
 						#end
 
-            <!-- Define the SEARCH button -->
-						#set($search = $labels.getString("search"))
-						#if($maintab && $maintab == "search")
-							<li id="main-search" class="active"><a onclick="Crpstudio.switchTab('search')">$search</a></li>
-						#else
-							<li id="main-search"><a onclick="Crpstudio.switchTab('search')">$search</a></li>
-						#end
-
             <!-- Define the ABOUT button -->
             #set($about = $labels.getString("about"))
             #if($maintab && $maintab == "about")
@@ -119,7 +113,19 @@
 						#else
 							<li id="main-home" class="leftspaced"><a onclick="Crpstudio.switchTab('about')">$about</a></li>
 						#end
+            <!-- Additional user/project information in the top-bar -->
+            <li id="top_bar_current_user" class="name">$user: 
+              <div class="label">
+                #if($username) 
+                  ${username} 
+                #else  
+                  -
+                #end
+              </div><div class="DivHelper"></div>
+            </li>
+            <li class="name">$project:<div id="top_bar_current_project" class="label">-</div><div class="DivHelper"></div></li>
 					</ul>
+
 
 					<!-- Right Nav Section -->
 					<div id="nav-right" class="right">
