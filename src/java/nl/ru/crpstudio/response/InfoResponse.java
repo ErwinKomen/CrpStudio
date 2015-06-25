@@ -15,6 +15,8 @@ public class InfoResponse extends BaseResponse {
   
 	@Override
 	protected void completeRequest() {
+    // Make sure the current user is known
+    this.getContext().put("username", servlet.getUserId());
 		this.getContext().put("maintab", "about");
 		this.displayHtmlTemplate(this.templateMan.getTemplate("about"));
 	}

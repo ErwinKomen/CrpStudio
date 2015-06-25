@@ -16,6 +16,8 @@ public class CorporaResponse extends BaseResponse {
     try {
       // Get access to all the corpora the user can choose from
       this.getContext().put("corporatable", getCorpusInfo());
+      // Make sure the current user is known
+      this.getContext().put("username", servlet.getUserId());
       // Indicate which main tab the user has chosen
       this.getContext().put("maintab", "corpora");
       this.displayHtmlTemplate(this.templateMan.getTemplate("corpora"));
