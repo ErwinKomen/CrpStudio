@@ -5,12 +5,15 @@
       <a href="http://www.meertens.knaw.nl">Meertens Instituut</a> 2015</div>
 		<script>
 			Crpstudio.baseUrl = location.pathname.replace(/^\/([^\/]+)\/.*$/, "/$1/");
-			Crpstudio.crppUrl = '$labels.getString("crppUrlExternal")/';
+			Crpstudio.crppUrl = '$labels.getString("crppUrlInternal")/';
 			Crpstudio.blsUrl = '$labels.getString("blsUrlExternal")/$labels.getString("corpus")/';
 			
 			#if($lang)
 				Crpstudio.language = "$lang";
 			#end
+      #if($username)
+        Crpstudio.setUser("${username}");
+      #end
 		
 			$(document).foundation();
 			

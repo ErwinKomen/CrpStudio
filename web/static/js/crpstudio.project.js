@@ -6,41 +6,57 @@
 
 Crpstudio.project = {
   // Local variables within Crpstudio.project
-  tab : "project",
-  currentPrj: "",
+  tab : "project",      // The main tab we are on
+  currentPrj: "",       // The currently being executed project
+  strQstatus: "",       // The JSON string passed on to R-server "status"
+  divStatus: "",        // The name of the div where the status is to be shown
+  interval: 200,        // Number of milliseconds
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
    * History:
    * 22/jun/2015  ERK Created
    */
-  execute : function() {
+  execute : function(caching) {
     var sPrjName = Crpstudio.project.currentPrj;
-    var sUserName = Crpstudio.currentUser;
+    var sUserName = Crpstudio.currentUser;        
     // Validate project and user
     if (sPrjName ==="" ) {
       Crpstudio.debug("project is not defined");
     } else if (sUserName === "") {
       Crpstudio.debug("user is not defined");
     } else {
+      // Find out which language corpus the user has chosen
+      var oCorpusAndDir = $("#input_lng").val().split(":");
+      var sLng = oCorpusAndDir[0];
+      var sDir = oCorpusAndDir[1];
+      var oExeRequest = {};
       // debugging: show where the status appears
-      $("#project_status").text("js: project status: " + sPrjName);
-      $("#result_status").text("js: result status: " + sPrjName);
+      $("#project_status").text("Processing project: " + sPrjName);
+      $("#result_status").text("");
       // switch to the result tab
       Crpstudio.project.switchTab("result");
-      $("#result_status").text("js: switched to result status: " + sPrjName);
+      $("#result_status").text("");
       // Create JSON request for the search
-      var oExeRequest = {
-        "lng": "eng_hist", 
-        "crp": sPrjName, 
-        "dir": "OE", 
-        "userid": sUserName};
-      var sExeRequest = JSON.stringify(oExeRequest);
+      if (sDir === "")
+        oExeRequest = {"lng": sLng, "crp": sPrjName, "userid": sUserName, "cache": caching};
+      else
+        oExeRequest = {"lng": sLng, "crp": sPrjName, "dir": sDir, "userid": sUserName, "cache": caching};
+      var sExeRequest = "query=" + JSON.stringify(oExeRequest);
+      // Set the location of the status div
+      Crpstudio.project.divStatus = "#result_report";
       // Initiate the search
-      Crpstudio.getCrppData("exe", sExeRequest, 
-          Crpstudio.project.processExecute, $("#result_status"));
+      Crpstudio.postRequest("exe", sExeRequest, Crpstudio.project.processExecute, "#result_status");
     }
   },
+  /*
+  processDebug : function (response, target) {
+    // Unpack the response into an object
+    var oResponse = JSON.parse(response);
+    $("#result_status").text("processdebug is <b>right</b>.");
+    var sDummy = "dummy variabele";
+  },
+  */
   
   /* ---------------------------------------------------------------------------
    * Name: processExecute
@@ -48,43 +64,61 @@ Crpstudio.project = {
    * History:
    * 23/jun/2015  ERK Created
    */
-  processExecute : function(response, target) {
-    // Unpack the response into an object
-    var oResponse = JSON.parse(response);
+  processExecute : function(oResponse, target) {
     // The initial response should contain one object: status
     var status = oResponse.status;
     // Initialisations
-    var bComplete = false;	
     var jobId = "";
     var sUserId = "";
     var sStatusRequest = "";
     // Part of the object is the code (which should be 'started')
     var statusCode = status.code;
-    // Loop until complete
-    while (!bComplete) {
-      switch (statusCode.toLowerCase()) {
-        case "started":
-          // Get the jobid and the userid
-          jobId = status.jobid;
-          sUserId = status.userid;
-          // Create a status request object
-          var oStatusRequest = {
-            "jobid": jobId,
-            "userid": sUserId
-          }
-          sStatusRequest = JSON.stringify(oStatusRequest);
-          break;
-        case "working":
-          break;
-        case "completed":
-          // Signal completion
-          bComplete = true;
-          break;
-        case "error":
-          break;
-        default:
-          break;
-      }
+    var statusMsg = (status.message) ? (": "+status.message) : "";
+    // Set the status
+    $(target).html(statusCode+statusMsg);
+    // Action depends on the status code
+    switch (statusCode.toLowerCase()) {
+      case "started":
+        // Get the jobid and the userid
+        jobId = status.jobid;
+        sUserId = status.userid;
+        // Create a status request object
+        var oStatusRequest = {
+          "jobid": jobId,
+          "userid": sUserId
+        }
+        sStatusRequest = JSON.stringify(oStatusRequest);
+        // Make the status available within this JavaScript module
+        Crpstudio.project.strQstatus = sStatusRequest;
+        // Now issue this request with an interval of 0.5 seconds
+        setTimeout(
+          function () {
+            Crpstudio.postRequest("statusxq", sStatusRequest, Crpstudio.project.processExecute, target);
+          }, Crpstudio.project.interval);
+        break;
+      case "working":
+        // Show the current status
+        Crpstudio.project.doStatus(oResponse.content);
+        // Retrieve the status request object string
+        sStatusRequest = Crpstudio.project.strQstatus ;
+        // Now issue the same request with an interval of 0.5 seconds
+        setTimeout(
+          function () {
+            Crpstudio.postRequest("statusxq", sStatusRequest, Crpstudio.project.processExecute, target);
+          }, Crpstudio.project.interval);
+        break;
+      case "completed":
+        // Signal completion
+        $(target).html("Ready");
+        break;
+      case "error":
+        // Provite an error report
+        $(target).html("There was an error");
+        break;
+      default:
+        // Provite a status report showing that we are at a loss
+        
+        break;
     }
  /*
   * Returned status is like:
@@ -101,6 +135,93 @@ Crpstudio.project = {
   },
   
   /* ---------------------------------------------------------------------------
+   * Name: doStatus
+   * Goal: show the progress of our work
+   * 
+   * Note: a possible [oContent] might look like:
+   *  "jobid":"820",
+   *  "start":"stat-1570-e2-p2.psdx",
+   *  "count":62,
+   *  "total":448,
+   *  "finish":"tillots-b-e3-p1.psdx",
+   *  "ready":53
+   *  
+   * History:
+   * 24/jun/2015  ERK Created
+   */
+  doStatus : function(oContent) {
+    // Retrieve the variables from the [oContent] object
+    var sStart = oContent.start;
+    var sFinish = oContent.finish;
+    var iReady = oContent.ready;
+    var iCount = oContent.count;
+    var iTotal = oContent.total;
+    // Calculate percentages
+    var iPtcStarted = (iTotal === 0) ? 0 : (iCount * 100 / iTotal);
+    var iPtcFinished = (iTotal === 0) ? 0 : (iReady * 100 / iTotal);
+    // Show the status
+    var sMsg = "status="+iReady+"-"+iCount+" of "+iTotal;
+    Crpstudio.debug(sMsg);
+    // Build html content
+    $(Crpstudio.project.divStatus).text(sMsg);
+    // find the result_status element
+    var divResProgress = $("#result_progress").get(0);
+    if (iCount > 0) {
+      var divStarted = null;
+      var divFinished = null;
+      // Find the two "meter" classed elements (<span>) within divResProgress
+      var arMeter = divResProgress.getElementsByClassName("meter");
+      if (arMeter && arMeter.length > 0) {
+        divStarted = arMeter[0];
+        divFinished = arMeter[1];
+        // Set the correct styles for these elements
+        divStarted.setAttribute("style", "width: " + iPtcStarted + "%");
+        divFinished.setAttribute("style", "width: " + iPtcFinished + "%");
+        // Put something inside the meters: the name of the file processed
+        divStarted.innerHTML = sStart;
+        divFinished.innerHTML = sFinish;
+      }
+      /*
+      // Do the progress bars
+      divStarted = divResStatus.getElementsByClassName("started")[0];
+      divFinished = divResStatus.getElementsByClassName("success")[0];
+      
+      var divStarted = $("#result_status").children(".progress.started").children(".meter") ;
+      if (!divStarted || divStarted === null) {
+        Crpstudio.debug("divStarted is empty");
+        var divTest = $("#result_status");
+        Crpstudio.debug("result_status is: " + (!divTest || divTest === null) ? "null" : "ready" );
+      } else {
+        Crpstudio.debug("the id = " + $(divStarted).attr('id'));
+        Crpstudio.debug("my path = [" + Crpstudio.project.getMyPath(divStarted) + "]");
+      }
+      // Debugging show the text of this node
+      Crpstudio.debug("style after = " + $(divStarted).attr("style"));
+      $(divStarted).attr("style", "width: " + iPtcStarted + "%");
+      Crpstudio.debug("style after = " + $(divStarted).attr("style"));
+
+      var divFinished = $("#result_status").children(".progress.success").children(".meter");
+      // Debugging show the text of this node
+      Crpstudio.debug($(divFinished).text());
+      $(divFinished).attr("style", "width: " + iPtcFinished + "%");
+      */
+    }
+  },
+  
+  getMyPath : function(divStart) {
+    var rightArrowParents = [];
+    $(divStart).parents().not('html').each(function() {
+        var entry = this.tagName.toLowerCase();
+        if (this.className) {
+            entry += "." + this.className.replace(/ /g, '.');
+        }
+        rightArrowParents.push(entry);
+    });
+    rightArrowParents.reverse();
+    return rightArrowParents.join(" > ");
+  },
+  
+  /* ---------------------------------------------------------------------------
    * Name: switchtab
    * Goal: switch the tab within the [Search] page
    * History:
@@ -114,7 +235,7 @@ Crpstudio.project = {
 			$("#subnav dd").removeClass("active");
 			$("#"+target+"_link").addClass("active");
       // When should the metadata selector be shown
-			if (target === "execute" ) {
+			if (target === "execute" || target === "project" || target === "result" ) {
 				$("#metadata").show();
 			} else {
 				$("#metadata").hide();
@@ -146,7 +267,7 @@ Crpstudio.project = {
    * History:
    * 23/jun/2015  ERK Created
    */
-  setProject : function(target) {
+  setProject : function(target, sPrjName) {
     // Get the <li>
     var listItem = $(target).parent();
     var strProject = $(target).text();
@@ -156,13 +277,13 @@ Crpstudio.project = {
     // Set the "active" class for the one the user has selected
     $(listItem).addClass("active");
     // Make sure the active class is selected
-    Crpstudio.project.currentPrj = strProject;
+    Crpstudio.project.currentPrj = sPrjName;
     // Also set the name of the currently selected project in a div
-    $("#project_current").text(strProject);
+    $("#project_current").text(sPrjName);
     // And set the name of the project in the top-bar div
-    $("#top_bar_current_project").text(strProject);
+    $("#top_bar_current_project").text(sPrjName);
     // Adapt the text of the project description
-    $("#project_description").html("<p>You have chosen: <b>" + strProject + "</b></p>");
+    $("#project_description").html("<p>You have chosen: <b>" + sPrjName + "</b></p>");
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual
@@ -218,7 +339,7 @@ Crpstudio.project = {
     // Calculate sh
 		var sh = ($(window).innerHeight() - 135) / 2 - 130;
     // Set the minimal height
-    var minHeight = 50;
+    var minHeight = 30;
     // Make sure we have a minimal height
 		if (sh < minHeight) { sh = minHeight; }
 		$("#project").css("margin-top",sh+"px");

@@ -64,7 +64,7 @@
 		
 			#if($tab == "project")
 				#set($project_active = "active")
-				#set($meta = "hidden")
+        #set($meta = "")
 			#elseif($tab == "definitions")
 				#set($definitions_active = "active")
 				#set($meta = "hidden")

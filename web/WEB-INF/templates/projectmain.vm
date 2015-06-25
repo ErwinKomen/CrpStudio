@@ -22,7 +22,7 @@
   </div>
   <!-- execution of the project through a click button -->
   <div id="project_execution" class="large-4 medium-4 small-4 columns">
-      <button onclick="Crpstudio.project.execute()" class="search small">
+      <button onclick="Crpstudio.project.execute(false)" class="search small">
         <span>$labels.getString("project.execute")</span>
       </button>
       <button onclick="Crpstudio.project.reset()" class="reset small secondary">

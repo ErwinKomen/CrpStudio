@@ -5,7 +5,7 @@ var Crpstudio = {
 	language : null,            // UI language currently used
 	tab : null,   
 	doDebug : true,             // Are we debugging right now? --> console output
-	doDebugXhrResponse : false, // log full XHR responses? (long)
+	doDebugXhrResponse : true, // log full XHR responses? (long)
 	exportLimit : 50000,        // Max size for exporting ???
   currentUser : "-",          // Name of the currently logged-in user
 	
@@ -53,7 +53,7 @@ var Crpstudio = {
 		if ("withCredentials" in xhr) {
 			// XHR for Chrome/Firefox/Opera/Safari.
 			xhr.open(method, url, true);
-		} else if (typeof XDomainRequest != "undefined") {
+		} else if (typeof XDomainRequest !== "undefined") {
 			// XDomainRequest for IE.
 			xhr = new XDomainRequest();
 			xhr.open(method, url);
@@ -100,9 +100,9 @@ var Crpstudio = {
 			return;
 		}
 		
-		if (params != null && params.indexOf("outputformat=") == -1) {
+		if (params !== null && params.indexOf("outputformat=") === -1) {
 			params = params + "&outputformat=json";
-		} else if (params == null || params.length == 0) {
+		} else if (params === null || params.length === 0) {
 			params = "outputformat=json";
 		}
 
@@ -143,28 +143,32 @@ var Crpstudio = {
 		if (!xhr) { return; }
 		
     // Determine what the parameters are
-		if (params != null && params.indexOf("outputformat=") == -1) {
+		if (params !== null && params.indexOf("outputformat=") === -1) {
 			params = params + "&outputformat=json";
-		} else if (params == null || params.length == 0) {
+		} else if (params === null || params.length === 0) {
 			params = "outputformat=json";
 		}
+    // Add a timestamp
+    params = params + "&rand=" + new Date().getTime() ;
 
     // Debugging: show what we are sending on the console
-		Crpstudio.debug(Crpstudio.crppUrl + type + "?" + params);
+		Crpstudio.debug("getCrppData: "+Crpstudio.crppUrl + type + "?" + params);
 		
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+		xhr.setRequestHeader("Cache-Control", "no-cache, must-revalidate");
 		
 		xhr.onload = function() {
-				Crpstudio.debugXhrResponse(xhr.responseText);
+				Crpstudio.debugXhrResponse("#1: " + xhr.responseText);
 				var resp = JSON.parse(xhr.responseText);
-				Crpstudio.debugXhrResponse("response:");
+				Crpstudio.debugXhrResponse("response #2:");
 				Crpstudio.debugXhrResponse(resp);
 				callback(resp,target);
 		};
 
     // Action when there is an error
-		xhr.onerror = function() {
-			Crpstudio.debug("Failed to proces CRPP request.");
+		xhr.onerror = function(e) {
+			Crpstudio.debug("getCrppData: failed to process CRPP request:");
+      Crpstudio.debug(e.target.status);
 		};
 
     // Main action: send the parameters
@@ -172,19 +176,19 @@ var Crpstudio = {
 	},
   
   /* --------------------------------------------------------------------------
-   * Name: getData
+   * Name: postRequest
    * Goal: Issue a 'POST' request and process the results using the @callback
    *        function
    * History:
    * 22/jun/2015 ERK Copied from WhiteLab
    */
-  getData : function(params, callback, target, update) {
-		var xhr = Crpstudio.createRequest('POST', Crpstudio.baseUrl+"query");
+  postRequest : function(type, params, callback, target, update) {
+		var xhr = Crpstudio.createRequest('POST', Crpstudio.crppUrl+type);
 		if (!xhr) {
 			return;
 		}
 		
-		if (params != null && params.indexOf("lang=") == -1) {
+		if (params !== null && params.indexOf("lang=") === -1) {
 			params = params+"&lang="+Crpstudio.language;
 		}
 
@@ -254,13 +258,13 @@ var Crpstudio = {
   
   /* --------------------------------------------------------------------------
    * Name: setUser
-   * Goal: Set the name of the user in the top-bar place
+   * Goal: Set the name of the user so that we can access it from anywhere
    * History:
    * 23/jun/2015 ERK Created
    */  
   setUser : function(sUserName) {
     Crpstudio.currentUser = sUserName;
-    $("#top_bar_current_user").text(sUserName);
+    // $("#top_bar_current_user").text(sUserName);
   },
 	
   /* --------------------------------------------------------------------------

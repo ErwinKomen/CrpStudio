@@ -1,5 +1,15 @@
 #set($src='./static/img/plus.png')
+#set($input = $labels.getString("input.selection"))
 <dl class="accordion large-16 medium-16 small-16" id="accordion" data-accordion>
   <dd class="accordion-navigation large-16 medium-16 small-16">
+    <div class="large-16 medium-16 small-16 meta-top-plus">
+      $labels.getString("input.corpus")
+      <select id="input_lng" class="meta-medium" >
+        ${corpuslist}
+      </select>
+    </div>
+    <a href="#${maintab}-meta" class="large-16 medium-16 small-16 meta-top-plus" onclick="Crpstudio.input.switchState(this);">
+      <img class="img-plus" src="${src}"><h6>$input</h6>
+    </a>
   </dd>
 </dl>
