@@ -9,6 +9,7 @@
 #set($d = $labels.getString("description"))
 #set($project = $labels.getString("project"))
 #set($user = $labels.getString("user"))
+#set($corpusTitle = $labels.getString("corpus.title"))
 <!doctype html>
 <html>
 	<head>
@@ -126,6 +127,7 @@
               </div><div class="DivHelper"></div>
             </li>
             <li class="name">$project:<div id="top_bar_current_project" class="label">-</div><div class="DivHelper"></div></li>
+            <li class="name">$corpusTitle:<div id="top_bar_current_corpus" class="label">-</div><div class="DivHelper"></div></li>
 					</ul>
 
 

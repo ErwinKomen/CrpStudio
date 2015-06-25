@@ -349,6 +349,9 @@ Crpstudio.project = {
     // Adapt the text of the project description
     $("#project_description").html("<p>You have chosen: <b>" + sPrjName + "</b></p>");
   },
+  setCorpus : function(sCorpusName, sDirName) {
+    $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
+  },
   /* ---------------------------------------------------------------------------
    * Name: createManual
    * Goal: manually create a project

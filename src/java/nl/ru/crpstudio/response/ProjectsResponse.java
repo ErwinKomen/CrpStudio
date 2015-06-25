@@ -121,7 +121,8 @@ public class ProjectsResponse extends BaseResponse {
             // SPecifiy the 'value' for this option
             String sValue = sLng + ":";
             // Enter the combobox line
-            sb.append("<option class=\"noprefix\" value=\"" + sValue + "\">" +
+            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
+                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \"\")' >" +
                     sShow + "</option>\n");
           }
           // Walk all the parts
@@ -136,7 +137,8 @@ public class ProjectsResponse extends BaseResponse {
             // SPecifiy the 'value' for this option
             String sValue = sLng + ":" + sDir;
             // Enter the combobox line
-            sb.append("<option class=\"noprefix\" value=\"" + sValue + "\">" +
+            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
+                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \""+ sDir + "\")' >" +
                     sShow + "</option>\n");
           }
         }      
