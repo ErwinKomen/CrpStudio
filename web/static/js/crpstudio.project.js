@@ -98,7 +98,7 @@ Crpstudio.project = {
         break;
       case "working":
         // Show the current status
-        Crpstudio.project.doStatus(oResponse.content);
+        Crpstudio.project.doStatus(oResponse);
         // Retrieve the status request object string
         sStatusRequest = Crpstudio.project.strQstatus ;
         // Now issue the same request with an interval of 0.5 seconds
@@ -110,6 +110,8 @@ Crpstudio.project = {
       case "completed":
         // Signal completion
         $(target).html("Ready");
+        // Show the final status
+        Crpstudio.project.doStatus(oResponse);
         break;
       case "error":
         // Provite an error report
@@ -149,38 +151,101 @@ Crpstudio.project = {
    * History:
    * 24/jun/2015  ERK Created
    */
-  doStatus : function(oContent) {
-    // Retrieve the variables from the [oContent] object
-    var sStart = oContent.start;
-    var sFinish = oContent.finish;
-    var iReady = oContent.ready;
-    var iCount = oContent.count;
-    var iTotal = oContent.total;
-    // Calculate percentages
-    var iPtcStarted = (iTotal === 0) ? 0 : (iCount * 100 / iTotal);
-    var iPtcFinished = (iTotal === 0) ? 0 : (iReady * 100 / iTotal);
-    // Show the status
-    var sMsg = "status="+iReady+"-"+iCount+" of "+iTotal;
-    Crpstudio.debug(sMsg);
-    // Build html content
-    $(Crpstudio.project.divStatus).text(sMsg);
+  doStatus : function(oResponse) {
+    // Get the status part and code
+    var sStatusCode = oResponse.status.code;
+    // Get the content part of the response object
+    var oContent = oResponse.content;
     // find the result_status element
     var divResProgress = $("#result_progress").get(0);
-    if (iCount > 0) {
-      var divStarted = null;
-      var divFinished = null;
-      // Find the two "meter" classed elements (<span>) within divResProgress
-      var arMeter = divResProgress.getElementsByClassName("meter");
-      if (arMeter && arMeter.length > 0) {
-        divStarted = arMeter[0];
-        divFinished = arMeter[1];
-        // Set the correct styles for these elements
-        divStarted.setAttribute("style", "width: " + iPtcStarted + "%");
-        divFinished.setAttribute("style", "width: " + iPtcFinished + "%");
-        // Put something inside the meters: the name of the file processed
-        divStarted.innerHTML = sStart;
-        divFinished.innerHTML = sFinish;
-      }
+    var divResTable = $("#result_table").get(0);
+    // Action depends on the status code
+    switch (sStatusCode) {
+      case "working":
+        // Make sure the table is empty
+        divResTable.innerHTML = "";
+        // Make sure the 'hidden' class is taken away from the progress meters
+        $("#result_progress").removeClass("hidden");
+        // Retrieve the variables from the [oContent] object
+        var sStart = oContent.start;
+        var sFinish = oContent.finish;
+        var iReady = oContent.ready;
+        var iCount = oContent.count;
+        var iTotal = oContent.total;
+        // Calculate percentages
+        var iPtcStarted = (iTotal === 0) ? 0 : (iCount * 100 / iTotal);
+        var iPtcFinished = (iTotal === 0) ? 0 : (iReady * 100 / iTotal);
+        // Show the status
+        var sMsg = "status="+iReady+"-"+iCount+" of "+iTotal;
+        Crpstudio.debug(sMsg);
+        // Build html content
+        $(Crpstudio.project.divStatus).text(sMsg);
+        if (iCount > 0) {
+          var divStarted = null;
+          var divFinished = null;
+          // Find the two "meter" classed elements (<span>) within divResProgress
+          var arMeter = divResProgress.getElementsByClassName("meter");
+          if (arMeter && arMeter.length > 0) {
+            divStarted = arMeter[0];
+            divFinished = arMeter[1];
+            // Set the correct styles for these elements
+            divStarted.setAttribute("style", "width: " + iPtcStarted + "%");
+            divFinished.setAttribute("style", "width: " + iPtcFinished + "%");
+            // Put something inside the meters: the name of the file processed
+            divStarted.innerHTML = sStart;
+            divFinished.innerHTML = sFinish;
+          }
+        }
+        break;
+      case "completed":
+        var html = [];
+        // Interpret and show the resulting table
+        var iSearchTime = oContent.searchTime;
+        html.push("<p>Search time: <b>"+iSearchTime+"</b></p>")
+        // The 'table' is an array of QC elements
+        var arTable = oContent.table;
+        for (var i=0; i< arTable.length; i++) {
+          // Get this QC element
+          var oQC = arTable[i];
+          // Get the QC elements
+          var arSubs = oQC.subcats;
+          var iQC = oQC.qc;
+          var arHits = oQC.hits;  // Array with 'hit' elements
+          // Insert a heading for this QC item
+          html.push("<h5>QC "+iQC + "</h5>");
+          // Set up a table for the sub-categories
+          html.push("<table><thead><th>text</th><th>TOTAL</th>");
+          for (var j=0;j<arSubs.length; j++) {
+            html.push("<th>" + arSubs[j] + "</th>");
+          }
+          // Finish the header with sub-categories
+          html.push("</thead>");
+          // Start the table body
+          html.push("<tbody>");
+          // Walk all the hits
+          for (var j=0; j<arHits.length; j++) {
+            var sFile = arHits[j].file;
+            var iCount = arHits[j].count;
+            var arSubs = arHits[j].subs;
+            html.push("<tr><td>" + sFile + "</td>");
+            html.push("<td>"+iCount+"</td>");
+            for (var k=0;k<arSubs.length; k++ ) {
+              html.push("<td>"+arSubs[k]+"</td>");
+            }
+            html.push("</tr>");
+          }
+          // Finish the table
+          html.push("</tbody></table>");
+        }
+        // Position this table in the correct div
+        divResTable.innerHTML = html.join("\n");
+        // Hide the progress meters
+        $("#result_progress").addClass("hidden");
+        break;
+      default:
+        // TODO: take default action
+        break;
+    }
       /*
       // Do the progress bars
       divStarted = divResStatus.getElementsByClassName("started")[0];
@@ -205,7 +270,6 @@ Crpstudio.project = {
       Crpstudio.debug($(divFinished).text());
       $(divFinished).attr("style", "width: " + iPtcFinished + "%");
       */
-    }
   },
   
   getMyPath : function(divStart) {
@@ -234,8 +298,8 @@ Crpstudio.project = {
 			$("#"+target).addClass("active");
 			$("#subnav dd").removeClass("active");
 			$("#"+target+"_link").addClass("active");
-      // When should the metadata selector be shown
-			if (target === "execute" || target === "project" || target === "result" ) {
+      // When should the metadata selector be shown: only for "project"
+			if (target === "execute" || target === "project" ) {
 				$("#metadata").show();
 			} else {
 				$("#metadata").hide();
