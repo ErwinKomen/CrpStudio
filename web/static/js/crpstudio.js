@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2015 CLARIN-NL.
+ * All rights reserved.
+ *
+ * @author Erwin R. Komen
+ */
 var Crpstudio = {
 	baseUrl : null,
 	blsUrl : null,              // Address of the Black Lab Server

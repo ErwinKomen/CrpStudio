@@ -1,7 +1,8 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (c) 2015 CLARIN-NL.
+ * All rights reserved.
+ *
+ * @author Erwin R. Komen
  */
 
 Crpstudio.project = {
@@ -109,9 +110,11 @@ Crpstudio.project = {
         break;
       case "completed":
         // Signal completion
-        $(target).html("Ready");
+        $(target).html("Fetching results");
         // Show the final status
         Crpstudio.project.doStatus(oResponse);
+        // And more completeino
+        $(target).html("");
         break;
       case "error":
         // Provite an error report
@@ -166,6 +169,7 @@ Crpstudio.project = {
         divResTable.innerHTML = "";
         // Make sure the 'hidden' class is taken away from the progress meters
         $("#result_progress").removeClass("hidden");
+        $("#result_fetching").removeClass("hidden");
         // Retrieve the variables from the [oContent] object
         var sStart = oContent.start;
         var sFinish = oContent.finish;
@@ -175,11 +179,13 @@ Crpstudio.project = {
         // Calculate percentages
         var iPtcStarted = (iTotal === 0) ? 0 : (iCount * 100 / iTotal);
         var iPtcFinished = (iTotal === 0) ? 0 : (iReady * 100 / iTotal);
+        /*
         // Show the status
         var sMsg = "status="+iReady+"-"+iCount+" of "+iTotal;
         Crpstudio.debug(sMsg);
         // Build html content
         $(Crpstudio.project.divStatus).text(sMsg);
+        */
         if (iCount > 0) {
           var divStarted = null;
           var divFinished = null;
@@ -198,78 +204,101 @@ Crpstudio.project = {
         }
         break;
       case "completed":
-        var html = [];
-        // Interpret and show the resulting table
-        var iSearchTime = oContent.searchTime;
-        html.push("<p>Search time: <b>"+iSearchTime+"</b></p>")
-        // The 'table' is an array of QC elements
-        var arTable = oContent.table;
-        for (var i=0; i< arTable.length; i++) {
-          // Get this QC element
-          var oQC = arTable[i];
-          // Get the QC elements
-          var arSubs = oQC.subcats;
-          var iQC = oQC.qc;
-          var arHits = oQC.hits;  // Array with 'hit' elements
-          // Insert a heading for this QC item
-          html.push("<h5>QC "+iQC + "</h5>");
-          // Set up a table for the sub-categories
-          html.push("<table><thead><th>text</th><th>TOTAL</th>");
-          for (var j=0;j<arSubs.length; j++) {
-            html.push("<th>" + arSubs[j] + "</th>");
-          }
-          // Finish the header with sub-categories
-          html.push("</thead>");
-          // Start the table body
-          html.push("<tbody>");
-          // Walk all the hits
-          for (var j=0; j<arHits.length; j++) {
-            var sFile = arHits[j].file;
-            var iCount = arHits[j].count;
-            var arSubs = arHits[j].subs;
-            html.push("<tr><td>" + sFile + "</td>");
-            html.push("<td>"+iCount+"</td>");
-            for (var k=0;k<arSubs.length; k++ ) {
-              html.push("<td>"+arSubs[k]+"</td>");
-            }
-            html.push("</tr>");
-          }
-          // Finish the table
-          html.push("</tbody></table>");
-        }
+        // Keep track of the status
+        $("#result_status").html("Making overview table...")
+        // Create a small top table
+        Crpstudio.result.makeOviewTable(oContent.table);
+        // Keep track of the status
+        $("#result_status").html("Making large table...")
+        // Create a large table
+        var html = Crpstudio.project.makeLargeTables(oContent.searchTime, oContent.table);
         // Position this table in the correct div
-        divResTable.innerHTML = html.join("\n");
+        // divResTable.innerHTML = html;
+        $("#result_table").html(html);
         // Hide the progress meters
         $("#result_progress").addClass("hidden");
+        // Remove the result report
+        $("#result_report").html("");
+        // Keep track of the status
+        $("#result_status").html("")
+        // In fact: make the whole "fetching" section hidden
+        $("#result_fetching").addClass("hidden");
         break;
       default:
         // TODO: take default action
         break;
     }
-      /*
-      // Do the progress bars
-      divStarted = divResStatus.getElementsByClassName("started")[0];
-      divFinished = divResStatus.getElementsByClassName("success")[0];
-      
-      var divStarted = $("#result_status").children(".progress.started").children(".meter") ;
-      if (!divStarted || divStarted === null) {
-        Crpstudio.debug("divStarted is empty");
-        var divTest = $("#result_status");
-        Crpstudio.debug("result_status is: " + (!divTest || divTest === null) ? "null" : "ready" );
-      } else {
-        Crpstudio.debug("the id = " + $(divStarted).attr('id'));
-        Crpstudio.debug("my path = [" + Crpstudio.project.getMyPath(divStarted) + "]");
+ 
+  },
+  
+    /* ---------------------------------------------------------------------------
+   * Name: makeLargeTables
+   * Goal: Make a large table of all the results
+   * 
+   * History:
+   * 29/jun/2015  ERK Created
+   */
+  makeLargeTables: function(iSearchTime, arTable) {
+    var html = [];
+    // Interpret and show the resulting table
+    html.push("<p>Search time: <b>"+iSearchTime+"</b></p>")
+    // The 'table' is an array of QC elements
+    for (var i=0; i< arTable.length; i++) {
+      // Get this QC element
+      var oQC = arTable[i];
+      // Get the QC elements
+      var arSubs = oQC.subcats;
+      var iQC = oQC.qc;
+      var arHits = oQC.hits;  // Array with 'hit' elements
+      // Each QC result must be in its own div
+      html.push("<div id=\"result_qc"+iQC+"\" class=\"result-qc hidden\">");
+      // Insert a heading for this QC item
+      html.push("<h5>QC "+iQC + "</h5>");
+      // Set up a table for the sub-categories
+      html.push("<table><thead><th>text</th><th>TOTAL</th>");
+      for (var j=0;j<arSubs.length; j++) {
+        html.push("<th>" + arSubs[j] + "</th>");
       }
-      // Debugging show the text of this node
-      Crpstudio.debug("style after = " + $(divStarted).attr("style"));
-      $(divStarted).attr("style", "width: " + iPtcStarted + "%");
-      Crpstudio.debug("style after = " + $(divStarted).attr("style"));
-
-      var divFinished = $("#result_status").children(".progress.success").children(".meter");
-      // Debugging show the text of this node
-      Crpstudio.debug($(divFinished).text());
-      $(divFinished).attr("style", "width: " + iPtcFinished + "%");
-      */
+      // Finish the header with sub-categories
+      html.push("</thead>");
+      // Start the table body
+      html.push("<tbody>");
+      // Walk all the hits
+      for (var j=0; j<arHits.length; j++) {
+        var sFile = arHits[j].file;
+        var iCount = arHits[j].count;
+        var arSubCounts = arHits[j].subs;
+        html.push("<tr><td>" + sFile + "</td>");
+        html.push("<td>"+iCount+"</td>");
+        for (var k=0;k<arSubCounts.length; k++ ) {
+          html.push("<td>"+arSubCounts[k]+"</td>");
+        }
+        html.push("</tr>");
+      }
+      // Finish the table
+      html.push("</tbody></table>");
+      // Finish the div
+      html.push("</div>")
+      // Make tables for all the sub categories under this iQC
+      for (var j=0;j<arSubs.length; j++) {
+        html.push("<div id=\"result_qcsub_"+iQC+"_"+j+"\" class=\"result-qc-sub hidden\">")
+        // Set the heading for this table
+        html.push("<table><thead><th>text</th><th>"+arSubs[j]+"</th></thead>");
+        // Start the table body
+        html.push("<tbody>");
+        // Walk all the hits
+        for (var k=0; k<arHits.length; k++) {
+          var sFile = arHits[k].file;
+          var arSubCounts = arHits[k].subs;
+          html.push("<tr><td>" + sFile + "</td>");
+          html.push("<td>"+arSubCounts[j]+"</td></tr>");
+        }
+        // Finish this sub-cat-table
+        html.push("</tbody></table></div>")
+      }
+    }
+    // Join and return the result
+    return html.join("\n");
   },
   
   getMyPath : function(divStart) {
@@ -409,7 +438,19 @@ Crpstudio.project = {
     var minHeight = 30;
     // Make sure we have a minimal height
 		if (sh < minHeight) { sh = minHeight; }
-		$("#project").css("margin-top",sh+"px");
-	}
+    // Set the top-margin, so that what we show is really LOW
+    // DISABLED!!!
+		// $("#project").css("margin-top",sh+"px");
+	},
+  
+  /* ---------------------------------------------------------------------------
+   * Name: editQC
+   * Goal: Start editing the indicated QC line
+   * History:
+   * 29/jun/2015  ERK Created
+   */
+  editQC : function(iQC) {
+    // TODO: implement
+  }
 	  
-}
+};

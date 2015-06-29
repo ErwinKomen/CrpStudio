@@ -1,41 +1,38 @@
   <div class="large-14 medium-14 small-14 large-offset-1 medium-offset-1 small-offset-1">
-    <div><h4>$labels.getString("result.status"):</h4></div>
-    <div id="result_status" class="large-16 medium-16 small-16">
-      status
+    <div id="result_fetching" class="large-16 medium-16 small-16">
+      <div><h4>$labels.getString("result.status"):</h4></div>
+      <div id="result_status" class="large-16 medium-16 small-16">
+        status
+      </div>
+      <div id="result_progress" class="large-16 medium-16 small-16">
+        <!-- Blue progress bar indicating which files are started -->
+        <div class="small-4 large-4 progress round"><span id="agent007" class="meter" style="width: 0%"></span></div>
+        <!-- Green progress bar indicating which files are finished -->
+        <div class="small-4 large-4 progress success round"><span id="agent008" class="meter" style="width: 0%"></span></div>
+      </div>
+      <div id="result_report" class="large-16 medium-16 small-16">
+        report
+      </div>
     </div>
-    <div id="result_progress" class="large-16 medium-16 small-16">
-      <!-- Blue progress bar indicating which files are started -->
-      <div class="small-4 large-4 progress round"><span id="agent007" class="meter" style="width: 0%"></span></div>
-      <!-- Green progress bar indicating which files are finished -->
-      <div class="small-4 large-4 progress success round"><span id="agent008" class="meter" style="width: 0%"></span></div>
-    </div>
-    <div id="result_report" class="large-16 medium-16 small-16">
-      report
-    </div>
-<!--
     <div><h4>$labels.getString("result.queries"):</h4></div>
     <div class="large-16 medium-16 small-16 row">
       <table id="queries" class="select">
         <thead>
           <tr class="tbl_head">
             <th class="r">#</th>
-            <th class="q">$labels.getString("result.query")</th>
-            <th class="w">$labels.getString("result.within")</th>
-            <th class="m">$labels.getString("result.filters")</th>
-            <th class="g">$labels.getString("result.grouping")</th>
-            <th class="status">$labels.getString("result.status")</th>
-            <th class="h">$labels.getString("result.hits")</th>
-            <th class="d">$labels.getString("result.documents")</th>
+            <th class="q">$labels.getString("result.qcname")</th>
+            <th class="s">$labels.getString("result.subcat")</th>
+            <th class="c">$labels.getString("result.count")</th>
             <th class="control"></th>
           </tr>
         </thead>
         <tbody>
+
         </tbody>
       </table>
     </div>
--->
     <div><h4>$labels.getString("result.results"):</h4></div>
     <div id="result_table" class="large-16 medium-16 small-16">
-
+          <i>(Working...)</i>
     </div>
   </div>
