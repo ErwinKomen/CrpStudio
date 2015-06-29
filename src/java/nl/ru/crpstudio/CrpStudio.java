@@ -1,6 +1,8 @@
-/*
+/**
  * Copyright (c) 2015 CLARIN-NL.
  * All rights reserved.
+ *
+ * @author Erwin R. Komen
  */
 
 package nl.ru.crpstudio;
