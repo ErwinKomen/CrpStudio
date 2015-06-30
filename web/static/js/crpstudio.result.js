@@ -7,8 +7,8 @@
 Crpstudio.result = {
   // Local variables
   loc_arTable : null,   // Local copy of the table
-  loc_iCurrentQc : 0,   // Currently selected QC line
-  loc_iCurrentSub : 0,  // Currently selected QC sub category
+  loc_iCurrentQc : -1,  // Currently selected QC line
+  loc_iCurrentSub : -1, // Currently selected QC sub category
   
   /* ---------------------------------------------------------------------------
    * Name: makeOviewTable
@@ -76,6 +76,9 @@ Crpstudio.result = {
   switchToQc : function(iQC) {
     // Get the correct index
     var idxQc = iQC-1;
+    // Set the QC line
+    Crpstudio.result.loc_iCurrentQc = idxQc;
+    Crpstudio.result.loc_iCurrentSub = -1;
     // Get the number of QCs
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
@@ -123,6 +126,7 @@ Crpstudio.result = {
   switchToQcSub : function(iQC, idxSub) {
     // Get the correct index
     var idxQc = iQC-1;
+    Crpstudio.result.loc_iCurrentSub = idxSub;
     // Get the number of QCs
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
@@ -151,7 +155,113 @@ Crpstudio.result = {
       // (5) show the chosen result-qc-sub line
       $("#result_qcsub_"+iQC+"_"+idxSub).removeClass("hidden");
     }
+  },
+  /* ---------------------------------------------------------------------------
+   * Name:  doExport
+   * Goal:  Trigger the export action of the currently selected part of the results table
+   * Note:  We make use of two variables:
+   *        loc_iCurrentQc    - currently selected QC index (or -1 if not)
+   *        loc_iCurrentSub   - currently selected sub-cat index (or -1 if not)
+   * History:
+   * 30/jun/2015  ERK Created
+   */
+  doExport : function() {
+    var oBack = null;   // What we will return
+    var oQC = null;     // part of the table
+    var idxQc = Crpstudio.result.loc_iCurrentQc;
+    var idxSub = Crpstudio.result.loc_iCurrentSub;
+    var arTable = Crpstudio.result.loc_arTable;
+    
+    // The user is always allowed to export
+    var ask = true;
+    if (ask) {
+      // Validate: if no QC line is selected, return the WHOLE table
+       if (idxQc < 0) {
+         oBack = arTable;
+       } else {
+         // Get the section of the table that is going to be exported
+         oQC = arTable[idxQc];
+         // Is a particular subcat needed?
+         if (idxSub < 0) {
+           // We already have what needs to be returned
+           oBack = oQC;
+         } else {
+           // Get the QC elements
+           var arSubs = oQC.subcats;     // Sub-category names/labels
+           var iQC = oQC.qc;             // Number of this QC
+           var sQcLabel = oQC.result;    // Label for this QC line
+           var iTotal = oQC.total;       // Total count for this QC
+           var arSubCount = oQC.counts;  // Totals per sub-category
+           // Create an array with the correct 'hit' elements for this subcat
+           var arHits = [];
+           var arAll = oQC.hits;        // Array with *all* 'hit' elements (for all subcats)
+           for (var i=0; i<arAll.length;i++) {
+             var oThis = arAll[i];
+             var oNew = {
+                     "file": oThis.file, 
+                     "count": oThis.count, 
+                     "subcount": oThis.subs[idxSub]};
+             arHits.push(oNew);
+           }
+
+           // Select the correct sub-category
+           oBack = { "qc": iQC, 
+                     "result": sQcLabel,
+                     "total": iTotal,
+                     "subcat": arSubs[idxSub],
+                     "count": arSubCount[idxSub],
+                     "hits": arHits};
+         }      
+       }
+
+       // Pack what we have into a string
+       var params = "table="+ JSON.stringify(oBack);
+       // Call /crpstudio/export with the information we have gathered
+       Crpstudio.getCrpStudioData("export", params, Crpstudio.result.processExport);      
+    }
+ 
+  },
+  
+  /**
+   * processExport
+   *    What to do when we return from the Java server to here
+   *    
+   * @param {type} response
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processExport : function(response, target) {
+		if (response !== null) {
+      // So far: no action is required
+      /*
+			if (response.hasOwnProperty("html") && response.html.indexOf("ERROR") > -1) {
+				$("#status_"+target).html("ERROR");
+				$("#result_"+target).html(response.html);
+			} else {
+				if (response.hasOwnProperty("html")) {
+					$("#result_"+target).html(response.html);
+				}
+				if (response.hasOwnProperty("hits") && response.hits !== "-1") {
+					$("#hits_"+target).html(response.hits);
+				}
+				if (response.hasOwnProperty("docs") && response.docs !== "-1") {
+					$("#docs_"+target).html(response.docs);
+				}
+				
+				if (response.hasOwnProperty("counting") && response.counting === "true") {
+					$("#status_"+target).html("<img class=\"icon spinner\" src=\"../web/img/spinner.gif\"> COUNTING");
+					update = true;
+				} else {
+					$("#status_"+target).html("FINISHED");
+				}
+			}
+      */
+		} else {
+			$("#status_"+target).html("ERROR");
+			$("#result_"+target).html("ERROR - Failed to retrieve result from server.");
+		}    
   }
+  
   
 };
 

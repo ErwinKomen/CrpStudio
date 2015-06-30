@@ -91,6 +91,9 @@ Crpstudio.project = {
         sStatusRequest = JSON.stringify(oStatusRequest);
         // Make the status available within this JavaScript module
         Crpstudio.project.strQstatus = sStatusRequest;
+        // Make sure the results are not visible yet
+        $("#results").addClass("hidden");
+        $("#results").removeClass("active");
         // Now issue this request with an interval of 0.5 seconds
         setTimeout(
           function () {
@@ -115,6 +118,9 @@ Crpstudio.project = {
         Crpstudio.project.doStatus(oResponse);
         // And more completeino
         $(target).html("");
+        // Make sure the results are visible
+        $("#results").removeClass("hidden");
+        $("#results").addClass("active");
         break;
       case "error":
         // Provite an error report
@@ -240,8 +246,10 @@ Crpstudio.project = {
    */
   makeLargeTables: function(iSearchTime, arTable) {
     var html = [];
+    // Show the time of this search
+    $("#results_time").html("<p>Search time: <b>"+(iSearchTime / 1000)+" s.</b></p>");
+    // html.push("<p>Search time: <b>"+iSearchTime+"</b></p>")
     // Interpret and show the resulting table
-    html.push("<p>Search time: <b>"+iSearchTime+"</b></p>")
     // The 'table' is an array of QC elements
     for (var i=0; i< arTable.length; i++) {
       // Get this QC element
@@ -442,6 +450,16 @@ Crpstudio.project = {
     // DISABLED!!!
 		// $("#project").css("margin-top",sh+"px");
 	},
+  
+  /* ---------------------------------------------------------------------------
+   * Name: update
+   * Goal: Update current results
+   * History:
+   * 30/jun/2015  ERK Created
+   */
+  update : function(iView) {
+    
+  },
   
   /* ---------------------------------------------------------------------------
    * Name: editQC

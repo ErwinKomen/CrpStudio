@@ -138,13 +138,22 @@ var Crpstudio = {
 	},
 	
   /* --------------------------------------------------------------------------
-   * Name: getCrppData
-   * Goal: Acquire data in JSON format from the CRPP service
+   * Name: getCrpStudioData
+   * Goal: Make a request to the /crpstudio service 
+   *       What we send *to* the /crpstudio service:
+   *       - we issue the command in "type" (/crpstudio/type)
+   *       - we add the parameters in "params"
+   *       The effect is:
+   *       - we turn back to the Java server part of the code
+   *       - that part executes a command and possibly makes + loads a new HTML page
+   *       - having received a "response":
+   *         + the "callback" function is executed in JS
+   *         + one of its arguments is the "response" we receive from the Java /crpstudio server
    * History:
    * 22/jun/2015 ERK Created
    */
-	getCrppData : function(type, params, callback, target) {
-		var xhr = Crpstudio.createRequest('GET', Crpstudio.crppUrl + type);
+	getCrpStudioData : function(type, params, callback, target) {
+		var xhr = Crpstudio.createRequest('POST', Crpstudio.baseUrl + type);
     // Validate
 		if (!xhr) { return; }
 		
@@ -155,25 +164,36 @@ var Crpstudio = {
 			params = "outputformat=json";
 		}
     // Add a timestamp
-    params = params + "&rand=" + new Date().getTime() ;
+    // params = params + "&rand=" + new Date().getTime() ;
 
     // Debugging: show what we are sending on the console
-		Crpstudio.debug("getCrppData: "+Crpstudio.crppUrl + type + "?" + params);
+		Crpstudio.debug("getCrpStudioData: "+Crpstudio.baseUrl + type + "?" + params);
 		
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-		xhr.setRequestHeader("Cache-Control", "no-cache, must-revalidate");
+		// xhr.setRequestHeader("Cache-Control", "no-cache, must-revalidate");
 		
 		xhr.onload = function() {
+      			if (/^[\],:{}\s]*$/.test(xhr.responseText.replace(/\\["\\\/bfnrtu]/g, '@').
+					replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+					replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+        // Debugging
 				Crpstudio.debugXhrResponse("#1: " + xhr.responseText);
+        // Transform the response into a JSON object
 				var resp = JSON.parse(xhr.responseText);
+        // Debugging
 				Crpstudio.debugXhrResponse("response #2:");
 				Crpstudio.debugXhrResponse(resp);
+        // Go to the callback function with the response object etc
 				callback(resp,target);
+			} else {
+				$("#status_"+target).html("ERROR");
+				$("#result_"+target).html("ERROR - Could not process request.");
+			}
 		};
 
     // Action when there is an error
 		xhr.onerror = function(e) {
-			Crpstudio.debug("getCrppData: failed to process CRPP request:");
+			Crpstudio.debug("getCrpStudioData: failed to process /crpstudio request:");
       Crpstudio.debug(e.target.status);
 		};
 

@@ -11,7 +11,7 @@
         <div class="small-4 large-4 progress success round"><span id="agent008" class="meter" style="width: 0%"></span></div>
       </div>
       <div id="result_report" class="large-16 medium-16 small-16">
-        report
+
       </div>
     </div>
     <div><h4>$labels.getString("result.queries"):</h4></div>
@@ -31,8 +31,33 @@
         </tbody>
       </table>
     </div>
-    <div><h4>$labels.getString("result.results"):</h4></div>
-    <div id="result_table" class="large-16 medium-16 small-16">
-          <i>(Working...)</i>
+    <div id="results" class="result-content">
+      <div><h4>$labels.getString("result.results"):</h4></div>
+      <div class="large-16 medium-16 small-16">
+        <!-- tabs -->
+        <ul class="nav nav-tabs" id="contentTabs">
+          <li class="active disabled"><a onclick="Crpstudio.project.update(1)">$labels.getString("result.tab1")</a></li>
+          <li><a onclick="Crpstudio.project.update(2)">$labels.getString("result.tab2")</a></li>
+          <li><a onclick="Crpstudio.project.update(3)">$labels.getString("result.tab3")</a></li>
+          <li><a onclick="Crpstudio.project.update(4)">$labels.getString("result.tab4")</a></li>
+        </ul>
+        <!-- top of the table section -->
+        <div id="perhit" class="result-pane tab-pane active lightbg haspadding">
+          <input type="hidden" class="current-view" value="1" />
+          <div class="gradient"></div>
+          <div class="pagination large-16 medium-16 small-16 row"></div>
+          <!-- export button -->
+          <div class="export large-16 medium-16 small-16 row">
+            <div class="large-3 medium-3 small-4 columns">
+              <button class="small" onclick="Crpstudio.result.doExport();">$labels.getString("result.export")</button>
+            </div>
+            <div id="results_time" class="large-13 medium=13 small-12 columns"></div>
+          </div>
+          <!-- result table -->
+          <div id="result_table" class="large-16 medium-16 small-16">
+                <i>(Working...)</i>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
