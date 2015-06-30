@@ -142,6 +142,7 @@ public class CrpStudio extends HttpServlet {
       responses.put("home", new HomeResponse());
       responses.put("corpora", new CorporaResponse());
       responses.put("projects", new ProjectsResponse());
+      responses.put("export", new ExportResponse());
       responses.put("error", new ErrorResponse());
       responses.put("about", new InfoResponse());
       responses.put("j_security_check", new LoginResponse());

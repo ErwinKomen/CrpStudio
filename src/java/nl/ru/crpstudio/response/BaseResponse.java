@@ -211,7 +211,7 @@ public abstract class BaseResponse {
 	
   /**
    * getCrppResponse --
-   *    Issue a request to the /crpp machine and retuirn the response
+   *    Issue a request to the /crpp machine and return the response
    * 
    * @param index   - index within /crpp
    * @param trail   - optional trail (not used yet)
