@@ -14,6 +14,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -591,6 +592,13 @@ public abstract class BaseResponse {
 			e.printStackTrace();
 		}
 	}
+
+  public static String getCurrentTimeStamp() {
+    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+    Date now = new Date();
+    String strDate = sdfDate.format(now);
+    return strDate;
+  }
   
   /**
    * setUserOkay - put the values of userid and userokay in the context
