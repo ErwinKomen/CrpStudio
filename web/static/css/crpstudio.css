@@ -1588,6 +1588,7 @@ div.hitscroll {
 .top-bar-section li div.label {
   color:        lightblue;
   background:   #222222;
+  /* background:   green; */
   font-size:    small;
 	vertical-align: middle;
   font-weight:  500;
@@ -1607,4 +1608,24 @@ div.hitscroll {
     height:100%;
 }
 
-.progress 
+/*
+.contain-to-grid {
+  background-color: darkgreen;
+}
+.top-bar:not(.where-are-we) {
+  background-color: darkgreen;
+}
+.top-bar-section ul {
+  background-color: darkgreen;
+}
+.top-bar-section ul li {
+  background-color: darkgreen;
+}
+.where-are-we {
+  background-color: green;
+}
+.top-bar-section li:not(.has-form) a:not(.button) {
+  background-color: darkgreen;
+}
+*/
+

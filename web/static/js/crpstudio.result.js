@@ -18,6 +18,8 @@ Crpstudio.result = {
    */
   makeOviewTable : function(arTable) {
     Crpstudio.result.loc_arTable = arTable;
+    // Clear the previous table
+    $("#queries > tbody").html("");
     // The 'table' is an array of QC elements
     for (var i=0; i< arTable.length; i++) {
       // Get this QC element
@@ -217,7 +219,11 @@ Crpstudio.result = {
        // Pack what we have into a string
        var params = "table="+ JSON.stringify(oBack);
        // Call /crpstudio/export with the information we have gathered
-       Crpstudio.getCrpStudioData("export", params, Crpstudio.result.processExport);      
+       // Crpstudio.getCrpStudioData("export", params, Crpstudio.result.processExport);  
+       // Since we want a response, we need to do it this way:
+			// params = Whitelab.search.params.replace(/ /g,"%20");
+	
+			window.location = Crpstudio.baseUrl + "export?"+params;
     }
  
   },

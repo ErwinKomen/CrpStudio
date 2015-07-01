@@ -94,6 +94,8 @@ Crpstudio.project = {
         // Make sure the results are not visible yet
         $("#results").addClass("hidden");
         $("#results").removeClass("active");
+        // Hide querylines from viewing
+        $("#result_querylines").addClass("hidden");
         // Now issue this request with an interval of 0.5 seconds
         setTimeout(
           function () {
@@ -229,6 +231,8 @@ Crpstudio.project = {
         $("#result_status").html("")
         // In fact: make the whole "fetching" section hidden
         $("#result_fetching").addClass("hidden");
+        // But show the querylines part
+        $("#result_querylines").removeClass("hidden");
         break;
       default:
         // TODO: take default action

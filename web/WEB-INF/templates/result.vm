@@ -14,22 +14,24 @@
 
       </div>
     </div>
-    <div><h4>$labels.getString("result.queries"):</h4></div>
-    <div class="large-16 medium-16 small-16 row">
-      <table id="queries" class="select">
-        <thead>
-          <tr class="tbl_head">
-            <th class="r">#</th>
-            <th class="q">$labels.getString("result.qcname")</th>
-            <th class="s">$labels.getString("result.subcat")</th>
-            <th class="c">$labels.getString("result.count")</th>
-            <th class="control"></th>
-          </tr>
-        </thead>
-        <tbody>
+    <div id="result_querylines" class="large-16 medium-16 small-16 hidden">
+      <div><h4>$labels.getString("result.queries"):</h4></div>
+      <div class="large-16 medium-16 small-16 row">
+        <table id="queries" class="select">
+          <thead>
+            <tr class="tbl_head">
+              <th class="r">#</th>
+              <th class="q">$labels.getString("result.qcname")</th>
+              <th class="s">$labels.getString("result.subcat")</th>
+              <th class="c">$labels.getString("result.count")</th>
+              <th class="control"></th>
+            </tr>
+          </thead>
+          <tbody>
 
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div id="results" class="result-content">
       <div><h4>$labels.getString("result.results"):</h4></div>
