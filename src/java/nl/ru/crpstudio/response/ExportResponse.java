@@ -70,7 +70,7 @@ public class ExportResponse extends BaseResponse {
           // There are more than one subcats
           JSONArray arSubCat = oTable.getJSONArray("subcats");
           // Create row with sub-categories
-          result.append("\t");
+          result.append("file\ttotal");
           for (int i=0;i<arSubCat.length();i++) {
             result.append("\t"+arSubCat.getString(i));
           }
@@ -78,7 +78,7 @@ public class ExportResponse extends BaseResponse {
           // Get the total counts per sub-category
           JSONArray arCounts = oTable.getJSONArray("counts");
           // Create a row with these counts
-          result.append("\t");
+          result.append("(all)\t"+oTable.getInt("total"));
           for (int i=0;i<arCounts.length();i++) {
             result.append("\t"+arCounts.getInt(i));
           }
@@ -87,7 +87,12 @@ public class ExportResponse extends BaseResponse {
           JSONArray arHits = oTable.getJSONArray("hits");
           for (int i=0;i<arHits.length(); i++) {
             JSONObject oHit = arHits.getJSONObject(i);
-            result.append(oHit.getString("file")+"\t"+oHit.getInt("count")+"\t"+oHit.getInt("subcount")+"\n");
+            JSONArray arSubs = oHit.getJSONArray("subs");
+            result.append(oHit.getString("file")+"\t"+oHit.getInt("count"));
+            for (int j=0;j<arSubs.length(); j++) {
+              result.append("\t"+arSubs.getInt(j));
+            }
+            result.append("\n");
           }
         } else {
           // There should be one "subcat"

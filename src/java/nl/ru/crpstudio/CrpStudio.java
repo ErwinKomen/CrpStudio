@@ -167,6 +167,10 @@ public class CrpStudio extends HttpServlet {
       // Act on the index that is being requested
       errHandle.debug("MAINSERVLET - Request: "+indexName);
       
+      // Get the ID of this session
+      sSessionId = request.getSession().getId();
+      errHandle.debug("session id = " + sSessionId);
+
       // Possibly handle a login attempt
       if (indexName.equals("j_security_check")) {
         // Handle the login stuff
@@ -194,9 +198,6 @@ public class CrpStudio extends HttpServlet {
       // Set the user and the okay components
       br.setUserOkay(sThisUser, bOkay);
       
-      // Get the ID of this session
-      sSessionId = request.getSession().getId();
-      errHandle.debug("session id = " + sSessionId);
       // Perform the base response init()
       br.init(request, response, this);
       // Process the request using the appropriate response object
