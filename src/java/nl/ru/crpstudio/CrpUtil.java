@@ -128,6 +128,37 @@ public class CrpUtil {
     
   }
   
+  public void setUserJob(String sUserId, String sSession, String sJobId) {
+    // Look for the user
+    for (int i=0;i<userCache.size();i++) {
+      // Get this one
+      UserSession oThis = userCache.get(i);
+      // TODO: what if the user is there, but with a different session??
+      // Check if the combination occurs
+      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+        // Set it to false
+        oThis.jobId = sJobId;
+        return;
+      }
+    }
+    
+  }
+  
+  public String getUserJob(String sUserId, String sSession) {
+    // Look for the user
+    for (int i=0;i<userCache.size();i++) {
+      // Get this one
+      UserSession oThis = userCache.get(i);
+      // TODO: what if the user is there, but with a different session??
+      // Check if the combination occurs
+      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+        // Return the jobid associated with this user/session
+        return oThis.jobId;
+      }
+    }
+    // Found nothing
+    return "";
+  }
   /**
    * getUserOkay - find out if the combination User/Session is okay (logged in)
    * 
@@ -215,6 +246,7 @@ class UserSession {
   public String userId;     // ID for this user
   public String sessionId;  // ID of the session for this user
   public boolean userOkay;  // Is this user correctly logged in?
+  public String jobId;      // Id of the job attached to this user/session
   // TODO: start time of logging in
   public String lngLast;    // Last language corpus used
   public String crpLast;    // Last CRP that has been used
@@ -224,6 +256,7 @@ class UserSession {
     this.userOkay = bUserOkay;
     this.lngLast = "";
     this.crpLast = "";
+    this.jobId = "";
   }
 }
 

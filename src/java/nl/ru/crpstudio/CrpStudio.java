@@ -86,6 +86,8 @@ public class CrpStudio extends HttpServlet {
   public boolean getUserOkay(String sId) {this.bUserOkay = crpUtil.getUserOkay(sId, sSessionId); return bUserOkay; }
   public void setUserId(String sId) {sUserId = sId;}
   public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
+  public void setUserJob(String sJobId) { crpUtil.setUserJob(sUserId, sSessionId, sJobId);}
+  public String getUserJob() { return crpUtil.getUserJob(sUserId, sSessionId);}
   public CrpUtil getCrpUtil() {return crpUtil;}
   public ErrHandle getErrHandle() {return errHandle;}
   public JSONArray getCorpora() { return objCorpora;}
@@ -147,6 +149,7 @@ public class CrpStudio extends HttpServlet {
       responses.put("projects", new ProjectsResponse());
       responses.put("export", new ExportResponse());
       responses.put("error", new ErrorResponse());
+      responses.put("exe", new ExecuteResponse());
       responses.put("about", new InfoResponse());
       responses.put("j_security_check", new LoginResponse());
     } catch (Exception ex) {
