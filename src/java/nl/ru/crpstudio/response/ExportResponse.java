@@ -9,7 +9,10 @@ package nl.ru.crpstudio.response;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.ServletOutputStream;
+import nl.ru.util.FileUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
@@ -19,18 +22,38 @@ public class ExportResponse extends BaseResponse {
 
 	@Override
 	protected void completeRequest() {
+    String fileName = "";
     try {
       // Get the name of the project
-      project = "dum";
+      project = this.request.getParameter("project");
+      if (project.isEmpty()) {
+        // Provide some kind of warning/error??
+        logger.DoError("ExportResponse: the parameter [project] is empty");
+        return;
+      }
+      if (project.endsWith(".crpx")) {
+        project = project.substring(0,project.lastIndexOf("."));
+      }
       
-      // Make a filename for the file to be exported (tab-separated)
-			String fileName = project + "-" + new BigInteger(130, random).toString(32) + ".csv";
-			
       // Fetch the CSV information into a string
 			String result = this.jobToCSV();
 			
-      // Save the string into a file
-			sendFileResponse(result, fileName);
+      switch (servlet.getRequestMethod()) {
+        case "GET":
+          // Make a filename for the file to be exported (tab-separated)
+          fileName = project + "-" + new BigInteger(130, random).toString(32) + ".csv";
+          // Save the string into a file that is returned as attachment to the user
+          sendFileResponse(result, fileName);
+          break;
+        case "POST":
+          fileName = "/" + servlet.getUserId() +"/"+project+"-export.csv" ;
+          // Save the string into a file locally, and return the URL to the user
+          sendFileLocResponse(result, fileName);
+          break;
+        default:
+          return;
+      }
+			
 			
 
     } catch (Exception ex) {
@@ -48,8 +71,19 @@ public class ExportResponse extends BaseResponse {
 		return new ExportResponse();
 	}
 
+  /**
+   * jobToCSV
+   *    Fetch the "table" that has been passed on to /export?table={}
+   *    Check what kind of table this is (the table only contains the
+   *    information selected by the user to be shown), and then convert
+   *    this information into a tab-separated String.
+   * 
+   * @return - String containing the tab-separated table representation
+   */
 	public String jobToCSV() {
 		StringBuilder result = new StringBuilder();
+    JSONArray arTable;
+    
     try {
       // Get the "table" parameter
       String sTable = this.request.getParameter("table");
@@ -58,56 +92,66 @@ public class ExportResponse extends BaseResponse {
       result.append("date:\t"+getCurrentTimeStamp()+"\n");
       result.append("\n");
 
-      // Transform the json string into an object
-      JSONObject oTable = new JSONObject(sTable);
-      // Check what kind of object we have
-      if (oTable.has("qc")) {
-        // Get the result label (=name) of this QC
-        String sResLabel = oTable.getString("result");
-        result.append("QC line:\t"+sResLabel+"\n");
-        // This is the result of just one QC -- is it only one subcat?
-        if (oTable.has("subcats")) {
-          // There are more than one subcats
-          JSONArray arSubCat = oTable.getJSONArray("subcats");
-          // Create row with sub-categories
-          result.append("file\ttotal");
-          for (int i=0;i<arSubCat.length();i++) {
-            result.append("\t"+arSubCat.getString(i));
-          }
-          result.append("\n");
-          // Get the total counts per sub-category
-          JSONArray arCounts = oTable.getJSONArray("counts");
-          // Create a row with these counts
-          result.append("(all)\t"+oTable.getInt("total"));
-          for (int i=0;i<arCounts.length();i++) {
-            result.append("\t"+arCounts.getInt(i));
-          }
-          result.append("\n");
-          // Create row with counts
-          JSONArray arHits = oTable.getJSONArray("hits");
-          for (int i=0;i<arHits.length(); i++) {
-            JSONObject oHit = arHits.getJSONObject(i);
-            JSONArray arSubs = oHit.getJSONArray("subs");
-            result.append(oHit.getString("file")+"\t"+oHit.getInt("count"));
-            for (int j=0;j<arSubs.length(); j++) {
-              result.append("\t"+arSubs.getInt(j));
+      // Check if this is a JSONArray
+      try {
+        arTable = new JSONArray(sTable);
+      } catch (Exception ex) {
+        arTable = new JSONArray();
+        arTable.put(new JSONObject(sTable));
+      }
+      // Work through all the QC lines contained in the arTable
+      for (int k=0;k<arTable.length(); k++) {
+        // Get this table
+        JSONObject oTable = arTable.getJSONObject(k);
+        // Check what kind of object we have
+        if (oTable.has("qc")) {
+          // Get the result label (=name) of this QC
+          String sResLabel = oTable.getString("result");
+          result.append("QC line:\t"+sResLabel+"\n");
+          // This is the result of just one QC -- is it only one subcat?
+          if (oTable.has("subcats")) {
+            // There are more than one subcats
+            JSONArray arSubCat = oTable.getJSONArray("subcats");
+            // Create row with sub-categories
+            result.append("file\ttotal");
+            for (int i=0;i<arSubCat.length();i++) {
+              result.append("\t"+arSubCat.getString(i));
             }
             result.append("\n");
+            // Get the total counts per sub-category
+            JSONArray arCounts = oTable.getJSONArray("counts");
+            // Create a row with these counts
+            result.append("(all)\t"+oTable.getInt("total"));
+            for (int i=0;i<arCounts.length();i++) {
+              result.append("\t"+arCounts.getInt(i));
+            }
+            result.append("\n");
+            // Create row with counts
+            JSONArray arHits = oTable.getJSONArray("hits");
+            for (int i=0;i<arHits.length(); i++) {
+              JSONObject oHit = arHits.getJSONObject(i);
+              JSONArray arSubs = oHit.getJSONArray("subs");
+              result.append(oHit.getString("file")+"\t"+oHit.getInt("count"));
+              for (int j=0;j<arSubs.length(); j++) {
+                result.append("\t"+arSubs.getInt(j));
+              }
+              result.append("\n");
+            }
+          } else {
+            // There should be one "subcat"
+            String sSubCat = oTable.getString("subcat");
+            int iCount = oTable.getInt("count");
+            result.append("Sub category:\t"+sSubCat+"\n");
+            result.append("Count:\t"+iCount+"\n");
+            JSONArray arHits = oTable.getJSONArray("hits");
+            for (int i=0;i<arHits.length(); i++) {
+              JSONObject oHit = arHits.getJSONObject(i);
+              result.append(oHit.getString("file")+"\t"+oHit.getInt("count")+"\t"+oHit.getInt("subcount")+"\n");
+            }
           }
         } else {
-          // There should be one "subcat"
-          String sSubCat = oTable.getString("subcat");
-          int iCount = oTable.getInt("count");
-          result.append("Sub category:\t"+sSubCat+"\n");
-          result.append("Count:\t"+iCount+"\n");
-          JSONArray arHits = oTable.getJSONArray("hits");
-          for (int i=0;i<arHits.length(); i++) {
-            JSONObject oHit = arHits.getJSONObject(i);
-            result.append(oHit.getString("file")+"\t"+oHit.getInt("count")+"\t"+oHit.getInt("subcount")+"\n");
-          }
+          // The whole structure should be copied -- how??
         }
-      } else {
-        // The whole structure should be copied -- how??
       }
       
       // Return the resulting CSV table
@@ -117,23 +161,66 @@ public class ExportResponse extends BaseResponse {
       return "";
     }
 	}
+  
+  /**
+   * sendFileResponse
+   *    Create a file named [fileName] from the data in [contents]
+   *    As soon as "outStream.close()" is issued, the user
+   *      is presented with a menu asking  him where he wants to save it
+   * 
+   * @param contents
+   * @param fileName 
+   */
 	private void sendFileResponse(String contents, String fileName) {
     // Set HTTP headers
-		response.setContentType("application/octet-stream");
+    // Note: this only works when the request is GET
+    response.setHeader("Access-Control-Allow-Methods", "GET");
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    response.setContentType("application/octet-stream");
     response.setContentLength(contents.length());
+    response.setHeader("Content-Type", "text/csv");
     response.setHeader("Content-Disposition", "attachment; filename=\"crpstudio_" + fileName + "\"");
-        
+
     ServletOutputStream outStream = null;
-		try {
-			outStream = response.getOutputStream();
-			try {
-				outStream.write(contents.getBytes("utf-8"));
-			} finally {
+    try {
+      outStream = response.getOutputStream();
+      try {
+        outStream.write(contents.getBytes("utf-8"));
+      } finally {
         outStream.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+	/**
+   * sendFileLocResponse
+   *    Create a file named [fileName] from the data in [contents]
+   *    As soon as "outStream.close()" is issued, the user
+   *      is presented with a menu asking  him where he wants to save it
+   * 
+   * @param contents
+   * @param fileName 
+   */
+	private void sendFileLocResponse(String contents, String fileName) {
+    String sExportPath = "/static";
+    try {
+      // Create the file location name
+      String sWebRoot = servlet.getRealPath();
+      String sFileLoc = FileUtil.nameNormalize(sWebRoot + sExportPath+ fileName);
+      // Create the URL for this file
+      String sFileUrl = "http://" + request.getServerName() + ":"+ 
+              request.getServerPort() + servlet.getContextRoot() + sExportPath+ fileName;
+      // Save the contents to the file
+      FileUtil.writeFile(sFileLoc, contents, "utf-8");
+      // Respond with the URL for this file in the reply
+      Map<String,Object> output = new HashMap<String,Object>();
+      output.put("file", sFileUrl);
+      sendResponse(output);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
 	}
   
 }

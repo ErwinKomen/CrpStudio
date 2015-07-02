@@ -565,9 +565,9 @@ public abstract class BaseResponse {
 				resp.put(key, output.get(key));
 			}
 			response.setHeader("Access-Control-Allow-Origin", "*");
-	        response.setHeader("Access-Control-Allow-Methods", "POST");
-	        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-	        response.setHeader("Access-Control-Max-Age", "3600");
+      response.setHeader("Access-Control-Allow-Methods", "POST");
+      response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+      response.setHeader("Access-Control-Max-Age", "3600");
 			response.setContentType("application/x-javascript; charset=utf-8");
 			response.getWriter().write(resp.toString());
 			response.getWriter().close();
@@ -586,8 +586,8 @@ public abstract class BaseResponse {
     BufferedWriter writer;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "UTF-8"));
-		    writer.append(csv);
-		    writer.flush();
+      writer.append(csv);
+      writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

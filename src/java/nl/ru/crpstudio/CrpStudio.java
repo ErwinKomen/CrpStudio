@@ -73,10 +73,12 @@ public class CrpStudio extends HttpServlet {
   private CrpUtil crpUtil;
   private String sUserId = "";
   private boolean bUserOkay = false;
+  private String sRequestMethod = ""; // Which method is used to approach us?
   private String sSessionId = "";
 
   // ====================== Getters and setters ======================
   public String getRealPath() { return realPath; }
+  public String getContextRoot() { return contextRoot;}
 	public List<MetadataField> getMetadataFields() { return filterFields;}
   public LinkedList<FieldDescriptor> getSearchFields() { return searchFields; }
   public TemplateManager getTemplateManager() {return templateMan;}
@@ -87,6 +89,7 @@ public class CrpStudio extends HttpServlet {
   public CrpUtil getCrpUtil() {return crpUtil;}
   public ErrHandle getErrHandle() {return errHandle;}
   public JSONArray getCorpora() { return objCorpora;}
+  public String getRequestMethod() { return sRequestMethod;}
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
   
@@ -213,6 +216,7 @@ public class CrpStudio extends HttpServlet {
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    this.sRequestMethod = "GET";
 		processRequest(request, response);
 	}
 
@@ -222,6 +226,7 @@ public class CrpStudio extends HttpServlet {
 	 */
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    this.sRequestMethod = "POST";
 		processRequest(request, response);
 	}
 
