@@ -81,6 +81,8 @@ Crpstudio.result = {
     // Set the QC line
     Crpstudio.result.loc_iCurrentQc = idxQc;
     Crpstudio.result.loc_iCurrentSub = -1;
+    // Switch off export
+    $("#results_export").addClass("hidden");
     // Get the number of QCs
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
@@ -135,6 +137,8 @@ Crpstudio.result = {
     // Get the correct index
     var idxQc = iQC-1;
     Crpstudio.result.loc_iCurrentSub = idxSub;
+    // Switch off export
+    $("#results_export").addClass("hidden");
     // Get the number of QCs
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
