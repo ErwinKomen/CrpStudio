@@ -53,7 +53,11 @@
             <div class="large-3 medium-3 small-4 columns">
               <button class="small" onclick="Crpstudio.result.doExport();">$labels.getString("result.export")</button>
             </div>
-            <div id="results_time" class="large-13 medium=13 small-12 columns"></div>
+            <div id="results_time" class="large-4 medium=4 small-4 columns"></div>
+            <div id="results_export" class="large-9 medium=9 small-8 columns hidden">
+              <span>$labels.getString("result.export.intro"): </span>
+              <span id="results_export_file"></span>
+            </div>
           </div>
           <!-- result table -->
           <div id="result_table" class="large-16 medium-16 small-16">

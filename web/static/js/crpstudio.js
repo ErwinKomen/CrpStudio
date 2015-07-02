@@ -153,7 +153,8 @@ var Crpstudio = {
    * 22/jun/2015 ERK Created
    */
 	getCrpStudioData : function(type, params, callback, target) {
-		var xhr = Crpstudio.createRequest('POST', Crpstudio.baseUrl + type);
+    // Since this is a POST request, we need a trailing "/" !!!
+		var xhr = Crpstudio.createRequest('POST', Crpstudio.baseUrl + type + "/");
     // Validate
 		if (!xhr) { return; }
 		

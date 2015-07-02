@@ -35,6 +35,8 @@ Crpstudio.project = {
       // debugging: show where the status appears
       $("#project_status").text("Processing project: " + sPrjName);
       $("#result_status").text("");
+      // Switch off export
+      $("#results_export").addClass("hidden");
       // switch to the result tab
       Crpstudio.project.switchTab("result");
       $("#result_status").text("");

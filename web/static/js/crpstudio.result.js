@@ -87,6 +87,10 @@ Crpstudio.result = {
     var iSubCount = Crpstudio.result.loc_arTable[idxQc].subcats.length;
     // Clear and set the "active" state of the QC rows appropriately
     if ($("#queries #qcline_"+iQC).hasClass("active")) {
+      // Remove the "active" state of the particular qcline
+      $("#queries #qcline_"+iQC).removeClass("active");
+      // Hide the qcsub_n_m lines, which have class "qc-sub-line"
+      $("#queries .qc-sub-line").addClass("hidden");
       // User is already active here. Click means: remove all tables
       // (1) hide the 'result_qc' lines
       // $("#result_table .result-qc").addClass("hidden");
@@ -94,6 +98,8 @@ Crpstudio.result = {
       $("#result_table .result-qc-sub").addClass("hidden");
       // (3) toggle the 'hidden' class for this QC line table
       $("#result_qc"+iQC).toggleClass("hidden");
+      // Since we are RE-setting, clear the CurrentQc number
+      Crpstudio.result.loc_iCurrentQc = -1;
     } else {
       // Right: we need to switch the active state
       // (1) remove the "active" state for all QC rows
@@ -174,56 +180,63 @@ Crpstudio.result = {
     var idxSub = Crpstudio.result.loc_iCurrentSub;
     var arTable = Crpstudio.result.loc_arTable;
     
-    // The user is always allowed to export
+    // The user is always allowed to export (for this version of crpstudio)
     var ask = true;
+    // TODO: check if user has "export" permission if your version of crpstudio
+    //       and the corpora it holds need this
+    
+    // Continue if there is export permission
     if (ask) {
       // Validate: if no QC line is selected, return the WHOLE table
-       if (idxQc < 0) {
-         oBack = arTable;
-       } else {
-         // Get the section of the table that is going to be exported
-         oQC = arTable[idxQc];
-         // Is a particular subcat needed?
-         if (idxSub < 0) {
-           // We already have what needs to be returned
-           oBack = oQC;
-         } else {
-           // Get the QC elements
-           var arSubs = oQC.subcats;     // Sub-category names/labels
-           var iQC = oQC.qc;             // Number of this QC
-           var sQcLabel = oQC.result;    // Label for this QC line
-           var iTotal = oQC.total;       // Total count for this QC
-           var arSubCount = oQC.counts;  // Totals per sub-category
-           // Create an array with the correct 'hit' elements for this subcat
-           var arHits = [];
-           var arAll = oQC.hits;        // Array with *all* 'hit' elements (for all subcats)
-           for (var i=0; i<arAll.length;i++) {
-             var oThis = arAll[i];
-             var oNew = {
-                     "file": oThis.file, 
-                     "count": oThis.count, 
-                     "subcount": oThis.subs[idxSub]};
-             arHits.push(oNew);
-           }
+      if (idxQc < 0) {
+        oBack = arTable;
+      } else {
+        // Get the section of the table that is going to be exported
+        oQC = arTable[idxQc];
+        // Is a particular subcat needed?
+        if (idxSub < 0) {
+          // We already have what needs to be returned
+          oBack = oQC;
+        } else {
+          // Get the QC elements
+          var arSubs = oQC.subcats;     // Sub-category names/labels
+          var iQC = oQC.qc;             // Number of this QC
+          var sQcLabel = oQC.result;    // Label for this QC line
+          var iTotal = oQC.total;       // Total count for this QC
+          var arSubCount = oQC.counts;  // Totals per sub-category
+          // Create an array with the correct 'hit' elements for this subcat
+          var arHits = [];
+          var arAll = oQC.hits;        // Array with *all* 'hit' elements (for all subcats)
+          for (var i=0; i<arAll.length;i++) {
+            var oThis = arAll[i];
+            var oNew = {
+                    "file": oThis.file, 
+                    "count": oThis.count, 
+                    "subcount": oThis.subs[idxSub]};
+            arHits.push(oNew);
+          }
 
-           // Select the correct sub-category
-           oBack = { "qc": iQC, 
-                     "result": sQcLabel,
-                     "total": iTotal,
-                     "subcat": arSubs[idxSub],
-                     "count": arSubCount[idxSub],
-                     "hits": arHits};
-         }      
-       }
+          // Select the correct sub-category
+          oBack = { "qc": iQC, 
+                    "result": sQcLabel,
+                    "total": iTotal,
+                    "subcat": arSubs[idxSub],
+                    "count": arSubCount[idxSub],
+                    "hits": arHits};
+        }      
+      }
 
-       // Pack what we have into a string
-       var params = "table="+ JSON.stringify(oBack);
-       // Call /crpstudio/export with the information we have gathered
-       // Crpstudio.getCrpStudioData("export", params, Crpstudio.result.processExport);  
-       // Since we want a response, we need to do it this way:
-			// params = Whitelab.search.params.replace(/ /g,"%20");
+      // Pack what we have into a string
+      // var params = "table="+ encodeURIComponent(JSON.stringify(oBack));
+      var params = "project="+encodeURIComponent(Crpstudio.project.currentPrj)
+              + "&table="+ encodeURIComponent(JSON.stringify(oBack));
+      // Call /crpstudio/export with the information we have gathered
+      // Method #1: use POST request
+      Crpstudio.getCrpStudioData("export", params, Crpstudio.result.processExport);  
+       
+      // Method #2: use GET request 
 	
-			window.location = Crpstudio.baseUrl + "export?"+params;
+      // window.location = Crpstudio.baseUrl + "export?"+params;
     }
  
   },
@@ -238,6 +251,16 @@ Crpstudio.result = {
    */
   processExport : function(response, target) {
 		if (response !== null) {
+      // The response should contain a file name
+      var fFilePath = response.file;
+      if (fFilePath !== null) {
+        // Get the name of the file alone
+        var fFileName = fFilePath.substring(fFilePath.lastIndexOf("/")+1);
+        fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
+        // Provide the user with a path where he can download the file from
+        $("#results_export").removeClass("hidden");
+        $("#results_export_file").html("<a href=\""+fFilePath + "\">"+fFileName+"</a>");
+      }
       // So far: no action is required
       /*
 			if (response.hasOwnProperty("html") && response.html.indexOf("ERROR") > -1) {
