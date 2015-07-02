@@ -86,13 +86,7 @@ public class ExecuteResponse extends BaseResponse {
           break;
         case "completed":
           // If the job is already completed, then we need to pass on the results: "table"
-          // But this table can be either a JSONObject or a JSONArray
-          String sTable;
-          try {
-            output.put("table",oCont.getJSONObject("table"));
-          } catch (Exception ex) {
-            output.put("table",oCont.getJSONArray("table"));
-          }
+          output.put("table",oCont.getJSONArray("table"));
           sJobId = servlet.getUserJob();
           output.put("jobid", sJobId );
           break;
