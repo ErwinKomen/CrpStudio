@@ -48,8 +48,10 @@ Crpstudio.project = {
       var sExeRequest = "query=" + JSON.stringify(oExeRequest);
       // Set the location of the status div
       Crpstudio.project.divStatus = "#result_report";
-      // Initiate the search
-      Crpstudio.postRequest("exe", sExeRequest, Crpstudio.project.processExecute, "#result_status");
+      // Methode #1: Initiate the search by sending a request to /crpp/exe?{...}
+      // Crpstudio.postRequest("exe", sExeRequest, Crpstudio.project.processExeCrpp, "#result_status");
+      // Method #2: send the request to /crpstudio/exe?{...}
+      Crpstudio.getCrpStudioData("exe", sExeRequest, Crpstudio.project.processExeCrpStudio, "#result_status")
     }
   },
   /*
@@ -62,12 +64,12 @@ Crpstudio.project = {
   */
   
   /* ---------------------------------------------------------------------------
-   * Name: processExecute
+   * Name: processExeCrpp
    * Goal: callback function for the execution of a project
    * History:
    * 23/jun/2015  ERK Created
    */
-  processExecute : function(oResponse, target) {
+  processExeCrpp : function(oResponse, target) {
     // The initial response should contain one object: status
     var status = oResponse.status;
     // Initialisations
@@ -101,7 +103,7 @@ Crpstudio.project = {
         // Now issue this request with an interval of 0.5 seconds
         setTimeout(
           function () {
-            Crpstudio.postRequest("statusxq", sStatusRequest, Crpstudio.project.processExecute, target);
+            Crpstudio.postRequest("statusxq", sStatusRequest, Crpstudio.project.processExeCrpp, target);
           }, Crpstudio.project.interval);
         break;
       case "working":
@@ -112,7 +114,7 @@ Crpstudio.project = {
         // Now issue the same request with an interval of 0.5 seconds
         setTimeout(
           function () {
-            Crpstudio.postRequest("statusxq", sStatusRequest, Crpstudio.project.processExecute, target);
+            Crpstudio.postRequest("statusxq", sStatusRequest, Crpstudio.project.processExeCrpp, target);
           }, Crpstudio.project.interval);
         break;
       case "completed":
@@ -147,6 +149,93 @@ Crpstudio.project = {
   }
 }
   */
+  },
+
+  /* ---------------------------------------------------------------------------
+   * Name: processExeCrpStudio
+   * Goal: callback function for the /crpstudio/exe command
+   *       The [oResponse] can have the following values:
+   *       error    - the content.message (if there was an error)
+   *       status   - a JSON object contaning:
+   *        code    - the status.code sent by /crpp: error, working, started, completed
+   *        message - the status.message (if available)
+   *        jobid   - the /crpp internal jobid for this job
+   *        userid  - the /crpp internal userid for this job
+   *       content  - A JSON object containing
+   *        table   - the /crpp returned table, if job was completed
+   * History:
+   * 6/jul/2015  ERK Created
+   */
+  processExeCrpStudio : function(oResponse, target) {
+    // The initial response should contain one object: status
+    var oStatus = oResponse.status;
+    // Initialisations
+    var jobId = "";
+    var sUserId = "";
+    var sStatusRequest = "";
+    // Part of the object is the code (which should be 'started')
+    var statusCode = oStatus.code;
+    var statusMsg = (oStatus.message) ? (": "+oStatus.message) : "";
+    // Set the status
+    $(target).html(statusCode+statusMsg);
+    // Try to get a content object
+    // var oContent = (oResponse.content) ? oResponse.content : {};
+    // Action depends on the status code
+    switch (statusCode.toLowerCase()) {
+      case "started":
+        // Get the jobid and the userid
+        jobId = oStatus.jobid;
+        sUserId = (oStatus.userid) ? oStatus.userid : Crpstudio.currentUser;
+        // Create a status request object
+        var oStatusRequest = {
+          "jobid": jobId,
+          "userid": sUserId
+        }
+        sStatusRequest = "query=" + JSON.stringify(oStatusRequest);
+        // Make the status available within this JavaScript module
+        Crpstudio.project.strQstatus = sStatusRequest;
+        // Make sure the results are not visible yet
+        $("#results").addClass("hidden");
+        $("#results").removeClass("active");
+        // Hide querylines from viewing
+        $("#result_querylines").addClass("hidden");
+        // Now issue this request with an interval of 0.5 seconds
+        setTimeout(
+          function () {
+            Crpstudio.getCrpStudioData("statusxq", sStatusRequest, Crpstudio.project.processExeCrpStudio, target);
+          }, Crpstudio.project.interval);
+        break;
+      case "working":
+        // Show the current status
+        Crpstudio.project.doStatus(oResponse);
+        // Retrieve the status request object string
+        sStatusRequest = Crpstudio.project.strQstatus ;
+        // Now issue the same request with an interval of 0.5 seconds
+        setTimeout(
+          function () {
+            Crpstudio.getCrpStudioData("statusxq", sStatusRequest, Crpstudio.project.processExeCrpStudio, target);
+          }, Crpstudio.project.interval);
+        break;
+      case "completed":
+        // Signal completion
+        $(target).html("Fetching results");
+        // Show the final status
+        Crpstudio.project.doStatus(oResponse);
+        // And more completeino
+        $(target).html("");
+        // Make sure the results are visible
+        $("#results").removeClass("hidden");
+        $("#results").addClass("active");
+        break;
+      case "error":
+        // Provite an error report
+        $(target).html("There was an error");
+        break;
+      default:
+        // Provite a status report showing that we are at a loss
+        
+        break;
+    }
   },
   
   /* ---------------------------------------------------------------------------
