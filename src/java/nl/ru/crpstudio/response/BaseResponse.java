@@ -66,6 +66,7 @@ public abstract class BaseResponse {
   protected TemplateManager templateMan;
   protected boolean bUserOkay = false;
   protected String sUserId = "none";
+  protected String sJobId = "";
 	
 	protected long startTime = new Date().getTime();
 
@@ -105,109 +106,126 @@ public abstract class BaseResponse {
 
 	protected Map<String, Object> getQueryParameters() {
 		Map<String, Object> params = new HashMap<String,Object>();
-		String query = this.getParameter("query", "");
-		query = query.replaceAll("&", "%26");
-		
-		int view = this.getParameter("view", 1);
-		
-		if (query.length() > 0) {
-			try {
+    
+    try {
+      String query = this.getParameter("query", "");
+      query = query.replaceAll("&", "%26");
 
-				params.put("patt", query);
-				
-				String groupBy = this.getParameter("group_by", "");
-				if (groupBy.length() > 0)
-					params.put("group", URLDecoder.decode(groupBy, "UTF-8"));
-				
-				String sort = this.getParameter("sort", "");
-				if (sort.length() > 0) {
-					params.put("sort", URLDecoder.decode(sort, "UTF-8"));
-				}
-				
-				Integer start = this.getParameter("start", -1);
-				if (start > -1)
-					params.put("start", start);
-				
-				Integer end = this.getParameter("end", -1);
-				if (end > -1)
-					params.put("end", end);
-				
-				Integer first = this.getParameter("first", 0);
-				if (first > 0)
-					params.put("first", first);
-				
-				Integer number = this.getParameter("number", 50);
-				String docPid = this.getParameter("docpid", "");
-				if (docPid.length() == 0)
-					params.put("number", number);
-				
-				String filter = getFilterString();
-				if (filter.length() > 0) {
-					params.put("filter", filter);
-				}
-				
-				if (view == 12)
-					params.put("wordsaroundhit", 0);
-				
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return params;
+      int view = this.getParameter("view", 1);
+
+      if (query.length() > 0) {
+        try {
+
+          params.put("patt", query);
+
+          String groupBy = this.getParameter("group_by", "");
+          if (groupBy.length() > 0)
+            params.put("group", URLDecoder.decode(groupBy, "UTF-8"));
+
+          String sort = this.getParameter("sort", "");
+          if (sort.length() > 0) {
+            params.put("sort", URLDecoder.decode(sort, "UTF-8"));
+          }
+
+          Integer start = this.getParameter("start", -1);
+          if (start > -1)
+            params.put("start", start);
+
+          Integer end = this.getParameter("end", -1);
+          if (end > -1)
+            params.put("end", end);
+
+          Integer first = this.getParameter("first", 0);
+          if (first > 0)
+            params.put("first", first);
+
+          Integer number = this.getParameter("number", 50);
+          String docPid = this.getParameter("docpid", "");
+          if (docPid.length() == 0)
+            params.put("number", number);
+
+          String filter = getFilterString();
+          if (filter.length() > 0) {
+            params.put("filter", filter);
+          }
+
+          if (view == 12)
+            params.put("wordsaroundhit", 0);
+
+        } catch (UnsupportedEncodingException e) {
+          e.printStackTrace();
+        }
+      }
+
+      return params;
+    } catch (Exception ex) {
+      logger.DoError("BaseResponse.getQueryParameters error", ex);
+      return params;
+    }
 	}
 	
 	private String getFilterString() {
 		Map<String,Map<String,List<String>>> filters = new HashMap<String,Map<String,List<String>>>();
+    List<MetadataField> fldsMetaData;
+    String filter = "";
 		
-		for (MetadataField dataField : this.servlet.getMetadataFields()) {
-			String[] filterValues = this.getParameterValues(dataField.getName(), null);
-			if (filterValues != null && filterValues.length > 0) {
-				Map<String,List<String>> vals = new HashMap<String,List<String>>();
-				List<String> is = new ArrayList<String>();
-				List<String> isnot = new ArrayList<String>();
-				vals.put("is", is);
-				vals.put("isnot", isnot);
-				
-				for (int i = 0; i < filterValues.length; i++) {
-					String filterValue = "";
-					try {
-						filterValue = URLDecoder.decode(filterValues[i], "UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					}
-					
-					if (filterValue.startsWith("-") || filterValue.startsWith("\"-")) {
-						filterValue = filterValue.replaceFirst("-", "");
-						vals.get("isnot").add(filterValue);
-					} else {
-						vals.get("is").add(filterValue);
-					}
-				}
-				
-				if (vals.get("isnot").size() > 0 && vals.get("is").size() == 0) {
-					for (String filterValue : dataField.getValues()) {
-						filterValue = "\""+filterValue+"\"";
-						if (!vals.get("isnot").contains(filterValue) && !vals.get("is").contains(filterValue))
-							vals.get("is").add(filterValue);
-					}
-				} else {
-					vals.remove("isnot");
-				}
-				
-				filters.put(dataField.getName(), vals);
-			}
-		}
+    try {
+      // Validate
+      fldsMetaData = this.servlet.getMetadataFields();
+      // Validate
+      if (fldsMetaData == null) return filter;
+      // Loop
+      for (MetadataField dataField : fldsMetaData) {
+        String[] filterValues = this.getParameterValues(dataField.getName(), null);
+        if (filterValues != null && filterValues.length > 0) {
+          Map<String,List<String>> vals = new HashMap<String,List<String>>();
+          List<String> is = new ArrayList<String>();
+          List<String> isnot = new ArrayList<String>();
+          vals.put("is", is);
+          vals.put("isnot", isnot);
 
-		List<String> filterStrings = new ArrayList<String>();
-		String filter = "";
-		if (filters.keySet().size() > 0) {
-			for (String field : filters.keySet()) {
-				filterStrings.add(field+":("+StringUtil.join(filters.get(field).get("is").toArray(), " OR ").replaceAll("&", "%26")+")");
-			}
-			filter = "("+StringUtil.join(filterStrings.toArray()," AND ")+")";
-		}
-		return filter;
+          for (int i = 0; i < filterValues.length; i++) {
+            String filterValue = "";
+            try {
+              filterValue = URLDecoder.decode(filterValues[i], "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              e.printStackTrace();
+            }
+
+            if (filterValue.startsWith("-") || filterValue.startsWith("\"-")) {
+              filterValue = filterValue.replaceFirst("-", "");
+              vals.get("isnot").add(filterValue);
+            } else {
+              vals.get("is").add(filterValue);
+            }
+          }
+
+          if (vals.get("isnot").size() > 0 && vals.get("is").size() == 0) {
+            for (String filterValue : dataField.getValues()) {
+              filterValue = "\""+filterValue+"\"";
+              if (!vals.get("isnot").contains(filterValue) && !vals.get("is").contains(filterValue))
+                vals.get("is").add(filterValue);
+            }
+          } else {
+            vals.remove("isnot");
+          }
+
+          filters.put(dataField.getName(), vals);
+        }
+      }
+
+      List<String> filterStrings = new ArrayList<String>();
+      if (filters.keySet().size() > 0) {
+        for (String field : filters.keySet()) {
+          filterStrings.add(field+":("+StringUtil.join(filters.get(field).get("is").toArray(), " OR ").replaceAll("&", "%26")+")");
+        }
+        filter = "("+StringUtil.join(filterStrings.toArray()," AND ")+")";
+      }
+      return filter;
+    } catch (Exception ex) {
+      logger.DoError("BaseResponse.getFilterString error", ex);
+      return filter;
+    }
 	}
 	
   /**
@@ -353,24 +371,90 @@ public abstract class BaseResponse {
 			e.printStackTrace();
 		}
 		
-		if (this.lang != null && !this.lang.equals(this.locale)) {
-			this.locale = new Locale(this.lang);
-		} else if (this.lang == null) {
-			this.lang = this.locale.getLanguage();
-		}
-		this.labels = ResourceBundle.getBundle("CrpstudioBundle", this.locale);
-		
-		this.getContext().put("lang", this.lang);
-		this.getContext().put("labels", this.labels);
-		
-		logRequest();
-		
-		this.params = getQueryParameters();
-		if (this.params.keySet().size() > 0)
-			this.servlet.log("Query parameters given: "+StringUtil.join(params.keySet().toArray(),", "));
-		
-		completeRequest();
+    try {
+      if (this.lang != null && !this.lang.equals(this.locale)) {
+        this.locale = new Locale(this.lang);
+      } else if (this.lang == null) {
+        this.lang = this.locale.getLanguage();
+      }
+      this.labels = ResourceBundle.getBundle("CrpstudioBundle", this.locale);
+
+      this.getContext().put("lang", this.lang);
+      this.getContext().put("labels", this.labels);
+
+      logRequest();
+
+      this.params = getQueryParameters();
+      if (this.params.keySet().size() > 0)
+        this.servlet.log("Query parameters given: "+StringUtil.join(params.keySet().toArray(),", "));
+
+      completeRequest();
+    } catch (Exception ex) {
+      logger.DoError("BaseResponse.processRequest error", ex);
+			ex.printStackTrace();
+    }
 	}
+  
+  /**
+   * processQueryResponse
+   *    Process the response of /crpp/exe or /crpp/statusq
+   *    The responses are treated the same way
+   * 
+   * @param output We add to the output map for our caller
+   */
+  public void processQueryResponse(String sResp, Map<String,Object> output) {
+    JSONObject oStat = null;
+    JSONObject oContent = null;
+    try {
+            // Interpret the response: expecting a JSON string with "status", "content"
+      JSONObject oResp = new JSONObject(sResp);
+      if (!oResp.has("status")) { output.put("error", "processQueryResponse: /crpp does not return status"); return;}
+      // Decypher the status
+      oStat = oResp.getJSONObject("status");
+      // Transfer the status
+      output.put("status", oStat);
+      if (oResp.has("content")) {
+        oContent = oResp.getJSONObject("content");
+        output.put("content", oContent);
+      }
+      // Put the status code and message in the output string we return
+      // output.put("status", oStat.getString("code"));
+      // output.put("message", (oResp.has("message")) ? oStat.getString("message") : "(no details)");
+      // Add the userid separately
+      output.put("userid", this.sUserId);
+      JSONObject oCont = null;
+      if (oResp.has("content")) oCont = oResp.getJSONObject("content");
+      switch (oStat.getString("code")) {
+        case "error":
+          logger.DoError("processQueryResponse: /crpp returns error:"+oCont.getString("message"));
+          output.put("error", oCont.getString("message"));
+          break;
+        case "completed":
+          // If the job is already completed, then we need to pass on the results: "table"
+          output.put("table",oCont.getJSONArray("table"));
+          sJobId = servlet.getUserJob();
+          output.put("jobid", sJobId );
+          break;
+        case "started":
+          // Get the jobid
+          sJobId = oStat.getString("jobid");
+          servlet.setUserJob(sJobId);
+          output.put("jobid", sJobId );
+          break;
+        case "working":
+          // Get the jobid (now stored in the content part)
+          sJobId = oResp.getString("jobid");
+          servlet.setUserJob(sJobId);
+          output.put("jobid", sJobId );
+          break;
+        default:
+          output.put("error", "Undefined /crpp status code: ["+oStat.getString("code")+"]");
+          break;
+      }
+    } catch (Exception ex) {
+      logger.DoError("BaseResponse.processQueryResponse error", ex);
+    }
+  }
 
 	/**
 	 * Returns the value of a servlet parameter, or the default value
@@ -552,6 +636,11 @@ public abstract class BaseResponse {
 		this.getContext().put("metaSelect",selectFields);
 	}
 
+  protected void sendErrorResponse(String sMsg) {
+    Map<String,Object> output = new HashMap<String,Object>();
+    output.put("error", sMsg);
+    sendResponse(output);
+  }
 	protected void sendResponse(Map<String,Object> output) {
 		long timePassed = new Date().getTime() - this.startTime;
 		try {

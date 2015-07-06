@@ -36,27 +36,26 @@ public class ExecuteResponse extends BaseResponse {
     String sUser;
     String sJobId = "";
     JSONObject oQuery;
-    JSONObject oExeRequest = new JSONObject();
     try {
       // Gather our own parameter(s)
       sUser = servlet.getUserId();
       // Collect the JSON from our caller
       oQuery = new JSONObject(request.getParameter("query"));
-      if (!oQuery.has("lng")) { logger.DoError("ExecuteResponse: missing @lng"); return;}
-      if (!oQuery.has("crp")) { logger.DoError("ExecuteResponse: missing @crp"); return;}
-      oExeRequest.put("userid", sUser);
-      oExeRequest.put("crp", oQuery.getString("crp"));
-      oExeRequest.put("lng", oQuery.getString("lng"));
-      if (oQuery.has("dir")) { oExeRequest.put("dir", oQuery.getString("dir")); }
+      if (!oQuery.has("lng")) { sendErrorResponse("ExecuteResponse: missing @lng"); return;}
+      if (!oQuery.has("crp")) { sendErrorResponse("ExecuteResponse: missing @crp"); return;}
+      if (!oQuery.has("userid")) { sendErrorResponse("ExecuteResponse: missing @userid"); return;}
+      this.params.put("userid", oQuery.getString("userid"));
+      this.params.put("crp", oQuery.getString("crp"));
+      this.params.put("lng", oQuery.getString("lng"));
+      if (oQuery.has("dir")) { this.params.put("dir", oQuery.getString("dir")); }
       if (oQuery.has("cache")) { 
-        oExeRequest.put("cache", oQuery.getBoolean("cache")); 
+        // Take over the caching parameter, if specified by the caller
+        this.params.put("cache", oQuery.getBoolean("cache")); 
       } else {
-        oExeRequest.put("cache", true);
+        // Default caching behaviour: we want caching (in the production environment)
+        this.params.put("cache", true);
       }
-      // Prepare parameters
-      this.params.clear();
-      this.params.put("query", oExeRequest.toString());
-      // Prepare output
+      // Start preparing the output of "completeRequest()", which is a mapping object
       Map<String,Object> output = new HashMap<String,Object>();
       output.put("startTime", this.startTime);
       try {
@@ -66,56 +65,23 @@ public class ExecuteResponse extends BaseResponse {
           | ReflectionException e1) {
         e1.printStackTrace();
       }
-      // Issue a request to the /crpp using the 'query' JSON parameter above
-      String response = getCrppResponse("exe", "", this.params);
-      if (response.isEmpty() || !response.startsWith("{")) { logger.DoError("ExecuteResponse: /crpp does not return JSON"); return;}
-      // Interpret the response: expecting a JSON string with "status", "content"
-      JSONObject oResp = new JSONObject(response);
-      if (!oResp.has("status")) { logger.DoError("ExecuteResponse: /crpp does not return status"); return;}
-      // Decypher the status
-      JSONObject oStat = oResp.getJSONObject("status");
-      // Put the status code and message in the output string we return
-      output.put("status", oStat.getString("code"));
-      output.put("message", oStat.getString("message"));
-      JSONObject oCont = null;
-      if (oResp.has("content")) oCont = oResp.getJSONObject("content");
-      switch (oStat.getString("code")) {
-        case "error":
-          logger.DoError("ExecuteResponse: /crpp returns error:"+oCont.getString("message"));
-          output.put("error", oCont.getString("message"));
-          break;
-        case "completed":
-          // If the job is already completed, then we need to pass on the results: "table"
-          output.put("table",oCont.getJSONArray("table"));
-          sJobId = servlet.getUserJob();
-          output.put("jobid", sJobId );
-          break;
-        case "started":
-          // Get the jobid
-          sJobId = oStat.getString("jobid");
-          servlet.setUserJob(sJobId);
-          output.put("jobid", sJobId );
-          break;
-        case "working":
-          // Get the jobid (now stored in the content part)
-          sJobId = oResp.getString("jobid");
-          servlet.setUserJob(sJobId);
-          output.put("jobid", sJobId );
-          break;
-        default:
-          output.put("error", "Undefined /crpp status code: ["+oStat.getString("code")+"]");
-          break;
-      }
+      // Issue the request to the /crpp using the 'query' JSON parameter above
+      String sResp = getCrppResponse("exe", "", this.params);
+      if (sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("ExecuteResponse: /crpp does not return JSON"); return;}
+      
+      // Process the response from /crpp, adding to [output]
+      processQueryResponse(sResp, output);
+      
       // Send the output to our caller
       sendResponse(output);
     } catch (Exception ex) {
-      logger.DoError("CorporaResponse: could not complete", ex);
+      sendErrorResponse("ExecuteResponse: could not complete: "+ ex.getMessage());
     }
 	}
 
 	@Override
 	protected void logRequest() {
-		this.servlet.log("CorporaResponse");
+		this.servlet.log("ExecuteResponse");
 	}
 
 	@Override

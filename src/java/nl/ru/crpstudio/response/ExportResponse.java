@@ -41,12 +41,12 @@ public class ExportResponse extends BaseResponse {
       switch (servlet.getRequestMethod()) {
         case "GET":
           // Make a filename for the file to be exported (tab-separated)
-          fileName = project + "-" + new BigInteger(130, random).toString(32) + ".csv";
+          fileName = project + "-" + new BigInteger(130, random).toString(32) + ".txt";
           // Save the string into a file that is returned as attachment to the user
           sendFileResponse(result, fileName);
           break;
         case "POST":
-          fileName = "/" + servlet.getUserId() +"/"+project+"-export.csv" ;
+          fileName = "/" + servlet.getUserId() +"/"+project+"-export.txt" ;
           // Save the string into a file locally, and return the URL to the user
           sendFileLocResponse(result, fileName);
           break;
@@ -208,6 +208,10 @@ public class ExportResponse extends BaseResponse {
     try {
       // Create the file location name
       String sWebRoot = servlet.getRealPath();
+      // Test for the rightmost character
+      String sRightMost = sWebRoot.substring(sWebRoot.length()-1);
+      if (sRightMost.equals("/") || sRightMost.equals("\\"))
+        sWebRoot = sWebRoot.substring(0, sWebRoot.length()-1);
       String sFileLoc = FileUtil.nameNormalize(sWebRoot + sExportPath+ fileName);
       // Create the URL for this file
       String sFileUrl = "http://" + request.getServerName() + ":"+ 
