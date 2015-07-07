@@ -34,10 +34,12 @@ import javax.management.ReflectionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.ru.crpstudio.CrpStudio;
+import nl.ru.crpstudio.crp.CrpContainer;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TemplateManager;
+import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.util.ByRef;
 import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONArray;
@@ -67,6 +69,8 @@ public abstract class BaseResponse {
   protected boolean bUserOkay = false;
   protected String sUserId = "none";
   protected String sJobId = "";
+  protected CrpContainer crpContainer;
+  protected CorpusResearchProject crpThis;
 	
 	protected long startTime = new Date().getTime();
 
@@ -89,6 +93,7 @@ public abstract class BaseResponse {
 		servlet = argServlet;
     templateMan = argServlet.getTemplateManager();
     logger = argServlet.getErrHandle();
+    crpContainer = argServlet.getCrpContainer();
 	}
 
 	/**
@@ -237,7 +242,7 @@ public abstract class BaseResponse {
    * @param params  - parameters requiring & to be attached to request
    * @return        - string returning the response
    */
-	protected String getCrppResponse(String index, String trail, Map<String,Object> params) {
+	public String getCrppResponse(String index, String trail, Map<String,Object> params) {
     String parameters = "";
     
     // Take over the parameters

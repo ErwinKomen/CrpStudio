@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.ru.crpstudio.crp.CrpContainer;
 import nl.ru.crpstudio.response.*;
 import nl.ru.crpstudio.util.*;
 import nl.ru.util.ByRef;
@@ -51,15 +52,17 @@ import org.xml.sax.InputSource;
  * 
  * @author Erwin R. Komen
  */
-@WebServlet(name = "crpsw", 
-            urlPatterns = {"/home", "/error", "/about"})
+/* @WebServlet(name = "crpsw", 
+            urlPatterns = {"/home", "/error", "/about"}) */
 public class CrpStudio extends HttpServlet {
   // ===================== Accessible by outsiders ===================
   public static String LOGGER_NAME = "CrpStudioLogger"; // Change here: also in velocity.properties
   // ===================== Persistent between users/sessions =========
 
-  // ===================== Local variables ===========================
+  // ===================== Static variables ==========================
   private static ErrHandle errHandle = null;
+  private static CrpContainer crpContainer;   // Link to the CRP-User list manager
+  // ===================== Local variables ===========================
 	private String realPath = "";
   // private Logger logger;
 	// private Map<String, Template> templates = new HashMap<>();
@@ -92,6 +95,7 @@ public class CrpStudio extends HttpServlet {
   public ErrHandle getErrHandle() {return errHandle;}
   public JSONArray getCorpora() { return objCorpora;}
   public String getRequestMethod() { return sRequestMethod;}
+  public CrpContainer getCrpContainer() { return crpContainer; }
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
   
@@ -120,15 +124,7 @@ public class CrpStudio extends HttpServlet {
   }
   @Override
   public void init(ServletConfig cfg) throws ServletException {
-    /*
-    super.init(cfg);  // Initialize our parent
-		try {
-			log("Initializing CrpStudio, Memory usage: "+getCurrentMemUsage());
-		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e1) {
-      errHandle.DoError("init (a): " + e1.getMessage());
-      e1.printStackTrace();
-		} */
-    
+   
     try {
       // Perform the 'normal' initialization
       init();
@@ -152,6 +148,7 @@ public class CrpStudio extends HttpServlet {
       responses.put("exe", new ExecuteResponse());
       responses.put("statusxq", new StatusResponse());
       responses.put("about", new InfoResponse());
+      responses.put("load", new LoadResponse());
       responses.put("j_security_check", new LoginResponse());
     } catch (Exception ex) {
       errHandle.DoError("init (b): " + ex.getMessage());
