@@ -478,9 +478,54 @@ Crpstudio.project = {
     $("#project_current").text(sPrjName);
     // And set the name of the project in the top-bar div
     $("#top_bar_current_project").text(sPrjName);
-    // Adapt the text of the project description
-    $("#project_description").html("<p>You have chosen: <b>" + sPrjName + "</b></p>");
+    // Status: indicate that we are loading the project
+    $("#project_status").html("Loading project...");
+    $("#project_description").html("<i>Please wait...</i>");
+    // Make the General area invisible
+    $("#project_general").addClass("hidden");
+    // Issue a request to /crpstudio to load the project
+    var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
+    params += "&type=info";
+    Crpstudio.getCrpStudioData("load", params, Crpstudio.project.processLoad, "#project_description");
   },
+  /**
+   * processLoad
+   *    What to do when a project has been loaded
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/load
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processLoad : function(response, target) {
+		if (response !== null) {
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#project_status").html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
+          break;
+        case "completed":
+          // Get the information passed on about this project
+          
+          
+          // Make the General area visible again
+          $("#project_general").removeClass("hidden");
+          break;
+        default:
+          $("#project_status").html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("ERROR - Failed to load the .crpx result from the server.");
+		}    
+  },
+  
   setCorpus : function(sCorpusName, sDirName) {
     $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
   },

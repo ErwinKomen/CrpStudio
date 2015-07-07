@@ -17,8 +17,67 @@
     </ul>
   </div>
   <!-- the part to the right of the side-bar may contain contents of this project -->
-  <div id="project_description" class="large-8 medium-8 small-8 columns">
-    <p>Text of the project</p>
+  <div id="project_editor" class="large-8 medium-8 small-8 columns">
+    <form>
+      <fieldset>
+        <legend>General</legend>
+        <div id="project_description" class="large-16 medium-16 small-16 row">
+          <p>Text of the project</p>
+        </div>
+        <div id="project_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="project_general_top" class="large-16 medium-16 small-16 row">
+            <!-- The top-left contains name, author, type and goal -->
+            <div id="project_general_left" class="large-10 medium-10 small-10 columns">
+              <div class="row">
+                <div class="large-3 medium-3 small-3 columns">
+                  <Label for="right-label" class="right inline">$labels.getString("project.general.name")</Label>
+                </div>
+                <div class="large-7 medium-7 small-7 columns">
+                  <input id="project_general_name" type="text" placeholder="name (no spaces)">
+                </div>
+                <div class="large-2 medium-2 small-2 columns">
+                  <span class="postfix">.crpx</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="large-3 medium-3 small-3 columns">
+                  <Label for="right-label" class="right inline">$labels.getString("project.general.author")</Label>
+                </div>
+                <div class="large-9 medium-9 small-9 columns">
+                  <input id="project_general_author" type="text" placeholder="creator of this project">
+                </div>
+              </div>
+              <div class="row">
+                <div class="large-3 medium-3 small-3 columns">
+                  <Label for="right-label" class="right inline">$labels.getString("project.general.prjtype")</Label>
+                </div>
+                <div class="large-9 medium-9 small-9 columns">
+                  <input id="project_general_prjtype" type="text" placeholder="kind of project">
+                </div>
+              </div>
+              <div class="row">
+                <div class="large-12 medium-12 small-12 columns">
+                  <Label>$labels.getString("project.general.goal")</Label>
+                  <input id="project_general_goal" type="text" placeholder="goal of this project">
+                </div>
+              </div>
+              <div class="row">$labels.getString("project.general.goal"):</div>
+              <div id="project_general_goal">-</div>
+            </div>
+            <!-- The top-right contains data and project-specific preferences -->
+            <div id="project_general_right" class="large-4 medium=4 small-4 columns">
+              <div class="row">$labels.getString("project.general.datecreated"): <div id="project_general_datecreated">-</div></div>
+              <div class="row">$labels.getString("project.general.dateedited"): <div id="project_general_dateedited">-</div></div>
+              <label for="project_general_showsyn"><input type="checkbox" id="project_general_showsyn" style="display: none;"><span class="custom checkbox"></span> $labels.getString("project.general.showsyn")</label>
+            </div>
+          </div>
+          <!-- The bottom contains the comments for this project -->
+          <div id="project_general_bottom" class="large-16 medium-16 small-16 row">
+            <div id="project_general_comments">-</div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
   </div>
   <!-- execution of the project through a click button -->
   <div id="project_execution" class="large-4 medium-4 small-4 columns">
