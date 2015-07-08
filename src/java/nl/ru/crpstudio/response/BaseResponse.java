@@ -405,11 +405,13 @@ public abstract class BaseResponse {
    *    Process the response of /crpp/exe or /crpp/statusq
    *    The responses are treated the same way
    * 
-   * @param output We add to the output map for our caller
+   * @param sResp   The JSON string response received from /crpp/exe or /crpp/statusq
+   * @param output  We add to the output map for our caller
    */
   public void processQueryResponse(String sResp, Map<String,Object> output) {
     JSONObject oStat = null;
     JSONObject oContent = null;
+    String sMsg = "(undefined)";
     try {
             // Interpret the response: expecting a JSON string with "status", "content"
       JSONObject oResp = new JSONObject(sResp);
@@ -421,24 +423,30 @@ public abstract class BaseResponse {
       if (oResp.has("content")) {
         oContent = oResp.getJSONObject("content");
         output.put("content", oContent);
+        if (oContent.has("message")) sMsg = oContent.getString("message");
       }
-      // Put the status code and message in the output string we return
-      // output.put("status", oStat.getString("code"));
-      // output.put("message", (oResp.has("message")) ? oStat.getString("message") : "(no details)");
-      // Add the userid separately
+      // Put the userid separately in the output string we return
       output.put("userid", this.sUserId);
-      JSONObject oCont = null;
-      if (oResp.has("content")) oCont = oResp.getJSONObject("content");
+      
+      // Further action depends on the status code we received
       switch (oStat.getString("code")) {
         case "error":
-          logger.DoError("processQueryResponse: /crpp returns error:"+oCont.getString("message"));
-          output.put("error", oCont.getString("message"));
+          logger.DoError("processQueryResponse: /crpp returns error: "+sMsg);
+          output.put("error", sMsg);
           break;
         case "completed":
           // If the job is already completed, then we need to pass on the results: "table"
-          output.put("table",oCont.getJSONArray("table"));
-          sJobId = servlet.getUserJob();
-          output.put("jobid", sJobId );
+          if (oContent != null && oContent.has("table")) {
+            // There really is a table in the output
+            output.put("table",oContent.getJSONArray("table"));
+            sJobId = servlet.getUserJob();
+            output.put("jobid", sJobId );
+          } else {
+            // We have received no content, or content without a table - bad...
+            output.put("table", "");
+            output.put("error", "No table found");
+            oStat.put("code", "error"); output.put("status", oStat);
+          }
           break;
         case "started":
           // Get the jobid
@@ -448,7 +456,7 @@ public abstract class BaseResponse {
           break;
         case "working":
           // Get the jobid (now stored in the content part)
-          sJobId = oResp.getString("jobid");
+          sJobId = oContent.getString("jobid");
           servlet.setUserJob(sJobId);
           output.put("jobid", sJobId );
           break;
@@ -641,11 +649,62 @@ public abstract class BaseResponse {
 		this.getContext().put("metaSelect",selectFields);
 	}
 
+  /**
+   * sendErrorResponse
+   *    Send a response to the caller containing three parameters:
+   *    status  - JSON object containing code "error"
+   *    content - JSON object containing code and message
+   *    error   - the same error message as above
+   * 
+   * @param sMsg 
+   */
   protected void sendErrorResponse(String sMsg) {
     Map<String,Object> output = new HashMap<String,Object>();
+    JSONObject oStat = new JSONObject();
+    JSONObject oCont = new JSONObject();
+    // Prepare the JSON objects for status and content
+    oStat.put("code", "error");
+    oCont.put("code", "error");
+    oCont.put("message", sMsg);
+    // Prepare the output parameters
+    output.put("status",oStat);
+    output.put("content", oCont);
     output.put("error", sMsg);
+    // Send the response
     sendResponse(output);
   }
+  
+  /**
+   * sendStandardResponse
+   *    Send a response to the caller containing three parameters:
+   *    status  - JSON object containing status code
+   *    content - JSON object containing message and actual content
+   * 
+   * @param sStatus   - status code (started, completed, working)
+   * @param sMsg      - status message (may be empty)
+   * @param oContent  - the actual content to the caller
+   */
+  protected void sendStandardResponse(String sStatus, String sMsg, JSONObject oContent) {
+    Map<String,Object> output = new HashMap<String,Object>();
+    JSONObject oStat = new JSONObject();
+    // Prepare the JSON objects for status and content
+    oStat.put("code", sStatus);
+    oContent.put("code", sStatus);
+    oContent.put("message", sMsg);
+    // Prepare the output parameters
+    output.put("status",oStat);
+    output.put("content", oContent);
+    // Send the response
+    sendResponse(output);
+  }
+  
+  /**
+   * sendResponse
+   *    Send the mapping object @output as a well-formed POST response to 
+   *    the calling JavaScript application
+   * 
+   * @param output 
+   */
 	protected void sendResponse(Map<String,Object> output) {
 		long timePassed = new Date().getTime() - this.startTime;
 		try {

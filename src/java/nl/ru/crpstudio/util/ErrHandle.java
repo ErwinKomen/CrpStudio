@@ -47,11 +47,33 @@ public class ErrHandle {
     // Return failure
     return false;
   }
+  public boolean DoError(String msg, Exception ex, Class cls) {
+    JSONObject oThis = new JSONObject();  // Where we store all the info
+    
+    // Fill the object
+    oThis.put("msg", msg);
+    if (ex==null) oThis.put("ex", ""); else oThis.put("ex", ex.getMessage());
+    if (cls==null) 
+      oThis.put("cls", "unknown");
+    else
+      oThis.put("cls", cls.getName());
+    // Add the object to the static stack
+    lErrStack.add(oThis);
+    // DEBUGGING: also show it in the error logger
+    // logger.error(msg, ex);
+    Logger.getLogger(cls).error(msg, ex);
+    // Return failure
+    return false;
+  }
   public boolean DoError(String msg) {
     return DoError(msg, null);
   }
   public void debug(String msg) {
     logger.debug(msg);
+    // logger.debug(msg);
+  }
+  public void debug(String msg, Class cls) {
+    Logger.getLogger(cls).debug(msg);
     // logger.debug(msg);
   }
   // ========== Allow others to see that there are errors ===========

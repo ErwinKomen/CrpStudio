@@ -118,6 +118,7 @@ public class CrpStudio extends HttpServlet {
       super.init();
       // Other initialisations that can take place right away
       crpUtil = new CrpUtil(errHandle);
+      crpContainer = new CrpContainer(errHandle);
     } catch (Exception ex) {
       if (errHandle != null) errHandle.DoError("Class initialisation: ", ex);
     }
@@ -149,6 +150,7 @@ public class CrpStudio extends HttpServlet {
       responses.put("statusxq", new StatusResponse());
       responses.put("about", new InfoResponse());
       responses.put("load", new LoadResponse());
+      responses.put("upload", new UploadResponse());
       responses.put("j_security_check", new LoginResponse());
     } catch (Exception ex) {
       errHandle.DoError("init (b): " + ex.getMessage());

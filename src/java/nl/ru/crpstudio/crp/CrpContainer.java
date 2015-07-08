@@ -12,13 +12,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import nl.ru.crpstudio.response.LoadResponse;
+import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpx.dataobject.DataObject;
 import nl.ru.crpx.dataobject.DataObjectList;
 import nl.ru.crpx.dataobject.DataObjectMapElement;
 import nl.ru.crpx.project.CorpusResearchProject;
-import nl.ru.crpx.tools.ErrHandle;
 import nl.ru.util.FileUtil;
 import nl.ru.util.json.JSONObject;
 
@@ -240,6 +242,20 @@ public class CrpContainer {
   }          
 
 }
+/**
+ * CrpInfo
+ *    One combination of CRP-User
+ *    The CRPs are 'personal': 
+ *    - one userid can have one or more CRPs loaded
+ *    - the same CRP can never belong to more than one userid
+ *      (since they are stored physically inside the domain of a particular user)
+ * 
+ *    TODO:
+ *    - What if one userid is open in more than one computer, and each one
+ *      attempts to load the same CRP?
+ * 
+ * @author Erwin R. Komen
+ */
 class CrpInfo {
   // ========================= Constants =======================================
   static String sProjectBase = "/etc/crpstudio/"; // Base directory where user-spaces are stored
@@ -248,6 +264,7 @@ class CrpInfo {
   String prjName;                 // The name of this CRP
   String userId;                  // The user that has access to this CRP
   ErrHandle logger;               // Information and logging
+	Map<String,Object> params;      // Parameters for the Crpp call
   // ================ Initialisation of a new class element ===================
   public CrpInfo(LoadResponse br, String sProjectName, String sUserId, ErrHandle errHandle) {
     // Set our error handler
@@ -256,6 +273,7 @@ class CrpInfo {
     try {
       this.prjName = sProjectName;
       this.userId = sUserId;
+      this.params = new HashMap<>();
       // Load the project
       if (!initCrp(br)) {
         logger.DoError("CrpInfo: Could not load project [" + sProjectName + "]");
@@ -269,33 +287,58 @@ class CrpInfo {
   }
   /* ---------------------------------------------------------------------------
    Name: initCrp
-   Goal: Initialize CRP-related parameters for this requesthandler
-   Parameters:  @sProjectPath - HTTP request object
+   Goal: Given the CRP named in [CrpInfo] and the user for this CRP,
+          either load the CRP from the /etc/crpstudio/{user}/ domain,
+          or fetch it from http://server/crpp, store it in the user domain,
+          and load it from there.
+   Parameters:  @br - the LoadResponse object from which [getCrppResponse]
+                      can be executed
    History:
    7/nov/2014   ERK Created
    --------------------------------------------------------------------------- */
   public final boolean initCrp(LoadResponse br) {
     try {
       // Create room for a corpus research project
-      CorpusResearchProject crpThis = new CorpusResearchProject();
-      // Set the project path straight
+      CorpusResearchProject crpThis = new CorpusResearchProject(false);
+      // Set the project file name + path straight
       String sProjectPath = getCrpPath();
       // Is the project there?
       File fProjectPath = new File(sProjectPath);
       if (!fProjectPath.exists()) {
         // Fetch the project from /crpp
-        String sResp = br.getCrppResponse(userId, prjName, null);
+        this.params.put("userid", userId);
+        this.params.put("name", prjName);
+        String sResp = br.getCrppResponse("crpget", "", this.params);
         if (sResp.isEmpty() || !sResp.startsWith("{")) return false;
         // Convert the response to JSON
         JSONObject oResp = new JSONObject(sResp);
         // Get the status
         if (!oResp.has("status")) return false;
+        if (!oResp.has("content")) return false;
         // Decypher the status
         JSONObject oStat = oResp.getJSONObject("status");
-        if (oStat)
+        JSONObject oContent = oResp.getJSONObject("content");
+        switch (oStat.getString("code")) {
+          case "completed":
+            // Get the crp
+            String sCrpText = oContent.getString("crp");
+            // Save this CRP on the right place
+            FileUtil.writeFile(sProjectPath, sCrpText, "utf-8");
+            break;
+          case "error":
+            // Cannot receive a CRP if there was an error on a /crpp request
+            logger.DoError("Could not load project " + this.prjName +
+                    "There was a /crpp error: " + oContent.getString("message"));
+            return false;
+          default:
+            // Unknown state to work with
+            logger.DoError("Could not load project " + this.prjName+ 
+                    ". unknown status ["+oStat.getString("code")+"].");
+            return false;
+        }
 
       }
-      // Try to load the project from the place where it 
+      // Try to load the project from the place where it should be
       if (!crpThis.Load(sProjectPath, "", "", "")) {
         logger.DoError("Could not load project " + this.prjName);
         // Try to show the list of errors, if there is one
@@ -316,9 +359,10 @@ class CrpInfo {
     }
   }
   /**
-   * Given the name of a CRP stored in this CrpInfo, get its full path
+   * getCrpPath
+   *    Given the name of a CRP stored in this CrpInfo, get its full path
    * 
-   * @return 
+   * @return string with the full path to the CRP in the user domain
    */
   public String getCrpPath() {
     try {
