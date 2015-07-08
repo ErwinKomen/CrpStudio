@@ -1,5 +1,6 @@
 #parse("header.vm")
 		#set($project = $labels.getString("project"))
+		#set($input = $labels.getString("input"))
 		#set($definitions = $labels.getString("definitions"))
 		#set($queries = $labels.getString("queries"))
     #set($constructor = $labels.getString("project.qc"))
@@ -14,6 +15,12 @@
 				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('project')">$project</a></dd>
 			#else
 				<dd id="project_link"><a class="tablink" onclick="Crpstudio.project.switchTab('project')">$project</a></dd>
+			#end
+      <!-- Sub-navigation item: [input] -->
+			#if($tab == "input")
+				<dd id="input_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('input')">$input</a></dd>
+			#else
+				<dd id="input_link"><a class="tablink" onclick="Crpstudio.project.switchTab('input')">$input</a></dd>
 			#end
       <!-- Sub-navigation item: [Definitions] -->
 			#if($tab == "definitions")
@@ -33,6 +40,12 @@
 			#else
 				<dd id="constructor_link"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor')">$constructor</a></dd>
 			#end
+      <!-- On the navigation bar: [execution] -->
+      <dd id="project_executor">
+        <button onclick="Crpstudio.project.execute(false)" class="search small">
+          <span>$labels.getString("project.execute")</span>
+        </button>
+      </dd>
       <!-- Spacer between projects and results -->
 			#if($tab == "result" || $tab == "document")
 				<dd id="link-spacer">||</dd>
@@ -57,6 +70,7 @@
 		<div class="row tabs-content" id="search">
 			#set($meta = "")
 			#set($project_active = "")
+      #set($input_active = "")
 			#set($definitions_active = "")
 			#set($queries_active = "")
 			#set($constructor_active = "")
@@ -65,6 +79,9 @@
 			#if($tab == "project")
 				#set($project_active = "active")
         #set($meta = "")
+			#elseif($tab == "input")
+				#set($input_active = "active")
+				#set($meta = "")
 			#elseif($tab == "definitions")
 				#set($definitions_active = "active")
 				#set($meta = "hidden")
@@ -84,6 +101,9 @@
 			</div>
 			<div id="project" class="large-16 medium-16 small-16 content $project_active">
 				#parse("projectmain.vm")
+			</div>
+			<div id="input" class="large-16 medium-16 small-16 content $input_active">
+				#parse("input.vm")
 			</div>
 			<div id="definitions" class="large-16 medium-16 small-16 content $definitions_active">
 				#parse("definitions.vm")

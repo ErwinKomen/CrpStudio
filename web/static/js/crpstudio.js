@@ -257,14 +257,32 @@ var Crpstudio = {
    */
   readFile : function(f, callback) {
 		if (!f) {
-	        alert("Failed to load file");
-	    } else if (!f.type.match('text.*')) {
-			    alert(f.name + " is not a valid text file.");
-	    } else {
-	    	var reader = new FileReader();
-	        reader.onload = callback;
-	        reader.readAsText(f);
-	    }
+      alert("Failed to load file");
+    } else if (!f.type.match('text.*')) {
+      alert(f.name + " is not a valid text file.");
+    } else {
+      var reader = new FileReader();
+      reader.onload = callback;
+      reader.readAsText(f);
+    }
+	},
+  /* --------------------------------------------------------------------------
+   * Name: readXmlFile
+   * Goal: Read an xml file
+   *        After reading: call the @callback function
+   * History:
+   * 8/jul/2015 ERK Created
+   */
+  readXmlFile : function(f, callback) {
+		if (!f) {
+      alert("Failed to load file");
+    } else if (!f.type.match('xml.*')) {
+      alert(f.name + " is not a valid xml file.");
+    } else {
+      var reader = new FileReader();
+      reader.onload = callback;
+      reader.readAsText(f);
+    }
 	},
 	
   /* --------------------------------------------------------------------------

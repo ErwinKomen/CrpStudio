@@ -431,7 +431,7 @@ Crpstudio.project = {
 			$("#subnav dd").removeClass("active");
 			$("#"+target+"_link").addClass("active");
       // When should the metadata selector be shown: only for "project"
-			if (target === "execute" || target === "project" ) {
+			if (target === "execute" || target === "project" || target === "input" ) {
 				$("#metadata").show();
 			} else {
 				$("#metadata").hide();
@@ -488,6 +488,7 @@ Crpstudio.project = {
     params += "&type=info";
     Crpstudio.getCrpStudioData("load", params, Crpstudio.project.processLoad, "#project_description");
   },
+  
   /**
    * processLoad
    *    What to do when a project has been loaded
@@ -498,23 +499,105 @@ Crpstudio.project = {
    */
   processLoad : function(response, target) {
 		if (response !== null) {
+      // Remove waiting
+      $("#project_description").html("");
       // The response is a standard object containing "status" (code) and "content" (code, message)
       var oStatus = response.status;
       var sStatusCode = oStatus.code;
       var oContent = response.content;
       switch (sStatusCode) {
+        case "completed":
+          // Get the information passed on about this project
+          var sName = oContent.name;
+          var sAuthor = oContent.author;
+          var sPrjType = oContent.prjtype;
+          var sGoal = oContent.goal;
+          var sDateCreated = oContent.datecreated;
+          var sDateChanged = oContent.datechanged;
+          var bShowSyntax = oContent.showsyntax;
+          var sComments = oContent.comments;
+          // Put the information on the correct places in the form
+          $("#project_general_name").val(sName);
+          $("#project_general_author").val(sAuthor);
+          $("#project_general_prjtype").val(sPrjType);
+          $("#project_general_goal").val(sGoal);
+          $("#project_general_datecreated").html(sDateCreated);
+          $("#project_general_datechanged").html(sDateChanged);
+          if (bShowSyntax)
+            $("#project_general_showsyn").addClass("checked");
+          else
+            $("#project_general_showsyn").removeClass("checked");
+          $("#project_general_comments").val(sComments);
+          
+          // Make the General area visible again
+          $("#project_general").removeClass("hidden");
+          break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
           var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
           $("#project_status").html("Error: " + sErrorCode);
           $(target).html("Error: " + sErrorMsg);
           break;
+        default:
+          $("#project_status").html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("ERROR - Failed to load the .crpx result from the server.");
+		}    
+  },
+  
+  /**
+   * uploadCrpFile
+   *    Ask user to upload a .crpx file
+   * 
+   * @param {type} el
+   * @returns {undefined}
+   */
+  uploadCrpFile : function(el) {
+    // Get the name of the file
+    var sFileName = el.files[0];
+    // Use the standard readXmlFile function
+		Crpstudio.readXmlFile(sFileName, function(e) {
+      // Get the text of the uploaded CRP into a variable
+      var text = e.target.result;
+      // Signal what we are doing
+      $("#project_description").html("Uploading...");
+      // Send this information to the /crpstudio
+      var params = "file=" + sFileName + "&userid=" + Crpstudio.currentUser +
+              "&crp=" + text;
+      Crpstudio.getCrpStudioData("upload", params, Crpstudio.project.processUpLoad, "#project_description");
+    });
+	},
+  
+  /**
+   * processUpLoad
+   *    What to do when a project has been loaded
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/load
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processUpLoad : function(response, target) {
+		if (response !== null) {
+      // Remove waiting
+      $("#project_description").html("");
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
         case "completed":
-          // Get the information passed on about this project
+          // If we have succesfully completed *uploading* a file to /crpstudio,
+          //    then it must be added to the list
           
-          
-          // Make the General area visible again
-          $("#project_general").removeClass("hidden");
+          break;
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#project_status").html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
           break;
         default:
           $("#project_status").html("Error: no reply");

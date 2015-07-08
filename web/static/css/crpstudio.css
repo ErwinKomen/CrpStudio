@@ -1629,3 +1629,21 @@ div.hitscroll {
 }
 */
 
+textarea {
+  background-color: azure;
+  font-family: Courier New; 
+  font-size: 12px;
+  height: 100%;
+}
+
+#search input[type='text'] {
+  background-color: azure;
+  font-family: Courier New; 
+  font-size: 12px;
+}
+
+.project_general_date {
+  background-color: lightyellow;
+  font-family: Courier New; 
+  font-size: 12px;
+}

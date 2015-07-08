@@ -26,6 +26,7 @@
 		<link rel="icon" type="image/png" href="./static/img/favicon.png">
 		<link rel="apple-touch-icon" href="./static/img/apple-touch-icon.png">
 		<link rel="stylesheet" href="./static/css/foundation.min.css" type='text/css' />
+		<link rel="stylesheet" href="./static/css/foundation-datepicker.min.css" type='text/css' />
 		<link rel="stylesheet" href="./static/css/crpstudio.css" type='text/css' />
 		<link rel="stylesheet" href="./static/css/introjs.css" type='text/css' />
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -37,6 +38,7 @@
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 		<script type="text/javascript" src="./static/js/foundation.min.js"></script>
 		<script type="text/javascript" src="./static/js/foundation.accordion.js"></script>
+		<script type="text/javascript" src="./static/js/foundation-datepicker.min.js"></script>
 		<script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>

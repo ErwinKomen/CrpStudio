@@ -4,11 +4,20 @@
       <div id="result_status" class="large-16 medium-16 small-16">
         status
       </div>
-      <div id="result_progress" class="large-16 medium-16 small-16">
-        <!-- Blue progress bar indicating which files are started -->
-        <div class="small-4 large-4 progress round"><span id="agent007" class="meter" style="width: 0%"></span></div>
-        <!-- Green progress bar indicating which files are finished -->
-        <div class="small-4 large-4 progress success round"><span id="agent008" class="meter" style="width: 0%"></span></div>
+      <div id="result_progress" class="large-16 medium-16 small-16 row">
+        <!-- Progress indication -->
+        <div class="small-8 medium-8 large-8 columns">
+          <!-- Blue progress bar indicating which files are started -->
+          <div class="progress round"><span id="agent007" class="meter" style="width: 0%"></span></div>
+          <!-- Green progress bar indicating which files are finished -->
+          <div class="progress success round"><span id="agent008" class="meter" style="width: 0%"></span></div>
+        </div>
+        <!-- Stop execution -->
+        <div id="project_execution" class="large-4 medium-4 small-4 columns">
+            <button onclick="Crpstudio.project.reset()" class="reset small secondary">
+              <span>$labels.getString("project.cancel")</span>
+            </button>
+        </div>        
       </div>
       <div id="result_report" class="large-16 medium-16 small-16">
 
