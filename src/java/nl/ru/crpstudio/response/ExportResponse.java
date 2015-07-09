@@ -58,6 +58,7 @@ public class ExportResponse extends BaseResponse {
 
     } catch (Exception ex) {
       logger.DoError("ExportResponse: could not complete", ex);
+      this.displayError("ExportResponse error: " + ex.getMessage());
     }
 	}
 

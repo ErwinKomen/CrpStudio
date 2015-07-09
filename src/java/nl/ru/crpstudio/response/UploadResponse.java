@@ -20,7 +20,7 @@ public class UploadResponse extends BaseResponse {
 
     try {
       // There are three parameters: file, userid, crp
-      sFileName = this.request.getParameter("project");
+      sFileName = this.request.getParameter("file");
       sCrpText = this.request.getParameter("crp");
       sUserId = this.request.getParameter("userid");
       
@@ -36,9 +36,9 @@ public class UploadResponse extends BaseResponse {
       this.params.clear();
       this.params.put("userid", sUserId);
       this.params.put("name", sPrjName);
-      this.params.put("crp", sCrpText);
+      // this.params.put("crp", sCrpText);
       this.params.put("overwrite", true);
-      String sResp = getCrppResponse("crpset", "", this.params);
+      String sResp = getCrppFileResponse("crpset", "", this.params, sCrpText);
       
       // Check the result
       if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /crpset");

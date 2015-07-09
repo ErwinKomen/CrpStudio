@@ -10,18 +10,22 @@ public class HomeResponse extends BaseResponse {
 
 	@Override
 	protected void completeRequest() {
-    // Check if the current user is logged in
-    if (this.bUserOkay) {
-      this.getContext().put("userokay", "true");
-      // Make sure the current user is known
-      this.getContext().put("username", servlet.getUserId());
-    } else
-      this.getContext().put("userokay", "false");
-    // The user is must be put in the context at any rate
-    this.getContext().put("userid", this.sUserId);
-		this.getContext().put("maintab", "home");
-    // String sCheck = this.getContext().get("userokay").toString();
-		this.displayHtmlTemplate(this.templateMan.getTemplate("home"));
+    try {
+      // Check if the current user is logged in
+      if (this.bUserOkay) {
+        this.getContext().put("userokay", "true");
+        // Make sure the current user is known
+        this.getContext().put("username", servlet.getUserId());
+      } else
+        this.getContext().put("userokay", "false");
+      // The user is must be put in the context at any rate
+      this.getContext().put("userid", this.sUserId);
+      this.getContext().put("maintab", "home");
+      // String sCheck = this.getContext().get("userokay").toString();
+      this.displayHtmlTemplate(this.templateMan.getTemplate("home"));
+    } catch (Exception ex) {
+      this.displayError("HomeResponse error: " + ex.getMessage());
+    }
 	}
 
 	@Override

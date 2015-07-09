@@ -76,6 +76,7 @@ public class ExecuteResponse extends BaseResponse {
       sendResponse(output);
     } catch (Exception ex) {
       sendErrorResponse("ExecuteResponse: could not complete: "+ ex.getMessage());
+      this.displayError("ExecuteResponse error: " + ex.getMessage());
     }
 	}
 

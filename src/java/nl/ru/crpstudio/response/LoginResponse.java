@@ -20,23 +20,27 @@ public class LoginResponse extends BaseResponse {
   private String sUserFound;
 	@Override
 	protected void completeRequest() {
-    // Find out who is trying to login
-    String s_jUserName = this.request.getParameter("j_username");
-    String s_jPassWord = this.request.getParameter("j_password");
-    // Check if this person is authorized
-    if (getLoginAuthorization(s_jUserName, s_jPassWord)) {
-      // Okay this person may log in
-      this.bUserOkay = true;
-      this.sUserId = sUserFound;
-      // Also set it globally
-      this.servlet.setUserId(this.sUserId);
-      this.servlet.setUserOkay(this.sUserId, this.bUserOkay);
+    try {
+      // Find out who is trying to login
+      String s_jUserName = this.request.getParameter("j_username");
+      String s_jPassWord = this.request.getParameter("j_password");
+      // Check if this person is authorized
+      if (getLoginAuthorization(s_jUserName, s_jPassWord)) {
+        // Okay this person may log in
+        this.bUserOkay = true;
+        this.sUserId = sUserFound;
+        // Also set it globally
+        this.servlet.setUserId(this.sUserId);
+        this.servlet.setUserOkay(this.sUserId, this.bUserOkay);
+      }
+      // Go to the home page
+      this.getContext().put("maintab", "home");
+      this.getContext().put("userokay", "true");
+      this.getContext().put("userid", this.sUserId);
+      this.displayHtmlTemplate(this.templateMan.getTemplate("home"));
+    } catch (Exception ex) {
+      this.displayError("LoginResponse error: " + ex.getMessage());      
     }
-    // Go to the home page
-		this.getContext().put("maintab", "home");
-    this.getContext().put("userokay", "true");
-    this.getContext().put("userid", this.sUserId);
-		this.displayHtmlTemplate(this.templateMan.getTemplate("home"));
 	}
 
 	@Override

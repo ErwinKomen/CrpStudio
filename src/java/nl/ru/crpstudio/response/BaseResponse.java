@@ -14,6 +14,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONException;
 import nl.ru.util.json.JSONObject;
+import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 
@@ -276,6 +278,103 @@ public abstract class BaseResponse {
 		}
 		return null;
 	}
+  
+   /**
+   * getCrppPostResponse --
+   *    Issue a POST request to the /crpp machine and return the response
+   * 
+   * @param index   - index within /crpp
+   * @param trail   - optional trail (not used yet)
+   * @param params  - parameters requiring & to be attached to request
+   * @return        - string returning the response
+   */
+	public String getCrppPostResponse(String index, String trail, Map<String,Object> params) {
+    String parameters = "";
+    
+    try {
+      // Take over the parameters
+      this.params = params;
+      // Are there any parameters?
+      if (this.params.size() >0) {
+        // Transform the parameters into a JSON object
+        JSONObject oParams = new JSONObject();
+        for (String sParam : params.keySet()) {
+          // Make sure each parameter is URL-encoded
+          String sEsc = URLEncoder.encode(params.get(sParam).toString(), "UTF-8");
+          oParams.put(sParam, sEsc);
+        }
+        // Serialize the JSON into a string
+        parameters = oParams.toString();
+      }
+      // Calculate the request URL
+      String url = this.labels.getString("crppUrlInternal")+ "/" + index + trail;
+      // Keep this URL for reference
+      this.lastUrl = url;
+
+      QueryServiceHandler webservice = new QueryServiceHandler(url, 1);
+      try {
+        String response = webservice.postRequest(new HashMap<String, String[]>(), parameters);
+        return response;
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      return null;
+    } catch (Exception ex) {
+			ex.printStackTrace();
+      return null;
+    }
+	}
+
+   /**
+   * getCrppFileResponse --
+   *    Issue a POST request to the /crpp machine and return the response
+   *    The POST request consists of two parts:
+   *    1) Parameters (which are sent as a JSON object
+   *    2) File (which is sent as a binary)
+   * 
+   * @param index   - index within /crpp
+   * @param trail   - optional trail (not used yet)
+   * @param params  - parameters requiring & to be attached to request
+   * @param data    - binary (string) content of a file
+   * @return        - string returning the response
+   */
+	public String getCrppFileResponse(String index, String trail, Map<String,Object> params, 
+          String data) {
+    String parameters = "";
+    
+    try {
+      // Take over the parameters
+      this.params = params;
+      // Are there any parameters?
+      if (this.params.size() >0) {
+        // Transform the parameters into a JSON object
+        JSONObject oParams = new JSONObject();
+        for (String sParam : params.keySet()) {
+          // Make sure each parameter is URL-encoded
+          String sEsc = URLEncoder.encode(params.get(sParam).toString(), "UTF-8");
+          oParams.put(sParam, sEsc);
+        }
+        // Serialize the JSON into a string
+        parameters = oParams.toString();
+      }
+      // Calculate the request URL
+      String url = this.labels.getString("crppUrlInternal")+ "/" + index + trail;
+      // Keep this URL for reference
+      this.lastUrl = url;
+
+      QueryServiceHandler webservice = new QueryServiceHandler(url, 1);
+      try {
+        String response = webservice.fileRequest(new HashMap<String, String[]>(), parameters, data);
+        return response;
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      return null;
+    } catch (Exception ex) {
+			ex.printStackTrace();
+      return null;
+    }
+	}
 
   protected String getBlackLabResponse(String corpus, String trail, Map<String,Object> params) {
 		String url = this.labels.getString("blsUrlInternal")+ "/" + corpus + trail;
@@ -356,6 +455,11 @@ public abstract class BaseResponse {
 	protected void displayHtmlTemplate(Template argT) {
 		displayTemplate(argT, "text/html");
 	}
+  
+  protected void displayError(String sMsg) {
+    this.getContext().put("errormessage", sMsg);
+    this.displayHtmlTemplate(this.templateMan.getTemplate("error"));
+  }
 
 	/**
    * processRequest 

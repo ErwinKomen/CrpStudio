@@ -23,6 +23,7 @@ public class CorporaResponse extends BaseResponse {
       this.displayHtmlTemplate(this.templateMan.getTemplate("corpora"));
     } catch (Exception ex) {
       logger.DoError("CorporaResponse: could not complete", ex);
+      this.displayError("CorporaResponse error: " + ex.getMessage());
     }
 	}
 
