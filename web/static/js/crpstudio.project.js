@@ -557,15 +557,15 @@ Crpstudio.project = {
    */
   uploadCrpFile : function(el) {
     // Get the name of the file
-    var sFileName = el.files[0];
+    var oFile = el.files[0];
     // Use the standard readXmlFile function
-		Crpstudio.readXmlFile(sFileName, function(e) {
+		Crpstudio.readXmlFile(oFile, function(e) {
       // Get the text of the uploaded CRP into a variable
-      var text = e.target.result;
+      var text = encodeURIComponent(e.target.result);
       // Signal what we are doing
       $("#project_description").html("Uploading...");
       // Send this information to the /crpstudio
-      var params = "file=" + sFileName + "&userid=" + Crpstudio.currentUser +
+      var params = "file=" + oFile.name + "&userid=" + Crpstudio.currentUser +
               "&crp=" + text;
       Crpstudio.getCrpStudioData("upload", params, Crpstudio.project.processUpLoad, "#project_description");
     });

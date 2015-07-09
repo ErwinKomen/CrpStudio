@@ -1,4 +1,6 @@
 #parse("header.vm")
 		#set($error = $labels.getString("error"))
 		<p>$error</p>
+    <p>Message:</p>
+    ${errormessage}
 #parse("footer.vm")

@@ -276,8 +276,6 @@ var Crpstudio = {
   readXmlFile : function(f, callback) {
 		if (!f) {
       alert("Failed to load file");
-    } else if (!f.type.match('xml.*')) {
-      alert(f.name + " is not a valid xml file.");
     } else {
       var reader = new FileReader();
       reader.onload = callback;

@@ -17,12 +17,8 @@
     </ul>
     <!-- Allow user to upload a .crpx file -->
     <div class="uploadbutton">
-      <div style="position:relative; height: 36px;">
-        <div class="uploadCrpxBtn">
-          <button class="upload" onclick="event.preventDefault();">$labels.getString("upload")</button>
-        </div>
-        <input type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
-      </div>
+      <label for="general_upload" class="uploadCrpxBtn">$labels.getString("project.upload")</label>
+      <input id="general_upload" class="uploadfile" type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
     </div>
   </div>
   <!-- the part to the right of the side-bar may contain contents of this project -->
