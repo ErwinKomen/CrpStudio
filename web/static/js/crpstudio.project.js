@@ -591,7 +591,10 @@ Crpstudio.project = {
         case "completed":
           // If we have succesfully completed *uploading* a file to /crpstudio,
           //    then it must be added to the list
-          
+          var sPrjLine = oContent.prjline;
+          // Check if there is any reply
+          if (sPrjLine)
+            $("#project_list").append(sPrjLine);
           break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";

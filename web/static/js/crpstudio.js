@@ -174,9 +174,21 @@ var Crpstudio = {
 		// xhr.setRequestHeader("Cache-Control", "no-cache, must-revalidate");
 		
 		xhr.onload = function() {
-      			if (/^[\],:{}\s]*$/.test(xhr.responseText.replace(/\\["\\\/bfnrtu]/g, '@').
-					replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-					replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+      var sInitial = xhr.responseText;
+      // We are basically expecint a well-formed JSON reply...
+      /*
+      var sPhase1 = sInitial.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+      var sPhase2 = sPhase1.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+      var sPhase3 = sPhase2.replace(/\\["\\\/bfnrtu]/g, '@');
+      var sTest = /^[\],:{}\s]*$/.test(sPhase3);
+      */
+      if (/^[\],:{}\s]*$/.test(xhr.responseText.replace(/\\["\\\/bfnrtu]/g, '@').
+        replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+        replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+      /*
+        }
+      if (sTest) {
+      */
         // Debugging
 				Crpstudio.debugXhrResponse("#1: " + xhr.responseText);
         // Transform the response into a JSON object
@@ -187,8 +199,10 @@ var Crpstudio = {
         // Go to the callback function with the response object etc
 				callback(resp,target);
 			} else {
-				$("#status_"+target).html("ERROR");
-				$("#result_"+target).html("ERROR - Could not process request.");
+        var sReply = "ERROR - did not get JSON reply to Crpstudio.getCrpStudioData() request.";
+				$("#status_"+target).html(sReply);
+				$("#result_"+target).html(sReply);
+        $(target).html(sReply);
 			}
 		};
 

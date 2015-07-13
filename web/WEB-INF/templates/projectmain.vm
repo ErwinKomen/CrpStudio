@@ -9,7 +9,7 @@
     <!-- place where the currently select project is stored -->
     <div id="project_current" class="hidden"></div>
     <!-- <ul class="crpstudio-side-nav"> -->
-    <ul class="side-nav">
+    <ul id="project_list" class="side-nav">
       <li><a href="#" onclick="Crpstudio.project.createManual(this)">$new_project_manual</a></li>
       <li><a href="#" onclick="Crpstudio.project.createWizard(this)">$new_project_wizard</a></li>
       <li class="divider"></li>
