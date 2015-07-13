@@ -42,7 +42,7 @@ public class StatusResponse extends BaseResponse {
       this.params.put("userid", oQuery.getString("userid"));
       this.params.put("jobid", oQuery.getString("jobid"));
       // Start preparing the output of "completeRequest()", which is a mapping object
-      Map<String,Object> output = new HashMap<String,Object>();
+      Map<String,Object> output = new HashMap<>();
       output.put("startTime", this.startTime);
       try {
         output.put("memUsageStart", this.servlet.getCurrentMemUsage());

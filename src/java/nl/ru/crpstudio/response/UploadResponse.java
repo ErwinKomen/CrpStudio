@@ -6,7 +6,12 @@
  */
 package nl.ru.crpstudio.response;
 
+import java.util.HashMap;
+import java.util.Map;
 import nl.ru.crpx.tools.FileIO;
+import static nl.ru.util.StringUtil.escapeHexCoding;
+import static nl.ru.util.StringUtil.unescapeHexCoding;
+import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
 public class UploadResponse extends BaseResponse {
@@ -21,40 +26,65 @@ public class UploadResponse extends BaseResponse {
     try {
       // There are three parameters: file, userid, crp
       sFileName = this.request.getParameter("file");
-      sCrpText = this.request.getParameter("crp");
-      sUserId = this.request.getParameter("userid");
-      
       // Validate: all three must be there
       if (sFileName.isEmpty()) { sendErrorResponse("File name of project not specified"); return;}
-      if (sCrpText.isEmpty()) { sendErrorResponse("The CRP has no contents"); return;}
-      if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
-      
       // Remove the "/" or "\" from the file name
       sPrjName = FileIO.getFileNameWithoutExtension(sFileName);
+      // User is also necessary
+      sUserId = this.request.getParameter("userid");
+      if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
       
-      // Send the CRP to /crpp using the correct /crpset parameters
-      this.params.clear();
-      this.params.put("userid", sUserId);
-      this.params.put("name", sPrjName);
-      // this.params.put("crp", sCrpText);
-      this.params.put("overwrite", true);
-      String sResp = getCrppFileResponse("crpset", "", this.params, sCrpText);
+      // Get a list of currently loaded projects
+      JSONArray arPrjList = this.getProjectList(sUserId);
+      // Check if the requested project is already in the list
+      boolean bIsNew = true;
+      for (int i=0;i<arPrjList.length(); i++) {
+        String sCrpThis = arPrjList.getJSONObject(i).getString("crp");
+        // Is this equal to the requested project?
+        if (sCrpThis.equals(sPrjName + ".crpx")) {
+          bIsNew = false; break;        
+        }          
+      }
+      if (bIsNew) {
+
+        sCrpText = escapeHexCoding(this.request.getParameter("crp"));
+
+        // String sCrpDefl = unescapeHexCoding(sCrpText);
+
+        // Validate: all three must be there
+        if (sCrpText.isEmpty()) { sendErrorResponse("The CRP has no contents"); return;}
       
-      // Check the result
-      if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /crpset");
-      // Convert the response to JSON
-      JSONObject oResp = new JSONObject(sResp);
-      // Get the status
-      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
-      // Decypher the status
-      JSONObject oStat = oResp.getJSONObject("status");
-      if (!oStat.getString("code").equals("completed"))
-        sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
+        // Send the CRP to /crpp using the correct /crpset parameters
+        this.params.clear();
+        this.params.put("userid", sUserId);
+        this.params.put("name", sPrjName);
+        this.params.put("crp", sCrpText);
+        this.params.put("overwrite", true);
+        String sResp = getCrppPostResponse("crpset", "", this.params);
+
+        // Check the result
+        if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /crpset");
+        // Convert the response to JSON
+        JSONObject oResp = new JSONObject(sResp);
+        // Get the status
+        if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+        // Decypher the status
+        JSONObject oStat = oResp.getJSONObject("status");
+        if (!oStat.getString("code").equals("completed"))
+          sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
+
+        // Get the content part
+        oContent = oResp.getJSONObject("content");
+        oContent.put("prjline", this.getProjectItem(sPrjName, false));
+      } else {
+        oContent.put("prjline", "");
+      }
+
       
-      // React positively by sending a "projects" response
-      BaseResponse br = new ProjectsResponse();
-      // Process the request using the appropriate response object
-      br.processRequest();
+      // output.put("prjline", this.getProjectItem(sPrjName, false));
+      // Send the output to our caller
+      sendStandardResponse("completed", "upload completed successfully", oContent);
+
     } catch (Exception ex) {
       sendErrorResponse("UploadResponse: could not complete: "+ ex.getMessage());
     }

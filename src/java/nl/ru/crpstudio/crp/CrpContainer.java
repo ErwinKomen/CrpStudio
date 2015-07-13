@@ -61,7 +61,8 @@ public class CrpContainer {
       // Check if this combination already exists in the list
       for (CrpInfo oCrpInfo : loc_crpUserList) {
         // Check if this has the correct project name, language index and user id
-        if (oCrpInfo.prjName.equals(sProjectName) && oCrpInfo.userId.equals(sUserId)
+        if (oCrpInfo.prjName.equals(sProjectName) && oCrpInfo.userId.equals(sUserId) 
+                && oCrpInfo.prjThis != null
                 /* && oCrpInfo.lngIndex.equals(sLngIndex) */) {
           // Return this object
           return oCrpInfo;
@@ -69,6 +70,8 @@ public class CrpContainer {
       } 
       // Getting here means that we need to create a new entry
       CrpInfo oNewCrpInfo = new CrpInfo(br, sProjectName, sUserId, logger);
+      // Check if any errors were produced
+      if (logger.hasErr()) return null;
       // Add this to the list
       loc_crpUserList.add(oNewCrpInfo);
       logger.debug("adding CrpInfo in getCrpInfo: [" + sProjectName + 
@@ -370,7 +373,7 @@ class CrpInfo {
       
       // Set the project path straight
       if (!sProjectPath.contains("/")) {
-        sProjectPath = FileUtil.nameNormalize(sProjectBase + "/" + this.userId + "/" + sProjectPath);
+        sProjectPath = FileUtil.nameNormalize(sProjectBase  + this.userId + "/" + sProjectPath);
         if (!sProjectPath.contains(".")) {
           sProjectPath += ".crpx";
         }

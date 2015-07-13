@@ -41,6 +41,7 @@ import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TemplateManager;
 import nl.ru.crpx.project.CorpusResearchProject;
+import nl.ru.crpx.tools.FileIO;
 import nl.ru.util.ByRef;
 import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONArray;
@@ -789,7 +790,7 @@ public abstract class BaseResponse {
    * @param oContent  - the actual content to the caller
    */
   protected void sendStandardResponse(String sStatus, String sMsg, JSONObject oContent) {
-    Map<String,Object> output = new HashMap<String,Object>();
+    Map<String,Object> output = new HashMap<>();
     JSONObject oStat = new JSONObject();
     // Prepare the JSON objects for status and content
     oStat.put("code", sStatus);
@@ -816,6 +817,7 @@ public abstract class BaseResponse {
 		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
 			e.printStackTrace();
 		}
+    output.put("timePassed", timePassed);
 		JSONObject resp = new JSONObject();
 		try {
 			for (String key : output.keySet()) {
@@ -868,6 +870,140 @@ public abstract class BaseResponse {
     this.getContext().put("userokay", bOkay ? "true" : "false");
   }
   
+  /**
+   * getProjectList -- 
+   *    Issue a request to the CRPP to get an overview of the projects
+   *    that user @sUser has access to
+   * 
+   * @return -- JSON array of items
+   */
+  public JSONArray getProjectList(String sUser) {
+    try {
+      // Prepare the parameters for this request
+      this.params.clear();
+      this.params.put("userid", sUser);
+      // Get the JSON object from /crpp containing the projects of this user
+      String response = getCrppResponse("crplist", "", this.params);
+      // Interpret the response
+      JSONObject oResp = new JSONObject(response);
+      if (!oResp.has("status") || !oResp.has("content") || 
+          !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+      // Get the list of CRPs
+      return oResp.getJSONArray("content");
+
+    } catch (Exception ex) {
+      logger.DoError("getProjectList: could not complete", ex);
+      return null;
+    }
+  }
+  
+  /**
+   * getProjectInfo -- 
+   *    Issue a request to the CRPP to get an overview of the projects
+   *    that user @sUser has access to
+   * 
+   * @return -- HTML string containing a table with projects of this user
+   */
+  public String getProjectInfo(String sUser) {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+    try {
+      // Get the list
+      JSONArray arCrpList = getProjectList(sUser);
+
+      // Check if anything is defined
+      if (arCrpList.length() == 0) {
+        // TODO: action if there are no corpus research projects for this user
+        //       User must be offered the opportunity to create a new project
+        
+      } else {
+        // The list of CRPs is in a table where each element can be selected
+        for (int i = 0 ; i < arCrpList.length(); i++) {
+          // Get this CRP item
+          JSONObject oCRP = arCrpList.getJSONObject(i);
+          boolean bCrpLoaded = oCRP.getBoolean("loaded");
+          String sCrpName = FileIO.getFileNameWithoutExtension(oCRP.getString("crp"));
+          sb.append(getProjectItem(sCrpName, bCrpLoaded));
+          /*
+          String sCrpName = oCRP.getString("crp")  + ((bCrpLoaded) ? " (loaded)" : "");
+          sb.append("<li><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
+                  oCRP.getString("crp") +"\")'>" + sCrpName + "</a></li>\n");
+          */
+        }
+      }
+      // Return the string we made
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getCorpusInfo: could not complete", ex);
+      return "error (getCorpusInfo)";
+    }
+  }
+  
+  public String getProjectItem(String sCrp, boolean bLoaded) {
+    String sCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
+    return "<li><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
+                  sCrp +"\")'>" + sCrpName + "</a></li>\n";
+  }
+  
+  /**
+   * getCorpusList -- Read the corpus information (which has been read
+   *                    from file through CrpUtil) and transform it
+   *                    into a list of corpus options (including the parts??)
+   * @return -- HTML string containing a table with corpus information
+   */
+  public String getCorpusList() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+    try {
+      // Get the array of corpora
+      JSONArray arCorpora = servlet.getCorpora();
+      // Check if anything is defined
+      if (arCorpora.length() == 0) {
+        
+      } else {
+        // Walk all the language entries
+        for (int i = 0 ; i < arCorpora.length(); i++) {
+          // Get this object
+          JSONObject oCorpus = arCorpora.getJSONObject(i);
+          // Read the languages from here
+          String sLng = oCorpus.getString("lng");
+          String sLngName = oCorpus.getString("name");
+          // Read the information from the different parts
+          JSONArray arPart = oCorpus.getJSONArray("parts");
+          // There should be one option for those who want *everything* from one language
+          if (arPart.length()>1) {
+            // Set the string to be displayed in the combobox line
+            String sShow = sLngName + " (" + sLng + ")";
+            // SPecifiy the 'value' for this option
+            String sValue = sLng + ":";
+            // Enter the combobox line
+            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
+                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \"\")' >" +
+                    sShow + "</option>\n");
+          }
+          // Walk all the parts
+          for (int j = 0; j< arPart.length(); j++) {
+            // Get this part as an object
+            JSONObject oPart = arPart.getJSONObject(j);
+            // Get the specification of this part
+            String sName = oPart.getString("name");
+            String sDir = oPart.getString("dir");
+            // Set the string to be displayed in the combobox line
+            String sShow = sLngName + " (" + sLng + "): " + sName + " (" + sDir + ")";
+            // SPecifiy the 'value' for this option
+            String sValue = sLng + ":" + sDir;
+            // Enter the combobox line
+            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
+                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \""+ sDir + "\")' >" +
+                    sShow + "</option>\n");
+          }
+        }      
+      }
+      // Return the string we made
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getCorpusList: could not complete", ex);
+      return "error (getCorpusList)";
+    }
+  }
 	/**
 	 * Complete the request - automatically called by processRequest()
 	 */

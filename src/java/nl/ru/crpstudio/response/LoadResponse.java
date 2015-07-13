@@ -29,7 +29,8 @@ public class LoadResponse extends BaseResponse {
       
       // Either load the project from /crpp or fetch it from the internal storage
       crpThis = crpContainer.getCrp(this, project, sUserId);
-      if (crpThis == null) { sendErrorResponse("Could not load CRP"); return;}
+      if (crpThis == null) { sendErrorResponse("Could not load CRP:\n" + 
+              logger.getErrList().toString()); return;}
 			
       // The actual reply depends on the @loadType
       switch(loadType) {
