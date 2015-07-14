@@ -8,7 +8,9 @@
   <servlet-mapping>
     <servlet-name>default</servlet-name>
     <url-pattern>/static/*</url-pattern>
-    <!-- <url-pattern>/export/*</url-pattern> -->
+    <!-- -->
+    <url-pattern>/files/*</url-pattern> 
+    <!-- -->
   </servlet-mapping>
 <!--
   <servlet-mapping>
