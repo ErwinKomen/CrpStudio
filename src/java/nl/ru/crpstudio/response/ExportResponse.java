@@ -195,37 +195,5 @@ public class ExportResponse extends BaseResponse {
     }
   }
 
-	/**
-   * sendFileLocResponse
-   *    Create a file named [fileName] from the data in [contents]
-   *    As soon as "outStream.close()" is issued, the user
-   *      is presented with a menu asking  him where he wants to save it
-   * 
-   * @param contents
-   * @param fileName 
-   */
-	private void sendFileLocResponse(String contents, String fileName) {
-    String sExportPath = "/static";
-    try {
-      // Create the file location name
-      String sWebRoot = servlet.getRealPath();
-      // Test for the rightmost character
-      String sRightMost = sWebRoot.substring(sWebRoot.length()-1);
-      if (sRightMost.equals("/") || sRightMost.equals("\\"))
-        sWebRoot = sWebRoot.substring(0, sWebRoot.length()-1);
-      String sFileLoc = FileUtil.nameNormalize(sWebRoot + sExportPath+ fileName);
-      // Create the URL for this file
-      String sFileUrl = "http://" + request.getServerName() + ":"+ 
-              request.getServerPort() + servlet.getContextRoot() + sExportPath+ fileName;
-      // Save the contents to the file
-      FileUtil.writeFile(sFileLoc, contents, "utf-8");
-      // Respond with the URL for this file in the reply
-      Map<String,Object> output = new HashMap<String,Object>();
-      output.put("file", sFileUrl);
-      sendResponse(output);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-	}
   
 }

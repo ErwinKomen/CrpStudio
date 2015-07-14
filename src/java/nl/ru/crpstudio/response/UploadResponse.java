@@ -76,7 +76,9 @@ public class UploadResponse extends BaseResponse {
         // Get the content part
         oContent = oResp.getJSONObject("content");
         oContent.put("prjline", this.getProjectItem(sPrjName, false));
+        oContent.put("crpname", sPrjName);
       } else {
+        oContent.put("crpname", "");
         oContent.put("prjline", "");
       }
 

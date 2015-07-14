@@ -43,6 +43,7 @@ import nl.ru.crpstudio.util.TemplateManager;
 import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.crpx.tools.FileIO;
 import nl.ru.util.ByRef;
+import nl.ru.util.FileUtil;
 import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONException;
@@ -851,7 +852,63 @@ public abstract class BaseResponse {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+   * sendFileLocResponse
+   *    Create a file named [fileName] from the data in [contents]
+   *    As soon as "outStream.close()" is issued, the user
+   *      is presented with a menu asking  him where he wants to save it
+   * 
+   * @param contents
+   * @param fileName 
+   */
+	public void sendFileLocResponse(String contents, String fileName) {
+    try {
+      String sFileUrl = makeFileLocResponse(contents, fileName);
+      if (sFileUrl == "") {
+        sendErrorResponse("FileLoc: Could not prepare file for download: " + fileName);
+      } else {
+        // Respond with the URL for this file in the reply
+        Map<String,Object> output = new HashMap<String,Object>();
+        output.put("file", sFileUrl);
+        sendResponse(output);
+      }
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+	}
+  
+  	/**
+   * makeFileLocResponse
+   *    Create a file named [fileName] from the data in [contents]
+   *    As soon as "outStream.close()" is issued, the user
+   *      is presented with a menu asking  him where he wants to save it
+   * 
+   * @param contents
+   * @param fileName 
+   */
+	public String makeFileLocResponse(String contents, String fileName) {
+    String sExportPath = "/files";
+    try {
+      // Create the file location name
+      String sWebRoot = servlet.getRealPath();
+      // Test for the rightmost character
+      String sRightMost = sWebRoot.substring(sWebRoot.length()-1);
+      if (sRightMost.equals("/") || sRightMost.equals("\\"))
+        sWebRoot = sWebRoot.substring(0, sWebRoot.length()-1);
+      String sFileLoc = FileUtil.nameNormalize(sWebRoot + sExportPath+ fileName);
+      // Create the URL for this file
+      String sFileUrl = "http://" + request.getServerName() + ":"+ 
+              request.getServerPort() + servlet.getContextRoot() + sExportPath+ fileName;
+      // Save the contents to the file
+      FileUtil.writeFile(sFileLoc, contents, "utf-8");
+      // Return the location
+      return sFileUrl;
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return "";
+    }
+	}
+  
   public static String getCurrentTimeStamp() {
     SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
     Date now = new Date();
@@ -923,11 +980,6 @@ public abstract class BaseResponse {
           boolean bCrpLoaded = oCRP.getBoolean("loaded");
           String sCrpName = FileIO.getFileNameWithoutExtension(oCRP.getString("crp"));
           sb.append(getProjectItem(sCrpName, bCrpLoaded));
-          /*
-          String sCrpName = oCRP.getString("crp")  + ((bCrpLoaded) ? " (loaded)" : "");
-          sb.append("<li><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
-                  oCRP.getString("crp") +"\")'>" + sCrpName + "</a></li>\n");
-          */
         }
       }
       // Return the string we made
@@ -938,9 +990,17 @@ public abstract class BaseResponse {
     }
   }
   
+  /**
+   * getProjectItem
+   *    Produce one <li> for the project-list
+   * 
+   * @param sCrp
+   * @param bLoaded
+   * @return 
+   */
   public String getProjectItem(String sCrp, boolean bLoaded) {
     String sCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
-    return "<li><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
+    return "<li class='crp_"+sCrp+"'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
                   sCrp +"\")'>" + sCrpName + "</a></li>\n";
   }
   

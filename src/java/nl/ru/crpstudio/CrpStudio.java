@@ -151,6 +151,8 @@ public class CrpStudio extends HttpServlet {
       responses.put("about", new InfoResponse());
       responses.put("load", new LoadResponse());
       responses.put("upload", new UploadResponse());
+      responses.put("remove", new RemoveResponse());
+      responses.put("download", new DownloadResponse());
       responses.put("j_security_check", new LoginResponse());
     } catch (Exception ex) {
       errHandle.DoError("init (b): " + ex.getMessage());
