@@ -1638,3 +1638,8 @@ textarea {
   font-family: Courier New; 
   font-size: 12px;
 }
+
+.side-nav .create-project {
+  color: darkred;
+  background: whitesmoke !important;   
+}

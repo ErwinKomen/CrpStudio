@@ -8,18 +8,18 @@
     <h5>${project}</h5>
     <!-- place where the currently select project is stored -->
     <div id="project_current" class="hidden"></div>
-    <!-- <ul class="crpstudio-side-nav"> -->
-    <ul id="project_list" class="side-nav">
-      <li><a href="#" onclick="Crpstudio.project.createManual(this)">$new_project_manual</a></li>
-      <li><a href="#" onclick="Crpstudio.project.createWizard(this)">$new_project_wizard</a></li>
-      <li class="divider"></li>
-      ${projecttable}
-    </ul>
     <!-- Allow user to upload a .crpx file -->
     <div class="uploadbutton">
       <label for="general_upload" class="uploadCrpxBtn">$labels.getString("project.upload")</label>
       <input id="general_upload" class="uploadfile" type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
     </div>
+    <!-- <ul class="crpstudio-side-nav"> -->
+    <ul id="project_list" class="side-nav">
+      <li class="create-project"><a href="#" onclick="Crpstudio.project.createManual(this)">$new_project_manual</a></li>
+      <li class="create-project"><a href="#" onclick="Crpstudio.project.createWizard(this)">$new_project_wizard</a></li>
+      <li class="divider"></li>
+      ${projecttable}
+    </ul>
   </div>
   <!-- the part to the right of the side-bar may contain contents of this project -->
   <div id="project_editor" class="large-12 medium-12 small-12 columns">
