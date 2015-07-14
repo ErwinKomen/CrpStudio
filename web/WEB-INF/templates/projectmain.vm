@@ -8,10 +8,27 @@
     <h5>${project}</h5>
     <!-- place where the currently select project is stored -->
     <div id="project_current" class="hidden"></div>
-    <!-- Allow user to upload a .crpx file -->
-    <div class="uploadbutton">
-      <label for="general_upload" class="uploadCrpxBtn">$labels.getString("project.upload")</label>
-      <input id="general_upload" class="uploadfile" type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
+    <!-- Room for two buttons -->
+    <div class="row">
+      <!-- Allow user to upload a .crpx file -->
+      <div class="uploadbutton large-6 medium-6 small-6 columns">
+        <label for="general_upload" class="uploadCrpxBtn">$labels.getString("project.upload")</label>
+        <input id="general_upload" class="uploadfile" type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
+      </div>
+      <!-- Allow user to download a .crpx file -->
+      <div class="uploadbutton large-6 medium-6 small-6 columns">
+        <label for="general_download" class="uploadCrpxBtn">$labels.getString("project.download")</label>
+        <input id="general_download" class="uploadfile" onclick="Crpstudio.project.downloadCrpFile(this);">
+      </div>
+      <!-- Allow user to remove a .crpx file -->
+      <div class="uploadbutton large-4 medium-4 small-4 columns">
+        <label for="general_removeCRP" class="uploadCrpxBtn">$labels.getString("project.remove")</label>
+        <input id="general_removeCRP" class="uploadfile" onclick="Crpstudio.project.removeCrpFile(this);">
+      </div>
+    </div>
+    <div id="project_download" class="row hidden">
+      <span>$labels.getString("result.export.intro"): </span>
+      <span id="project_download_file"></span>
     </div>
     <!-- <ul class="crpstudio-side-nav"> -->
     <ul id="project_list" class="side-nav">

@@ -467,6 +467,8 @@ Crpstudio.project = {
     // Get the <li>
     var listItem = $(target).parent();
     var strProject = $(target).text();
+    // Make sure download info is hidden
+    $("#project_download").addClass("hidden");
     // Look at all the <li> children of <ul>
     var listHost = listItem.parent();
     listHost.children('li').each(function() { $(this).removeClass("active")});
@@ -556,6 +558,8 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   uploadCrpFile : function(el) {
+    // Make sure download info is hidden
+    $("#project_download").addClass("hidden");
     // Get the name of the file
     var oFile = el.files[0];
     // Use the standard readXmlFile function
@@ -570,7 +574,6 @@ Crpstudio.project = {
       Crpstudio.getCrpStudioData("upload", params, Crpstudio.project.processUpLoad, "#project_description");
     });
 	},
-  
   /**
    * processUpLoad
    *    What to do when a project has been loaded
@@ -592,9 +595,34 @@ Crpstudio.project = {
           // If we have succesfully completed *uploading* a file to /crpstudio,
           //    then it must be added to the list
           var sPrjLine = oContent.prjline;
+          var sCrpName = oContent.crpname;
           // Check if there is any reply
-          if (sPrjLine)
-            $("#project_list").append(sPrjLine);
+          // if (sPrjLine)
+          //   $("#project_list").append(sPrjLine);
+          if (sPrjLine) {
+            // Walk the list of <li> elements
+            var arPrjItem = $("#project_list").children();
+            var liBef = null;
+            // Skip 0,1,2 -- these are used for New project, Wizard and a dividing line
+            for (var i=3;i<arPrjItem.size();i++) {
+              // It must have a <a> child node
+              if (arPrjItem[i].childNodes) {
+                var aChild = arPrjItem[i].childNodes.item(0);
+                // Should we put our project before this one?
+                if (aChild.innerHTML.localeCompare(sCrpName)>0) {
+                  // The list item must come before the current one
+                  liBef = arPrjItem[i];break;
+                }
+              }              
+            }
+            // Did we find any?
+            if (liBef === null) {
+              // Append it
+              $("#project_list").append(sPrjLine);
+            } else {
+              $(sPrjLine).insertBefore($(liBef));
+            }
+          }
           break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
@@ -610,8 +638,136 @@ Crpstudio.project = {
 		} else {
 			$("#project_status").html("ERROR - Failed to load the .crpx result from the server.");
 		}    
+  },  
+  /**
+   * removeCrpFile
+   *    Check which CRP is currently selected (if any)
+   *    Then remove that CRP:
+   *    (1) from the server --> POST to /crpstudio
+   *    (2) from the list here --> done in callback
+   * 
+   * @param {type} elDummy
+   * @returns {undefined}
+   */
+  removeCrpFile : function(elDummy) {
+    // Make sure download info is hidden
+    $("#project_download").addClass("hidden");
+    // Find out which one is currently selected
+    var sCrpName = Crpstudio.project.currentPrj;
+    if (sCrpName && sCrpName !== "") {
+      // Note: /crpstudio must check when the last download of this project was
+      // Send this information to the /crpstudio
+      var params = "crpname=" + sCrpName + "&userid=" + Crpstudio.currentUser;
+      Crpstudio.getCrpStudioData("remove", params, Crpstudio.project.processRemove, "#project_description");      
+    }
   },
-  
+  /**
+   * processRemove
+   *    Brushing up after project has been deleted
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/remove
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processRemove : function(response, target) {
+		if (response !== null) {
+      // Remove waiting
+      $("#project_description").html("");
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
+        case "completed":
+          // Find out which project has been removed
+          var sCrpName = oContent.crpname;
+          // Validate
+          if (sCrpName) {
+            // Remove the project from the list
+            $("#project_list .crp_"+sCrpName).remove();
+            // More sure project general is not displayed anymore
+            $("#project_general").addClass("hidden");
+          }
+          break;
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#project_status").html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
+          break;
+        default:
+          $("#project_status").html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+		}    
+  },   
+  /**
+   * downloadCrpFile
+   *    Check which CRP is currently selected (if any)
+   *    Then download that CRP:
+   *    (1) from the server --> POST to /crpstudio
+   * 
+   * @param {type} elDummy
+   * @returns {undefined}
+   */
+  downloadCrpFile : function(elDummy) {
+    // Find out which one is currently selected
+    var sCrpName = Crpstudio.project.currentPrj;
+    if (sCrpName && sCrpName !== "") {
+      // Note: /crpstudio must check when the last download of this project was
+      // Send this information to the /crpstudio
+      var params = "crpname=" + sCrpName + "&userid=" + Crpstudio.currentUser;
+      Crpstudio.getCrpStudioData("download", params, Crpstudio.project.processDownload, "#project_description");      
+    }
+  },  
+/**
+   * processDownload
+   *    Actions after project has been prepared for downloading
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/download
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processDownload : function(response, target) {
+		if (response !== null) {
+      // Remove waiting
+      $("#project_description").html("");
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
+        case "completed":
+          // Find out which project has been removed
+          var sFile = oContent.file;
+          // Validate
+          if (sFile && sFile !== null) {
+            // Get the name of the file alone
+            var fFileName = sFile.substring(sFile.lastIndexOf("/")+1);
+            fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
+            // Show the project_download item
+            $("#project_download").removeClass("hidden");
+            $("#project_download_file").html("<a href=\""+sFile + "\">"+fFileName+"</a>");
+          }
+          break;
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#project_status").html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
+          break;
+        default:
+          $("#project_status").html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+		}    
+  },     
   setCorpus : function(sCorpusName, sDirName) {
     $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
   },
@@ -622,6 +778,8 @@ Crpstudio.project = {
    * 23/jun/2015  ERK Created
    */
   createManual : function(target) {
+    // Make sure download info is hidden
+    $("#project_download").addClass("hidden");
     // Get the <li>
     var listItem = $(target).parent();
     // Look at all the <li> children of <ul>
@@ -644,6 +802,8 @@ Crpstudio.project = {
    * 23/jun/2015  ERK Created
    */
   createWizard : function(target) {
+    // Make sure download info is hidden
+    $("#project_download").addClass("hidden");
     // Get the <li>
     var listItem = $(target).parent();
     // Look at all the <li> children of <ul>
