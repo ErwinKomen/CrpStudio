@@ -883,9 +883,9 @@ public abstract class BaseResponse {
       this.params.clear();
       this.params.put("userid", sUser);
       // Get the JSON object from /crpp containing the projects of this user
-      String response = getCrppResponse("crplist", "", this.params);
+      String sResp = getCrppResponse("crplist", "", this.params);
       // Interpret the response
-      JSONObject oResp = new JSONObject(response);
+      JSONObject oResp = new JSONObject(sResp);
       if (!oResp.has("status") || !oResp.has("content") || 
           !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
       // Get the list of CRPs

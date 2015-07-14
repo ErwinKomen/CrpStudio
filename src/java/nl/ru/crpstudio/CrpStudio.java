@@ -166,6 +166,8 @@ public class CrpStudio extends HttpServlet {
    */
 	private void processRequest(HttpServletRequest request, HttpServletResponse response) {
 		try {
+      // Reset errors
+      errHandle.clearErr();
       // Get the request that is being made
       String parts[] = crpUtil.getRequestParts(request);
       // The requested index is the first part
