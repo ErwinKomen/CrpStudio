@@ -9,6 +9,7 @@ Crpstudio.result = {
   loc_arTable : null,   // Local copy of the table
   loc_iCurrentQc : -1,  // Currently selected QC line
   loc_iCurrentSub : -1, // Currently selected QC sub category
+  view : 1,             // Default view is #1
   
   /* ---------------------------------------------------------------------------
    * Name: makeOviewTable
@@ -68,7 +69,38 @@ Crpstudio.result = {
       $("#queries > tbody").append(qcRow);
     }
   },
-  
+  /**
+   * showView 
+   *    Make sure the indicate [iView] result-pane is 
+   *    shown, while the rest is hidden   * 
+   * 
+   * @param {type} iView
+   * @returns {undefined}
+   */
+  showView : function(iView) {
+    // SHow the correct item from [contentTabs]
+    $("#contentTabs li").each(function(index, value) {
+      if ((index+1) === iView) {
+        $(this).addClass("active");
+        $(this).addClass("disabled");
+      } else {
+        $(this).removeClass("active");
+        $(this).removeClass("disabled");
+      }
+    });
+    // Look at all [result-pane] elements and show the correct one
+    $("#results .result-pane").each(function() {
+      if (parseInt($(this).find("input.current-view").val(),10) === iView) {
+        // Enable this one
+        $(this).addClass("active");
+        $(this).removeClass("hidden");
+      } else {
+        // Disable this one
+        $(this).removeClass("active");
+        $(this).addClass("hidden");
+      }
+    });
+  },
   /* ---------------------------------------------------------------------------
    * Name: switchToQc
    * Goal: Action when user clicks this QC line in the results overview table
@@ -81,8 +113,9 @@ Crpstudio.result = {
     // Set the QC line
     Crpstudio.result.loc_iCurrentQc = idxQc;
     Crpstudio.result.loc_iCurrentSub = -1;
+    var iView = Crpstudio.result.view;
     // Switch off export
-    $("#results_export").addClass("hidden");
+    $("#results_export_"+iView).addClass("hidden");
     // Get the number of QCs
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
@@ -94,10 +127,8 @@ Crpstudio.result = {
       // Hide the qcsub_n_m lines, which have class "qc-sub-line"
       $("#queries .qc-sub-line").addClass("hidden");
       // User is already active here. Click means: remove all tables
-      // (1) hide the 'result_qc' lines
-      // $("#result_table .result-qc").addClass("hidden");
       // (2) hide the 'result-qc-sub' lines
-      $("#result_table .result-qc-sub").addClass("hidden");
+      $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
       // (3) toggle the 'hidden' class for this QC line table
       $("#result_qc"+iQC).toggleClass("hidden");
       // Since we are RE-setting, clear the CurrentQc number
@@ -118,11 +149,11 @@ Crpstudio.result = {
         $("#queries #qcsub_"+iQC+"_"+i).removeClass("hidden");
       }
       // (6) set all results to 'hidden'
-      $("#result_table .result-qc").addClass("hidden");
+      $("#result_table_"+iView+" .result-qc").addClass("hidden");
       // (7) Show the results for this QC line
       $("#result_qc"+iQC).removeClass("hidden");
       // (8) hide the 'result-qc-sub' lines
-      $("#result_table .result-qc-sub").addClass("hidden");
+      $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
     }
       
   },
@@ -137,8 +168,10 @@ Crpstudio.result = {
     // Get the correct index
     var idxQc = iQC-1;
     Crpstudio.result.loc_iCurrentSub = idxSub;
+    // Get the correct view mode
+    var iView = Crpstudio.result.view;
     // Switch off export
-    $("#results_export").addClass("hidden");
+    $("#results_export_"+iView).addClass("hidden");
     // Get the number of QCs
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
@@ -177,7 +210,7 @@ Crpstudio.result = {
    * History:
    * 30/jun/2015  ERK Created
    */
-  doExport : function() {
+  doExport : function(iView) {
     var oBack = null;   // What we will return
     var oQC = null;     // part of the table
     var idxQc = Crpstudio.result.loc_iCurrentQc;
@@ -262,8 +295,9 @@ Crpstudio.result = {
         var fFileName = fFilePath.substring(fFilePath.lastIndexOf("/")+1);
         fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
         // Provide the user with a path where he can download the file from
-        $("#results_export").removeClass("hidden");
-        $("#results_export_file").html("<a href=\""+fFilePath + "\">"+fFileName+"</a>");
+        $("#results_export_1").removeClass("hidden");
+        $("#results_export_file_1").html("<a href=\""+fFilePath + 
+                " target='_blank'\">"+fFileName+"</a>");
       }
       // So far: no action is required
       /*

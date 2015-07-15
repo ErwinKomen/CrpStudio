@@ -47,32 +47,57 @@
       <div class="large-16 medium-16 small-16">
         <!-- tabs -->
         <ul class="nav nav-tabs" id="contentTabs">
+          #foreach ($tabspec in $tabspecs)
+            #set ($view = $tabspec.getView())
+            #set ($tabLabel = "result.tab" + $tabspec.getView())
+            #set ($tabName = $labels.getString($tabLabel))
+            #if($view == "1")
+              <li class="active disabled"><a onclick="Crpstudio.project.update($view)">$tabName</a></li>
+            #else
+              <li><a onclick="Crpstudio.project.update($view)">$tabName</a></li>
+            #end
+          #end
+          <!-- 
           <li class="active disabled"><a onclick="Crpstudio.project.update(1)">$labels.getString("result.tab1")</a></li>
           <li><a onclick="Crpstudio.project.update(2)">$labels.getString("result.tab2")</a></li>
           <li><a onclick="Crpstudio.project.update(3)">$labels.getString("result.tab3")</a></li>
           <li><a onclick="Crpstudio.project.update(4)">$labels.getString("result.tab4")</a></li>
+          -->
         </ul>
-        <!-- top of the table section -->
-        <div id="perhit" class="result-pane tab-pane active lightbg haspadding">
-          <input type="hidden" class="current-view" value="1" />
-          <div class="gradient"></div>
-          <div class="pagination large-16 medium-16 small-16 row"></div>
-          <!-- export button -->
-          <div class="export large-16 medium-16 small-16 row">
-            <div class="large-3 medium-3 small-4 columns">
-              <button class="small" onclick="Crpstudio.result.doExport();">$labels.getString("result.export")</button>
+        <!-- there are a number of tabs, specified by "result.tab.names" -->
+        #foreach ($tabspec in $tabspecs)
+          #set ($view = $tabspec.getView())
+          #set ($tabId = $tabspec.getName())
+          #set ($resultsTimeId = "results_time_" + $view)
+          #set ($resultsExportId = "results_export_" + $view)
+          #set ($resultsFileId = "results_export_file_" + $view)
+          #set ($resultsTableId = "result_table_" + $view)
+          #set ($resultStatus = "result_status_" + $view)
+          #if($view == "1")
+            <div id="$tabId" class="result-pane tab-pane active lightbg haspadding">
+          #else
+            <div id="$tabId" class="result-pane tab-pane lightbg haspadding">
+          #end
+            <input type="hidden" class="current-view" value="$view" />
+            <div class="gradient"></div>
+            <div id="$resultStatus" class="pagination large-16 medium-16 small-16 row"></div>
+            <!-- export button -->
+            <div class="export large-16 medium-16 small-16 row">
+              <div class="large-3 medium-3 small-4 columns">
+                <button class="small" onclick="Crpstudio.result.doExport($view);">$labels.getString("result.export")</button>
+              </div>
+              <div id="$resultsTimeId" class="large-4 medium=4 small-4 columns"></div>
+              <div id="$resultsExportId" class="large-9 medium=9 small-8 columns hidden">
+                <span>$labels.getString("result.export.intro"): </span>
+                <span id="$resultsFileId"></span>
+              </div>
             </div>
-            <div id="results_time" class="large-4 medium=4 small-4 columns"></div>
-            <div id="results_export" class="large-9 medium=9 small-8 columns hidden">
-              <span>$labels.getString("result.export.intro"): </span>
-              <span id="results_export_file"></span>
+            <!-- result table for this view -->
+            <div id="$resultsTableId" class="large-16 medium-16 small-16">
+                  <i>(Working...)</i>
             </div>
           </div>
-          <!-- result table -->
-          <div id="result_table" class="large-16 medium-16 small-16">
-                <i>(Working...)</i>
-          </div>
-        </div>
+        #end
       </div>
     </div>
   </div>

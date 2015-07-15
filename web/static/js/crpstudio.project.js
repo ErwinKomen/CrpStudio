@@ -36,7 +36,7 @@ Crpstudio.project = {
       $("#project_status").text("Processing project: " + sPrjName);
       $("#result_status").text("");
       // Switch off export
-      $("#results_export").addClass("hidden");
+      for (var i=1;i<=4;i++) { $("#results_export_"+i).addClass("hidden"); }
       // switch to the result tab
       Crpstudio.project.switchTab("result");
       $("#result_status").text("");
@@ -260,7 +260,7 @@ Crpstudio.project = {
     var oContent = oResponse.content;
     // find the result_status element
     var divResProgress = $("#result_progress").get(0);
-    var divResTable = $("#result_table").get(0);
+    var divResTable = $("#result_table_1").get(0);
     // Action depends on the status code
     switch (sStatusCode) {
       case "working":
@@ -313,7 +313,7 @@ Crpstudio.project = {
         var html = Crpstudio.project.makeLargeTables(oContent.searchTime, oContent.table);
         // Position this table in the correct div
         // divResTable.innerHTML = html;
-        $("#result_table").html(html);
+        $("#result_table_1").html(html);
         // Hide the progress meters
         $("#result_progress").addClass("hidden");
         // Remove the result report
@@ -324,6 +324,8 @@ Crpstudio.project = {
         $("#result_fetching").addClass("hidden");
         // But show the querylines part
         $("#result_querylines").removeClass("hidden");
+        // And make sure only one tab page is active -- the others are hidden
+        Crpstudio.result.showView(1);
         break;
       default:
         // TODO: take default action
@@ -750,7 +752,8 @@ Crpstudio.project = {
             fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
             // Show the project_download item
             $("#project_download").removeClass("hidden");
-            $("#project_download_file").html("<a href=\""+sFile + "\">"+fFileName+"</a>");
+            $("#project_download_file").html("<a href=\""+sFile + 
+                    " target='_blank'\">"+fFileName+"</a>");
           }
           break;
         case "error":
@@ -839,14 +842,76 @@ Crpstudio.project = {
   
   /* ---------------------------------------------------------------------------
    * Name: update
-   * Goal: Update current results
+   * Goal: Change result-view:
+   *        1 = all hits
+   *        2 = hits per document
+   *        3 = hits per 'group'
+   *        4 = hits per 'division'
    * History:
    * 30/jun/2015  ERK Created
    */
   update : function(iView) {
-    
+    // Make sure the view variable is filled in
+    Crpstudio.result.view = iView;  
+    // Set the correct tab 
+    Crpstudio.result.showView(iView);
+    // Determine the parameters: QC, sub-category
+    var iQC = Crpstudio.result.loc_iCurrentQc;
+    var iSub = Crpstudio.result.loc_iCurrentSub;   
+    // Show that we are waiting for data
+		$("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Working...");
+    // Get the data for this combination of QC/Subcat/View
+    var oQuery = { "qc": iQC, "sub": iSub, "view": iView,
+      "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj };
+    var params = "query=" + JSON.stringify(oQuery);
+    Crpstudio.getCrpStudioData("update", params, Crpstudio.project.processUpdate, "#result_table_"+iView);   
   },
-  
+/**
+   * processUpdate
+   *    Actions after project has been prepared for downloading
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/update
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processUpdate : function(response, target) {
+		if (response !== null) {
+      // Remove waiting
+      $("#project_description").html("");
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
+        case "completed":
+          // Find out which project has been removed
+          var sFile = oContent.file;
+          // Validate
+          if (sFile && sFile !== null) {
+            // Get the name of the file alone
+            var fFileName = sFile.substring(sFile.lastIndexOf("/")+1);
+            fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
+            // Show the project_download item
+            $("#project_download").removeClass("hidden");
+            $("#project_download_file").html("<a href=\""+sFile + 
+                    " target='_blank'\">"+fFileName+"</a>");
+          }
+          break;
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#project_status").html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
+          break;
+        default:
+          $("#project_status").html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+		}    
+  },      
   /* ---------------------------------------------------------------------------
    * Name: editQC
    * Goal: Start editing the indicated QC line
