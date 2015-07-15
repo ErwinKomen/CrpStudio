@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,6 +40,7 @@ import nl.ru.crpstudio.crp.CrpContainer;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.QueryServiceHandler;
+import nl.ru.crpstudio.util.TabSpecifier;
 import nl.ru.crpstudio.util.TemplateManager;
 import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.crpx.tools.FileIO;
@@ -544,7 +546,8 @@ public abstract class BaseResponse {
           // If the job is already completed, then we need to pass on the results: "table"
           if (oContent != null && oContent.has("table")) {
             // There really is a table in the output
-            output.put("table",oContent.getJSONArray("table"));
+            JSONArray arTable = oContent.getJSONArray("table");
+            output.put("table",arTable);
             sJobId = servlet.getUserJob();
             output.put("jobid", sJobId );
           } else {
@@ -1063,6 +1066,23 @@ public abstract class BaseResponse {
       logger.DoError("getCorpusList: could not complete", ex);
       return "error (getCorpusList)";
     }
+  }
+  
+  /**
+   * getTabSpecsList
+   *    Make a list of tab-specification for the results page
+   * 
+   * @return 
+   */
+  public LinkedList<TabSpecifier> getTabSpecsList() {
+    LinkedList<TabSpecifier> tabs = new LinkedList<>();
+    String[] fields = labels.getString("result.tab.names").split(",");
+    for (int i=0;i<fields.length;i++) {
+      TabSpecifier tabThis = new TabSpecifier(fields[i].trim(), i+1);
+      tabs.add(tabThis);
+    }
+    // Return the result
+    return(tabs);
   }
 	/**
 	 * Complete the request - automatically called by processRequest()

@@ -250,6 +250,7 @@ class UserSession {
   // TODO: start time of logging in
   public String lngLast;    // Last language corpus used
   public String crpLast;    // Last CRP that has been used
+  public JSONArray aTable;  // Last JSON Array table used by user
   public UserSession(String sUserId, String sSessionId, boolean bUserOkay) {
     this.userId = sUserId;
     this.sessionId = sSessionId;

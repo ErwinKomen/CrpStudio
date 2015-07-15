@@ -91,6 +91,7 @@ public class CrpStudio extends HttpServlet {
   public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
   public void setUserJob(String sJobId) { crpUtil.setUserJob(sUserId, sSessionId, sJobId);}
   public String getUserJob() { return crpUtil.getUserJob(sUserId, sSessionId);}
+  public void setUserTable(JSONArray aTable) { crpUtil.setUserJob(sUserId, sSessionId, sUserId);}
   public CrpUtil getCrpUtil() {return crpUtil;}
   public ErrHandle getErrHandle() {return errHandle;}
   public JSONArray getCorpora() { return objCorpora;}
@@ -141,19 +142,20 @@ public class CrpStudio extends HttpServlet {
       // Find our context root
       contextRoot = cfg.getServletContext().getContextPath();
 
-      responses.put("home", new HomeResponse());
+      responses.put("about", new InfoResponse());
       responses.put("corpora", new CorporaResponse());
-      responses.put("projects", new ProjectsResponse());
-      responses.put("export", new ExportResponse());
+      responses.put("download", new DownloadResponse());
       responses.put("error", new ErrorResponse());
       responses.put("exe", new ExecuteResponse());
-      responses.put("statusxq", new StatusResponse());
-      responses.put("about", new InfoResponse());
-      responses.put("load", new LoadResponse());
-      responses.put("upload", new UploadResponse());
-      responses.put("remove", new RemoveResponse());
-      responses.put("download", new DownloadResponse());
+      responses.put("export", new ExportResponse());
+      responses.put("home", new HomeResponse());
       responses.put("j_security_check", new LoginResponse());
+      responses.put("load", new LoadResponse());
+      responses.put("projects", new ProjectsResponse());
+      responses.put("remove", new RemoveResponse());
+      responses.put("statusxq", new StatusResponse());
+      responses.put("update", new UpdateResponse());
+      responses.put("upload", new UploadResponse());
     } catch (Exception ex) {
       errHandle.DoError("init (b): " + ex.getMessage());
     }

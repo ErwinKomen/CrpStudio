@@ -17,6 +17,8 @@ public class ProjectsResponse extends BaseResponse {
     try {
       // Get access to all the corpora the user can choose from
       this.getContext().put("corpuslist", getCorpusList());
+      // Get the result tab specifications
+      this.getContext().put("tabspecs", getTabSpecsList());
       // Get access to the projects this user can choose from
       this.getContext().put("projecttable", this.getProjectInfo(this.sUserId));
       // Indicate which main tab the user has chosen
@@ -29,7 +31,7 @@ public class ProjectsResponse extends BaseResponse {
       // Make sure the current user is known
       this.getContext().put("username", servlet.getUserId());
       // ======= DEBUGGING
-      // String sDebug = this.applyHtmlTemplate(this.templateMan.getTemplate("projects"));
+      String sDebug = this.applyHtmlTemplate(this.templateMan.getTemplate("projects"));
       // ==================
       
       // Now produce the initial search display, with the "project" tab clicked and executed
