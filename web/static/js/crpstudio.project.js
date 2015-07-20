@@ -8,7 +8,9 @@
 Crpstudio.project = {
   // Local variables within Crpstudio.project
   tab : "project",      // The main tab we are on
-  currentPrj: "",       // The currently being executed project
+  currentPrj: "",       // The currently being executed project (the CRP name)
+  currentLng: "",       // the "lng" parameter of the current project
+  currentDir: "",       // the "dir" parameter of the current project
   strQstatus: "",       // The JSON string passed on to R-server "status"
   divStatus: "",        // The name of the div where the status is to be shown
   interval: 200,        // Number of milliseconds
@@ -29,9 +31,12 @@ Crpstudio.project = {
     } else {
       // Find out which language corpus the user has chosen
       var oCorpusAndDir = $("#input_lng").val().split(":");
-      var sLng = oCorpusAndDir[0];
-      var sDir = oCorpusAndDir[1];
+      var sLng = oCorpusAndDir[0];  // obligatory
+      var sDir = oCorpusAndDir[1];  // May be empty
       var oExeRequest = {};
+      // Store these values for posterity (well, for /update requests)
+      Crpstudio.project.currentDir = sDir;
+      Crpstudio.project.currentLng = sLng;
       // debugging: show where the status appears
       $("#project_status").text("Processing project: " + sPrjName);
       $("#result_status").text("");
@@ -861,14 +866,16 @@ Crpstudio.project = {
     // Show that we are waiting for data
 		$("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Working...");
     // Get the data for this combination of QC/Subcat/View
+    // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
     var oQuery = { "qc": iQC, "sub": iSub, "view": iView,
-      "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj };
+      "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
+      "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir};
     var params = "query=" + JSON.stringify(oQuery);
     Crpstudio.getCrpStudioData("update", params, Crpstudio.project.processUpdate, "#result_table_"+iView);   
   },
 /**
    * processUpdate
-   *    Actions after project has been prepared for downloading
+   *    Process the information requested with a /update request
    *    
    * @param {type} response   JSON object returned from /crpstudio/update
    * @param {type} target
