@@ -52,16 +52,16 @@
             #set ($tabLabel = "result.tab" + $tabspec.getView())
             #set ($tabName = $labels.getString($tabLabel))
             #if($view == "1")
-              <li class="active disabled"><a onclick="Crpstudio.project.update($view)">$tabName</a></li>
+              <li class="active disabled"><a onclick="Crpstudio.result.update($view)">$tabName</a></li>
             #else
-              <li><a onclick="Crpstudio.project.update($view)">$tabName</a></li>
+              <li><a onclick="Crpstudio.result.update($view)">$tabName</a></li>
             #end
           #end
           <!-- 
-          <li class="active disabled"><a onclick="Crpstudio.project.update(1)">$labels.getString("result.tab1")</a></li>
-          <li><a onclick="Crpstudio.project.update(2)">$labels.getString("result.tab2")</a></li>
-          <li><a onclick="Crpstudio.project.update(3)">$labels.getString("result.tab3")</a></li>
-          <li><a onclick="Crpstudio.project.update(4)">$labels.getString("result.tab4")</a></li>
+          <li class="active disabled"><a onclick="Crpstudio.result.update(1)">$labels.getString("result.tab1")</a></li>
+          <li><a onclick="Crpstudio.result.update(2)">$labels.getString("result.tab2")</a></li>
+          <li><a onclick="Crpstudio.result.update(3)">$labels.getString("result.tab3")</a></li>
+          <li><a onclick="Crpstudio.result.update(4)">$labels.getString("result.tab4")</a></li>
           -->
         </ul>
         <!-- there are a number of tabs, specified by "result.tab.names" -->

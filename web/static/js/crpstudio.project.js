@@ -247,13 +247,15 @@ Crpstudio.project = {
    * Name: doStatus
    * Goal: show the progress of our work
    * 
-   * Note: a possible [oContent] might look like:
+   * Note: a possible [oContent] when the status is "working" might look like:
    *  "jobid":"820",
    *  "start":"stat-1570-e2-p2.psdx",
    *  "count":62,
    *  "total":448,
    *  "finish":"tillots-b-e3-p1.psdx",
    *  "ready":53
+   *  
+   * Note: oContent holds a table with results when the status is "completed"
    *  
    * History:
    * 24/jun/2015  ERK Created
@@ -266,6 +268,8 @@ Crpstudio.project = {
     // find the result_status element
     var divResProgress = $("#result_progress").get(0);
     var divResTable = $("#result_table_1").get(0);
+    // Preparet HTML result
+    var html = "";
     // Action depends on the status code
     switch (sStatusCode) {
       case "working":
@@ -314,11 +318,16 @@ Crpstudio.project = {
         Crpstudio.result.makeOviewTable(oContent.table);
         // Keep track of the status
         $("#result_status").html("Making large table...")
-        // Create a large table
-        var html = Crpstudio.project.makeLargeTables(oContent.searchTime, oContent.table);
-        // Position this table in the correct div
-        // divResTable.innerHTML = html;
+        // Create a large table for view=2
+        html = Crpstudio.project.makeTablesView2(oContent.searchTime, oContent.table);
+        // Position this table in the div for view=2 (per-document view)
+        $("#result_table_2").html(html);
+        
+        // Create an initial table for view=1: the 'hits'
+        html = Crpstudio.project.makeTablesView1(oContent.searchTime, oContent.table);
+        // Position this table in the div for view=2 (per-document view)
         $("#result_table_1").html(html);
+
         // Hide the progress meters
         $("#result_progress").addClass("hidden");
         // Remove the result report
@@ -338,15 +347,30 @@ Crpstudio.project = {
     }
  
   },
-  
-    /* ---------------------------------------------------------------------------
-   * Name: makeLargeTables
-   * Goal: Make a large table of all the results
+ 
+   /* ---------------------------------------------------------------------------
+   * Name: makeTablesView1
+   * Goal: Make a table of the results per hit
+   * 
+   * History:
+   * 21/jul/2015  ERK Created
+   */
+  makeTablesView1: function(iSearchTime, arTable) {
+    var html = [];
+    // Nothing to show yet
+    html.push("Sorry, view 1 is not yet implemented");
+    // Join and return the result
+    return html.join("\n");
+  },
+
+  /* ---------------------------------------------------------------------------
+   * Name: makeTablesView2
+   * Goal: Make a large table of the results per document
    * 
    * History:
    * 29/jun/2015  ERK Created
    */
-  makeLargeTables: function(iSearchTime, arTable) {
+  makeTablesView2: function(iSearchTime, arTable) {
     var html = [];
     // Show the time of this search
     $("#results_time").html("<p>Search time: <b>"+(iSearchTime / 1000)+" s.</b></p>");
@@ -373,17 +397,27 @@ Crpstudio.project = {
       html.push("</thead>");
       // Start the table body
       html.push("<tbody>");
-      // Walk all the hits
+      var sAnyRowArg = "class=\"concordance\" onclick=\"Crpstudio.result.showFileHits";
+      // Walk all the hits for this QC
       for (var j=0; j<arHits.length; j++) {
         var sFile = arHits[j].file;
         var iCount = arHits[j].count;
+        var iStart = 1;
+        var sId = "fh_qc"+iQC+"_f"+j; 
         var arSubCounts = arHits[j].subs;
-        html.push("<tr><td>" + sFile + "</td>");
+        var sRowArgs = sAnyRowArg + "("+iStart+","+iCount+",'"+sFile+"',"+iQC+",'','#"+sId+"');\"";
+        html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
         html.push("<td>"+iCount+"</td>");
         for (var k=0;k<arSubCounts.length; k++ ) {
           html.push("<td>"+arSubCounts[k]+"</td>");
         }
         html.push("</tr>");
+        // Determine the @id for this result
+        var iCols = 2+arSubCounts.length;
+        // Make a row where the citation will be placed
+        html.push("<tr \"citationrow hidden\"><td colspan="+iCols+">"+
+                "<div class=\"collapse inline-concordance\" id=\""+sId+
+                "\">Loading...</div></td></tr>")
       }
       // Finish the table
       html.push("</tbody></table>");
@@ -400,8 +434,16 @@ Crpstudio.project = {
         for (var k=0; k<arHits.length; k++) {
           var sFile = arHits[k].file;
           var arSubCounts = arHits[k].subs;
-          html.push("<tr><td>" + sFile + "</td>");
+          var iStart = 1;
+          // Determine the @id for this result
+          var sId = "fh_qc"+iQC+"_f"+k+"_s"+j;
+          var sRowArgs = sAnyRowArg + "("+iStart+","+arSubCounts[j]+",'"+sFile+"',"+iQC+",'"+arSubs[j]+"','#"+sId+"');\"";
+          html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
           html.push("<td>"+arSubCounts[j]+"</td></tr>");
+          // Make a row where the citation will be placed
+          html.push("<tr \"citationrow hidden\"><td colspan=2>"+
+                  "<div class=\"collapse inline-concordance\" id=\""+sId+
+                  "\">Loading...</div></td></tr>")
         }
         // Finish this sub-cat-table
         html.push("</tbody></table></div>")
@@ -845,80 +887,7 @@ Crpstudio.project = {
 		// $("#project").css("margin-top",sh+"px");
 	},
   
-  /* ---------------------------------------------------------------------------
-   * Name: update
-   * Goal: Change result-view:
-   *        1 = all hits
-   *        2 = hits per document
-   *        3 = hits per 'group'
-   *        4 = hits per 'division'
-   * History:
-   * 30/jun/2015  ERK Created
-   */
-  update : function(iView) {
-    // Make sure the view variable is filled in
-    Crpstudio.result.view = iView;  
-    // Set the correct tab 
-    Crpstudio.result.showView(iView);
-    // Determine the parameters: QC, sub-category
-    var iQC = Crpstudio.result.loc_iCurrentQc;
-    var iSub = Crpstudio.result.loc_iCurrentSub;   
-    // Show that we are waiting for data
-		$("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Working...");
-    // Get the data for this combination of QC/Subcat/View
-    // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
-    var oQuery = { "qc": iQC, "sub": iSub, "view": iView,
-      "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
-      "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir};
-    var params = "query=" + JSON.stringify(oQuery);
-    Crpstudio.getCrpStudioData("update", params, Crpstudio.project.processUpdate, "#result_table_"+iView);   
-  },
-/**
-   * processUpdate
-   *    Process the information requested with a /update request
-   *    
-   * @param {type} response   JSON object returned from /crpstudio/update
-   * @param {type} target
-   * @returns {undefined}
-   */
-  processUpdate : function(response, target) {
-		if (response !== null) {
-      // Remove waiting
-      $("#project_description").html("");
-      // The response is a standard object containing "status" (code) and "content" (code, message)
-      var oStatus = response.status;
-      var sStatusCode = oStatus.code;
-      var oContent = response.content;
-      switch (sStatusCode) {
-        case "completed":
-          // Find out which project has been removed
-          var sFile = oContent.file;
-          // Validate
-          if (sFile && sFile !== null) {
-            // Get the name of the file alone
-            var fFileName = sFile.substring(sFile.lastIndexOf("/")+1);
-            fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
-            // Show the project_download item
-            $("#project_download").removeClass("hidden");
-            $("#project_download_file").html("<a href=\""+sFile + 
-                    " target='_blank'\">"+fFileName+"</a>");
-          }
-          break;
-        case "error":
-          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
-          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
-          $("#project_status").html("Error: " + sErrorCode);
-          $(target).html("Error: " + sErrorMsg);
-          break;
-        default:
-          $("#project_status").html("Error: no reply");
-          $(target).html("Error: no reply received from the /crpstudio server");
-          break;
-      }
-		} else {
-			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
-		}    
-  },      
+
   /* ---------------------------------------------------------------------------
    * Name: editQC
    * Goal: Start editing the indicated QC line

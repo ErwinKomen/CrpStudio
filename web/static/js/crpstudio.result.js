@@ -9,6 +9,7 @@ Crpstudio.result = {
   loc_arTable : null,   // Local copy of the table
   loc_iCurrentQc : -1,  // Currently selected QC line
   loc_iCurrentSub : -1, // Currently selected QC sub category
+  loc_sCurrentSub : "", // String for the currently selected sub
   view : 1,             // Default view is #1
   
   /* ---------------------------------------------------------------------------
@@ -113,6 +114,7 @@ Crpstudio.result = {
     // Set the QC line
     Crpstudio.result.loc_iCurrentQc = idxQc;
     Crpstudio.result.loc_iCurrentSub = -1;
+    Crpstudio.result.loc_sCurrentSub = "";
     var iView = Crpstudio.result.view;
     // Switch off export
     $("#results_export_"+iView).addClass("hidden");
@@ -168,6 +170,7 @@ Crpstudio.result = {
     // Get the correct index
     var idxQc = iQC-1;
     Crpstudio.result.loc_iCurrentSub = idxSub;
+    Crpstudio.result.loc_sCurrentSub = Crpstudio.result.loc_arTable[idxQc].subcats[idxSub];
     // Get the correct view mode
     var iView = Crpstudio.result.view;
     // Switch off export
@@ -327,8 +330,198 @@ Crpstudio.result = {
 			$("#status_"+target).html("ERROR");
 			$("#result_"+target).html("ERROR - Failed to retrieve result from server.");
 		}    
+  },
+   /* ---------------------------------------------------------------------------
+   * Name: update
+   * Goal: Change result-view:
+   *        1 = all hits
+   *        2 = hits per document
+   *        3 = hits per 'group'
+   *        4 = hits per 'division'
+   * History:
+   * 30/jun/2015  ERK Created
+   */
+  update : function(iView) {
+    // Make sure the view variable is filled in
+    Crpstudio.result.view = iView;  
+    // Set the correct tab 
+    Crpstudio.result.showView(iView);
+    // Determine the parameters: QC, sub-category
+    var iQC = Crpstudio.result.loc_iCurrentQc;
+    var iSub = Crpstudio.result.loc_iCurrentSub;
+    var sSub = Crpstudio.result.loc_sCurrentSub;
+    // Determine the type of information needed
+    // TODO: make this user-determinable!!
+    var sType = "context+syntax";
+    // Determine start and finish
+    var iStart = 1;
+    var iCount = 0;
+    var arQcTable = Crpstudio.result.loc_arTable[iQC-1];
+    if (iSub<0) {
+      iCount = arQcTable.total;
+    } else {
+      iCount = arQcTable.counts[iSub];
+    }
+    // Show that we are waiting for data
+		$("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Getting data...");
+    // Get the data for this combination of QC/Subcat/View
+    // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
+    var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
+      "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
+      "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
+      "type": sType, "start": iStart, "count": iCount};
+    var params = "query=" + JSON.stringify(oQuery);
+    Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processUpdate, "#result_table_"+iView);   
+  },
+/**
+   * processUpdate
+   *    Process the information requested with a /update request
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/update
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processUpdate : function(response, target) {
+		if (response !== null) {
+      var iView = Crpstudio.result.view;
+      // Remove waiting notification in project description
+      $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Processing data...");
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
+        case "completed":
+          // The result is in [oContent] as an array of 'hit' values
+          // Access the results' table
+          var divResTable = $("result_table_" +iView);
+          
+          // Show we are ready: clear status
+          $("#result_status_"+iView).html("");
+          break;
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#result_status_"+iView).html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
+          break;
+        default:
+          $("#result_status"+iView).html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+		}    
+  },       
+
+/**
+ * showFileHits
+ *    Load and show the hits in the indicated <div>
+ * 
+ * @param {type} iStart
+ * @param {type} iCount
+ * @param {type} sFile
+ * @param {type} iQC
+ * @param {type} sSub
+ * @param {type} element Where to show the results
+ * @returns {undefined}
+ */
+  showFileHits : function(iStart, iCount, sFile, iQC, sSub, element) {
+		if ($(element).parent().parent().hasClass("hidden")) {
+      // Make sure the <div> is now being shown
+      $(element).parent().parent().removeClass("hidden");
+      // Remove waiting notification in project description
+      $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Fetching data...");
+      // Get the data for this combination of QC/Subcat/View
+      var sType = "context_syntax";
+      var iView = 1;    // The view doesn't really matter, does it?
+      // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
+      var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
+        "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
+        "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
+        "type": sType, "start": iStart, "count": iCount, "files": [ sFile ]};
+      var params = "query=" + JSON.stringify(oQuery);
+      Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
+    } else {
+			$(element).parent().parent().addClass("hidden");
+		}
+  },
+  /**
+   * processFileHits
+   *    Process the information requested with a /update request
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/update
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processFileHits : function(response, target) {
+		if (response !== null) {
+      var iView = Crpstudio.result.view;
+      // Remove waiting notification in project description
+      $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Processing data...");
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
+        case "completed":
+          // The result is in [oContent] as an array of 'hit' values
+          var html = [];
+          html.push("<table>")
+          for (var i=0;i<oContent.length;i++) {
+            // Access this object
+            var oRow = oContent[i];
+            
+            html.push("<tr><td><b>"+oRow.n+"</b></td><td>"+oRow.preC+"</td>");
+            html.push("<td color='blue'>"+oRow.hitC+"</td>");
+            html.push("<td>"+oRow.folC+"</td>");
+            html.push("</tr>");
+            // Get the syntax result
+            var sSyntax = Crpstudio.result.getSyntax(oRow.hitS);
+            html.push("<tr colspan=4><td>"+ sSyntax +"</td></tr>");
+          }
+          html.push("</table>")
+          // put the results in the target
+          $(target).html(html.join("\n"));
+          // Show we are ready: clear status
+          $("#result_status_"+iView).html("");
+          break;
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#result_status_"+iView).html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
+          break;
+        default:
+          $("#result_status"+iView).html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+		}    
+  },    
+  
+  /**
+   * getSyntax
+   *    Given a syntax object, construct an HTML syntax representation
+   *    
+   * @param {type} oSyntax
+   * @returns {String}
+   */
+  getSyntax : function(oSyntax) {
+    var html = [];
+    // Get the main part
+    html.push("<font face='Courier New' size='2'>");
+    html.push("[<font color=#800000 size=1>" + oSyntax.main + "</font> ");
+    var oChildren = oSyntax.children;
+    for (var i=0;i<oChildren.length;i++) {
+      html.push("[<font color=#800000 size=1>" + oChildren[i].pos + "</font> ");
+      html.push(oChildren[i].txt);
+    }
+    html.push("]</font>");
+    return html.join("\n");
   }
-  
-  
 };
 
