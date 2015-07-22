@@ -127,7 +127,7 @@ public abstract class BaseResponse {
       if (query.length() > 0) {
         try {
 
-          params.put("patt", query);
+          // params.put("patt", query);
 
           String groupBy = this.getParameter("group_by", "");
           if (groupBy.length() > 0)
@@ -248,19 +248,25 @@ public abstract class BaseResponse {
    * @param params  - parameters requiring & to be attached to request
    * @return        - string returning the response
    */
-	public String getCrppResponse(String index, String trail, Map<String,Object> params) {
+	public String getCrppResponse(String index, String trail, Map<String,Object> params, 
+          JSONObject oJsonParams) {
     String parameters = "";
     
-    // Take over the parameters
-    this.params = params;
-    // Are there any parameters?
-    if (this.params.size() >0) {
-      // Transform the parameters into a JSON object
-      JSONObject oParams = new JSONObject();
-      for (String sParam : params.keySet()) {
-        oParams.put(sParam, params.get(sParam));
+    // Is JSON defined?
+    if (oJsonParams == null) {
+      // Take over the parameters
+      this.params = params;
+      // Are there any parameters?
+      if (this.params.size() >0) {
+        // Transform the parameters into a JSON object
+        JSONObject oParams = new JSONObject();
+        for (String sParam : params.keySet()) {
+          oParams.put(sParam, params.get(sParam));
+        }
+        parameters = oParams.toString();
       }
-      parameters = oParams.toString();
+    } else {
+      parameters = oJsonParams.toString();
     }
     // Calculate the request URL
 		String url = this.labels.getString("crppUrlInternal")+ "/" + index + trail;
@@ -575,6 +581,82 @@ public abstract class BaseResponse {
       }
     } catch (Exception ex) {
       logger.DoError("BaseResponse.processQueryResponse error", ex);
+    }
+  }
+
+  /**
+   * processUpdateResponse
+   *    Process the response of /crpp/update
+   *    The responses are treated the same way
+   * 
+   * @param sResp   The JSON string response received from /crpp/update
+   * @param output  We add to the output map for our caller
+   */
+  public void processUpdateResponse(String sResp, Map<String,Object> output) {
+    JSONObject oStat = null;
+    JSONObject oContent =null;
+    JSONArray arContent = null;
+    String sMsg = "(undefined)";
+    try {
+            // Interpret the response: expecting a JSON string with "status", "content"
+      JSONObject oResp = new JSONObject(sResp);
+      if (!oResp.has("status")) { output.put("error", "processUpdateResponse: /crpp does not return status"); return;}
+      // Decypher the status
+      oStat = oResp.getJSONObject("status");
+      // Transfer the status
+      output.put("status", oStat);
+      // Put the userid separately in the output string we return
+      output.put("userid", this.sUserId);
+      
+      // Further action depends on the status code we received
+      switch (oStat.getString("code")) {
+        case "error":
+          // Check if there is an error message inside 'content'
+          if (oResp.has("content")) {
+            oContent = oResp.getJSONObject("content");
+            if (oContent.has("message")) sMsg = oContent.getString("message");
+          }
+          logger.DoError("processUpdateResponse: /crpp returns error: "+sMsg);
+          output.put("error", sMsg);
+          break;
+        case "completed":
+          // If the job is already completed, then we need to pass on the results
+          // The results are the JSONArray stored in "content"
+          // Each item in the JSONArray is a JSONObject.
+          // Obligatory members:
+          //    n:    number of this hit
+          //    file: file in which this hit occurred (including extension)
+          //    locs: sentence id of the hit
+          //    locw: constituent id of the hit
+          // Optional member:
+          //    msg:  CRP-determined user output
+          // Type-dependent members:
+          //    type="hits"
+          //      pre:  text preceding the hit (in hit sentence)
+          //      hit:  text of the hit
+          //      fol:  text following the hit (in hit sentence)
+          //    type="context"
+          //      pre:  text preceding the hit (preceding sentences + part of hit sentence)
+          //      hit:  text of the hit
+          //      fol:  text following the hit (hit sentence + following sentences)
+          //    type="syntax"
+          //      all:  JSON object with syntax of the whole clause
+          //      hit:  JSON object with syntax of the "hit" constituent
+          //      NOTE: an example of 'all' + 'hit' is given at the bottom of this page
+          if (oResp.has("content")) {
+            arContent = oResp.getJSONArray("content");
+            output.put("content", arContent);
+          } else {
+            output.put("error", "No content found");
+            oStat.put("code", "error"); output.put("status", oStat);
+          }
+          break;
+        default:
+          output.put("error", "Undefined /crpp status code for processUpdateResponse: ["+oStat.getString("code")+"]");
+          break;
+      }
+    } catch (Exception ex) {
+      logger.DoError("BaseResponse.processUpdateResponse error", ex);
     }
   }
 
@@ -943,7 +1025,7 @@ public abstract class BaseResponse {
       this.params.clear();
       this.params.put("userid", sUser);
       // Get the JSON object from /crpp containing the projects of this user
-      String sResp = getCrppResponse("crplist", "", this.params);
+      String sResp = getCrppResponse("crplist", "", this.params,null);
       // Interpret the response
       JSONObject oResp = new JSONObject(sResp);
       if (!oResp.has("status") || !oResp.has("content") || 
@@ -1101,4 +1183,28 @@ public abstract class BaseResponse {
    */
 	abstract public BaseResponse duplicate();
 
+  /* ======================= EXAMPLE of 'all' and 'hit' JSON object ============
+      "all": {
+        "main": "IP-MAT",
+        "children": [
+          { "pos": "ADVP-TMP",  "txt": "Þa"},
+          { "pos": "VBDI",      "txt": "cwædon"},
+          { "pos": "NP-NOM",    "txt": "þa apostolas"},
+          { "pos": "PP",        "txt": "to þæm folce"},
+          { "pos": ",",         "txt": ","},
+          { "pos": "IP-MAT-SPE","txt": "Heo biđ swiþor gestrangod be us tweonum þurh Drihtnes gehat"}
+        ]
+      },
+      "hit": {
+        "main": "IP-MAT-SPE",
+        "children": [
+          { "pos": "NP-NOM",  "txt": "Heo"},
+          { "pos": "BEPI",    "txt": "biđ"},
+          { "pos": "ADVP",    "txt": "swiþor"},
+          { "pos": "VBN",     "txt": "gestrangod"},
+          { "pos": "PP",      "txt": "be us tweonum"},
+          { "pos": "PP",      "txt": "þurh Drihtnes gehat"}
+        ]
+      }  
+  ============================================================================== */
 }

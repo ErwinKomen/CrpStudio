@@ -19,12 +19,16 @@ import nl.ru.util.json.JSONObject;
  * UpdateResponse
  *  Retrieve the results that are requested
  *  What the caller gives us is a JSON parameter called "query", containing:
- *    prj     - name of the CRP 
  *    lng     - the language (corpus specification)
- *    dir     - the sub-directory under the language (more specific corpus specification)
- *    qc      - the number of the QC line
- *    sub     - the sub-category (if any)
+ *    prj     - name of the CRP 
  *    userid  - the userid
+ *    qc      - the number of the QC line
+ *    [dir]   - the sub-directory under the language (more specific corpus specification)
+ *    [sub]   - the sub-category (if any)
+ *    [files] - list of files to be included
+ *    start   - result number to start with
+ *    count   - number of results to be returned
+ *    type    - kind of info: ‘hits’, ‘context’, ‘syntax’ (or combination)
  *    view    - a number indicating the kind of data we want:
  *              1 - per hit
  *              2 - per document
@@ -38,29 +42,71 @@ public class UpdateResponse extends BaseResponse {
 
 	@Override
 	protected void completeRequest() {
-    String sUser;
-    String sJobId = "";
-    JSONObject oQuery;
+    String sUser;         // Currently logged in user
+    String sJobId = "";   // JobId
+    String sType = "";    // Type of /update request to be made
+    JSONObject oQuery;    // Contents of the request
+    
     try {
       // Gather our own parameter(s)
       sUser = servlet.getUserId();
       // Collect the JSON from our caller
       oQuery = new JSONObject(request.getParameter("query"));
-      if (!oQuery.has("prj")) { sendErrorResponse("UpdateResponse: missing @prj"); return;}
       if (!oQuery.has("lng")) { sendErrorResponse("UpdateResponse: missing @lng"); return;}
-      if (!oQuery.has("dir")) { sendErrorResponse("UpdateResponse: missing @dir"); return;}
-      if (!oQuery.has("qc")) { sendErrorResponse("UpdateResponse: missing @qc"); return;}
-      if (!oQuery.has("view")) { sendErrorResponse("UpdateResponse: missing @view"); return;}
+      if (!oQuery.has("prj")) { sendErrorResponse("UpdateResponse: missing @prj"); return;}
       if (!oQuery.has("userid")) { sendErrorResponse("UpdateResponse: missing @userid"); return;}
-      // NOTE: the variable "sub" is optional
+      if (!oQuery.has("qc")) { sendErrorResponse("UpdateResponse: missing @qc"); return;}
+      if (!oQuery.has("start")) { sendErrorResponse("UpdateResponse: missing @start"); return;}
+      if (!oQuery.has("count")) { sendErrorResponse("UpdateResponse: missing @count"); return;}
+      if (!oQuery.has("type")) { sendErrorResponse("UpdateResponse: missing @type"); return;}
+      if (!oQuery.has("view")) { sendErrorResponse("UpdateResponse: missing @view"); return;}
+      // Determine the type of results we need to have
+      int iView = oQuery.getInt("view");
+      switch(iView) {
+        case 1: // per hit
+        case 2: // per document: 
+        case 3: // per group: files belonging to one of the named file-groups (e.g: O23)
+        case 4: // per division: files belonging to one of the named group-divisions (e.g: ME)
+          break;
+        default:
+          // This particular view is not known
+          sendErrorResponse("UpdateResponse: view "+iView+" is not known"); 
+          return;
+      }
       
-      // Start preparing output
-      this.params.put("userid", oQuery.getString("userid"));
-      this.params.put("prj", oQuery.getString("prj"));  // Specify the CRP name
-      this.params.put("lng", oQuery.getString("lng"));  // Specify the language
-      this.params.put("dir", oQuery.getString("dir"));  // Specify the part of the language = input corpus
+      // Start preparing a /crpp request
+      //   Obligatory parameters: 
+      //      lng:    3 (or more) letter code of the language 
+      //      crp:    Corpus research project name (including extension)
+      //      userid: name of user that has done /exe with the CRP
+      //      qc:     The Query Constructor line for which we want information
+      //      start:  Results should start with @start
+      //      count:  The total number of results to be returned
+      //      type:   The kind of info (hits, context, syntax -- or combination)
+      //   Optional parameters:   
+      //      dir:    Directory under the "lng" where the corpus we want to consult resides
+      //      sub:    Name of the sub category for which we want results
+      //      files:  JSON array of file names to be included
+      // =============================================================================
+      // Obligatory parameters:
+      JSONObject oMyQuery = new JSONObject();
+      oMyQuery.put("lng", oQuery.getString("lng"));      // Specify the language
+      oMyQuery.put("crp", oQuery.getString("prj"));      // Specify the CRP name
+      oMyQuery.put("userid", oQuery.getString("userid"));// Name of the user
+      oMyQuery.put("qc", oQuery.getInt("qc"));            // Query constructor line
+      oMyQuery.put("start", oQuery.getInt("start"));     // Starting number of results
+      oMyQuery.put("count", oQuery.getInt("count"));     // Number of results to be returned
+      oMyQuery.put("type", oQuery.getString("type"));    // The type of information we need per hit
+      // =============================================================================
       // Optional: sub category specification
-      if (oQuery.has("sub")) { this.params.put("sub", oQuery.getString("sub")); }
+      if (oQuery.has("sub")) { oMyQuery.put("sub", oQuery.getString("sub")); }
+      // Corpus part of @lng
+      if (oQuery.has("dir")) { oMyQuery.put("dir", oQuery.getString("dir")); }     
+      // Specification of files
+      if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
+      
+      // Put my query into the request
+      this.params.put("query", oMyQuery);
 
       // Start preparing the output of "completeRequest()", which is a mapping object
       Map<String,Object> output = new HashMap<>();
@@ -73,19 +119,19 @@ public class UpdateResponse extends BaseResponse {
         e1.printStackTrace();
       }
       // Issue the request to the /crpp using the 'query' JSON parameter above
-      String sResp = getCrppResponse("update", "", this.params);
+      // NOTE: this is a GET request 
+      String sResp = getCrppResponse("update", "", this.params, oMyQuery);
       if (sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("UpdateResponse: /crpp does not return JSON"); return;}
       
       // Process the response from /crpp, adding to [output]
-      // ===============================================
-      // TODO: adapt this for the /update response!!!!
-      processQueryResponse(sResp, output);
-      // ===============================================
+      processUpdateResponse(sResp, output);
       
       // Send the output to our caller
       sendResponse(output);
     } catch (Exception ex) {
+      // Send error to the caller
       sendErrorResponse("UpdateResponse: could not complete: "+ ex.getMessage());
+      // Show error ourselves
       this.displayError("UpdateResponse error: " + ex.getMessage());
     }
 	}

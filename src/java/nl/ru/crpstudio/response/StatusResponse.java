@@ -52,7 +52,7 @@ public class StatusResponse extends BaseResponse {
         e1.printStackTrace();
       }
       // Issue the request to the /crpp using the 'query' JSON parameter above
-      String sResp = getCrppResponse("statusxq", "", this.params);
+      String sResp = getCrppResponse("statusxq", "", this.params, null);
       if (sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("StatusResponse: /crpp does not return JSON"); return;}
       
       // Process the response from /crpp, adding to [output]
