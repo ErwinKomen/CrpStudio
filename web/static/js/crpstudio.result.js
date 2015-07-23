@@ -464,11 +464,14 @@ Crpstudio.result = {
       $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Fetching data...");
       // Get the data for this combination of QC/Subcat/View
       var sType = "context_syntax";
+      // Set the amount of hits 
+      Crpstudio.result.numResults = iCount;
       // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
       var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
         "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
         "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
-        "type": sType, "start": iStart, "count": iCount, "files": [ sFile ]};
+        "type": sType, "start": iStart, 
+        "count": Crpstudio.result.numPerPage, "files": [ sFile ]};
       var params = "query=" + JSON.stringify(oQuery);
       Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
     } else {
