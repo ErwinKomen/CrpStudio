@@ -1442,6 +1442,40 @@ table tr > td {
 	background: #eee;
 }
 
+/* ERK: Added to facilitate CorpusStudioWeb */
+.result-qc table tr.titlerow, .result-qc-sub table tr.titlerow {
+	background: #ddd;
+}
+
+.result-qc table tr.concordance, .result-qc-sub table tr.concordance {
+	background: #fff;
+}
+
+.result-qc table tr.concordance:hover, .result-qc-sub table tr.concordance:hover, .grouped-results tr:hover {
+	background: #eee;
+}
+
+.result-qc table tr.citationrow, .result-qc-sub table tr.citationrow {
+	background: #eee;
+}
+
+/* Examples in the list of results */
+.one-example.row-even {
+  background-color: mintcream !important;
+}
+.one-example.row-odd {
+  background-color: whitesmoke !important;
+}
+
+/* The 'hit' part of a result */
+.one-example-hit {
+  color: blue    !important;
+}
+.one-example-syntax {
+  /* background-color: white !important;*/
+}
+/* ======================================== */
+
 .export button.small {
 	margin-left: 20px;
 	-webkit-border-radius: 3px;
@@ -1545,15 +1579,23 @@ div.hitscroll {
 
 .crpstudio-side-nav {
   @include side-nav(
+  /*
     // Border color of divider
     // $divider-color: '#ccc',
     // Font size of nav items
     // $font-size:1.2em,
     // Color of navigation links
+    */
     $link-color:'blue',
+    
+/* 
     // Color of navigation links on active
+ */
+    
     $link-color-active: 'white',
+    /*
     // Color of navigation links on hover
+    */
     $link-color-hover: 'white'
   );
 }

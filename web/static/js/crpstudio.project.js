@@ -317,12 +317,14 @@ Crpstudio.project = {
         // Create a small top table
         Crpstudio.result.makeOviewTable(oContent.table);
         // Keep track of the status
-        $("#result_status").html("Making large table...")
+        $("#result_status").html("Constructing per-doc results...")
         // Create a large table for view=2
         html = Crpstudio.project.makeTablesView2(oContent.searchTime, oContent.table);
         // Position this table in the div for view=2 (per-document view)
         $("#result_table_2").html(html);
         
+        // Keep track of the status
+        $("#result_status").html("Constructing per-hit results...")
         // Create an initial table for view=1: the 'hits'
         html = Crpstudio.project.makeTablesView1(oContent.searchTime, oContent.table);
         // Position this table in the div for view=2 (per-document view)
@@ -405,7 +407,8 @@ Crpstudio.project = {
         var iStart = 1;
         var sId = "fh_qc"+iQC+"_f"+j; 
         var arSubCounts = arHits[j].subs;
-        var sRowArgs = sAnyRowArg + "("+iStart+","+iCount+",'"+sFile+"',"+iQC+",'','#"+sId+"');\"";
+        var sRowArgs = sAnyRowArg + 
+                "("+iStart+","+iCount+",'"+sFile+"',"+iQC+",'','#"+sId+"');\"";
         html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
         html.push("<td>"+iCount+"</td>");
         for (var k=0;k<arSubCounts.length; k++ ) {
@@ -415,7 +418,7 @@ Crpstudio.project = {
         // Determine the @id for this result
         var iCols = 2+arSubCounts.length;
         // Make a row where the citation will be placed
-        html.push("<tr \"citationrow hidden\"><td colspan="+iCols+">"+
+        html.push("<tr class=\"citationrow hidden\"><td colspan="+iCols+">"+
                 "<div class=\"collapse inline-concordance\" id=\""+sId+
                 "\">Loading...</div></td></tr>")
       }
@@ -437,11 +440,12 @@ Crpstudio.project = {
           var iStart = 1;
           // Determine the @id for this result
           var sId = "fh_qc"+iQC+"_f"+k+"_s"+j;
-          var sRowArgs = sAnyRowArg + "("+iStart+","+arSubCounts[j]+",'"+sFile+"',"+iQC+",'"+arSubs[j]+"','#"+sId+"');\"";
+          var sRowArgs = sAnyRowArg  + 
+                  "("+iStart+","+arSubCounts[j]+",'"+sFile+"',"+iQC+",'"+arSubs[j]+"','#"+sId+"');\"";
           html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
           html.push("<td>"+arSubCounts[j]+"</td></tr>");
           // Make a row where the citation will be placed
-          html.push("<tr \"citationrow hidden\"><td colspan=2>"+
+          html.push("<tr class=\"citationrow hidden\"><td colspan=2>"+
                   "<div class=\"collapse inline-concordance\" id=\""+sId+
                   "\">Loading...</div></td></tr>")
         }

@@ -11,6 +11,11 @@ Crpstudio.result = {
   loc_iCurrentSub : -1, // Currently selected QC sub category
   loc_sCurrentSub : "", // String for the currently selected sub
   view : 1,             // Default view is #1
+  currentFile : "",     // currently selected file
+  numPerPage : 50,      // Number of results per page
+  numPages : 1,         // Number of pages to be shown
+  currentPage : 1,      // Currently selected page
+  numResults : 0,       // Number of results
   
   /* ---------------------------------------------------------------------------
    * Name: makeOviewTable
@@ -185,7 +190,7 @@ Crpstudio.result = {
       // (1) remove the 'active' state for all QC subcategory rows
 			$("#queries .qc-sub-line").removeClass("active");
       // (2) hide the 'result_qc' lines
-      $("#result_table .result-qc").addClass("hidden");
+      $("#result_table_"+iView+" .result-qc").addClass("hidden");
       // (3) hide the 'result-qc-sub' lines
       // $("#result_table .result-qc-sub").addClass("hidden");
       // (4) toggle the chosen result-qc-sub line
@@ -196,10 +201,10 @@ Crpstudio.result = {
 			$("#queries .qc-sub-line").removeClass("active");
       // (2) set the 'active' state of this particular QC subcat row
       $("#queries #qcsub_"+iQC+"_"+idxSub).addClass("active");
-      // (3) hide the 'result_qc' lines
-      $("#result_table .result-qc").addClass("hidden");
+      // (3) hide ALL the lines with class 'result_qc'
+      $("#result_table_"+iView+" .result-qc").addClass("hidden");
       // (4) hide the 'result-qc-sub' lines
-      $("#result_table .result-qc-sub").addClass("hidden");
+      $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
       // (5) show the chosen result-qc-sub line
       $("#result_qcsub_"+iQC+"_"+idxSub).removeClass("hidden");
     }
@@ -340,8 +345,9 @@ Crpstudio.result = {
    *        4 = hits per 'division'
    * History:
    * 30/jun/2015  ERK Created
+   * 23/jul/2015  ERK Added [oPageChoice]
    */
-  update : function(iView) {
+  update : function(iView, oPageChoice) {
     // Make sure the view variable is filled in
     Crpstudio.result.view = iView;  
     // Set the correct tab 
@@ -350,12 +356,33 @@ Crpstudio.result = {
     var iQC = Crpstudio.result.loc_iCurrentQc;
     var iSub = Crpstudio.result.loc_iCurrentSub;
     var sSub = Crpstudio.result.loc_sCurrentSub;
+    // Any pagination information?
+    if (oPageChoice && oPageChoice.number) {
+      Crpstudio.result.numPerPage = oPageChoice.number;
+      // Adapt the pagination
+      Crpstudio.result.doPagination(iView,Crpstudio.result.numResults);
+    }
+    // If and how pagination is shown depends on the view
+    switch(iView) {
+      case 1:
+        // Show pagination
+        $("#result_pagination_"+iView).removeClass("hidden");
+        break;
+      case 2:
+        // Show pagination
+        $("#result_pagination_"+iView).removeClass("hidden");
+        break;
+      default:
+        // Hide pagination
+        $("#result_pagination_"+iView).addClass("hidden");
+        break;
+    }
     // Determine the type of information needed
     // TODO: make this user-determinable!!
-    var sType = "context+syntax";
+    var sType = "context_syntax";
     // Determine start and finish
     var iStart = 1;
-    var iCount = 0;
+    var iCount = Crpstudio.result.numPerPage;
     var arQcTable = Crpstudio.result.loc_arTable[iQC-1];
     if (iSub<0) {
       iCount = arQcTable.total;
@@ -428,14 +455,15 @@ Crpstudio.result = {
  * @returns {undefined}
  */
   showFileHits : function(iStart, iCount, sFile, iQC, sSub, element) {
+    var iView = Crpstudio.result.view;    // The view doesn't really matter, does it?
 		if ($(element).parent().parent().hasClass("hidden")) {
+      Crpstudio.result.currentFile = sFile;
       // Make sure the <div> is now being shown
       $(element).parent().parent().removeClass("hidden");
       // Remove waiting notification in project description
       $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Fetching data...");
       // Get the data for this combination of QC/Subcat/View
       var sType = "context_syntax";
-      var iView = 1;    // The view doesn't really matter, does it?
       // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
       var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
         "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
@@ -444,12 +472,16 @@ Crpstudio.result = {
       var params = "query=" + JSON.stringify(oQuery);
       Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
     } else {
+      Crpstudio.result.currentFile = "sFile";
+      // Hide the details
 			$(element).parent().parent().addClass("hidden");
 		}
   },
   /**
    * processFileHits
-   *    Process the information requested with a /update request
+   *    Process the information requested with an /update request
+   *    This request is made when the user is in view=2 (doc view)
+   *       and the user presses one of the file-info blobs
    *    
    * @param {type} response   JSON object returned from /crpstudio/update
    * @param {type} target
@@ -468,22 +500,29 @@ Crpstudio.result = {
         case "completed":
           // The result is in [oContent] as an array of 'hit' values
           var html = [];
-          html.push("<table>")
           for (var i=0;i<oContent.length;i++) {
+            // One result is one div
+            var sRowType = (i % 2 == 0) ? " row-even" : "row-odd";            
+            html.push("<div class=\"one-example " + sRowType + "\">"+
+                      "<div class=\"one-example-context\">")
             // Access this object
             var oRow = oContent[i];
             
-            html.push("<tr><td><b>"+oRow.n+"</b></td><td>"+oRow.preC+"</td>");
-            html.push("<td color='blue'>"+oRow.hitC+"</td>");
-            html.push("<td>"+oRow.folC+"</td>");
-            html.push("</tr>");
+            html.push("<b>"+oRow.n+"</b> "+oRow.preC);
+            html.push("<span class=\"one-example-hit\">"+oRow.hitC+" </span>");
+            // Close "one-example-context"
+            html.push(oRow.folC+"</div>");
             // Get the syntax result
             var sSyntax = Crpstudio.result.getSyntax(oRow.hitS);
-            html.push("<tr colspan=4><td>"+ sSyntax +"</td></tr>");
+            html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
+            html.push("</div>")
           }
-          html.push("</table>")
           // put the results in the target
           $(target).html(html.join("\n"));
+          // Set the amount of hits
+          Crpstudio.result.numResults = oContent.length;
+          // Show the correct <li> items under "result_pagebuttons_"
+          Crpstudio.result.doPagination(iView, oContent.length);
           // Show we are ready: clear status
           $("#result_status_"+iView).html("");
           break;
@@ -504,6 +543,32 @@ Crpstudio.result = {
   },    
   
   /**
+   * doPagination
+   *    Depending on the @iView, different tasks may need to be done
+   *  view=1 (per hit)
+   *  
+   *  view=2 (per doc)
+   *    We receive the number of hits for this doc in @iNumber
+   *    Todo: calculate page numbers and process them in result_numpages_2
+   *          make <li> children for result_pagebuttons_2 
+   * 
+   * @param {type} iView
+   * @param {type} iNumber
+   * @returns {undefined}
+   */
+  doPagination : function(iView, iNumber) {
+    // In all cases: calculate page numbers
+    var iPages = Math.floor(iNumber / Crpstudio.result.numPerPage);
+    // Make sure we can at least show ONE page
+    if (iPages <=0) iPages = 1;
+    Crpstudio.result.numPages = iPages;   // total number of pages that can be shown
+    Crpstudio.result.currentPage = 1;     // currently selected page
+    // Set the max pages
+    $("#result_numpages_"+iView).html(iPages);
+    $("#result_numpages_"+iView).prev().attr("max",iPages);
+  },
+  
+  /**
    * getSyntax
    *    Given a syntax object, construct an HTML syntax representation
    *    
@@ -518,7 +583,7 @@ Crpstudio.result = {
     var oChildren = oSyntax.children;
     for (var i=0;i<oChildren.length;i++) {
       html.push("[<font color=#800000 size=1>" + oChildren[i].pos + "</font> ");
-      html.push(oChildren[i].txt);
+      html.push(oChildren[i].txt + "]");
     }
     html.push("]</font>");
     return html.join("\n");
