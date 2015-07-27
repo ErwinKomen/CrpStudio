@@ -503,6 +503,8 @@ Crpstudio.project = {
   				$("#metadata").show();
           break;
         case "project":
+          // Make sure the execute buttons are shown
+          Crpstudio.project.showExeButtons(true);
   				$("#metadata").show();
           break;
         case "input": 
@@ -511,6 +513,8 @@ Crpstudio.project = {
         case "result":
           // Hide the metadata
   				$("#metadata").hide();
+          // Make sure the execute buttons are hidden
+          Crpstudio.project.showExeButtons(false);
           // Other actions
           $(".sub-nav dd").removeClass("active");
           $("#result_link").removeClass("hide");
@@ -519,6 +523,8 @@ Crpstudio.project = {
         case "document":
           // Hide the metadata
   				$("#metadata").hide();
+          // Make sure the execute buttons are hidden
+          Crpstudio.project.showExeButtons(false);
           // Other actions
           $(".sub-nav dd").removeClass("active");
           $("#document").removeClass("hide");

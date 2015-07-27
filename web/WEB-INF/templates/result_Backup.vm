@@ -7,7 +7,7 @@
 #set( $result_go = $labels.getString("result.go") )
 #set( $result_all = $labels.getString("result.all") )
 
-  <div class="large-16 medium-16 small-16">
+  <div class="large-14 medium-14 small-14 large-offset-1 medium-offset-1 small-offset-1">
     <div id="result_fetching" class="large-16 medium-16 small-16">
       <div><h4>$labels.getString("result.status"):</h4></div>
       <div id="result_status" class="large-16 medium-16 small-16">
@@ -22,7 +22,7 @@
           <div class="progress success round"><span id="agent008" class="meter" style="width: 0%"></span></div>
         </div>
         <!-- Stop execution -->
-        <div id="project_execution_cancel" class="large-4 medium-4 small-4 columns">
+        <div id="project_execution" class="large-4 medium-4 small-4 columns">
             <button onclick="Crpstudio.project.reset()" class="reset small secondary">
               <span>$labels.getString("project.cancel")</span>
             </button>
