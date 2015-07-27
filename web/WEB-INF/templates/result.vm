@@ -100,6 +100,8 @@
                 $result_pagination_show
                 <select class="show-select meta-small" onchange="Crpstudio.result.update( $view, {number: $(this).val(), sort: ''})">
                   <!-- Default option: 50 results per page -->
+                  <option value="10">10</option>
+                  <option value="20">20</option>
                   <option value="50" selected="true">50</option>
                   <option value="100">100</option>
                   <option value="200">200</option>

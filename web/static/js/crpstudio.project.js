@@ -45,6 +45,8 @@ Crpstudio.project = {
       // switch to the result tab
       Crpstudio.project.switchTab("result");
       $("#result_status").text("");
+      // Make sure the execute buttons are hidden again
+      Crpstudio.project.showExeButtons(false);
       // Create JSON request for the search
       if (sDir === "")
         oExeRequest = {"lng": sLng, "crp": sPrjName, "userid": sUserName, "cache": caching};
@@ -57,6 +59,15 @@ Crpstudio.project = {
       // Crpstudio.postRequest("exe", sExeRequest, Crpstudio.project.processExeCrpp, "#result_status");
       // Method #2: send the request to /crpstudio/exe?{...}
       Crpstudio.getCrpStudioData("exe", sExeRequest, Crpstudio.project.processExeCrpStudio, "#result_status")
+    }
+  },
+  showExeButtons : function(bShow) {
+    if (bShow) {
+      $("#project_executor").removeClass("hidden");
+      $("#project_executor_nocache").removeClass("hidden");
+    } else {
+      $("#project_executor").addClass("hidden");
+      $("#project_executor_nocache").addClass("hidden");
     }
   },
   /*
@@ -483,24 +494,38 @@ Crpstudio.project = {
 			$("#"+target).addClass("active");
 			$("#subnav dd").removeClass("active");
 			$("#"+target+"_link").addClass("active");
-      // When should the metadata selector be shown: only for "project"
-			if (target === "execute" || target === "project" || target === "input" ) {
-				$("#metadata").show();
-			} else {
-				$("#metadata").hide();
-			}
-			// What to do if the [target] equals [result] or [document]
-			if (target === "result") {
-				$(".sub-nav dd").removeClass("active");
-				$("#result_link").removeClass("hide");
-				$("#result_link").addClass("active");
-			} else if (target === "document") {
-				$(".sub-nav dd").removeClass("active");
-				$("#document").removeClass("hide");
-				$("#document_link").removeClass("hide");
-				$("#document_link").addClass("active");
-			}
-			
+      // Action depends on target 
+      switch (target) {
+        case "execute":
+          // Make sure the execute buttons are shown
+          Crpstudio.project.showExeButtons(true);
+          // Show the metatdata
+  				$("#metadata").show();
+          break;
+        case "project":
+  				$("#metadata").show();
+          break;
+        case "input": 
+  				$("#metadata").show();
+          break;
+        case "result":
+          // Hide the metadata
+  				$("#metadata").hide();
+          // Other actions
+          $(".sub-nav dd").removeClass("active");
+          $("#result_link").removeClass("hide");
+          $("#result_link").addClass("active");
+          break;
+        case "document":
+          // Hide the metadata
+  				$("#metadata").hide();
+          // Other actions
+          $(".sub-nav dd").removeClass("active");
+          $("#document").removeClass("hide");
+          $("#document_link").removeClass("hide");
+          $("#document_link").addClass("active");
+          break;
+      }
       // When to show the spacer before [result] and [document]
 			if (!$("#result_link").hasClass("hide") || !$("#document_link").hasClass("hide")) {
 				$("#link-spacer").removeClass("hide");

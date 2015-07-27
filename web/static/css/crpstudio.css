@@ -1474,6 +1474,12 @@ table tr > td {
 .one-example-syntax {
   /* background-color: white !important;*/
 }
+.one-example-msg {
+  /* background-color: white !important;*/
+  color: black !important;
+  font-family: Courier New; 
+  font-size: 11px;
+}
 /* ======================================== */
 
 .export button.small {

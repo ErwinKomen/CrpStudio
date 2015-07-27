@@ -42,8 +42,13 @@
 			#end
       <!-- On the navigation bar: [execution] -->
       <dd id="project_executor">
-        <button onclick="Crpstudio.project.execute(false)" class="search small">
+        <button onclick="Crpstudio.project.execute(true)" class="search small">
           <span>$labels.getString("project.execute")</span>
+        </button>
+      </dd>
+      <dd id="project_executor_nocache">
+        <button onclick="Crpstudio.project.execute(false)" class="search small">
+          <span>$labels.getString("project.execute")</span> (no cache)
         </button>
       </dd>
       <!-- Spacer between projects and results -->

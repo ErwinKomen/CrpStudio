@@ -16,6 +16,7 @@ Crpstudio.result = {
   numPages : 1,         // Number of pages to be shown
   currentPage : 1,      // Currently selected page
   numResults : 0,       // Number of results
+  currentElement : null,// Currently selected element
   
   /* ---------------------------------------------------------------------------
    * Name: makeOviewTable
@@ -347,17 +348,21 @@ Crpstudio.result = {
    * 30/jun/2015  ERK Created
    * 23/jul/2015  ERK Added [oPageChoice]
    */
-  update : function(iView, oPageChoice) {
+  update : function(iView, oPageChoice, element) {
+    // Make sure some element is set
+    if (!element) element = Crpstudio.result.currentElement;
     // Make sure the view variable is filled in
     Crpstudio.result.view = iView;  
     // Set the correct tab 
     Crpstudio.result.showView(iView);
     // Determine the parameters: QC, sub-category
-    var iQC = Crpstudio.result.loc_iCurrentQc;
+    var iQC = Crpstudio.result.loc_iCurrentQc+1;
     var iSub = Crpstudio.result.loc_iCurrentSub;
     var sSub = Crpstudio.result.loc_sCurrentSub;
+    var sFile = Crpstudio.result.currentFile;
     // Any pagination information?
-    if (oPageChoice && oPageChoice.number) {
+    if (oPageChoice && oPageChoice.number && oPageChoice.number !== Crpstudio.result.numPerPage) {
+      // Set the amount of results per page
       Crpstudio.result.numPerPage = oPageChoice.number;
       // Adapt the pagination
       Crpstudio.result.doPagination(iView,Crpstudio.result.numResults);
@@ -371,76 +376,23 @@ Crpstudio.result = {
       case 2:
         // Show pagination
         $("#result_pagination_"+iView).removeClass("hidden");
+        if (oPageChoice) {
+          // Determine start and finish
+          var iStart = 1;
+          var iCount = Crpstudio.result.numPerPage;
+          // Possibly adapt start and count
+          if (oPageChoice.first) iStart = oPageChoice.first;
+          if (oPageChoice.number) iCount = oPageChoice.number;
+          // Now make the request in the standard way
+          Crpstudio.result.showFileHits(iStart, iCount, sFile, iQC, sSub, element, true);
+        }
         break;
       default:
         // Hide pagination
         $("#result_pagination_"+iView).addClass("hidden");
         break;
     }
-    // Determine the type of information needed
-    // TODO: make this user-determinable!!
-    var sType = "context_syntax";
-    // Determine start and finish
-    var iStart = 1;
-    var iCount = Crpstudio.result.numPerPage;
-    var arQcTable = Crpstudio.result.loc_arTable[iQC-1];
-    if (iSub<0) {
-      iCount = arQcTable.total;
-    } else {
-      iCount = arQcTable.counts[iSub];
-    }
-    // Show that we are waiting for data
-		$("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Getting data...");
-    // Get the data for this combination of QC/Subcat/View
-    // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
-    var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
-      "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
-      "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
-      "type": sType, "start": iStart, "count": iCount};
-    var params = "query=" + JSON.stringify(oQuery);
-    Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processUpdate, "#result_table_"+iView);   
   },
-/**
-   * processUpdate
-   *    Process the information requested with a /update request
-   *    
-   * @param {type} response   JSON object returned from /crpstudio/update
-   * @param {type} target
-   * @returns {undefined}
-   */
-  processUpdate : function(response, target) {
-		if (response !== null) {
-      var iView = Crpstudio.result.view;
-      // Remove waiting notification in project description
-      $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Processing data...");
-      // The response is a standard object containing "status" (code) and "content" (code, message)
-      var oStatus = response.status;
-      var sStatusCode = oStatus.code;
-      var oContent = response.content;
-      switch (sStatusCode) {
-        case "completed":
-          // The result is in [oContent] as an array of 'hit' values
-          // Access the results' table
-          var divResTable = $("result_table_" +iView);
-          
-          // Show we are ready: clear status
-          $("#result_status_"+iView).html("");
-          break;
-        case "error":
-          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
-          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
-          $("#result_status_"+iView).html("Error: " + sErrorCode);
-          $(target).html("Error: " + sErrorMsg);
-          break;
-        default:
-          $("#result_status"+iView).html("Error: no reply");
-          $(target).html("Error: no reply received from the /crpstudio server");
-          break;
-      }
-		} else {
-			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
-		}    
-  },       
 
 /**
  * showFileHits
@@ -454,9 +406,16 @@ Crpstudio.result = {
  * @param {type} element Where to show the results
  * @returns {undefined}
  */
-  showFileHits : function(iStart, iCount, sFile, iQC, sSub, element) {
+  showFileHits : function(iStart, iCount, sFile, iQC, sSub, element, update) {
     var iView = Crpstudio.result.view;    // The view doesn't really matter, does it?
-		if ($(element).parent().parent().hasClass("hidden")) {
+    // Set the current 'element'
+    Crpstudio.result.currentElement = element;
+    // Possibly set the number of results
+    if (!update) {
+      // Set the total number of results
+      Crpstudio.result.numResults = iCount;
+    }
+		if ($(element).parent().parent().hasClass("hidden") || (update)) {
       Crpstudio.result.currentFile = sFile;
       // Make sure the <div> is now being shown
       $(element).parent().parent().removeClass("hidden");
@@ -464,18 +423,18 @@ Crpstudio.result = {
       $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Fetching data...");
       // Get the data for this combination of QC/Subcat/View
       var sType = "context_syntax";
-      // Set the amount of hits 
-      Crpstudio.result.numResults = iCount;
+      // Set the amount we are requesting
+      var iRequesting = (Crpstudio.result.numPerPage<0) ? Crpstudio.result.numResults : Crpstudio.result.numPerPage;
       // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
       var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
         "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
         "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
         "type": sType, "start": iStart, 
-        "count": Crpstudio.result.numPerPage, "files": [ sFile ]};
+        "count": iRequesting, "files": [ sFile ]};
       var params = "query=" + JSON.stringify(oQuery);
       Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
     } else {
-      Crpstudio.result.currentFile = "sFile";
+      Crpstudio.result.currentFile = sFile;
       // Hide the details
 			$(element).parent().parent().addClass("hidden");
 		}
@@ -491,6 +450,7 @@ Crpstudio.result = {
    * @returns {undefined}
    */
   processFileHits : function(response, target) {
+    var iFirstN = -1;
 		if (response !== null) {
       var iView = Crpstudio.result.view;
       // Remove waiting notification in project description
@@ -505,11 +465,13 @@ Crpstudio.result = {
           var html = [];
           for (var i=0;i<oContent.length;i++) {
             // One result is one div
-            var sRowType = (i % 2 == 0) ? " row-even" : "row-odd";            
+            var sRowType = (i % 2 === 0) ? " row-even" : "row-odd";            
             html.push("<div class=\"one-example " + sRowType + "\">"+
                       "<div class=\"one-example-context\">")
             // Access this object
             var oRow = oContent[i];
+            // Possibly get the first "n" value --> this helps determine pagination resetting
+            if (iFirstN<0) iFirstN = oRow.n;
             
             html.push("<b>"+oRow.n+"</b> "+oRow.preC);
             html.push("<span class=\"one-example-hit\">"+oRow.hitC+" </span>");
@@ -518,14 +480,22 @@ Crpstudio.result = {
             // Get the syntax result
             var sSyntax = Crpstudio.result.getSyntax(oRow.hitS);
             html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
+            // Is there any 'msg' result?
+            if (oRow.msg) {
+              // Add it to the output
+              html.push("<div class=\"one-example-msg\">"+ oRow.msg +"</div>");
+            }
+            // Finish the "one-example" <div>
             html.push("</div>")
           }
           // put the results in the target
           $(target).html(html.join("\n"));
           // Set the amount of hits
-          Crpstudio.result.numResults = oContent.length;
+          // Crpstudio.result.numResults = oContent.length;
           // Show the correct <li> items under "result_pagebuttons_"
-          Crpstudio.result.doPagination(iView, oContent.length);
+          if (iFirstN<0 || iFirstN===1) {
+            Crpstudio.result.doPagination(iView, Crpstudio.result.numResults);
+          }
           // Show we are ready: clear status
           $("#result_status_"+iView).html("");
           break;
@@ -564,11 +534,34 @@ Crpstudio.result = {
     var iPages = Math.floor(iNumber / Crpstudio.result.numPerPage);
     // Make sure we can at least show ONE page
     if (iPages <=0) iPages = 1;
+    // Check if we've got the last match
+    if (iPages * Crpstudio.result.numPerPage < iNumber) iPages++;
     Crpstudio.result.numPages = iPages;   // total number of pages that can be shown
     Crpstudio.result.currentPage = 1;     // currently selected page
     // Set the max pages
     $("#result_numpages_"+iView).html(iPages);
     $("#result_numpages_"+iView).prev().attr("max",iPages);
+    $("#result_numpages_"+iView).prev().val(1);
+  },
+  
+  /**
+   * goToPage
+   *    Go to the page that has been selected
+   * 
+   * @param {type} item
+   * @returns {undefined}
+   */
+  goToPage : function(item) {
+    // Find out which page has been selected
+    var page = $(item).parent().find(".page-select").val();
+    // Get the number per page
+    var number = Crpstudio.result.numPerPage;
+    // Deal with this just in case
+    if (number < 0) number = Crpstudio.result.numResults;
+    // Calculate which item number needs to be presented first
+    var first = ((page-1) * number) + 1;
+    // Make a request for this number
+    Crpstudio.result.update(Crpstudio.result.view, { first : first, number : number } );
   },
   
   /**
@@ -585,8 +578,11 @@ Crpstudio.result = {
     html.push("[<font color=#800000 size=1>" + oSyntax.main + "</font> ");
     var oChildren = oSyntax.children;
     for (var i=0;i<oChildren.length;i++) {
+      var sTxt = oChildren[i].txt;
+      sTxt = sTxt.replace(/\</g, '&lt;');
+      sTxt = sTxt.replace(/\>/g, '&gt;');
       html.push("[<font color=#800000 size=1>" + oChildren[i].pos + "</font> ");
-      html.push(oChildren[i].txt + "]");
+      html.push(sTxt + "]");
     }
     html.push("]</font>");
     return html.join("\n");
