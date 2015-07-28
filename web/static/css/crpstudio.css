@@ -29,7 +29,7 @@ iframe {
 	z-index: -1;
 }
 
-h4 {
+h4, .h4 {
 	font-family: source-sans-pro, sans-serif;
 	letter-spacing:1px;
 	font-size:larger;
@@ -1088,6 +1088,7 @@ img.icon.spinner {
 	height: 18px;
 }
 
+/* ------ not for corpusstudio 
 #results {
 	margin-top: 40px;
 }
@@ -1095,13 +1096,15 @@ img.icon.spinner {
 #results h4 {
 	margin-bottom: 16px;
 }
+ ------------------------ */
 
-#contentTabs {
+#contentTabs, #queries {
 	display: block;
 	margin-top: 20px;
 	margin-left: 0;
 	margin-bottom: 0;
 }
+
 
 .row.pagination {
 	display: block;

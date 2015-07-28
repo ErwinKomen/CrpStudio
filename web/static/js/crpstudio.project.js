@@ -43,7 +43,7 @@ Crpstudio.project = {
       // Switch off export
       for (var i=1;i<=4;i++) { $("#results_export_"+i).addClass("hidden"); }
       // switch to the result tab
-      Crpstudio.project.switchTab("result");
+      Crpstudio.project.switchTab("result_display");
       $("#result_status").text("");
       // Make sure the execute buttons are hidden again
       Crpstudio.project.showExeButtons(false);
@@ -242,6 +242,7 @@ Crpstudio.project = {
         // Make sure the results are visible
         $("#results").removeClass("hidden");
         $("#results").addClass("active");
+        Crpstudio.result.selectResults('querylines')
         break;
       case "error":
         // Provite an error report
@@ -370,8 +371,79 @@ Crpstudio.project = {
    */
   makeTablesView1: function(iSearchTime, arTable) {
     var html = [];
-    // Nothing to show yet
-    html.push("Sorry, view 1 is not yet implemented");
+    var iView = Crpstudio.result.view;
+    // Show the time of this search
+    $("#results_time_"+iView).html("<p>Search time: <b>"+(iSearchTime / 1000)+" s.</b></p>");
+    // Interpret and show the resulting table
+    // The 'table' is an array of QC elements
+    for (var i=0; i< arTable.length; i++) {
+      // Get this QC element
+      var oQC = arTable[i];
+      // Get the QC elements
+      var arSubs = oQC.subcats;
+      var iQC = oQC.qc;
+      var arHits = oQC.hits;  // Array with 'hit' elements
+      // Each QC result must be in its own div
+      html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc hidden\">");
+      // Insert a heading for this QC item
+      html.push("<h5>QC "+iQC + "</h5>");
+      // Set up a table for the sub-categories
+      html.push("<table><thead><th>TOTAL</th>");
+      for (var j=0;j<arSubs.length; j++) {
+        html.push("<th>" + arSubs[j] + "</th>");
+      }
+      // Finish the header with sub-categories
+      html.push("</thead>");
+      // Start the table body
+      html.push("<tbody>");
+      var sAnyRowArg = "class=\"concordance\" onclick=\"Crpstudio.result.showFileHits";
+      // Show the one row with results for all files together
+      var iCount = arHits[j].count;
+      var iStart = 1;
+      var sId = "fh_"+iView+"_qc"+iQC+"_f"+j; 
+      var arSubCounts = oQC.counts;
+      var sRowArgs = sAnyRowArg + 
+              "("+iStart+","+iCount+",'',"+iQC+",'','#"+sId+"');\"";
+      html.push("<tr "+sRowArgs+">");
+      html.push("<td>"+iCount+"</td>");
+      for (var k=0;k<arSubCounts.length; k++ ) {
+        html.push("<td>"+arSubCounts[k]+"</td>");
+      }
+      html.push("</tr>");
+      // Determine the @id for this result
+      var iCols = 1+arSubCounts.length;
+      // Make a row where the citation will be placed
+      html.push("<tr class=\"citationrow hidden\"><td colspan="+iCols+">"+
+              "<div class=\"collapse inline-concordance\" id=\""+sId+
+              "\">Loading...</div></td></tr>")
+      // Finish the table
+      html.push("</tbody></table>");
+      // Finish the div
+      html.push("</div>")
+      
+      // Make tables for each sub category under this iQC
+      for (var j=0;j<arSubs.length; j++) {
+        html.push("<div id=\"result_"+iView+"_qcsub_"+iQC+"_"+j+"\" class=\"result-qc-sub hidden\">")
+        // Set the heading for this table
+        html.push("<table><thead><th>"+arSubs[j]+"</th></thead>");
+        // Start the table body
+        html.push("<tbody>");
+        // One row for the hit-total
+        iStart = 1;
+        // Determine the @id for this result
+        sId = "fh_"+iView+"_qc"+iQC+"_f"+k+"_s"+j;
+        sRowArgs = sAnyRowArg  + 
+                "("+iStart+","+arSubCounts[j]+",'',"+iQC+",'"+arSubs[j]+"','#"+sId+"');\"";
+        html.push("<tr "+sRowArgs+">");
+        html.push("<td>"+arSubCounts[j]+"</td></tr>");
+        // Make a row where the citation will be placed
+        html.push("<tr class=\"citationrow hidden\"><td>"+
+                "<div class=\"collapse inline-concordance\" id=\""+sId+
+                "\">Loading...</div></td></tr>")
+        // Finish this sub-cat-table
+        html.push("</tbody></table></div>")
+      }
+    }
     // Join and return the result
     return html.join("\n");
   },
@@ -385,9 +457,9 @@ Crpstudio.project = {
    */
   makeTablesView2: function(iSearchTime, arTable) {
     var html = [];
+    var iView = Crpstudio.result.view;
     // Show the time of this search
-    $("#results_time").html("<p>Search time: <b>"+(iSearchTime / 1000)+" s.</b></p>");
-    // html.push("<p>Search time: <b>"+iSearchTime+"</b></p>")
+    $("#results_time_"+iView).html("<p>Search time: <b>"+(iSearchTime / 1000)+" s.</b></p>");
     // Interpret and show the resulting table
     // The 'table' is an array of QC elements
     for (var i=0; i< arTable.length; i++) {
@@ -502,15 +574,15 @@ Crpstudio.project = {
           // Show the metatdata
   				$("#metadata").show();
           break;
-        case "project":
+        case "project_editor":
           // Make sure the execute buttons are shown
           Crpstudio.project.showExeButtons(true);
   				$("#metadata").show();
           break;
-        case "input": 
+        case "input_editor": 
   				$("#metadata").show();
           break;
-        case "result":
+        case "result_display":
           // Hide the metadata
   				$("#metadata").hide();
           // Make sure the execute buttons are hidden
@@ -520,7 +592,7 @@ Crpstudio.project = {
           $("#result_link").removeClass("hide");
           $("#result_link").addClass("active");
           break;
-        case "document":
+        case "document_display":
           // Hide the metadata
   				$("#metadata").hide();
           // Make sure the execute buttons are hidden

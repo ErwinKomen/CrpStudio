@@ -12,33 +12,33 @@
 			<dl id="search-nav" class="sub-nav" data-tab>
       <!-- Sub-navigation item: [project] -->
 			#if($tab == "project")
-				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('project')">$project</a></dd>
+				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor')">$project</a></dd>
 			#else
-				<dd id="project_link"><a class="tablink" onclick="Crpstudio.project.switchTab('project')">$project</a></dd>
+				<dd id="project_link"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor')">$project</a></dd>
 			#end
       <!-- Sub-navigation item: [input] -->
 			#if($tab == "input")
-				<dd id="input_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('input')">$input</a></dd>
+				<dd id="input_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('input_editor')">$input</a></dd>
 			#else
-				<dd id="input_link"><a class="tablink" onclick="Crpstudio.project.switchTab('input')">$input</a></dd>
+				<dd id="input_link"><a class="tablink" onclick="Crpstudio.project.switchTab('input_editor')">$input</a></dd>
 			#end
       <!-- Sub-navigation item: [Definitions] -->
 			#if($tab == "definitions")
-				<dd id="definitions_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('definitions')">$definitions</a></dd>
+				<dd id="definitions_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('definition_editor')">$definitions</a></dd>
 			#else
-				<dd id="definitions_link"><a class="tablink" onclick="Crpstudio.project.switchTab('definitions')">$definitions</a></dd>
+				<dd id="definitions_link"><a class="tablink" onclick="Crpstudio.project.switchTab('definition_editor')">$definitions</a></dd>
 			#end
       <!-- Sub-navigation item: [queries] -->
 			#if($tab == "queries")
-				<dd id="queries_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('queries')">$queries</a></dd>
+				<dd id="queries_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('query_editor')">$queries</a></dd>
 			#else
-				<dd id="queries_link"><a class="tablink" onclick="Crpstudio.project.switchTab('queries')">$queries</a></dd>
+				<dd id="queries_link"><a class="tablink" onclick="Crpstudio.project.switchTab('query_editor')">$queries</a></dd>
 			#end
       <!-- Sub-navigation item: [constructor] -->
 			#if($tab == "constructor")
-				<dd id="constructor_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor')">$constructor</a></dd>
+				<dd id="constructor_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
 			#else
-				<dd id="constructor_link"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor')">$constructor</a></dd>
+				<dd id="constructor_link"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
 			#end
       <!-- On the navigation bar: [execution] -->
       <dd id="project_executor">
@@ -59,15 +59,15 @@
 			#end
       <!-- Sub-navigation item: [result] -->
 			#if($tab == "result")
-				<dd id="result_link" class="sub-sub-nav active">|| <a class="tablink" onclick="Crpstudio.project.switchTab('result')">$result</a></dd>
+				<dd id="result_link" class="sub-sub-nav active">|| <a class="tablink" onclick="Crpstudio.project.switchTab('result_display')">$result</a></dd>
 			#else
-				<dd id="result_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('result')">$result</a></dd>
+				<dd id="result_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('result_display')">$result</a></dd>
 			#end
       <!-- Sub-navigation item: [document] -->
 			#if($tab =="document")
-				<dd id="document_link" class="sub-sub-nav active"><a class="tablink" onclick="Crpstudio.project.switchTab('document')">$document</a></dd>
+				<dd id="document_link" class="sub-sub-nav active"><a class="tablink" onclick="Crpstudio.project.switchTab('document_display')">$document</a></dd>
 			#else
-				<dd id="document_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('document')">$document</a></dd>
+				<dd id="document_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('document_display')">$document</a></dd>
 			#end
 			</dl>
 		</div>
@@ -104,25 +104,25 @@
 			<div id="metadata" $meta>
 				#parse("metadata.vm")
 			</div>
-			<div id="project" class="large-16 medium-16 small-16 content $project_active">
+			<div id="project_editor" class="large-16 medium-16 small-16 content $project_active">
 				#parse("projectmain.vm")
 			</div>
-			<div id="input" class="large-16 medium-16 small-16 content $input_active">
+			<div id="input_editor" class="large-16 medium-16 small-16 content $input_active">
 				#parse("input.vm")
 			</div>
-			<div id="definitions" class="large-16 medium-16 small-16 content $definitions_active">
+			<div id="definition_editor" class="large-16 medium-16 small-16 content $definitions_active">
 				#parse("definitions.vm")
 			</div>
-			<div id="queries" class="large-16 medium-16 small-16 content $queries_active">
+			<div id="query_editor" class="large-16 medium-16 small-16 content $queries_active">
 				#parse("queries.vm")
 			</div>
-			<div id="constructor" class="large-16 medium-16 small-16 content $queries_active">
+			<div id="constructor_editor" class="large-16 medium-16 small-16 content $queries_active">
 				#parse("constructor.vm")
 			</div>
-			<div id="result" class="large-16 medium-16 small-16 content $result_active">
+			<div id="result_display" class="large-16 medium-16 small-16 content $result_active">
 				#parse("result.vm")
 			</div>
-			<div id="document" class="large-16 medium-16 small-16 content hide">
+			<div id="document_display" class="large-16 medium-16 small-16 content hide">
 			</div>
 			
 		</div>

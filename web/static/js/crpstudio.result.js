@@ -12,7 +12,7 @@ Crpstudio.result = {
   loc_sCurrentSub : "", // String for the currently selected sub
   view : 1,             // Default view is #1
   currentFile : "",     // currently selected file
-  numPerPage : 50,      // Number of results per page
+  numPerPage : 0,       // Number of results per page
   numPages : 1,         // Number of pages to be shown
   currentPage : 1,      // Currently selected page
   numResults : 0,       // Number of results
@@ -54,23 +54,30 @@ Crpstudio.result = {
     var idxQc = iQC-1;
     // Prepare a string for this row
     //   NB: each row contains: # (number), QC-label, subcat-name, count-for-this-row
-    var qcRow = "<tr onclick=\"Crpstudio.result.switchToQc("+iQC+")\" id=\"qcline_"+iQC+"\" class=\"qc-line\">"
+    var sSwitchClick = "onclick=\"Crpstudio.result.switchToQc("+iQC+")\"";
+    var qcRow = "<tr id=\"qcline_"+iQC+"\" class=\"qc-line\">"
+    // var qcRow = "<tr id=\"qcline_"+iQC+"\" class=\"qc-line\">"
       +"<td>"+iQC+"</td>"
       +"<td id=\"qc_"+iQC+"\">"+sQcLabel+"</td>"
-      +"<td id=\"qc_"+iQC+"\">(all together)</td>"
-      +"<td id=\"total_"+iQC+"\">"+iTotal+"</td>"
+      +"<td id=\"qc_"+iQC+"\"><a "+ sSwitchClick + ">(all together)</a></td>"
+      +"<td id=\"total_"+iQC+"\"><a "+ sSwitchClick + ">"+iTotal+"</a></td>"
       +"<td class=\"control\"><button onclick=\"Crpstudio.project.editQC("+iQC+")\" class=\"edit\">EDIT</button></td>"
+      +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results')\" class=\"edit\">DETAILS</button></td>"
       +"</tr>";
     // Add the row to the appropriate table
     $("#queries > tbody").append(qcRow);
     // Add lines for all sub categories
     for (var i=0; i<arSubNames.length;i++) {
+      sSwitchClick = "onclick=\"Crpstudio.result.switchToQcSub("+iQC+",'"+i+"')\"";
       // Allow switching to a sub-category of a QC
-      qcRow = "<tr onclick=\"Crpstudio.result.switchToQcSub("+iQC+",'"+i+"')\" id=\"qcsub_"+iQC+"_"+i+"\" class=\"qc-sub-line hidden\">"
+      qcRow = "<tr id=\"qcsub_"+iQC+"_"+i+"\" class=\"qc-sub-line hidden\">"
+      // qcRow = "<tr id=\"qcsub_"+iQC+"_"+i+"\" class=\"qc-sub-line hidden\">"
         +"<td>"+iQC+"</td>"
         +"<td id=\"qc_"+iQC+"_"+i+"\">"+sQcLabel+"</td>"
-        +"<td id=\"sub_"+iQC+"_"+i+"\">"+arSubNames[i]+"</td>"
-        +"<td id=\"total_"+iQC+"_"+i+"\">"+arSubCounts[i]+"</td>"
+        +"<td id=\"sub_"+iQC+"_"+i+"\"><a "+ sSwitchClick + ">"+arSubNames[i]+"</a></td>"
+        +"<td id=\"total_"+iQC+"_"+i+"\"><a "+ sSwitchClick + ">"+arSubCounts[i]+"</a></td>"
+        +"<td></td>"
+        +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results')\" class=\"edit\">DETAILS</button></td>"
         +"</tr>";
       // Add the row to the appropriate table
       $("#queries > tbody").append(qcRow);
@@ -122,15 +129,17 @@ Crpstudio.result = {
     Crpstudio.result.loc_iCurrentSub = -1;
     Crpstudio.result.loc_sCurrentSub = "";
     var iView = Crpstudio.result.view;
+    // Show the results tab
+    // Crpstudio.result.selectResults("results");
     // Switch off export
     $("#results_export_"+iView).addClass("hidden");
     // Get the number of QCs
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
     var iSubCount = Crpstudio.result.loc_arTable[idxQc].subcats.length;
-    // Clear and set the "active" state of the QC rows appropriately
+    // Clear or set the "active" state of the QC rows appropriately
     if ($("#queries #qcline_"+iQC).hasClass("active")) {
-      // Remove the "active" state of the particular qcline
+      // REMOVE the "active" state of the particular qcline
       $("#queries #qcline_"+iQC).removeClass("active");
       // Hide the qcsub_n_m lines, which have class "qc-sub-line"
       $("#queries .qc-sub-line").addClass("hidden");
@@ -138,11 +147,13 @@ Crpstudio.result = {
       // (2) hide the 'result-qc-sub' lines
       $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
       // (3) toggle the 'hidden' class for this QC line table
-      $("#result_qc"+iQC).toggleClass("hidden");
+      $("#result_"+iView+"_qc"+iQC).toggleClass("hidden");
+      // (4) hide the DETAILS buttons for everything
+      $("#queries .control").addClass("hidden");
       // Since we are RE-setting, clear the CurrentQc number
       Crpstudio.result.loc_iCurrentQc = -1;
     } else {
-      // Right: we need to switch the active state
+      // Switch TO the ACTIVE state for the indicated QC line
       // (1) remove the "active" state for all QC rows
 			$("#queries .qc-line").removeClass("active");
       // (2) remove the 'active' state for all QC subcategory rows
@@ -159,9 +170,13 @@ Crpstudio.result = {
       // (6) set all results to 'hidden'
       $("#result_table_"+iView+" .result-qc").addClass("hidden");
       // (7) Show the results for this QC line
-      $("#result_qc"+iQC).removeClass("hidden");
+      $("#result_"+iView+"_qc"+iQC).removeClass("hidden");
       // (8) hide the 'result-qc-sub' lines
       $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
+      // (9) hide the DETAILS buttons for everything
+      $("#queries .control").addClass("hidden");
+      // (10) Show the DETAILS button for this QC
+      $("#queries #qcline_"+iQC+" .control").removeClass("hidden");
     }
       
   },
@@ -179,6 +194,8 @@ Crpstudio.result = {
     Crpstudio.result.loc_sCurrentSub = Crpstudio.result.loc_arTable[idxQc].subcats[idxSub];
     // Get the correct view mode
     var iView = Crpstudio.result.view;
+    // Show the results tab
+    // Crpstudio.result.selectResults("results");
     // Switch off export
     $("#results_export_"+iView).addClass("hidden");
     // Get the number of QCs
@@ -187,7 +204,7 @@ Crpstudio.result = {
     var iSubCount = Crpstudio.result.loc_arTable[idxQc].subcats.length;
     // Clear and set the "active" state of the QC rows appropriately
     if ($("#queries #qcsub_"+iQC+"_"+idxSub).hasClass("active")) {
-      // User is active here. Clicking means: de-activate
+      // User is active here. Clicking means: DE-ACTIVATE this qc-sub
       // (1) remove the 'active' state for all QC subcategory rows
 			$("#queries .qc-sub-line").removeClass("active");
       // (2) hide the 'result_qc' lines
@@ -195,9 +212,13 @@ Crpstudio.result = {
       // (3) hide the 'result-qc-sub' lines
       // $("#result_table .result-qc-sub").addClass("hidden");
       // (4) toggle the chosen result-qc-sub line
-      $("#result_qcsub_"+iQC+"_"+idxSub).toggleClass("hidden");
+      $("#result_"+iView+"_qcsub_"+iQC+"_"+idxSub).toggleClass("hidden");
+      // (5) hide the DETAILS buttons for everything
+      $("#queries .control").addClass("hidden");
+      // (6) show the DETAILS button for this QC
+      $("#queries  #qcline_"+iQC+" .control").removeClass("hidden");
     } else {
-      // User is NOT active here. Click means: activate this subcat
+      // User is NOT active here. Click means: ACTIVATE this subcat (and de-activate all others)
       // (1) remove the 'active' state for all QC subcategory rows
 			$("#queries .qc-sub-line").removeClass("active");
       // (2) set the 'active' state of this particular QC subcat row
@@ -207,7 +228,11 @@ Crpstudio.result = {
       // (4) hide the 'result-qc-sub' lines
       $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
       // (5) show the chosen result-qc-sub line
-      $("#result_qcsub_"+iQC+"_"+idxSub).removeClass("hidden");
+      $("#result_"+iView+"_qcsub_"+iQC+"_"+idxSub).removeClass("hidden");
+      // (6) hide the DETAILS buttons for everything
+      $("#queries .control").addClass("hidden");
+      // (7) show the DETAILS button for this QC-sub
+      $("#queries  #qcsub_"+iQC+"_"+idxSub+" .control").removeClass("hidden");
     }
   },
   /* ---------------------------------------------------------------------------
@@ -278,7 +303,8 @@ Crpstudio.result = {
               + "&table="+ encodeURIComponent(JSON.stringify(oBack));
       // Call /crpstudio/export with the information we have gathered
       // Method #1: use POST request
-      Crpstudio.getCrpStudioData("export", params, Crpstudio.result.processExport);  
+      Crpstudio.getCrpStudioData("export", params, 
+          Crpstudio.result.processExport, "#result_status_" + Crpstudio.result.view);  
        
       // Method #2: use GET request 
 	
@@ -304,9 +330,9 @@ Crpstudio.result = {
         var fFileName = fFilePath.substring(fFilePath.lastIndexOf("/")+1);
         fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
         // Provide the user with a path where he can download the file from
-        $("#results_export_1").removeClass("hidden");
-        $("#results_export_file_1").html("<a href=\""+fFilePath + 
-                " target='_blank'\">"+fFileName+"</a>");
+        $("#results_export_"+Crpstudio.result.view).removeClass("hidden");
+        $("#results_export_file_"+Crpstudio.result.view).html("<a href=\""+fFilePath + "\""
+              + " target='_blank'\">"+fFileName+"</a>");
       }
       // So far: no action is required
       /*
@@ -334,7 +360,7 @@ Crpstudio.result = {
       */
 		} else {
 			$("#status_"+target).html("ERROR");
-			$("#result_"+target).html("ERROR - Failed to retrieve result from server.");
+			$("#result_status_"+Crpstudio.result.view).html("ERROR - Failed to retrieve result from server.");
 		}    
   },
    /* ---------------------------------------------------------------------------
@@ -366,6 +392,11 @@ Crpstudio.result = {
       Crpstudio.result.numPerPage = oPageChoice.number;
       // Adapt the pagination
       Crpstudio.result.doPagination(iView,Crpstudio.result.numResults);
+    }
+    // Double check
+    if (Crpstudio.result.numPerPage === 0) {
+      // Retrieve the number from the value of the control
+      Crpstudio.result.numPerPage = $("#page_size").val();
     }
     // If and how pagination is shown depends on the view
     switch(iView) {
@@ -426,11 +457,21 @@ Crpstudio.result = {
       // Set the amount we are requesting
       var iRequesting = (Crpstudio.result.numPerPage<0) ? Crpstudio.result.numResults : Crpstudio.result.numPerPage;
       // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
-      var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
-        "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
-        "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
-        "type": sType, "start": iStart, 
-        "count": iRequesting, "files": [ sFile ]};
+      var oQuery = null;
+      // If there is no file, we need to set it to NULL
+      if (sFile === "")  {
+        oQuery = { "qc": iQC, "sub": sSub, "view": iView,
+          "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
+          "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
+          "type": sType, "start": iStart, 
+          "count": iRequesting, "files": [ ]};
+      } else {
+        oQuery = { "qc": iQC, "sub": sSub, "view": iView,
+          "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
+          "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
+          "type": sType, "start": iStart, 
+          "count": iRequesting, "files": [ sFile ]};
+      }
       var params = "query=" + JSON.stringify(oQuery);
       Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
     } else {
@@ -562,6 +603,30 @@ Crpstudio.result = {
     var first = ((page-1) * number) + 1;
     // Make a request for this number
     Crpstudio.result.update(Crpstudio.result.view, { first : first, number : number } );
+  },
+  
+  /**
+   * selectResults
+   *    Allow switching between 'result_querylines' and 'results'
+   *    
+   * @param {type} sType
+   * @returns {undefined}
+   */
+  selectResults : function(sType) {
+    switch (sType) {
+      case "querylines":
+        $("#result_querylines").removeClass("hidden");
+        $("#results").addClass("hidden");
+        break;
+      case "results":
+        $("#result_querylines").addClass("hidden");
+        $("#results").removeClass("hidden");
+        break;
+      case "nothing":
+        $("#result_querylines").addClass("hidden");
+        $("#results").addClass("hidden");
+        break;
+    }
   },
   
   /**
