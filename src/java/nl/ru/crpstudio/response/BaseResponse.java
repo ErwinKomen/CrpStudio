@@ -615,6 +615,8 @@ public abstract class BaseResponse {
           if (oResp.has("content")) {
             oContent = oResp.getJSONObject("content");
             if (oContent.has("message")) sMsg = oContent.getString("message");
+            // Return the "content" object...
+            output.put("content", oContent);
           }
           logger.DoError("processUpdateResponse: /crpp returns error: "+sMsg);
           output.put("error", sMsg);
