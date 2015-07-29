@@ -78,6 +78,7 @@ public class CrpStudio extends HttpServlet {
   private boolean bUserOkay = false;
   private String sRequestMethod = ""; // Which method is used to approach us?
   private String sSessionId = "";
+  private JSONArray arUpdateContent = null;
 
   // ====================== Getters and setters ======================
   public String getRealPath() { return realPath; }
@@ -97,6 +98,8 @@ public class CrpStudio extends HttpServlet {
   public JSONArray getCorpora() { return objCorpora;}
   public String getRequestMethod() { return sRequestMethod;}
   public CrpContainer getCrpContainer() { return crpContainer; }
+  public JSONArray getUpdateContent() { return arUpdateContent; }
+  public void setUpdateContent(JSONArray aTable) { arUpdateContent = aTable;}
 	@Override
   public void log(String msg) {errHandle.debug(msg);}
   

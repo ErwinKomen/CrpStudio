@@ -44,13 +44,11 @@ import nl.ru.crpstudio.util.TabSpecifier;
 import nl.ru.crpstudio.util.TemplateManager;
 import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.crpx.tools.FileIO;
-import nl.ru.util.ByRef;
 import nl.ru.util.FileUtil;
 import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONException;
 import nl.ru.util.json.JSONObject;
-import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 
@@ -648,6 +646,8 @@ public abstract class BaseResponse {
           if (oResp.has("content")) {
             arContent = oResp.getJSONArray("content");
             output.put("content", arContent);
+            // Also store the contents for future "export" use
+            this.servlet.setUpdateContent(arContent);
           } else {
             output.put("error", "No content found");
             oStat.put("code", "error"); output.put("status", oStat);
@@ -948,7 +948,7 @@ public abstract class BaseResponse {
    * @param contents
    * @param fileName 
    */
-	public void sendFileLocResponse(String contents, String fileName) {
+	public void sendFileLocResponse(String contents, String fileName, String sView) {
     try {
       String sFileUrl = makeFileLocResponse(contents, fileName);
       if (sFileUrl == "") {
@@ -957,6 +957,7 @@ public abstract class BaseResponse {
         // Respond with the URL for this file in the reply
         Map<String,Object> output = new HashMap<String,Object>();
         output.put("file", sFileUrl);
+        output.put("view", sView);
         sendResponse(output);
       }
     } catch (Exception ex) {
