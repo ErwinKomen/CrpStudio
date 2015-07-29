@@ -62,7 +62,8 @@ Crpstudio.result = {
       +"<td id=\"qc_"+iQC+"\"><a "+ sSwitchClick + ">(all together)</a></td>"
       +"<td id=\"total_"+iQC+"\"><a "+ sSwitchClick + ">"+iTotal+"</a></td>"
       +"<td class=\"control\"><button onclick=\"Crpstudio.project.editQC("+iQC+")\" class=\"edit\">EDIT</button></td>"
-      +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results')\" class=\"edit\">DETAILS</button></td>"
+      +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results',"
+      +iQC+")\" class=\"edit\">DETAILS</button></td>"
       +"</tr>";
     // Add the row to the appropriate table
     $("#queries > tbody").append(qcRow);
@@ -77,7 +78,8 @@ Crpstudio.result = {
         +"<td id=\"sub_"+iQC+"_"+i+"\"><a "+ sSwitchClick + ">"+arSubNames[i]+"</a></td>"
         +"<td id=\"total_"+iQC+"_"+i+"\"><a "+ sSwitchClick + ">"+arSubCounts[i]+"</a></td>"
         +"<td></td>"
-        +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results')\" class=\"edit\">DETAILS</button></td>"
+        +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results',"
+        +iQC+","+i+")\" class=\"edit\">DETAILS</button></td>"
         +"</tr>";
       // Add the row to the appropriate table
       $("#queries > tbody").append(qcRow);
@@ -137,6 +139,9 @@ Crpstudio.result = {
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
     var iSubCount = Crpstudio.result.loc_arTable[idxQc].subcats.length;
+    // Check the current state of the qc-line
+    var bQcActive = $("#queries #qcline_"+iQC).hasClass("active");
+    /*
     // Clear or set the "active" state of the QC rows appropriately
     if ($("#queries #qcline_"+iQC).hasClass("active")) {
       // REMOVE the "active" state of the particular qcline
@@ -153,6 +158,7 @@ Crpstudio.result = {
       // Since we are RE-setting, clear the CurrentQc number
       Crpstudio.result.loc_iCurrentQc = -1;
     } else {
+    */
       // Switch TO the ACTIVE state for the indicated QC line
       // (1) remove the "active" state for all QC rows
 			$("#queries .qc-line").removeClass("active");
@@ -160,24 +166,30 @@ Crpstudio.result = {
 			$("#queries .qc-sub-line").removeClass("active");
       // (3) set the 'hidden' state for all QC subcategory rows
 			$("#queries .qc-sub-line").addClass("hidden");
-      // (4) set the 'active' state for the correct QC row
-			$("#queries #qcline_"+iQC).addClass("active");
-      // (5) remove the 'hidden' state for the QC subcategory rows under the current QC line
-      // $("#queries #qcline_"+iQC+" .qc-sub-line").removeClass("hidden");
-      for (var i=0;i<iSubCount;i++) {
-        $("#queries #qcsub_"+iQC+"_"+i).removeClass("hidden");
+      // Is this current QC line active?
+      if (bQcActive) {
+        // (6) hide the DETAILS buttons for everything
+        $("#queries .control").addClass("hidden");
+      } else {
+        // (4) remove the 'hidden' state for the QC subcategory rows under the current QC line
+        for (var i=0;i<iSubCount;i++) {
+          $("#queries #qcsub_"+iQC+"_"+i).removeClass("hidden");
+        }
+        // (5) set the 'active' state for the correct QC row
+        $("#queries #qcline_"+iQC).addClass("active");
+        // (6) hide the DETAILS buttons for everything
+        $("#queries .control").addClass("hidden");
+        // (7) Show the DETAILS button for this QC
+        $("#queries #qcline_"+iQC+" .control").removeClass("hidden");
       }
-      // (6) set all results to 'hidden'
+      // (8) set all results to 'hidden'
       $("#result_table_"+iView+" .result-qc").addClass("hidden");
-      // (7) Show the results for this QC line
-      $("#result_"+iView+"_qc"+iQC).removeClass("hidden");
-      // (8) hide the 'result-qc-sub' lines
+      // (9) Show the results for this QC line
+      var sResultTargetTable = "#result_"+iView+"_qc"+iQC;
+      $(sResultTargetTable).removeClass("hidden");
+      // (10) hide the 'result-qc-sub' lines
       $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
-      // (9) hide the DETAILS buttons for everything
-      $("#queries .control").addClass("hidden");
-      // (10) Show the DETAILS button for this QC
-      $("#queries #qcline_"+iQC+" .control").removeClass("hidden");
-    }
+  /*  } */
       
   },
   
@@ -202,6 +214,7 @@ Crpstudio.result = {
     var iQCcount = Crpstudio.result.loc_arTable.length;
     // Get the number of sub-categories for this one
     var iSubCount = Crpstudio.result.loc_arTable[idxQc].subcats.length;
+    /*
     // Clear and set the "active" state of the QC rows appropriately
     if ($("#queries #qcsub_"+iQC+"_"+idxSub).hasClass("active")) {
       // User is active here. Clicking means: DE-ACTIVATE this qc-sub
@@ -218,6 +231,7 @@ Crpstudio.result = {
       // (6) show the DETAILS button for this QC
       $("#queries  #qcline_"+iQC+" .control").removeClass("hidden");
     } else {
+    */
       // User is NOT active here. Click means: ACTIVATE this subcat (and de-activate all others)
       // (1) remove the 'active' state for all QC subcategory rows
 			$("#queries .qc-sub-line").removeClass("active");
@@ -228,12 +242,13 @@ Crpstudio.result = {
       // (4) hide the 'result-qc-sub' lines
       $("#result_table_"+iView+" .result-qc-sub").addClass("hidden");
       // (5) show the chosen result-qc-sub line
-      $("#result_"+iView+"_qcsub_"+iQC+"_"+idxSub).removeClass("hidden");
+      var sResultTargetTable = "#result_"+iView+"_qcsub_"+iQC+"_"+idxSub;
+      $(sResultTargetTable).removeClass("hidden");
       // (6) hide the DETAILS buttons for everything
       $("#queries .control").addClass("hidden");
       // (7) show the DETAILS button for this QC-sub
       $("#queries  #qcsub_"+iQC+"_"+idxSub+" .control").removeClass("hidden");
-    }
+    /* } */
   },
   /* ---------------------------------------------------------------------------
    * Name:  doExport
@@ -300,17 +315,13 @@ Crpstudio.result = {
       // Pack what we have into a string
       // var params = "table="+ encodeURIComponent(JSON.stringify(oBack));
       var params = "project="+encodeURIComponent(Crpstudio.project.currentPrj)
-              + "&table="+ encodeURIComponent(JSON.stringify(oBack));
+              + "&table="+ encodeURIComponent(JSON.stringify(oBack))
+              + "&view=" + iView;
       // Call /crpstudio/export with the information we have gathered
       // Method #1: use POST request
       Crpstudio.getCrpStudioData("export", params, 
-          Crpstudio.result.processExport, "#result_status_" + Crpstudio.result.view);  
-       
-      // Method #2: use GET request 
-	
-      // window.location = Crpstudio.baseUrl + "export?"+params;
+          Crpstudio.result.processExport, "#result_status_" + iView);  
     }
- 
   },
   
   /**
@@ -325,13 +336,15 @@ Crpstudio.result = {
 		if (response !== null) {
       // The response should contain a file name
       var fFilePath = response.file;
+      var iView = Crpstudio.result.view;
+      if (response.view) iView = response.view;
       if (fFilePath !== null) {
         // Get the name of the file alone
         var fFileName = fFilePath.substring(fFilePath.lastIndexOf("/")+1);
         fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
         // Provide the user with a path where he can download the file from
-        $("#results_export_"+Crpstudio.result.view).removeClass("hidden");
-        $("#results_export_file_"+Crpstudio.result.view).html("<a href=\""+fFilePath + "\""
+        $("#results_export_"+iView).removeClass("hidden");
+        $("#results_export_file_"+iView).html("<a href=\""+fFilePath + "\""
               + " target='_blank'\">"+fFileName+"</a>");
       }
       // So far: no action is required
@@ -360,7 +373,7 @@ Crpstudio.result = {
       */
 		} else {
 			$("#status_"+target).html("ERROR");
-			$("#result_status_"+Crpstudio.result.view).html("ERROR - Failed to retrieve result from server.");
+			$("#result_status_"+iView).html("ERROR - Failed to retrieve result from server.");
 		}    
   },
    /* ---------------------------------------------------------------------------
@@ -375,15 +388,31 @@ Crpstudio.result = {
    * 23/jul/2015  ERK Added [oPageChoice]
    */
   update : function(iView, oPageChoice, element) {
+    var bSwitching = false;
     // Make sure some element is set
     if (!element) element = Crpstudio.result.currentElement;
+    // Are we switching from view?
+    if (Crpstudio.result.view && Crpstudio.result.view!== iView) {
+      // Yes, we are switching from view
+      bSwitching = true;
+    }
     // Make sure the view variable is filled in
     Crpstudio.result.view = iView;  
     // Set the correct tab 
     Crpstudio.result.showView(iView);
     // Determine the parameters: QC, sub-category
     var iQC = Crpstudio.result.loc_iCurrentQc+1;
+    var sLabel = this.loc_arTable[iQC-1].result;
     var iSub = Crpstudio.result.loc_iCurrentSub;
+    // If we are switching, we should make an additional request)
+    if (bSwitching) {
+      if (iSub && iSub >=0) {
+        Crpstudio.result.switchToQcSub(iQC, iSub);
+      } else {
+        Crpstudio.result.switchToQc(iQC);
+      }
+    }
+    
     var sSub = Crpstudio.result.loc_sCurrentSub;
     var sFile = Crpstudio.result.currentFile;
     // Any pagination information?
@@ -403,6 +432,26 @@ Crpstudio.result = {
       case 1:
         // Show pagination
         $("#result_pagination_"+iView).removeClass("hidden");
+        // Determine the total number of results
+        var iResultCount = (iSub < 0) ? this.loc_arTable[iQC-1].total :
+                                        this.loc_arTable[iQC-1].counts[iSub];
+        this.numResults = iResultCount;
+        // Determine start and finish
+        var iStart = 1;
+        var iCount = iResultCount;
+        // Possibly adapt start and count
+        if (oPageChoice) {
+          if (oPageChoice.first) iStart = oPageChoice.first;
+          if (oPageChoice.number) iCount = oPageChoice.number;
+        }
+        // Start showing hits according to the current choices
+        Crpstudio.result.showHits(iView, iStart, iCount, iQC, sSub, element, true);
+        // Give information about what is being shown
+        var iRequesting = parseInt( (Crpstudio.result.numPerPage<0) ? iResultCount : Crpstudio.result.numPerPage);
+        var sInfo = "QC "+iQC+" ["+sLabel+"]";
+        if (sSub && sSub !== "") sInfo = sInfo + " cat=["+sSub+"]";
+        sInfo += " #"+iStart+"-"+(iStart+iRequesting-1)+" ("+iResultCount+")";
+        $("#results_info_1").html(sInfo);
         break;
       case 2:
         // Show pagination
@@ -417,6 +466,10 @@ Crpstudio.result = {
           // Now make the request in the standard way
           Crpstudio.result.showFileHits(iStart, iCount, sFile, iQC, sSub, element, true);
         }
+        var sInfo = "QC "+iQC+" ["+sLabel+"]";
+        if (sSub && sSub !== "") sInfo += " cat=["+sSub+"]";
+        if (sFile && sFile !== "") sInfo += " file=["+sFile+"]";
+        $("#results_info_2").html(sInfo);
         break;
       default:
         // Hide pagination
@@ -472,6 +525,11 @@ Crpstudio.result = {
           "type": sType, "start": iStart, 
           "count": iRequesting, "files": [ sFile ]};
       }
+      var sLabel = this.loc_arTable[iQC-1].result;
+      var sInfo = "QC "+iQC+" ["+sLabel+"]";
+      if (sSub && sSub !== "") sInfo += " cat=["+sSub+"]";
+      if (sFile && sFile !== "") sInfo += " file=["+sFile+"]";
+      $("#results_info_2").html(sInfo);
       var params = "query=" + JSON.stringify(oQuery);
       Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
     } else {
@@ -479,6 +537,47 @@ Crpstudio.result = {
       // Hide the details
 			$(element).parent().parent().addClass("hidden");
 		}
+  },
+  /**
+ * showHits
+ *    Load and show the hits in the indicated <div>
+ * 
+ * @param {type} iView    The view (which is expected to be "1")
+ * @param {type} iStart
+ * @param {type} iCount
+ * @param {type} iQC
+ * @param {type} sSub
+ * @param {type} element  Where to show the results
+ * @param {type} update   Force updating
+ * @returns {undefined}
+ */
+  showHits : function(iView, iStart, iCount, iQC, sSub, element, update) {
+    // Set the current 'element'
+    if (element) Crpstudio.result.currentElement = element;
+    // Possibly set the number of results
+    if (!update) {
+      // Set the total number of results
+      Crpstudio.result.numResults = iCount;
+    }
+    // Make sure the <div> is now being shown
+    if (element) {
+      $(element).parent().parent().removeClass("hidden");
+      $(element).html("(working...)");
+    }
+    // Set "fetching" indicator
+    $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Fetching data...");
+    // Get the data for this combination of QC/Subcat/View
+    var sType = "context_syntax";
+    // Set the amount we are requesting
+    var iRequesting = (Crpstudio.result.numPerPage<0) ? Crpstudio.result.numResults : Crpstudio.result.numPerPage;
+    // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
+    var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
+      "userid": Crpstudio.currentUser, "prj": Crpstudio.project.currentPrj, 
+      "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
+      "type": sType, "start": iStart, 
+      "count": iRequesting, "files": [ ]};
+    var params = "query=" + JSON.stringify(oQuery);
+    Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
   },
   /**
    * processFileHits
@@ -513,8 +612,15 @@ Crpstudio.result = {
             var oRow = oContent[i];
             // Possibly get the first "n" value --> this helps determine pagination resetting
             if (iFirstN<0) iFirstN = oRow.n;
-            
-            html.push("<b>"+oRow.n+"</b> "+oRow.preC);
+            // Add the number of the example            
+            html.push("<b>"+oRow.n+"</b> ");
+            // Possibly add filename
+            if (iView === 1) {
+              // Need to add the name of the file
+              html.push("[<span class=\"one-example-filename\">"+oRow.file+"</span>]");
+            }
+            // Add preceding context
+            html.push(oRow.preC);
             html.push("<span class=\"one-example-hit\">"+oRow.hitC+" </span>");
             // Close "one-example-context"
             html.push(oRow.folC+"</div>");
@@ -601,8 +707,20 @@ Crpstudio.result = {
     if (number < 0) number = Crpstudio.result.numResults;
     // Calculate which item number needs to be presented first
     var first = ((page-1) * number) + 1;
-    // Make a request for this number
-    Crpstudio.result.update(Crpstudio.result.view, { first : first, number : number } );
+    // Provide the user with a path where he can download the file from
+    $("#results_export_"+this.view).addClass("hidden");
+    // Depending on the "view", a target must be specified
+    switch (this.view) {
+      case 1:
+        var target = $("#result_table_1 tr");
+        // Make a request for this number
+        Crpstudio.result.update(Crpstudio.result.view, { first : first, number : number }, target );
+        break;
+      default:
+        // Make a request for this number
+        Crpstudio.result.update(Crpstudio.result.view, { first : first, number : number } );
+        break;
+    }
   },
   
   /**
@@ -610,9 +728,11 @@ Crpstudio.result = {
    *    Allow switching between 'result_querylines' and 'results'
    *    
    * @param {type} sType
+   * @param {type} iQC
+   * @param {type} iSub
    * @returns {undefined}
    */
-  selectResults : function(sType) {
+  selectResults : function(sType, iQC, iSub) {
     switch (sType) {
       case "querylines":
         $("#result_querylines").removeClass("hidden");
@@ -627,6 +747,21 @@ Crpstudio.result = {
         $("#results").addClass("hidden");
         break;
     }
+    // Set the QC and SUB variables
+    if (iQC) this.loc_iCurrentQc = iQC-1;
+    if (iSub) 
+      this.loc_iCurrentSub = iSub;
+    else if (iQC)
+      this.loc_iCurrentSub = -1;
+    // Possibly set the current element
+    switch(this.view) {
+      case 1:
+        this.currentElement = $("#result_table_1 tr");
+        break;
+    }
+    // Possibly call update()
+    if (iQC)
+      this.update(this.view);
   },
   
   /**
@@ -652,5 +787,6 @@ Crpstudio.result = {
     html.push("]</font>");
     return html.join("\n");
   }
+
 };
 

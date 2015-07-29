@@ -1213,6 +1213,14 @@ img.icon.spinner {
 	margin-top: 0;
 }
 
+/* Small div that gives a brief summary of the results */
+.result-info {
+  font-family: courier;
+  font-size: 13px;
+  background-color: yellow;
+  line-height: 130%;
+}
+
 #stats .result-pane {
 	margin-top: 0;
 }
@@ -1465,9 +1473,19 @@ table tr > td {
 /* Examples in the list of results */
 .one-example.row-even {
   background-color: mintcream !important;
+	line-height: 120% !important;
+}
+.one-example.row-even:hover {
+  background-color: lightgreen !important;
+	line-height: 120% !important;
 }
 .one-example.row-odd {
   background-color: whitesmoke !important;
+	line-height: 120% !important;
+}
+.one-example.row-odd:hover {
+  background-color: lightsteelblue !important;
+	line-height: 120% !important;
 }
 
 /* The 'hit' part of a result */
@@ -1481,7 +1499,10 @@ table tr > td {
   /* background-color: white !important;*/
   color: black !important;
   font-family: Courier New; 
-  font-size: 11px;
+  font-size: 12px;
+}
+.one-example-filename {
+  color: darkslategrey !important;
 }
 /* ======================================== */
 

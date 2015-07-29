@@ -382,6 +382,7 @@ var Crpstudio = {
 		setSizes : function() {
 			var h = $(window).innerHeight() - 135;
 			$("#homepage").css("height",h+"px");
+      Crpstudio.setNavigationSize();
 		}
 	},
   
@@ -396,6 +397,24 @@ var Crpstudio = {
 		setSizes : function() {
 			var h = $(window).innerHeight() - 135;
 			$("#aboutpage").css("height",h+"px");
+      Crpstudio.setNavigationSize();
 		}
-	}
+	},
+  
+  /**
+   * setNavigationSize
+   *    Make sure the size of the "for-navigation" <div> is high enough
+   *    
+   * @returns {undefined}
+   */
+  setNavigationSize : function() {
+    var w_width = $(window).innerWidth();
+    var rows = 4;
+    var row_height = 45 * rows;
+    if (w_width < 600 ) {
+      $("#for-navigation").css("height", row_height);
+    }
+  }
+
 };
+

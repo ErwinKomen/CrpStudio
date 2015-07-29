@@ -87,21 +87,21 @@
         </section>
       </nav>
       <!-- Second top-bar containing navigation items -->
-      <nav class="top-bar" data-topbar  data-options="sticky_on: large">
+      <nav class="top-bar" id="for-navigation" data-topbar  data-options="sticky_on: large">
         <section class="top-bar-section">
-          <div class="row">
-            <div class="small-8 medium-8 large-8 columns">
+          <div class="small-16 medium-16 large-16 row">
+            <div class="small-16 medium-13 large-11 columns">
               <!-- Left Nav Section -->
               <ul id="navLeft" class="left">
 
                 <!-- Define the language buttons -->
-                <li class="leftspaced langli">
+                <li class="leftspaced langli hide-for-small-only">
                   <form method="get" action="" name="langform">
                     <a class="langlink" id="nl" onclick="Crpstudio.switchLanguage('nl')"><img class="$nl" src="./static/img/lang/nl.png" /></a>
                     <a class="langlink" id="en" onclick="Crpstudio.switchLanguage('en')"><img class="$en"  src="./static/img/lang/en.png" /></a>
                   </form>
                 </li>
-                <li class="leftspaced">
+                <li class="leftspaced hide-for-small-only">
                   #if($maintab && ($maintab == "corpora" or $maintab == "projects"))
                     <a id="tour-icon" onclick="Crpstudio.tour.start();"><img src="./static/img/info_icon.png"/></a>
                   #else
@@ -145,7 +145,7 @@
             </div>
 
             <!-- Right Nav Section -->
-            <div id="nav-right" class="small-4 medium-4 large-4 columns right hide-for-small">
+            <div id="nav-right" class="medium-3 large-5 columns right show-for-medium-up">
               <div>
                 <a href="#"><img id="navLogo" src="./static/img/logo_cs.png" /></a>
               </div>

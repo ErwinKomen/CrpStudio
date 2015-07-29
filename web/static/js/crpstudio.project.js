@@ -331,14 +331,16 @@ Crpstudio.project = {
         // Keep track of the status
         $("#result_status").html("Constructing per-doc results...")
         // Create a large table for view=2
-        html = Crpstudio.project.makeTablesView2(oContent.searchTime, oContent.table);
+        html = Crpstudio.project.makeTablesView2(oContent.table);
         // Position this table in the div for view=2 (per-document view)
         $("#result_table_2").html(html);
         
         // Keep track of the status
         $("#result_status").html("Constructing per-hit results...")
+        // Show the time of this search
+        $("#results_info_5").html("<p>Search time: <b>"+(oContent.searchTime / 1000)+" s.</b></p>");
         // Create an initial table for view=1: the 'hits'
-        html = Crpstudio.project.makeTablesView1(oContent.searchTime, oContent.table);
+        html = Crpstudio.project.makeTablesView1(oContent.table);
         // Position this table in the div for view=2 (per-document view)
         $("#result_table_1").html(html);
 
@@ -369,11 +371,10 @@ Crpstudio.project = {
    * History:
    * 21/jul/2015  ERK Created
    */
-  makeTablesView1: function(iSearchTime, arTable) {
+  makeTablesView1: function(arTable) {
     var html = [];
-    var iView = Crpstudio.result.view;
-    // Show the time of this search
-    $("#results_time_"+iView).html("<p>Search time: <b>"+(iSearchTime / 1000)+" s.</b></p>");
+    // This is for viewe #1
+    var iView = 1;
     // Interpret and show the resulting table
     // The 'table' is an array of QC elements
     for (var i=0; i< arTable.length; i++) {
@@ -382,11 +383,10 @@ Crpstudio.project = {
       // Get the QC elements
       var arSubs = oQC.subcats;
       var iQC = oQC.qc;
-      var arHits = oQC.hits;  // Array with 'hit' elements
       // Each QC result must be in its own div
       html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc hidden\">");
       // Insert a heading for this QC item
-      html.push("<h5>QC "+iQC + "</h5>");
+      // html.push("<h5>QC "+iQC + "</h5>");
       // Set up a table for the sub-categories
       html.push("<table><thead><th>TOTAL</th>");
       for (var j=0;j<arSubs.length; j++) {
@@ -398,7 +398,7 @@ Crpstudio.project = {
       html.push("<tbody>");
       var sAnyRowArg = "class=\"concordance\" onclick=\"Crpstudio.result.showFileHits";
       // Show the one row with results for all files together
-      var iCount = arHits[j].count;
+      var iCount = oQC.counts[i];
       var iStart = 1;
       var sId = "fh_"+iView+"_qc"+iQC+"_f"+j; 
       var arSubCounts = oQC.counts;
@@ -455,11 +455,10 @@ Crpstudio.project = {
    * History:
    * 29/jun/2015  ERK Created
    */
-  makeTablesView2: function(iSearchTime, arTable) {
+  makeTablesView2: function(arTable) {
     var html = [];
-    var iView = Crpstudio.result.view;
-    // Show the time of this search
-    $("#results_time_"+iView).html("<p>Search time: <b>"+(iSearchTime / 1000)+" s.</b></p>");
+    // this is for view #2
+    var iView = 2;
     // Interpret and show the resulting table
     // The 'table' is an array of QC elements
     for (var i=0; i< arTable.length; i++) {
@@ -470,9 +469,9 @@ Crpstudio.project = {
       var iQC = oQC.qc;
       var arHits = oQC.hits;  // Array with 'hit' elements
       // Each QC result must be in its own div
-      html.push("<div id=\"result_qc"+iQC+"\" class=\"result-qc hidden\">");
+      html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc hidden\">");
       // Insert a heading for this QC item
-      html.push("<h5>QC "+iQC + "</h5>");
+      // html.push("<h5>QC "+iQC + "</h5>");
       // Set up a table for the sub-categories
       html.push("<table><thead><th>text</th><th>TOTAL</th>");
       for (var j=0;j<arSubs.length; j++) {
@@ -511,7 +510,7 @@ Crpstudio.project = {
       html.push("</div>")
       // Make tables for all the sub categories under this iQC
       for (var j=0;j<arSubs.length; j++) {
-        html.push("<div id=\"result_qcsub_"+iQC+"_"+j+"\" class=\"result-qc-sub hidden\">")
+        html.push("<div id=\"result_"+iView+"_qcsub_"+iQC+"_"+j+"\" class=\"result-qc-sub hidden\">")
         // Set the heading for this table
         html.push("<table><thead><th>text</th><th>"+arSubs[j]+"</th></thead>");
         // Start the table body
@@ -992,6 +991,7 @@ Crpstudio.project = {
     // Set the top-margin, so that what we show is really LOW
     // DISABLED!!!
 		// $("#project").css("margin-top",sh+"px");
+    Crpstudio.setNavigationSize();
 	},
   
 

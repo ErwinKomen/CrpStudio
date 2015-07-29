@@ -37,9 +37,24 @@
     <!-- Divide the screen into LEFT [Selector] || RIGHT [Results] -->
     <div class="large-16 medium-16 small-16 row">
       <!-- LEFT: QC/subcat SELECTOR -->
-      <div id="result_querylines" class="large-16 medium-16 small-16 row hidden">
+      <div id="result_querylines" class="large-15 large-offset-1 medium-15 medium-offset-1 small-15 small-offset-1 row hidden">
         <div class="large-10 medium-10 small-10 columns">
-          <div><h4>$labels.getString("result.queries"):</h4></div>
+          <div class="large-16 medium-16 small-16 row">
+            <div class="large-3 medium-4 small-5 columns"><h4>$labels.getString("result.queries"):</h4></div>
+            <div class="large-13 medium-12 small-11 columns">
+              <!-- EXPORT button and information about the current QC -->
+              <div class="export large-16 medium-16 small-16 row">
+                <div id="results_info_5" class="large-6 medium-6 small-6 columns"></div>
+                <div class="large-3 medium-3 small-4 columns">
+                  <button class="small" onclick="Crpstudio.result.doExport(5);">$labels.getString("result.export")</button>
+                </div>
+                <div id="results_export_5" class="large-7 medium-7 small-6 columns hidden">
+                  <span>$labels.getString("result.export.intro"): </span>
+                  <span id="results_export_file_5"></span>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="large-16 medium-16 small-16 row">
             <table id="queries" class="select">
               <thead>
@@ -58,19 +73,23 @@
               </tbody>
             </table>
           </div>
+          <!-- provide a place where status messages from EXPORT can be placed -->
+          <div id="result_status_5"></div>
         </div>
         <div id="result_explanation" class="large-6 medium-6 small-6 columns"></div>
       </div>
       <!-- RIGHT: Results of selection -->
-      <div id="results" class="result-content large-16 medium-16 small-16 row hidden">
-        <div class="large-1 medium-1 small-1 columns">
-          <!-- <button class="search small" onclick="Crpstudio.result.selectResults('querylines')">&lt;&lt;&nbsp;$result_back</button> -->
-          <button class="search small" onclick="Crpstudio.result.selectResults('querylines')">&lt;&lt;</button>
-        </div>
-        <div class="large-15 medium-15 small-15 columns">
-          <div>
+      <div id="results" class="result-content large-16 medium-16 small-16 hidden">
+        <div class="large-16 medium-16 small-16 row">
+          <div class="large-2 medium-4 small-6 columns">
+            <button class="search small" onclick="Crpstudio.result.selectResults('querylines')">&lt;&lt;</button>
+          </div>
+          <div class="large-14 medium-12 small-10 columns">
             <h4>$labels.getString("result.results"):</h4>
           </div>
+        </div>
+        <div class="large-15 large-offset-1 medium-15 medium-offset-1 small-15 small-offset-1 columns">
+          <!-- <div><h4>$labels.getString("result.results"):</h4></div> -->
           <div class="large-16 medium-16 small-16">
             <!-- tabs -->
             <ul class="nav nav-tabs" id="contentTabs">
@@ -95,7 +114,7 @@
             #foreach ($tabspec in $tabspecs)
               #set ($view = $tabspec.getView())
               #set ($tabId = $tabspec.getName())
-              #set ($resultsTimeId = "results_time_" + $view)
+              #set ($resultsInfoId = "results_info_" + $view)
               #set ($resultsExportId = "results_export_" + $view)
               #set ($resultsFileId = "results_export_file_" + $view)
               #set ($resultsTableId = "result_table_" + $view)
@@ -129,13 +148,13 @@
                   </div>
 
                   <!-- (2) Centered page buttons [<< < n > >>] -->
-                  <div class="large-10 medium-10 small-8 centered columns">
+                  <div class="large-9 medium-9 small-8 centered columns">
                     <ul id="$resultPageButtons" class="pagebuttons">
                     </ul>
                   </div>
 
                   <!-- (3) Right-aligned page-chooser and "GO" button -->
-                  <div class="small-text large-3 medium-3 small-4 columns">
+                  <div class="small-text large-4 medium-4 small-4 columns">
                     $result_page
                     <input type="hidden" class="max-results" value="20"></input>
                     <input class="page-select meta-small" type="number" min="1" max="1" value="1"></input>
@@ -146,12 +165,16 @@
                 </div>
                 <!-- Show the STATUS -->
                 <div id="$resultStatus" class="large-16 medium-16 small-16 row"></div>
+                <!-- Information about these results -->
+                <div class="large-16 medium-16 small-16 row">  
+                  <div id="$resultsInfoId" class="result-info large-8 medium-8-small-8 large-centered medium-centered small-centered columns"></div>
+                </div>
+                <div class="row" style="line-height: 50%"> . </div>
                 <!-- EXPORT button and information about the current QC -->
                 <div class="export large-16 medium-16 small-16 row">
-                  <div class="large-3 medium-3 small-4 columns">
+                  <div class="large-offset-1 medium-offset-1 small-offset-1 large-3 medium-3 small-4 columns">
                     <button class="small" onclick="Crpstudio.result.doExport($view);">$labels.getString("result.export")</button>
                   </div>
-                  <div id="$resultsTimeId" class="large-4 medium-4 small-4 columns"></div>
                   <div id="$resultsExportId" class="large-9 medium-9 small-8 columns hidden">
                     <span>$labels.getString("result.export.intro"): </span>
                     <span id="$resultsFileId"></span>
