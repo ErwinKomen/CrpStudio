@@ -1715,3 +1715,13 @@ textarea {
   color: darkred;
   background: whitesmoke !important;   
 }
+
+.status-error table {
+  display: inline-block;
+  background: lightyellow !important; 
+  border: 1px;
+  border-radius: 3px;
+  border-color: black !important;
+  font-family: Courier New; 
+  font-size: 12px;
+}

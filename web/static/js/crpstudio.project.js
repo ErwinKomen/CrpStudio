@@ -193,7 +193,7 @@ Crpstudio.project = {
     var statusCode = oStatus.code;
     var statusMsg = (oStatus.message) ? (": "+oStatus.message) : "";
     // Set the status
-    $(target).html(statusCode+statusMsg);
+    $(target).html(statusCode);
     // Try to get a content object
     // var oContent = (oResponse.content) ? oResponse.content : {};
     // Action depends on the status code
@@ -245,8 +245,40 @@ Crpstudio.project = {
         Crpstudio.result.selectResults('querylines')
         break;
       case "error":
-        // Provite an error report
-        $(target).html("There was an error");
+        // Switch off the progress indicator
+        $("#result_progress").addClass("hidden");
+        // Provide an error report
+        if (oStatus.message !== "") {
+          var sReport = [];
+          // Try to unpack the status
+          var arMsgs = oStatus.message.split("\n");
+          if (arMsgs.length>0) {
+            var sFirstMsg = arMsgs[0];
+            // Is this JSON?
+            if (sFirstMsg.charAt(0) === "{") {
+              var oMsgLine = JSON.parse(sFirstMsg);
+              // Get the "msg" part
+              if (oMsgLine.msg) {
+                var sMsgContent = oMsgLine.msg;
+                // Is this JSON?
+                if (sMsgContent.charAt(0) === "{") {
+                  var oMsgContent = JSON.parse(sMsgContent);
+                  sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
+                  for (var propThis in oMsgContent) {
+                    sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
+                  }
+                  sReport.push("</table></div>");
+                }
+              }
+            }
+          } 
+          if (!sReport || sReport === null || sReport.length === 0)
+            sReport.push(statusMsg);
+          // Show the report
+          $(target).html(sReport.join("\n"));
+        } else {
+          $(target).prepend("There was an error:");
+        }
         break;
       default:
         // Provite a status report showing that we are at a loss

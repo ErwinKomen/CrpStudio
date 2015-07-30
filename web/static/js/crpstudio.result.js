@@ -635,8 +635,10 @@ Crpstudio.result = {
             // Finish the "one-example" <div>
             html.push("</div>")
           }
+          // Join the results to one string
+          var sJoinedExample = html.join("\n");
           // put the results in the target
-          $(target).html(html.join("\n"));
+          $(target).html(sJoinedExample);
           // Set the amount of hits
           // Crpstudio.result.numResults = oContent.length;
           // Show the correct <li> items under "result_pagebuttons_"
@@ -712,7 +714,9 @@ Crpstudio.result = {
     // Depending on the "view", a target must be specified
     switch (this.view) {
       case 1:
-        var target = $("#result_table_1 tr");
+        // Make sure we hide the table's head
+        $("#result_table_1 thead tr").addClass("hidden");
+        var target = $("#result_table_1 tbody tr");
         // Make a request for this number
         Crpstudio.result.update(Crpstudio.result.view, { first : first, number : number }, target );
         break;
@@ -756,7 +760,9 @@ Crpstudio.result = {
     // Possibly set the current element
     switch(this.view) {
       case 1:
-        this.currentElement = $("#result_table_1 tr");
+        // Make sure we hide the table's head
+        $("#result_table_1 thead tr").addClass("hidden");
+        this.currentElement = $("#result_table_1 tbody tr");
         break;
     }
     // Possibly call update()

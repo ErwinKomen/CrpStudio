@@ -414,6 +414,29 @@ var Crpstudio = {
     if (w_width < 600 ) {
       $("#for-navigation").css("height", row_height);
     }
+  },
+  
+  /**
+   * help
+   *    Provide help with the specified main tab's part
+   *    
+   * @param {type} sMainTab
+   * @returns {undefined}
+   */
+  help : function(sMainTab) {
+    var sHelpPart = "general";
+    // Determine if we can fine-tune the help needed
+    switch(sMainTab) {
+      case "projects":
+        var sProjectTab = Crpstudio.project.tab;
+        sHelpPart = "projects-" + sProjectTab;
+        break;
+      case "corpora":
+        sHelpPart = "corpora";
+        break;
+    }
+    // Provide the help that belongs to the fine-tuned section [sHelpPart]
+    
   }
 
 };
