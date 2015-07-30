@@ -274,13 +274,19 @@ public abstract class BaseResponse {
 		// String parameters = getParameterStringExcept(new String[]{});
 		
 		if (parameters.length() > 0) {
-			url = url + "?" + parameters;
+      try {
+        url = url + "?" + URLEncoder.encode(parameters, "UTF-8");
+        // URLEncoder.encode(requestUrl, "UTF-8")
+      } catch (Exception ex) {
+  			ex.printStackTrace();
+        return null;
+      }
 		}
 		
 		QueryServiceHandler webservice = new QueryServiceHandler(url, 1);
 		try {
-			String response = webservice.makeRequest(new HashMap<String, String[]>());
-			return response;
+			String sResp = webservice.makeRequest(new HashMap<String, String[]>());
+			return sResp;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -321,8 +327,8 @@ public abstract class BaseResponse {
 
       QueryServiceHandler webservice = new QueryServiceHandler(url, 1);
       try {
-        String response = webservice.postRequest(new HashMap<String, String[]>(), parameters);
-        return response;
+        String sResp = webservice.postRequest(new HashMap<String, String[]>(), parameters);
+        return sResp;
       } catch (IOException e) {
         e.printStackTrace();
       }
