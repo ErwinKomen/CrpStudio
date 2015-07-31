@@ -1,0 +1,2028 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 12 (filtered)">
+<title>CorpusStudio</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:"\FF2D\FF33 \660E\671D";}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+h1
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:21.6pt;
+	text-indent:-21.6pt;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Times New Roman","serif";}
+h2
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:28.8pt;
+	text-indent:-28.8pt;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+h3
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:42.55pt;
+	text-indent:-42.55pt;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+h4
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:43.2pt;
+	text-indent:-43.2pt;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Times New Roman","serif";}
+h5
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:50.4pt;
+	text-indent:-50.4pt;
+	font-size:13.0pt;
+	font-family:"Times New Roman","serif";
+	font-style:italic;}
+h6
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:57.6pt;
+	text-indent:-57.6pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoHeading7, li.MsoHeading7, div.MsoHeading7
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:64.8pt;
+	text-indent:-64.8pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoHeading8, li.MsoHeading8, div.MsoHeading8
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:72.0pt;
+	text-indent:-72.0pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	font-style:italic;}
+p.MsoHeading9, li.MsoHeading9, div.MsoHeading9
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:79.2pt;
+	text-indent:-79.2pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:11.0pt;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:22.0pt;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoToc4, li.MsoToc4, div.MsoToc4
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:5.0pt;
+	margin-left:33.0pt;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoToc5, li.MsoToc5, div.MsoToc5
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:5.0pt;
+	margin-left:44.0pt;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoToc6, li.MsoToc6, div.MsoToc6
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:5.0pt;
+	margin-left:55.0pt;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoToc7, li.MsoToc7, div.MsoToc7
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:5.0pt;
+	margin-left:66.0pt;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoToc8, li.MsoToc8, div.MsoToc8
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:5.0pt;
+	margin-left:77.0pt;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoToc9, li.MsoToc9, div.MsoToc9
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:5.0pt;
+	margin-left:88.0pt;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoFootnoteText, li.MsoFootnoteText, div.MsoFootnoteText
+	{mso-style-link:"Voetnoottekst Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoCaption, li.MsoCaption, div.MsoCaption
+	{margin-top:6.0pt;
+	margin-right:0cm;
+	margin-bottom:6.0pt;
+	margin-left:0cm;
+	text-align:center;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	font-style:italic;}
+span.MsoFootnoteReference
+	{vertical-align:super;}
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	text-align:center;
+	font-size:16.0pt;
+	font-family:"Times New Roman","serif";
+	font-weight:bold;}
+p.MsoSubtitle, li.MsoSubtitle, div.MsoSubtitle
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:24.0pt;
+	margin-left:0cm;
+	text-align:center;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:#606420;
+	text-decoration:underline;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	background:navy;
+	font-size:12.0pt;
+	font-family:"Tahoma","sans-serif";}
+pre
+	{mso-style-link:"HTML - vooraf opgemaakt Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{mso-style-link:"Ballontekst Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.MsoTocHeading, li.MsoTocHeading, div.MsoTocHeading
+	{margin-top:24.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	line-height:115%;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Cambria","serif";
+	color:#365F91;
+	font-weight:bold;}
+p.ParaFirst, li.ParaFirst, div.ParaFirst
+	{mso-style-name:ParaFirst;
+	mso-style-link:"ParaFirst Char";
+	margin-top:6.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.ParaNext, li.ParaNext, div.ParaNext
+	{mso-style-name:ParaNext;
+	mso-style-link:"ParaNext Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-indent:1.0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+span.BallontekstChar
+	{mso-style-name:"Ballontekst Char";
+	mso-style-link:Ballontekst;
+	font-family:"Tahoma","sans-serif";}
+span.Emphatic
+	{mso-style-name:Emphatic;
+	color:#00B050;
+	font-weight:bold;}
+p.FigureKeep, li.FigureKeep, div.FigureKeep
+	{mso-style-name:FigureKeep;
+	margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:center;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+p.Function, li.Function, div.Function
+	{mso-style-name:Function;
+	margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:70.9pt;
+	margin-bottom:.0001pt;
+	text-indent:-70.9pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+span.Argument
+	{mso-style-name:Argument;
+	color:#7030A0;}
+span.Code
+	{mso-style-name:Code;
+	font-family:"Courier New";
+	color:#984806;}
+p.HalfLine, li.HalfLine, div.HalfLine
+	{mso-style-name:HalfLine;
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:6.0pt;
+	font-family:"Times New Roman","serif";}
+span.VoetnoottekstChar
+	{mso-style-name:"Voetnoottekst Char";
+	mso-style-link:Voetnoottekst;}
+span.ParaFirstChar
+	{mso-style-name:"ParaFirst Char";
+	mso-style-link:ParaFirst;}
+span.ParaNextChar
+	{mso-style-name:"ParaNext Char";
+	mso-style-link:ParaNext;}
+span.HTML-voorafopgemaaktChar
+	{mso-style-name:"HTML - vooraf opgemaakt Char";
+	mso-style-link:"HTML - vooraf opgemaakt";
+	font-family:"Courier New";}
+.MsoChpDefault
+	{font-size:10.0pt;}
+ /* Page Definitions */
+ @page WordSection1
+	{size:595.3pt 841.9pt;
+	margin:70.9pt 70.9pt 70.9pt 70.9pt;}
+div.WordSection1
+	{page:WordSection1;}
+@page WordSection2
+	{size:595.3pt 841.9pt;
+	margin:70.9pt 70.9pt 70.9pt 70.9pt;}
+div.WordSection2
+	{page:WordSection2;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+-->
+</style>
+
+</head>
+
+<body lang=NL link=blue vlink="#606420">
+
+<div class=WordSection1>
+
+<p class=MsoTitle><span lang=EN-US>Corpus Studio</span></p>
+
+<p class=MsoTitle><span lang=EN-US>The web application</span></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal align=center style='text-align:center'><img width=123
+height=252 id="Afbeelding 23" src="CrpStudioWeb-Manual_bestanden/image001.jpg"
+alt="CS_main-stapel2.jpg"></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal align=center style='text-align:center'><i><span lang=EN-US>Version
+1.2</span></i></p>
+
+<p class=MsoNormal align=center style='text-align:center'><i><span lang=EN-US>First
+edition: June 30, 2015</span></i></p>
+
+<p class=MsoNormal align=center style='text-align:center'><i><span lang=EN-US>This
+edition: </span></i><i><span
+lang=EN-US>July 31, 2015</span></i></p>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal align=center style='text-align:center'>Erwin R. Komen</p>
+
+<p class=MsoNormal align=center style='text-align:center'>Meertens Instituut //
+CL<a name="_GoBack"></a>ARIN-NL // SIL-International</p>
+
+</div>
+
+<b><span lang=EN-US style='font-size:18.0pt;font-family:"Times New Roman","serif"'><br
+clear=all style='page-break-before:always'>
+</span></b>
+
+<div class=WordSection2>
+
+<p class=MsoNormal><b><span lang=EN-US style='font-size:18.0pt'>Contents</span></b></p>
+
+<p class=MsoNormal><b><span lang=EN-US style='font-size:18.0pt'>&nbsp;</span></b></p>
+
+<p class=MsoToc1><span
+class=MsoHyperlink><a href="#_Toc426121430"><span lang=EN-US>1</span><span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>       </span><span lang=EN-US>Introduction</span><span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>3</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc426121431"><span
+lang=EN-US>2</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>       </span><span lang=EN-US>Getting
+started</span><span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121432"><span
+lang=EN-US>2.1</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>        </span><span lang=EN-US>Requirements</span><span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121433">2.2<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>First use<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc426121434">3<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>       </span>Corpora<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc426121435">4<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>       </span>Projects<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121436">4.1<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>The “Project” page<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121437">4.2<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>The “Input” page<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121438">4.3<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>The “Definitions” page<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121439">4.4<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>The “Queries” page<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121440">4.5<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>The “Pipeline” page<span style='color:
+windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121441">4.6<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>Query execution<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121442">4.7<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>        </span>The “Results” page<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>8</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121443">4.7.1<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>The results overview<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>8</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121444">4.7.2<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Result details: “per hit”<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121445">4.7.3<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Result details: “per document”<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc426121446"><span
+lang=EN-US>5</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>       </span><span lang=EN-US>Bibliography</span><span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>12</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc426121447"><span
+lang=EN-US>6</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>       </span><span lang=EN-US>Appendix</span><span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>12</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121448"><span
+lang=EN-US>6.1</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>        </span><span lang=EN-US>Schema
+for xml formats used</span><span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121449"><span
+lang=EN-US>6.2</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>        </span><span lang=EN-US>Useful
+Xquery function definitions</span><span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121450"><span
+lang=EN-US>6.2.1</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>         </span><span lang=EN-US>Convert
+a chain into a sequence</span><span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc426121451"><span
+lang=EN-US>6.3</span><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";
+color:windowtext;text-decoration:none'>        </span><span lang=EN-US>Built-in
+functions for Xquery-psdx projects</span><span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>14</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121452">6.3.1<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Back<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>14</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121453">6.3.2<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Conv<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>14</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121454">6.3.3<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Feature<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>15</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121455">6.3.4<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Lex<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>15</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121456">6.3.5<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Line<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>15</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121457">6.3.6<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>Matches<span style='color:windowtext;
+display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>15</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc426121458">6.3.7<span
+style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:windowtext;
+text-decoration:none'>         </span>NodeText<span style='color:windowtext;
+display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoNormal><b><span lang=EN-US style='font-size:18.0pt'>&nbsp;</span></b></p>
+
+<p class=MsoNormal><b><span lang=EN-US style='font-size:18.0pt'>&nbsp;</span></b></p>
+
+<span lang=EN-US style='font-size:12.0pt;font-family:"Times New Roman","serif"'><br
+clear=all style='page-break-before:always'>
+</span>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<h1><a name="_Toc426121430"></a><a name="_Toc298090973"><span lang=EN-US>1<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Introduction</span></a></h1>
+
+<p class=ParaFirst><span lang=EN-US>The ‘Corpus Studio’ web application is a
+web-orientend environment that aims to facilitate in-depth quantitative
+syntactic research for linguists. It does so by supporting researchers in
+writing queries that operate on syntactically parsed <i>xml</i> text corpora.
+Queries that belong together are kept in <i>xml</i> documents that are called
+‘Corpus Research Projects’ (CRPs). These documents contain the queries, the
+order in which they are to be executed, meta-information about the queries and
+the project as a whole, as well as a specification of the input used for the
+project. The use of CRPs should improve the replicability of corpus research.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>Potential users of the Corpus Studio web
+application should be aware of what the program offers and what its limitations
+are.</span></p>
+
+<p class=ParaFirst style='margin-left:36.0pt;text-indent:-18.0pt'><span
+lang=EN-US>(1)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
+class=Emphatic><span lang=EN-US>Texts</span></span><span lang=EN-US> – While
+the <i>xml</i></span><span lang=EN-US> query engine is, in principle, able to
+support queries on any kind of <i>xml</i>-encoded texts, the current version
+has been developed to handle two <i>xml</i> encodings: (a) FoLiA, and (b) psdx.
+</span></p>
+
+<p class=ParaFirst style='margin-left:36.0pt;text-indent:-18.0pt'><span
+lang=EN-US>(2)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
+class=Emphatic><span lang=EN-US>Corpora</span></span><span lang=EN-US> – The
+CLARIN-NL version of the Corpus Studio web application offers a limited number
+of syntactically annotated corpora to users. Please consult the program’s
+“corpora” page for an overview of them. Wishes to add texts (or corpora) can be
+communicated to CLARIN-NL.</span></p>
+
+<p class=ParaFirst style='margin-left:36.0pt;text-indent:-18.0pt'><span
+lang=EN-US>(3)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
+class=Emphatic><span lang=EN-US>Versions</span></span><span lang=EN-US> – Developers
+are allowed to deploy the web version of Corpus Studio on their own servers in
+order to provide users access to the corpora they offer.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>The query language used in the Corpus
+Studio web application is “Xquery” </span><span
+lang=EN-US>(<a href="#_ENREF_1" title="Boag, 2010 #326"><span style='color:
+windowtext;text-decoration:none'>Boag et al. 2010</span></a>)</span><span
+lang=EN-US>. The particular implementation of Xquery currently used is a freely
+available one developed by Saxon. The Xquery language </span><span lang=EN-US>(and
+its associated Xsl as well as Xpath) is a well guided public domain initiative
+for general research work in XML databases. When corpora are coded in XML, then
+Xquery provides one of the most generally accepted ways to query them.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>The basic unit in CorpusSearch is the <i>Corpus
+Research Project</i>, containing the following elements:</span></p>
+
+<p class=ParaFirst style='margin-left:35.45pt;text-indent:-14.15pt'><span
+lang=EN-US>a)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span><span
+lang=EN-US>General information about a corpus research project, such as date,
+author, purpose.</span></p>
+
+<p class=ParaFirst style='margin-left:35.45pt;text-indent:-14.15pt'><span
+lang=EN-US>b)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
+lang=EN-US>All the queries used by the project.</span></p>
+
+<p class=ParaFirst style='margin-left:35.45pt;text-indent:-14.15pt'><span
+lang=EN-US>c)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span><span
+lang=EN-US>The order in which the queries are to be used.</span></p>
+
+<p class=ParaFirst style='margin-left:35.45pt;text-indent:-14.15pt'><span
+lang=EN-US>d)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
+lang=EN-US>The output files produced by successive application of the queries.</span></p>
+
+<p class=ParaFirst style='margin-left:35.45pt;text-indent:-14.15pt'><span
+lang=EN-US>e)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span><span
+lang=EN-US>A list of input files to be used for the queries.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>Since the corpus research projects comprise
+all the data needed to perform a particular task on a (selectable) set of input
+files, they offer many advantages. Some of them are:</span></p>
+
+<p class=ParaFirst style='margin-left:36.0pt;text-indent:-18.0pt'><span
+lang=EN-US style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Exchange</span></span><span
+lang=EN-US> of corpus research projects between researchers. It will be easy to
+see just how your colleague has dealt with the data.</span></p>
+
+<p class=ParaFirst style='margin-left:36.0pt;text-indent:-18.0pt'><span
+lang=EN-US style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Assistance in </span><span class=Emphatic><span
+lang=EN-US>teaching</span></span><span lang=EN-US> courses on corpus research.</span></p>
+
+<p class=ParaFirst style='margin-left:36.0pt;text-indent:-18.0pt'><span
+lang=EN-US style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>A form for students to hand in </span><span
+class=Emphatic><span lang=EN-US>assignments</span></span><span lang=EN-US> on
+corpus research work.</span></p>
+
+<p class=ParaFirst style='margin-left:36.0pt;text-indent:-18.0pt'><span
+lang=EN-US style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>An easier way to track </span><span
+class=Emphatic><span lang=EN-US>errors</span></span><span lang=EN-US> in your
+corpus research projects.</span></p>
+
+<h1><a name="_Toc426121431"></a><a name="_Toc298090974"><span lang=EN-US>2<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Getting started</span></a></h1>
+
+<p class=ParaFirst><span lang=EN-US>Since the Corpus Studio web application is
+web-based, the requirements to run it are minimal. This document mainly
+concentrates on the CLARIN-NL version of the Corpus Studio web application,
+which facilitates a limited number of corpora. Those interested to use the Corpus
+Studio web application for other text corpora should read on in section <b>TODO:REF</b>.
+</span></p>
+
+<h2><a name="_Toc426121432"></a><a name="_Toc298090975"><span lang=EN-US>2.1<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Requirements</span></a></h2>
+
+<p class=ParaFirst><span lang=EN-US>No installation is necessary to work with the
+Corpus Studio web application. What is needed is a browser such as Internet
+Explorer (version 9 or higher), FireFox, Chrome or Safari. The web application
+only uses HTML and JavaScript on client computers. The URL of the Corpus Studio
+web application can be found by visiting the CLARIN-NL project page:</span></p>
+
+<p class=ParaFirst><span lang=EN-US><a href="http://www.clarin.nl/node/2091">http://www.clarin.nl/node/2091</a></span></p>
+
+<h2><a name="_Toc426121433"></a><a name="_Toc298090976">2.2<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>First use</a></h2>
+
+<p class=ParaFirst><span lang=EN-US>To get to the CLARIN-NL <a
+href="http://www.clarin.nl/node/2091">project page</a>, one has to login as a
+CLARIN user. Clicking through to the Corpus Studio web application’s page
+brings one to another login request. This is the login facility of Corpus
+Studio. Any CLARIN user can choose to make use of Corpus Studio Web through one
+or more named accounts (see <b>TODO:REF</b>).</span></p>
+
+<p class=ParaFirst><span lang=EN-US>For now it suffices to pick a user login
+name of your liking, and a new password that accompanies it. Once a password
+has been used for the first time, it will automatically be checked upon
+subsequent login attempts.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>The main menu of the web program consists
+of:</span></p>
+
+<p class=MsoListParagraphCxSpFirst style='margin-left:18.0pt;text-indent:-18.0pt'><span
+class=Emphatic><span lang=EN-US style='font-family:Symbol;color:windowtext;
+font-weight:normal'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><span class=Emphatic><span lang=EN-US>Corpora</span></span><span
+lang=EN-US>. Find out more about the corpora that are currently available
+within the CLARIN-NL version of </span>the Corpus Studio web application<span
+lang=EN-US>. (Note: it is possible to install other corpora in one’s own,
+custom, version of the web program; see <b>TODO:REF </b>.)</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Projects</span></span><span
+lang=EN-US>. This is the place where CRPs (Corpus Research Projects) can be
+loaded, edited and executed. The results of executing a CRP also appear in this
+location.. </span></p>
+
+<p class=MsoListParagraphCxSpLast style='margin-left:18.0pt;text-indent:-18.0pt'><span
+class=Emphatic><span lang=EN-US style='font-family:Symbol;color:windowtext;
+font-weight:normal'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><span class=Emphatic><span lang=EN-US>About</span></span><span
+class=Emphatic><span lang=EN-US style='color:windowtext;font-weight:normal'>.
+Background information about the program and a bibliographic reference that can
+be used to refer to it.</span></span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<h1><a name="_Toc426121434"></a><a name="_Toc298090977">3<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Corpora</a></h1>
+
+<p class=ParaFirst style='page-break-after:avoid'><span lang=EN-US>The corpora
+that are currently supported by the CLARIN-NL Corpus Studio web application are
+listed in </span><span lang=EN-US>Table 1</span><span lang=EN-US>.</span></p>
+
+<p class=MsoCaption style='page-break-after:avoid'><a name="_Ref426121115">Table
+</a>1 Corpora available in the CLARIN-NL version of Corpus Studio</p>
+
+<table class=Lichtelijst-accent1 border=1 cellspacing=0 cellpadding=0
+ width="100%" style='width:100.0%;border-collapse:collapse;border:none'>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border-top:solid #4F81BD 1.0pt;
+  border-left:solid #4F81BD 1.0pt;border-bottom:none;border-right:none;
+  background:#4F81BD;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b><span style='color:white'>Collection</span></b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border:none;border-top:solid #4F81BD 1.0pt;
+  background:#4F81BD;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b><span style='color:white'>Language</span></b></p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border:none;border-top:solid #4F81BD 1.0pt;
+  background:#4F81BD;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b><span style='color:white'>Type</span></b></p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:none;border-right:solid #4F81BD 1.0pt;
+  background:#4F81BD;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b><span style='color:white'>Notes</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border:solid #4F81BD 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>YCOE</b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Old English</p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>psdx</p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border:solid #4F81BD 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>This is the
+  York-Toronto-Helsinki corpus of Old English that has been enriched with several
+  features (e.g: lemma’s and PGN).</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border:none;border-left:solid #4F81BD 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>PPCME2</b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Middle English</p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>psdx</p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border:none;border-right:solid #4F81BD 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>The Penn Parsed Corpus of
+  Middle English, converted to <i>xml</i> and enriched with features.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border:solid #4F81BD 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>PPCEME</b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Early Modern English</p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>psdx</p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border:solid #4F81BD 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>The Penn Parsed Corpus of
+  Middle English, converted to <i>xml</i> and enriched with features.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border:none;border-left:solid #4F81BD 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>PPCMBE</b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Modern British English</p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>psdx</p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border:none;border-right:solid #4F81BD 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>The Penn Parsed Corpus of
+  Middle English, converted to <i>xml</i> and enriched with features.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border:solid #4F81BD 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>CGN</b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Spoken Dutch</p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>psdx,</p>
+  <p class=MsoNormal style='page-break-after:avoid'>folia</p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border:solid #4F81BD 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>The “Corpus Gesproken
+  Nederlands” (Corpus of spoken Dutch), converted from tiger (negra) to psdx
+  and folia xml.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border:none;border-left:solid #4F81BD 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>NPCMC</b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Chechen (NE Caucasian)</p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>psdx,</p>
+  <p class=MsoNormal style='page-break-after:avoid'>folia</p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border:none;border-right:solid #4F81BD 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>The Nijmegen Parsed Corpus
+  of Modern Chechen. This was created in psdx, but a folia conversion is
+  available.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="13%" valign=top style='width:13.52%;border:solid #4F81BD 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>PCMLBE</b></p>
+  </td>
+  <td width="18%" valign=top style='width:18.04%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Lak (NE Caucasian)</p>
+  </td>
+  <td width="7%" valign=top style='width:7.94%;border-top:solid #4F81BD 1.0pt;
+  border-left:none;border-bottom:solid #4F81BD 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>psdx,</p>
+  <p class=MsoNormal style='page-break-after:avoid'>folia</p>
+  </td>
+  <td width="60%" valign=top style='width:60.5%;border:solid #4F81BD 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>The Parsed Corpus of Modern
+  Lak. This is a small corpus of Lak texts in the Cyrillic script that is
+  gradually being annotated.</p>
+  </td>
+ </tr>
+</table>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<h1><a name="_Toc426121435"></a><a name="_Toc298090978">4<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Projects</a></h1>
+
+<p class=ParaFirst><span lang=EN-US>The “Projects” menu item leads to a number
+of different sub-menu’s, all of which are intended to facilitate working with
+CRPs (corpus research projects). The general work-flow is as follows:</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoListParagraphCxSpFirst style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>1)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Project</span></span><span
+lang=EN-US>.          Select, upload or create a project (CRP).</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>2)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Input</span></span><span
+lang=EN-US>.             Define the language and corpus that needs to be
+searched.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>3)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Definitions</span></span><span
+lang=EN-US>.   Edit definitions of variables and functions.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>4)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Queries</span></span><span
+lang=EN-US>.        Edit the queries for this project.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>5)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Pipeline</span></span><span
+lang=EN-US>.        Order the queries.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>6)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Execute</span></span><span
+lang=EN-US>.        BUTTON: execute the queries.</span></p>
+
+<p class=MsoListParagraphCxSpLast style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>7)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Results</span></span><span
+lang=EN-US>.         View the results of the queries. </span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=ParaFirst><span lang=EN-US>Selecting the “Projects” menu leads the
+user to the “Project” page (step 1), where a project should be selected. The
+meta-data of a selected project can be edited on this page too. The selection
+of a corpus that serves as input takes place on the “Input” page (step 2).
+Changes in the definitions, queries or query order can be done on the pages
+“Definitions” (step 3), “Queries” (step 4) and “Pipeline” (step 5). Once a
+Corpus Research Project has been fully defined, execution of the project on the
+selected corpus can be instantiated by clicking the “Execute Queries” button. The
+page “Results” (step 7) becomes available as soon as query execution has finished.
+The results page allows detailed inspection of the query results, as well as
+exporting of data.</span></p>
+
+<h2><a name="_Toc426121436">4.1<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The “Project” page</a></h2>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<p class=ParaFirst><span style='background:yellow'>TEST VERSION:</span></p>
+
+<p class=ParaFirst>The test version of the Corpus Studio web application can be
+used by logging in as “guest” (password “crpstudio”). Good combinations of CRPs
+and corpora are:</p>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<table class=MsoTableLightListAccent5 border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border-top:solid #4BACC6 1.0pt;
+  border-left:solid #4BACC6 1.0pt;border-bottom:none;border-right:none;
+  background:#4BACC6;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b><span style='color:white'>CRP</span></b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border:none;border-top:solid #4BACC6 1.0pt;
+  background:#4BACC6;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b><span style='color:white'>Corpus</span></b></p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border-top:solid #4BACC6 1.0pt;
+  border-left:none;border-bottom:none;border-right:solid #4BACC6 1.0pt;
+  background:#4BACC6;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b><span style='color:white'>Goal</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border:solid #4BACC6 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>ChechenMarkerA</b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border-top:solid #4BACC6 1.0pt;
+  border-left:none;border-bottom:solid #4BACC6 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Chechen NPCMC</p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:solid #4BACC6 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Finds the particle ‘a’,
+  which can be used for focus, negation, conjunction and subordination</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border:none;border-left:solid #4BACC6 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>cheFPq</b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Chechen NPCMC</p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:none;border-right:solid #4BACC6 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Finds clitics/particles “m”
+  and “q”, related to focus and topic</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border:solid #4BACC6 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>DemRef</b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border-top:solid #4BACC6 1.0pt;
+  border-left:none;border-bottom:solid #4BACC6 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Historical English (any)</p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:solid #4BACC6 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border:none;border-left:solid #4BACC6 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>LakProDem</b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Lak PCMLBE</p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:none;border-right:solid #4BACC6 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Finds pronouns and
+  demonstratives</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border:solid #4BACC6 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>ObjectRC_versie1</b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border-top:solid #4BACC6 1.0pt;
+  border-left:none;border-bottom:solid #4BACC6 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Historical English (any)</p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:solid #4BACC6 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Relative clauses on
+  main-clause objects</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border:none;border-left:solid #4BACC6 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>ObjectSubjectRC_versie1</b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Historical English (any)</p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:none;border-right:solid #4BACC6 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Relative clauses on subjects
+  and objects</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=199 valign=top style='width:149.45pt;border:solid #4BACC6 1.0pt;
+  border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'><b>V2_test_versie11</b></p>
+  </td>
+  <td width=176 valign=top style='width:132.15pt;border-top:solid #4BACC6 1.0pt;
+  border-left:none;border-bottom:solid #4BACC6 1.0pt;border-right:none;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Historical English (any)</p>
+  </td>
+  <td width=237 valign=top style='width:177.4pt;border:solid #4BACC6 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='page-break-after:avoid'>Syntactic features for main
+  clauses with overt subjects and finite verbs</p>
+  </td>
+ </tr>
+</table>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<h2><a name="_Toc426121437">4.2<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The “Input” page</a></h2>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<h2><a name="_Toc426121438">4.3<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The “Definitions” page</a></h2>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<h2><a name="_Toc426121439">4.4<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The “Queries” page</a></h2>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<h2><a name="_Toc426121440">4.5<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The “Pipeline” page</a></h2>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<h2><a name="_Toc426121441">4.6<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Query execution</a></h2>
+
+<p class=ParaFirst>There are two buttons to execute the queries. The ‘normal’
+button that says “Execute queries” tries to make optimal use of information
+that has already been collected during previous executions. If the CRP has not
+changed, the available results will be shown instantaneously.</p>
+
+<p class=ParaFirst><img border=0 width=604 height=87 id="Afbeelding 0"
+src="CrpStudioWeb-Manual_bestanden/image002.jpg" alt=CrpStudio-Execution1.jpg></p>
+
+<p class=MsoCaption><a name="_Ref426113509">Figure </a>1 Two query execution
+buttons</p>
+
+<p class=ParaFirst>The button labelled “Excute queries (no cache)” executes the
+queries completely from the start. Use this button if there is reason to
+believe something went wrong on your computer or on the server. </p>
+
+<p class=ParaFirst>The normal reaction to pressing the <span class=Emphatic><span
+lang=EN-US>Execute</span></span> button is the revealing of two progress
+indicators: one keeping track of the files that have been turned over to the
+query execution engine, and one that keeps track of the files that have been
+completed.</p>
+
+<p class=ParaFirst>Should there be an error in the Xquery code of one of the
+queries, this will usually become apparent immediately. An error message like
+the one in <span lang=EN-US>Figure 2</span> will appear.</p>
+
+<p class=ParaFirst align=center style='text-align:center'><img border=0
+width=494 height=341 id="Afbeelding 10"
+src="CrpStudioWeb-Manual_bestanden/image003.jpg"
+alt=CrpStudio-Execution-Error1.jpg></p>
+
+<p class=MsoCaption><a name="_Ref426120691">Figure </a>2 An error in the Xquery
+code</p>
+
+<p class=ParaFirst>The error report identifies the name of the query or
+definition (see “Name”, last row) where the error has occured, and the line
+number (see “Line”) within the query or definition. The combination of the
+location with that of the description of the error should be enough to identify
+the problem and adapt the program accordingly.</p>
+
+<p class=ParaFirst>The current error says that the Xquery engine cannot find a
+function named <span class=Code><span lang=EN-US style='font-size:9.0pt'>ru:ant()</span></span><span
+lang=EN-US> that takes just one argument. The reason for this is that this
+function has not yet been implemented in the version of CorpusStudio. <u>Note</u>:
+if the function </span><span class=Code><span lang=EN-US style='font-size:9.0pt'>ru:ant()</span></span><span
+lang=EN-US> would have existed, but it would have required <i>two</i>
+arguments, the same error message would have been given.</span></p>
+
+<h2><a name="_Toc426121442">4.7<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The “Results” page</a></h2>
+
+<p class=ParaFirst style='page-break-after:avoid'>When query execution leads to
+results, the “Results” page is automatically selected, and a concise overview
+of the number of hits is shown, as in <span lang=EN-US>Figure 1</span>.</p>
+
+<p class=ParaFirst><img border=0 width=605 height=311 id="Afbeelding 1"
+src="CrpStudioWeb-Manual_bestanden/image004.jpg"
+alt=CrpStudio-ResultsOview1.jpg></p>
+
+<p class=MsoCaption>Figure 3 Concise overview of the results</p>
+
+<p class=ParaFirst>The overview in <span lang=EN-US>Figure 1</span> shows the
+number of hits for each of the two query lines: 48776 for line 1 (matVf+NPS)
+and 43320 for line 2 (matV2q). </p>
+
+<h3><a name="_Toc426121443"></a><a name="_Ref426117341">4.7.1<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The results overview</a></h3>
+
+<p class=ParaFirst>There are a few actions that can be undertaken from this
+overview table:</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoListParagraphCxSpFirst style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>1)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Export</span></span><span
+lang=EN-US>.          Provide the overview as a tab-separated text file.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>2)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Edit</span></span><span
+lang=EN-US>.               Turn to the query editor of the selected line.</span></p>
+
+<p class=MsoListParagraphCxSpLast style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>3)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Selection</span></span><span
+lang=EN-US>.      Select one of the QC (query constructor) lines by clicking it.</span></p>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<p class=ParaFirst>The <span class=Emphatic><span lang=EN-US>Export</span></span>
+button here yields a tab-separated table with an overview of the number of hits
+for both the query lines as well as the sub categories:</p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>date:             2015-07-31
+13:45:03</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>overview
+table</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>QC   Result
+Label Category          Number</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>1    matVf+NPS    (all
+together)    48776</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       (all
+together)    43320</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       1:[iSbj-XP-Vf]    2333</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       1:[iSbj-iVf]      25219</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       2:[XP-Sbj-YP-Vf]  714</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       3:[XP-Sbj-iVf]    13307</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       4:[Vf-Sbj-Vn]     511</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;page-break-after:avoid;
+background:#DAEEF3'><span style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       4:[Vf-Sbj]        1182</span></p>
+
+<p class=MsoNormal style='margin-right:113.3pt;background:#DAEEF3'><span
+style='font-size:10.0pt;font-family:"Courier New"'>2    matV2q       5:[Vf-Vn-Sbj]     54</span></p>
+
+<p class=ParaFirst>The <span class=Emphatic><span lang=EN-US>Edit</span></span>
+button opens the “Queries” page and turns to the selected Query.</p>
+
+<p class=ParaFirst>Pressing the redded subcategory or frequency in the overview
+table results in the <span class=Emphatic><span lang=EN-US>Selection</span></span>
+of that Query line. If the query has results that are divided over different
+sub categories (see <span style='color:#C00000'>TODO: crossref</span>), then
+selecting the Query line results in an adapted overview that shows the hit
+frequencies for each of the categories. These category-lines can also be
+selected.</p>
+
+<p class=ParaFirst><img border=0 width=605 height=446 id="Afbeelding 4"
+src="CrpStudioWeb-Manual_bestanden/image005.jpg"
+alt=CrpStudio-ResultsSelectSub.jpg></p>
+
+<p class=MsoCaption>Figure 4 Selection of a category line</p>
+
+<p class=ParaFirst>The selection of either a line (either of a query or of a
+category) causes a <span class=Emphatic><span lang=EN-US>Details</span></span>
+button to appear. Clicking this button opens a window with the detailed results
+for the selected query-category combination.</p>
+
+<h3><a name="_Toc426121444">4.7.2<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Result details: “per hit”</a></h3>
+
+<p class=ParaFirst style='page-break-after:avoid'><span lang=EN-US>The details
+of the results can be viewed in a number of different ways: (a) hit-by-hit, (b)
+hits-per-document, (c) hits-per-group and (d) hits-per-division. The
+“hit-by-hit”, as illustrated in </span><span lang=EN-US>Figure 5</span><span
+lang=EN-US>, is the default one.</span></p>
+
+<p class=ParaFirst><img border=0 width=605 height=364 id="Afbeelding 6"
+src="CrpStudioWeb-Manual_bestanden/image006.jpg"
+alt=CrpStudio-ResultsView1-Sub.jpg></p>
+
+<p class=MsoCaption><a name="_Ref426117133">Figure </a>5 Result details per hit</p>
+
+<p class=ParaFirst><span lang=EN-US>The detailed results information offers the
+following possibilities:</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoListParagraphCxSpFirst style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>1)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Back</span></span><span
+lang=EN-US>.             The </span><span style='color:white;background:maroon'>&lt;&lt;</span><span
+lang=EN-US> button returns to the general result table overview (see </span><span lang=EN-US>4.7.1</span><span lang=EN-US>).</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>2)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Pagination</span></span><span
+lang=EN-US>.    Adjust number of hits per page, and select the page to be
+shown.</span></p>
+
+<p class=MsoListParagraphCxSpLast style='margin-left:18.0pt;text-indent:-18.0pt'><span
+lang=EN-US>3)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span class=Emphatic><span lang=EN-US>Export</span></span><span
+lang=EN-US>.          Export the information shown on this page.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=ParaFirst><span lang=EN-US>The results are, generally speaking, not
+shown all together, but they are divided into <i>pages</i>. The number of hits
+per page can be adjusted in the “Show <i>nn</i> per page” selector, while the
+“Page <i>nn</i> of <i>mmm</i> <span style='color:white;background:#C00000'>Go</span>”
+combination allows one to select the page to be shown.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>The <span class=Emphatic>Export</span>
+button causes a tab-separated text file to be made that contains the results
+shown in the currently selected page. Each line in the tab-separated text file
+contains the following eight fields:</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>n      </span></span><span lang=EN-US>line number</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>file   </span></span><span lang=EN-US>name of the text
+file</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>locS   </span></span><span lang=EN-US>location of the
+sentence</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>locW   </span></span><span lang=EN-US>location of the
+constituent</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>preC   </span></span><span lang=EN-US>context preceding
+the hit</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>hitC   </span></span><span lang=EN-US>the hit itself (the
+part of the sentence returned by the Xquery </span><span class=Code><span
+lang=EN-US style='font-size:9.0pt'>ru:back()</span></span><span lang=EN-US>
+function)</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>folC   </span></span><span lang=EN-US>context following
+the hit</span></p>
+
+<p class=ParaFirst style='margin-top:0cm'><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>hitS   </span></span><span lang=EN-US>a syntactic
+break-up of the hit</span></p>
+
+<h3><a name="_Toc426121445">4.7.3<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Result details: “per document”</a></h3>
+
+<p class=ParaFirst><span lang=EN-US>Selection of the “Per document” tab within
+the “Results” page gives an overview of the results that is grouped per
+document. When one category has been selected in the Results overview page, the
+frequencies are shown per document for that category (</span><span
+lang=EN-US>Figure 6</span><span lang=EN-US>), but when the query line has been
+selected as a whole, the frequencies for all the categories are shown in a
+table (</span><span lang=EN-US>Figure 7</span><span lang=EN-US>).</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=ParaFirst><img border=0 width=605 height=250 id="Afbeelding 7"
+src="CrpStudioWeb-Manual_bestanden/image007.jpg"
+alt=CrpStudio-ResultsView2-Sub.jpg></p>
+
+<p class=MsoCaption><a name="_Ref426118711">Figure </a>6 Result details per
+document: one category selected</p>
+
+<p class=ParaFirst><span lang=EN-US>.</span><img border=0 width=604 height=251
+id="Afbeelding 8" src="CrpStudioWeb-Manual_bestanden/image008.jpg"
+alt=CrpStudio-ResultsView2-All.jpg></p>
+
+<p class=MsoCaption><a name="_Ref426118827">Figure </a>7 Result details per
+document: a query line has been selected</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='margin-top:6.0pt;text-align:justify;page-break-after:
+avoid'>The <span class=Emphatic>Export</span> button in the “per document” view
+results in a tab-separated file to be made that contains the frequencies of the
+selected results, e.g:</p>
+
+<p class=MsoNormal style='margin-right:134.55pt;page-break-after:avoid'>&nbsp;</p>
+
+<pre style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>date:               2015-07-31 15:21:31</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>&nbsp;</span></pre><pre style='margin-right:134.55pt;
+page-break-after:avoid;background:#DAEEF3'><span style='font-size:9.0pt;
+color:#C00000'>QC line:            matV2q</span></pre><pre style='margin-right:
+134.55pt;page-break-after:avoid;background:#DAEEF3'><span style='font-size:
+9.0pt;color:#C00000'>Sub category:       4:[Vf-Sbj]</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt;color:#C00000'>Count:              7590</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmaelr3.m23.psdx    525      27</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmaelr4.m4.psdx     425      39</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmancriw-1.m1.psdx  2300     316</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmancriw-2.m1.psdx  787      131</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmastro.m3.psdx     222      57</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmayenbi.m2.psdx    2322     266</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmbenrul.m3.psdx    912      171</span></pre><pre
+style='margin-right:134.55pt;page-break-after:avoid;background:#DAEEF3'><span
+style='font-size:9.0pt'>cmboeth.m3.psdx     514      190</span></pre><pre
+style='margin-right:134.55pt;background:#DAEEF3'><span style='font-size:9.0pt'>cmbrut3.m3.psdx     2448     238</span></pre>
+
+<p class=ParaFirst><span lang=EN-US>The top lines in the exported file contain
+general information: the selected query line, the sub category and the total
+number of hits for this sub category (which can be verified with the table
+produced from the general results overview).</span></p>
+
+<p class=ParaFirst><span lang=EN-US>Subsequent lines contain the information
+per document: the total number of hits for the document for this query line,
+and the number of hits taken up by the currently selected sub category. This
+allows for the calculation of relative frequencies.</span></p>
+
+<p class=ParaFirst><span lang=EN-US>The output that has been produced by the
+query can be inspected for each individual document, by selecting that
+document. Selection of, for example, “</span><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>cmaelr4.m4.psdx</span></span><span lang=EN-US>” in </span><span lang=EN-US>Figure 6</span><span lang=EN-US> shows all the hits for query line 2
+(“</span><span class=Code><span lang=EN-US style='font-size:9.0pt'>matV2q</span></span><span
+lang=EN-US>”), category “</span><span class=Code><span lang=EN-US
+style='font-size:9.0pt'>4:[Vf-Sbj]</span></span><span lang=EN-US>” and file “</span><span
+class=Code><span lang=EN-US style='font-size:9.0pt'>cmaelr4.m4.psdx</span></span><span
+lang=EN-US>”, as in </span><span lang=EN-US>Figure 8</span><span lang=EN-US>.</span></p>
+
+<p class=ParaFirst><img border=0 width=605 height=257 id="Afbeelding 9"
+src="CrpStudioWeb-Manual_bestanden/image009.jpg"
+alt=CrpStudio-ResultsView2-Sub-file.jpg></p>
+
+<p class=MsoCaption><a name="_Ref426119329">Figure </a>8 Result details for one
+document</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<h1><a name="_Toc426121446"></a><a name="_Toc298090979"><span lang=EN-US>5<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Bibliography</span></a></h1>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<h1><a name="_Toc426121447"></a><a name="_Toc298090980"><span lang=EN-US>6<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Appendix</span></a></h1>
+
+<p class=ParaFirst><span lang=EN-US>This appendix contains vital information
+for those who would like to process the results of a corpus research project
+themselves (see <b>TODO:REF</b>), and also for those who would like to know
+more about the different xml formats used for corpus research projects,
+Xquery-psdx etc (see <b>TODO:REF</b>).</span></p>
+
+<h2><a name="_Toc426121448"></a><a name="_Toc298090981"></a><a
+name="_Toc417138221"></a><a name="_Ref297784319"><span lang=EN-US>6.1<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Schema for xml formats used</span></a></h2>
+
+<p class=ParaFirst><span lang=EN-US>CorpusStudio makes use of several different
+<i>xml</i> formats. Each of these formats is described by a schema, an <i>xsd</i>
+file. These schema are available on the CorpusStudio <a
+href="http://www.ru.nl/lits/sub-programmes/grammatical/syntax-information/software/">homepage</a>
+which you can reach from the Radoud University website. </span><span lang=EN-US>Table 2</span><span lang=EN-US> gives an overview of the different
+schema files that should be available.</span></p>
+
+<table class=MsoTableLightListAccent6 border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=153 style='width:115.1pt;border-top:solid #F79646 1.0pt;border-left:
+  solid #F79646 1.0pt;border-bottom:none;border-right:none;background:#F79646;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b><span lang=EN-US style='color:white'>Schema file</span></b></p>
+  </td>
+  <td width=153 style='width:115.1pt;border:none;border-top:solid #F79646 1.0pt;
+  background:#F79646;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b><span lang=EN-US style='color:white'>Root xml tag</span></b></p>
+  </td>
+  <td width=305 style='width:228.8pt;border-top:solid #F79646 1.0pt;border-left:
+  none;border-bottom:none;border-right:solid #F79646 1.0pt;background:#F79646;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b><span lang=EN-US style='color:white'>Usage</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=153 style='width:115.1pt;border:solid #F79646 1.0pt;border-right:
+  none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b><span lang=EN-US>CrpResult.xsd</span></b></p>
+  </td>
+  <td width=153 style='width:115.1pt;border-top:solid #F79646 1.0pt;border-left:
+  none;border-bottom:solid #F79646 1.0pt;border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span class=Code><span style='font-size:9.0pt'>&lt;CrpOview&gt;</span></span></p>
+  </td>
+  <td width=305 style='width:228.8pt;border:solid #F79646 1.0pt;border-left:
+  none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=153 style='width:115.1pt;border:none;border-left:solid #F79646 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b><span lang=EN-US>CorpusResearchProject.xsd</span></b></p>
+  </td>
+  <td width=153 style='width:115.1pt;border:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span class=Code><span style='font-size:9.0pt'>&lt;CorpusResearchProject&gt;</span></span></p>
+  </td>
+  <td width=305 style='width:228.8pt;border:none;border-right:solid #F79646 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=153 style='width:115.1pt;border:solid #F79646 1.0pt;border-right:
+  none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b><span lang=EN-US>PeriodDef.xsd</span></b></p>
+  </td>
+  <td width=153 style='width:115.1pt;border-top:solid #F79646 1.0pt;border-left:
+  none;border-bottom:solid #F79646 1.0pt;border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span class=Code><span style='font-size:9.0pt'>&lt;PeriodList&gt;</span></span></p>
+  </td>
+  <td width=305 style='width:228.8pt;border:solid #F79646 1.0pt;border-left:
+  none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=153 style='width:115.1pt;border-top:none;border-left:solid #F79646 1.0pt;
+  border-bottom:solid #F79646 1.0pt;border-right:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b><span lang=EN-US>Psdx.xsd</span></b></p>
+  </td>
+  <td width=153 style='width:115.1pt;border:none;border-bottom:solid #F79646 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span class=Code><span style='font-size:9.0pt'>&lt;TEI&gt;</span></span></p>
+  </td>
+  <td width=305 style='width:228.8pt;border-top:none;border-left:none;
+  border-bottom:solid #F79646 1.0pt;border-right:solid #F79646 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoCaption><a name="_Ref297784501"><span lang=EN-US>Table </span></a><span lang=EN-US>2</span><span lang=EN-US> Xml schema definitions in use for
+CorpusStudio</span></p>
+
+<h2><a name="_Ref297807505"></a><a name="_Toc426121449"></a><a
+name="_Toc298090982"></a><a name="_Toc417138222"><span lang=EN-US>6.2<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Useful Xquery function definitions</span></a></h2>
+
+<p class=ParaFirst><span lang=EN-US>You are, of course, at liberty to make your
+own Xquery functions, but there are a number of functions you may find useful,
+and these are included in this section. Some of these may actually be available
+already on the homepage of CorpusStudio. </span></p>
+
+<p class=ParaNext><span lang=EN-US>Note that some of these functions use
+built-in Xquery functions which are described in section </span><span lang=EN-US>6.3</span><span lang=EN-US>. Since they make use of the CorpusStudio
+in-built facilities, such user-defined Xquery functions will obviously not work
+outside of CorpusStudio.</span></p>
+
+<h3><a name="_Toc426121450"></a><a name="_Toc298090983"></a><a
+name="_Toc417138223"><span lang=EN-US>6.2.1<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Convert a chain into a sequence</span></a></h3>
+
+<p class=ParaFirst><span lang=EN-US>You might want to convert a following or
+preceding coreferential chain into a sequence of nodes, which you can then
+process using the standard Xquery sequence processing FLOWR functionality. The
+following Xquery function recursively converts a chain into such a sequence,
+and it starts at the node you provided.</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>(:
+----------------------------------------------------------------</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>  
+Name : tb:Chain</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>  
+Goal : Get all the nodes on the chain started by [$ndThis]</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>  
+History:</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>  
+03-04-2012 ERK    Created </span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>  
+---------------------------------------------------------------- :)</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>declare
+function tb:Chain($ndThis as node()*) as node()*</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>{</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>   (:
+Get the next element -- if existing :)</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>   let
+$nxt := if (count($ndThis)=1) then ru:chnextidt($ndThis)</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>              
+else ru:chnextidt( ($ndThis/.)[last()])</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>   (:
+Combine the new node with the others :)</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>  
+return</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>    
+if (exists($nxt)) then  $ndThis union tb:Chain($nxt)</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span lang=EN-US style='font-size:9.0pt;font-family:"Courier New"'>     </span><span
+style='font-size:9.0pt;font-family:"Courier New"'>else $ndThis</span></p>
+
+<p class=MsoNormal style='margin-left:5.25pt;text-indent:-5.25pt;text-autospace:
+none'><span style='font-size:9.0pt;font-family:"Courier New"'>};</span></p>
+
+<p class=ParaFirst>&nbsp;</p>
+
+<span lang=EN-US style='font-size:12.0pt;font-family:"Times New Roman","serif"'><br
+clear=all style='page-break-before:always'>
+</span>
+
+<p class=MsoNormal><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal><b><span lang=EN-US>&nbsp;</span></b></p>
+
+<h2><a name="_Toc426121451"></a><a name="_Toc298090984"></a><a
+name="_Toc417138224"></a><a name="_Ref321309617"><span lang=EN-US>6.3<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-US>Built-in functions for Xquery-psdx projects</span></a></h2>
+
+<p class=ParaFirst><span lang=EN-US>Several Xquery functions have been built
+into CorpusStudio that should facilitate working with Xquery-psdx projects. The
+functions are described in this section. All functions are part of the <b>ru</b>
+section.</span></p>
+
+<h3><a name="_Toc426121452"></a><a name="_Toc298090985"></a><a
+name="_Toc417138231"></a><a name="_Ref390416794">6.3.1<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Back</a></h3>
+
+<p class=Function><span lang=EN-US>Definition:         <span class=Emphatic>ru:back</span>(<span
+class=Argument>ndArg1</span>, <span class=Argument>strMsg</span>, <span
+class=Argument>strCat</span>) </span></p>
+
+<p class=Function><span lang=EN-US>Types:              <span class=Argument>ndArg1</span>     node()</span></p>
+
+<p class=Function><span class=Argument><span lang=EN-US>                        strMsg</span></span><span
+lang=EN-US>      xs:string        <i>(optional)</i></span></p>
+
+<p class=Function><span class=Argument><span lang=EN-US>                        strCat</span></span><span
+lang=EN-US>       xs:string        <i>(optional)</i></span></p>
+
+<p class=Function><span lang=EN-US>                        output       node()</span></p>
+
+<p class=Function><span lang=EN-US>Description:      This built-in function is
+an alternative to the <span class=Emphatic>tb:Forest</span> functions that are
+supplied in the standard “definitions” file. The function should be placed at
+the end of the main </span><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>for … let … where … return</span></span><span lang=EN-US> (FLOWR) loop,
+as part of the </span><span class=Code><span lang=EN-US style='font-size:9.0pt'>return
+</span></span><span lang=EN-US>statement. The function returns the </span><span
+class=Code><span lang=EN-US style='font-size:9.0pt'>&lt;forest&gt;</span></span><span
+lang=EN-US> node, supplied with additional attributes, such as the identifier
+of the <span class=Argument>ndArg1 </span>node.</span></p>
+
+<p class=Function><span lang=EN-US>                        There are two
+optional (string) variables that can be supplied. The variable <span
+class=Argument>strMsg</span> may contain a string (produced for example using
+Xquery standard <span class=Emphatic>concat</span>) with information that is supplied
+with the output of this particular result. The variable <span class=Argument>strCat</span>
+may contain a subcategorization string. The output for this particular
+queryline will then, in addition to the normal tabular output, be subdivided
+over the values of <span class=Argument>strCat</span>. One may, for example,
+take NP features such as the <span class=Emphatic>NPtype</span> or the <span
+class=Emphatic>GrRole</span> as subcategorization values.</span></p>
+
+<p class=Function><span lang=EN-US>                        A user
+implementation that can be used instead of the built-in ru:back function should
+minimally look as follows:</span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>declare function tb:back($ndThis as element()?) as element()</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>{</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>    (: Get the &lt;forest&gt; element of which we are part :)</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>    let $src := $ndThis/ancestor-or-self::forest</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>    (: Get the ID of ourself :)</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>    let $id  := $ndThis/@Id</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>&nbsp;</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>    (: Copy the attributes to a new forest element :)</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.3pt;text-indent:-5.4pt;page-break-after:
+avoid;text-autospace:none'><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>    return element forest { attribute TreeId {$id},$src/@* }</span></span></p>
+
+<p class=MsoNormal style='margin-left:76.15pt;text-indent:-5.25pt;text-autospace:
+none'><span class=Code><span style='font-size:9.0pt'>};</span></span></p>
+
+<h3><a name="_Toc426121453"></a><a name="_Toc298090986"></a><a
+name="_Toc417138237">6.3.2<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Conv</a></h3>
+
+<p class=Function style='page-break-after:avoid'><span lang=EN-US>Definition:         <span
+class=Emphatic>ru:conv</span>(<span class=Argument>strText</span>, <span
+class=Argument>strType</span>) </span></p>
+
+<p class=Function><span lang=EN-US>Types:              <span class=Argument>strText</span>      xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        <span
+class=Argument>strType</span>     xs:string        </span><span lang=EN-US
+style='font-family:Wingdings'>à</span><span lang=EN-US> ‘OE’, ‘Lcase’, ‘Ucase’,
+‘clean’</span></p>
+
+<p class=Function><span lang=EN-US>                        output       xs:string</span></p>
+
+<p class=Function><span lang=EN-US>Description:      The string <span
+class=Argument>strText</span> is converted on the basis of the conversino type
+specified in <span class=Argument>strType</span>. Two conversion types are
+currently supported. The first one, signalled by “OE”, converts +a, +t, +d etc
+into their corresponding unicode strings æ, þ, and ð respectively. The second
+and third one, signalled by “Lcase” and “Ucase”, convert the string into its
+lower-case or upper-case equivalent respectively. </span></p>
+
+<p class=Function><span lang=EN-US>                        A few combinations
+are allowed too: ‘Lcase+OE’ and ‘Ucase+OE’.</span></p>
+
+<h3><a name="_Toc426121454"></a><a name="_Toc298090987"></a><a
+name="_Toc417138242">6.3.3<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Feature</a></h3>
+
+<p class=Function><span lang=EN-US>Definition:         <span class=Emphatic>ru:feature</span>(<span
+class=Argument>ndArg1</span>, <span class=Argument>strName</span>) </span></p>
+
+<p class=Function><span lang=EN-US>Types:              <span class=Argument>ndArg1</span>     node()</span></p>
+
+<p class=Function><span lang=EN-US>                        <span
+class=Argument>strName</span>    xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        output       xs:string</span></p>
+
+<p class=Function><span lang=EN-US>Description:      Get the feature value of
+the feature named <span class=Argument>strName</span>. This is equivalent to </span><span
+class=Code><span lang=EN-US style='font-size:9.0pt'>ndArg1/child::fs/child::f[@name=’strName’]/@value</span></span><span
+lang=EN-US>. The string with this value is returned.</span></p>
+
+<h3><a name="_Toc426121455"></a><a name="_Toc298090988"></a><a
+name="_Toc417138246">6.3.4<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Lex</a></h3>
+
+<p class=Function><span lang=EN-US>Definition:         <span class=Emphatic>ru:lex</span>(<span
+class=Argument>strWord, strPos</span>) </span></p>
+
+<p class=Function><span lang=EN-US>Types:              <span class=Argument>strWord</span>    xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        <span
+class=Argument>strPos</span>       xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        output       xs:boolean</span></p>
+
+<p class=Function><span lang=EN-US>Description:      Add the word <span
+class=Argument>strWord</span> to a list of lexicon/dictionary entries, keeping
+track of the frequency. Forms with different part-of-speech tags (<span
+class=Argument>strPos</span>) are kept separate. The resulting dictionary can
+be opened using Cesax.<br>
+Words taken from the English historical corpora that are passed on to the
+lexicon are advised to be treated first through <span class=Emphatic>ru:conv</span>(…,
+‘<span class=Argument>Lcase+OE’</span>). This makes sure the lexemes are kept
+case-insensitive and the possible leading $-signs are filtered out.</span></p>
+
+<h3><a name="_Toc426121456"></a><a name="_Toc298090989"></a><a
+name="_Toc417138247">6.3.5<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Line</a></h3>
+
+<p class=Function style='page-break-after:avoid'>Definition:         <span
+class=Emphatic>ru:line</span>(<span class=Argument>intNumber</span>) </p>
+
+<p class=Function>Types:              <span class=Argument>intNumber</span> xs:integer</p>
+
+<p class=Function>                        output               node()</p>
+
+<p class=Function><span lang=EN-US>Description:      Return the sentence that
+is <span class=Argument>intNumber</span> lines further away from me (if
+positive) or before me (if negative). The “sentence” is a </span><span
+class=Code><span lang=EN-US style='font-size:9.0pt'>&lt;forest&gt;</span></span><span
+lang=EN-US> element for the <i>psdx</i> projects.<br>
+A special case is <span class=Emphatic>ru:line</span></span><span class=Code><span
+lang=EN-US style='font-size:9.0pt'>(0)</span></span><span lang=EN-US>, which
+returns the current </span><span class=Code><span lang=EN-US style='font-size:
+9.0pt'>&lt;forest&gt;</span></span><span lang=EN-US> element in such a way,
+that the preceding and following forests (as well as the hierarchically higher
+nodes) can be accessed.</span></p>
+
+<h3><a name="_Toc426121457"></a><a name="_Toc298090990"></a><a
+name="_Toc417138249">6.3.6<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Matches</a></h3>
+
+<p class=Function><span lang=EN-US>Definition:         <span class=Emphatic>ru:matches</span>(<span
+class=Argument>strText</span>, <span class=Argument>strPattern</span>) </span></p>
+
+<p class=Function><span lang=EN-US>Types:              <span class=Argument>strText</span>      xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        <span
+class=Argument>strPattern</span>  xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        output       xs:boolean</span></p>
+
+<p class=Function><span lang=EN-US>Description:      The string <span
+class=Argument>strText</span> is compared with the pattern supplied by <span
+class=Argument>strPattern</span>. The behaviour is much like the visual basic
+function </span><b><span lang=EN-US style='font-size:10.0pt;font-family:"Courier New"'>like</span></b><span
+lang=EN-US>. The <span class=Argument>strPattern</span> can contain a set of
+different patterns, separated by a vertical bar “</span><span class=Code><span
+style='font-size:9.0pt'>|</span></span><span lang=EN-US>”. Here is an example: </span><span
+class=Code><span style='font-size:9.0pt'>ru:matches(“NP-POS-3”, “NP|NP-*”)</span></span><span
+lang=EN-US>. This function will return <i>true</i>, since </span><span
+class=Code><span style='font-size:9.0pt'>NP-POS-3</span></span> <span
+lang=EN-US>matches with the second pattern in the list: </span><span
+class=Code><span style='font-size:9.0pt'>NP-*</span></span><span lang=EN-US>. </span></p>
+
+<p class=Function><span lang=EN-US>Definition:         <span class=Emphatic>ru:matches</span>(<span
+class=Argument>strText</span>, <span class=Argument>strPatYes, strPatNo</span>)
+</span></p>
+
+<p class=Function><span lang=EN-US>Types:              <span class=Argument>strText</span>      xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        <span
+class=Argument>strPatYes</span>  xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        <span
+class=Argument>strPatNo</span>   xs:string</span></p>
+
+<p class=Function><span lang=EN-US>                        output       xs:boolean</span></p>
+
+<p class=Function><span lang=EN-US>Description:      The string <span
+class=Argument>strText</span> should match the pattern supplied by <span
+class=Argument>strPatYes</span>, but should not match that of <span
+class=Argument>strPatNo</span>. The behaviour is much like the visual basic
+function </span><b><span lang=EN-US style='font-size:10.0pt;font-family:"Courier New"'>like</span></b><span
+lang=EN-US>. The <span class=Argument>strPatYes</span> and <span
+class=Argument>strPatNo</span> can contain a set of different patterns,
+separated by a vertical bar “</span><span class=Code><span style='font-size:
+9.0pt'>|</span></span><span lang=EN-US>”. Here is an example: </span><span
+class=Code><span style='font-size:9.0pt'>ru:matches(“NP-POS-3”, “NP|NP-*”, “NP-VOC”)</span></span><span
+lang=EN-US>. This function will return <i>true</i>, since </span><span
+class=Code><span style='font-size:9.0pt'>NP-POS-3</span></span> <span
+lang=EN-US>matches with the second pattern in the list: </span><span
+class=Code><span style='font-size:9.0pt'>NP-*</span></span>, and it does <i>not</i>
+match with the pattern <span class=Code><span style='font-size:9.0pt'>NP-VOC</span></span><span
+lang=EN-US>. </span></p>
+
+<h3><a name="_Toc426121458"></a><a name="_Toc298090991"></a><a
+name="_Toc417138251">6.3.7<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>NodeText</a></h3>
+
+<p class=Function>Definition:         <span class=Emphatic>ru:NodeText</span>(<span
+class=Argument>ndArg1</span>)</p>
+
+<p class=Function>                        <span class=Emphatic>ru:NodeText</span>(<span
+class=Argument>ndArg1</span>, <span class=Argument>strType</span>) </p>
+
+<p class=Function>Types:              <span class=Argument>ndArg1</span>     node()</p>
+
+<p class=Function>                        <span class=Argument>strType</span>     xs:string        <span
+lang=EN-US style='font-family:Wingdings'>à</span> ‘OE’, ‘Lcase’, ‘Ucase’,
+‘clean’</p>
+
+<p class=Function><span class=Argument>                        </span>output       xs:string</p>
+
+<p class=Function><span lang=EN-US>Description:      Return the text of the
+terminal nodes within <span class=Argument>ndArg1</span>. The text is delivered
+as it is, separated by spaces where needed. A second argument </span><span
+class=Argument>strType</span><span lang=EN-US> allows implicit use of the
+function </span><span class=Emphatic>ru:conv</span><span lang=EN-US> to
+streamline the output.</span></p>
+
+<p class=Function><span lang=EN-US>See also:          </span><span
+class=Emphatic>ru:PhraseText</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+<p class=ParaFirst><span lang=EN-US>&nbsp;</span></p>
+
+</div>
+
+</body>
+
+</html>

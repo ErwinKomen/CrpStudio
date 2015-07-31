@@ -435,8 +435,28 @@ var Crpstudio = {
         sHelpPart = "corpora";
         break;
     }
-    // Provide the help that belongs to the fine-tuned section [sHelpPart]
-    
+    // Issue a request to /crpstudio to get the relevant help section
+    var params = "section=" + sHelpPart;
+    Crpstudio.getCrpStudioData("help", params, Crpstudio.processHelp, "_blank");
+  },
+  
+  /**
+   * processHelp
+   *    Show the indicated help file on the indicated target window
+   * 
+   * @param {type} response
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processHelp : function(response, target) {
+		if (response !== null) {
+      var sFile = response.file;
+      var sSection = response.section;
+      // Combine file and section?
+  
+      // Show the indicated help file on the indicate location
+      window.open(sFile, target);
+    }    
   }
 
 };

@@ -103,7 +103,7 @@
                 </li>
                 <li class="leftspaced hide-for-small-only">
                   #if($maintab && (($maintab == "corpora") || ($maintab == "projects")))
-                    <a id="tour-icon" onclick="Crpstudio.help($maintab);"><img src="./static/img/info_icon.png"/></a>
+                    <a id="tour-icon" onclick="Crpstudio.help('$maintab');"><img src="./static/img/info_icon.png"/></a>
                   #else
                     <div style="width: 30px;">&nbsp;</div>
                   #end
