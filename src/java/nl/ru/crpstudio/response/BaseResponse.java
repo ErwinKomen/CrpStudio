@@ -1094,7 +1094,7 @@ public abstract class BaseResponse {
    */
   public String getProjectItem(String sCrp, boolean bLoaded) {
     String sCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
-    return "<li class='crp_"+sCrp+"'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
+    return "<li class='crp_"+sCrp+" crp-available'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
                   sCrp +"\")'>" + sCrpName + "</a></li>\n";
   }
   

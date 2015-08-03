@@ -6,6 +6,7 @@
  */
 package nl.ru.crpstudio.response;
 
+import java.io.File;
 import nl.ru.crpx.tools.FileIO;
 import static nl.ru.util.StringUtil.escapeHexCoding;
 import nl.ru.util.json.JSONArray;
@@ -30,6 +31,12 @@ public class RemoveResponse extends BaseResponse {
       sUserId = this.request.getParameter("userid");
       if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
       
+      // Remove the CRP from the local /crpstudio server
+      File fPrjFile = crpContainer.getCrpFile(sPrjName, sUserId);
+      if (fPrjFile != null && fPrjFile.exists()) fPrjFile.delete();
+      // Remove the CRP from the local /crpstudio container 
+      crpContainer.removeCrpInfo(sPrjName, sUserId);
+      
       // Prepare a remove request to /crpp using the correct /crpdel parameters
       this.params.clear();
       this.params.put("userid", sUserId);
@@ -52,7 +59,7 @@ public class RemoveResponse extends BaseResponse {
       oContent.put("crpname", sPrjName);
 
       // Send the output to our caller
-      sendStandardResponse("completed", "upload completed successfully", oContent);
+      sendStandardResponse("completed", "remove completed successfully", oContent);
 
     } catch (Exception ex) {
       sendErrorResponse("RemoveResponse: could not complete: "+ ex.getMessage());

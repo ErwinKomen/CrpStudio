@@ -31,7 +31,7 @@ public class ProjectsResponse extends BaseResponse {
       // Make sure the current user is known
       this.getContext().put("username", servlet.getUserId());
       // ======= DEBUGGING
-      String sDebug = this.applyHtmlTemplate(this.templateMan.getTemplate("projects"));
+      // String sDebug = this.applyHtmlTemplate(this.templateMan.getTemplate("projects"));
       // ==================
       
       // Now produce the initial search display, with the "project" tab clicked and executed

@@ -77,15 +77,17 @@ public class UploadResponse extends BaseResponse {
         oContent = oResp.getJSONObject("content");
         oContent.put("prjline", this.getProjectItem(sPrjName, false));
         oContent.put("crpname", sPrjName);
+        // Send the output to our caller
+        sendStandardResponse("completed", "upload completed successfully", oContent);
       } else {
         oContent.put("crpname", "");
         oContent.put("prjline", "");
+        // Provide meaningful error message
+        sendErrorResponse("The project is already loaded. It needs to be removed before it can be uploaded again.");
       }
 
       
       // output.put("prjline", this.getProjectItem(sPrjName, false));
-      // Send the output to our caller
-      sendStandardResponse("completed", "upload completed successfully", oContent);
 
     } catch (Exception ex) {
       sendErrorResponse("UploadResponse: could not complete: "+ ex.getMessage());

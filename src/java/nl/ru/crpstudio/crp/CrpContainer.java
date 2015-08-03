@@ -109,6 +109,35 @@ public class CrpContainer {
   }
   
   /**
+   * getCrpFile
+   *    Get a FILE handle to the actual CRP file on the local /crpstudio server
+   * 
+   * @param sProjectName
+   * @param sUserId
+   * @return 
+   */
+  public File getCrpFile(String sProjectName, String sUserId) {
+    try {
+      // Check if this combination already exists in the list
+      for (CrpInfo oCrpInfo : loc_crpUserList) {
+        // Check if this has the correct project name, language index and user id
+        if (oCrpInfo.prjName.equals(sProjectName) && oCrpInfo.userId.equals(sUserId) 
+                && oCrpInfo.prjThis != null) {
+          // Get the location
+          String sLoc = oCrpInfo.prjThis.getLocation();
+          // Return a handle to it
+          return new File(sLoc);
+        } 
+      } 
+      // Return failure
+      return null;
+    } catch (Exception ex) {
+      logger.DoError("Could not load or retrieve CRP", ex, CrpContainer.class);
+      return null;
+    }
+  }
+  
+  /**
    * getCrpList - get a list of the CRPs for the indicated user
    *              If no user is given: provide all users and all CRPs
    * 
@@ -221,8 +250,7 @@ public class CrpContainer {
    * @param sUserId
    * @return 
    */
-  public boolean removeCrpInfo(String sProjectName, /* String sLngIndex, */ 
-          String sUserId) {
+  public boolean removeCrpInfo(String sProjectName, String sUserId) {
     try {
       // Check if this combination already exists in the list
       for (CrpInfo oCrpInfo : loc_crpUserList) {
