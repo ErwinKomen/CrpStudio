@@ -7,13 +7,13 @@
 
 Crpstudio.project = {
   // Local variables within Crpstudio.project
-  tab : "project",      // The main tab we are on
-  currentPrj: "",       // The currently being executed project (the CRP name)
-  currentLng: "",       // the "lng" parameter of the current project
-  currentDir: "",       // the "dir" parameter of the current project
-  strQstatus: "",       // The JSON string passed on to R-server "status"
-  divStatus: "",        // The name of the div where the status is to be shown
-  interval: 200,        // Number of milliseconds
+  tab : "project",        // The main tab we are on (equals to "project_editor")
+  currentPrj: "",         // The currently being executed project (the CRP name)
+  currentLng: "",         // the "lng" parameter of the current project
+  currentDir: "",         // the "dir" parameter of the current project
+  strQstatus: "",         // The JSON string passed on to R-server "status"
+  divStatus: "",          // The name of the div where the status is to be shown
+  interval: 200,          // Number of milliseconds
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
@@ -599,23 +599,36 @@ Crpstudio.project = {
 			$("#"+target+"_link").addClass("active");
       // Action depends on target 
       switch (target) {
-        case "execute":
-          // Make sure the execute buttons are shown
-          Crpstudio.project.showExeButtons(true);
-          // Show the metatdata
-  				$("#metadata").show();
+        case "project_executor":
+          // Hide the metadata selector
+  				$("#metadata").hide();
+          // Hide CORPUS SELECTOR
+          $("#corpus-selector").hide();
           break;
         case "project_editor":
+        case "project":
           // Make sure the execute buttons are shown
           Crpstudio.project.showExeButtons(true);
-  				$("#metadata").show();
+          // Hide the metadata selector
+  				$("#metadata").hide();
+          // Possibly hide the lng/corpus selector
+          if (Crpstudio.project.currentLng & Crpstudio.project.currentLng !== "") {
+            // Hide it
+            $("#corpus-selector").hide();
+          }
           break;
         case "input_editor": 
+        case "input":
+          // Make sure the metadata selector is being shown
   				$("#metadata").show();
+          // Show the corpus selector
+          $("#corpus-selector").show();
           break;
         case "result_display":
           // Hide the metadata
   				$("#metadata").hide();
+          // Hide CORPUS SELECTOR
+          $("#corpus-selector").hide();
           // Make sure the execute buttons are hidden
           Crpstudio.project.showExeButtons(false);
           // Other actions
@@ -626,6 +639,8 @@ Crpstudio.project = {
         case "document_display":
           // Hide the metadata
   				$("#metadata").hide();
+          // Hide CORPUS SELECTOR
+          $("#corpus-selector").hide();
           // Make sure the execute buttons are hidden
           Crpstudio.project.showExeButtons(false);
           // Other actions
@@ -787,11 +802,11 @@ Crpstudio.project = {
           // if (sPrjLine)
           //   $("#project_list").append(sPrjLine);
           if (sPrjLine) {
-            // Walk the list of <li> elements
-            var arPrjItem = $("#project_list").children();
+            // Walk the list of <li> elements with class "crp-available"
+            var arPrjItem = $("#project_list .crp-available").not(".divider").not(".heading");
             var liBef = null;
-            // Skip 0,1,2 -- these are used for New project, Wizard and a dividing line
-            for (var i=3;i<arPrjItem.size();i++) {
+            // Start from 0: we are in our own 'section' of "crp-available"
+            for (var i=0;i<arPrjItem.size();i++) {
               // It must have a <a> child node
               if (arPrjItem[i].childNodes) {
                 var aChild = arPrjItem[i].childNodes.item(0);
@@ -804,8 +819,8 @@ Crpstudio.project = {
             }
             // Did we find any?
             if (liBef === null) {
-              // Append it
-              $("#project_list").append(sPrjLine);
+              // Append it after the divider and heading crp-available
+              $("#project_list .crp-available").append(sPrjLine);
             } else {
               $(sPrjLine).insertBefore($(liBef));
             }
@@ -873,7 +888,7 @@ Crpstudio.project = {
             // Remove the project from the list
             $("#project_list .crp_"+sCrpName).remove();
             // More sure project general is not displayed anymore
-            $("#project_general").addClass("hidden");
+            // $("#project_general").addClass("hidden");
           }
           break;
         case "error":
@@ -937,7 +952,7 @@ Crpstudio.project = {
             fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
             // Show the project_download item
             $("#project_download").removeClass("hidden");
-            $("#project_download_file").html("<a href=\""+sFile + 
+            $("#project_download_file").html("<a href=\""+sFile + "\""+
                     " target='_blank'\">"+fFileName+"</a>");
           }
           break;
@@ -956,8 +971,33 @@ Crpstudio.project = {
 			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
 		}    
   },     
+  
+  /**
+   * setCorpus
+   *    Set the corpus language (sCorpusName) and the part of the language 
+   *    that serves as input (sDirName)
+   * 
+   * @param {type} sCorpusName
+   * @param {type} sDirName
+   * @returns {undefined}
+   */
   setCorpus : function(sCorpusName, sDirName) {
+    // Set the corpus name and dir name in the top section
     $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
+    // Set these values also in our own variables
+    Crpstudio.project.currentDir = sDirName;
+    Crpstudio.project.currentLng = sCorpusName;
+    // Hide the corpus selector if we are in project mode
+    switch (Crpstudio.project.tab) {
+      case "project_editor":
+      case "project":
+        // Hide the corpus selector
+        $("#corpus-selector").hide();
+        break;
+      default:
+        // No particular action right now
+        break;
+    }
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual
@@ -1007,6 +1047,19 @@ Crpstudio.project = {
     // Adapt the text of the project description
     $("#project_description").html("<p>You have chosen: <b>" + strProject + "</b></p>");
   },
+  
+  /**
+   * sideToggle
+   *    Toggle the visibility of the <li> items with the indicated class name
+   *    
+   * @param {type} target
+   * @param {type} sSection
+   * @returns {undefined}
+   */
+  sideToggle : function(target, sSection) {
+    $(target).parent().children("."+sSection+":not(.heading):not(.divider)").toggleClass("hidden");
+  },
+  
   /* ---------------------------------------------------------------------------
    * Name: setSizes
    * Goal: set the size of the id="project" window

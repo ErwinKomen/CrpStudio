@@ -84,27 +84,37 @@
 		
 			#if($tab == "project")
 				#set($project_active = "active")
-        #set($meta = "")
+        #set($meta = "hidden")
+        #set($crsel = "")
 			#elseif($tab == "input")
 				#set($input_active = "active")
 				#set($meta = "")
+        #set($crsel = "")
 			#elseif($tab == "definitions")
 				#set($definitions_active = "active")
 				#set($meta = "hidden")
+        #set($crsel = "hidden")
 			#elseif($tab == "queries")
 				#set($queries_active = "active")
 				#set($meta = "hidden")
+        #set($crsel = "hidden")
 			#elseif($tab == "constructor")
 				#set($constructor_active = "active")
 				#set($meta = "hidden")
+        #set($crsel = "hidden")
 			#elseif($tab == "result")
 				#set($result_active = "active")
 				#set($meta = "hidden")
+        #set($crsel = "hidden")
 			#elseif($tab == "document")
 				#set($document_active = "active")
 				#set($meta = "hidden")
+        #set($crsel = "hidden")
 			#end
 			
+      <div id="corpus-selector" $crpsel>
+        #parse("crpsel.vm")
+      </div>
 			<div id="metadata" $meta>
 				#parse("metadata.vm")
 			</div>

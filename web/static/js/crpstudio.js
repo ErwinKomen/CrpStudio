@@ -11,7 +11,7 @@ var Crpstudio = {
 	language : null,            // UI language currently used
 	tab : null,   
 	doDebug : true,             // Are we debugging right now? --> console output
-	doDebugXhrResponse : true, // log full XHR responses? (long)
+	doDebugXhrResponse : true,  // log full XHR responses? (long)
 	exportLimit : 50000,        // Max size for exporting ???
   currentUser : "-",          // Name of the currently logged-in user
 	

@@ -4,45 +4,47 @@
 <!-- side bar: names of projects of this user -->
 <div id="crplist" class="large-16 medium-16 small-16 row">
   <!-- the left side-bar used for selecting a project -->
+  <div id="project_selector" class="large-4 medium-4 small-4 columns hidden">
+    <h5>${project}</h5>
+    <!-- place where the currently select project is stored -->
+    <div id="project_current" class="hidden"></div>
+    <!-- Room for two buttons -->
+    <div class="row">
+      <!-- Allow user to upload a .crpx file -->
+      <div class="uploadbutton large-6 medium-6 small-6 columns">
+        <label for="general_upload" class="uploadCrpxBtn">$labels.getString("project.upload")</label>
+        <input id="general_upload" class="uploadfile" type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
+      </div>
+      <!-- Allow user to download a .crpx file -->
+      <div class="uploadbutton large-6 medium-6 small-6 columns">
+        <label for="general_download" class="uploadCrpxBtn">$labels.getString("project.download")</label>
+        <input id="general_download" class="uploadfile" onclick="Crpstudio.project.downloadCrpFile(this);">
+      </div>
+      <!-- Allow user to remove a .crpx file -->
+      <div class="uploadbutton large-4 medium-4 small-4 columns">
+        <label for="general_removeCRP" class="uploadCrpxBtn">$labels.getString("project.remove")</label>
+        <input id="general_removeCRP" class="uploadfile" onclick="Crpstudio.project.removeCrpFile(this);">
+      </div>
+    </div>
+    <div id="project_download" class="row hidden">
+      <span>$labels.getString("result.export.intro"): </span>
+      <span id="project_download_file"></span>
+    </div>
+    <!-- <ul class="crpstudio-side-nav"> -->
+    <ul id="project_list" class="side-nav">
+      <li class="create-project"><a href="#" onclick="Crpstudio.project.createManual(this)">$new_project_manual</a></li>
+      <li class="create-project"><a href="#" onclick="Crpstudio.project.createWizard(this)">$new_project_wizard</a></li>
+      <li class="divider"></li>
+      ${projecttable}
+    </ul>
+  </div>
+
+  <!-- NEW ATTEMPT at a side-bar -->
   <div id="project_selector_new" class="large-4 medium-4 small-4 columns">
     <div class="sidebar">
-      <h5>${project}</h5>
-      <!-- BUTTONS are not included in my version now
-      <a id="project-download" href="#" class="button expand" onclick="Crpstudio.project.downloadCrpFile(this);">$labels.getString("project.download")</a>
-      <a id="project-remove" href="#" class="button expand" onclick="Crpstudio.project.removeCrpFile(this);">$labels.getString("project.remove")</a>
-      <a id="project-upload" href="#" class="button expand" onclick="Crpstudio.project.uploadCrpFile(this);">$labels.getString("project.upload")</a>
-      <a id="project-createM" href="#" class="button expand" onclick="Crpstudio.project.createManual(this);">$labels.getString("project.create.manual")</a>
-      <a id="project-createW" href="#" class="button expand" onclick="Crpstudio.project.createWizard(this);">$labels.getString("project.create.wizard")</a>
-      -->
-      <div id="project_download" class="row hidden">
-        <span>$labels.getString("result.export.intro"): </span>
-        <span id="project_download_file"></span>
-      </div>
+      <h5>Project selection</h5>
       <nav>
-        <ul id="project_list" class="side-nav">
-          <!-- Actions to CREATE/ADD/LOAD a CRP -->
-          <li class="heading crp-new" onclick="Crpstudio.project.sideToggle(this, 'crp-new')"><label>$labels.getString("project.new")</label></li>
-          <li class="crp-new">
-            <a id="project-upload" onclick="$('#project-upload-input').click();">$labels.getString("project.upload")</a>
-            <input id="project-upload-input" class="uploadfile" type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
-          </li>
-          <li class="crp-new"><a id="project-createM" href="#" onclick="Crpstudio.project.createManual(this);">$labels.getString("project.create.manual")</a></li>
-          <li class="crp-new"><a id="project-createW" href="#" onclick="Crpstudio.project.createWizard(this);">$labels.getString("project.create.wizard")</a></li>
-
-          <!-- Actions on CURRENTLY loaded CRP -->
-          <li class="divider crp-current"></li>
-          <li class="heading crp-current" onclick="Crpstudio.project.sideToggle(this, 'crp-current')"><label>$labels.getString("project.current")</label></li>
-          <li class="crp-current"><a id="project-download" href="#" onclick="Crpstudio.project.downloadCrpFile(this);">$labels.getString("project.download")</a></li>
-          <li class="crp-current"><a id="project-remove" href="#" onclick="Crpstudio.project.removeCrpFile(this);">$labels.getString("project.remove")</a></li>
-
-          <!-- Most RECENTly used CRP (just 1, if any) -->
-          <li class="divider crp-recent"></li>
-          <li class="heading crp-recent" onclick="Crpstudio.project.sideToggle(this, 'crp-recent')"><label>$labels.getString("project.recent")</label></li>
-
-          <!-- List of AVAILABLE CRPs -->
-          <li class="divider crp-available"></li>
-          <li class="heading crp-available" onclick="Crpstudio.project.sideToggle(this, 'crp-available')"><label>$labels.getString("project.available")</label></li>
-          ${projecttable}
+        <ul class="side-nav">
         </ul>
       </nav>
     </div>

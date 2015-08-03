@@ -629,8 +629,12 @@ Crpstudio.result = {
             html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
             // Is there any 'msg' result?
             if (oRow.msg) {
+              // Adapt the message
+              var sMsg = oRow.msg;
+              sMsg = sMsg.replace(/\</g, '&lt;');
+              sMsg = sMsg.replace(/\>/g, '&gt;');
               // Add it to the output
-              html.push("<div class=\"one-example-msg\">"+ oRow.msg +"</div>");
+              html.push("<div class=\"one-example-msg\">"+ sMsg +"</div>");
             }
             // Finish the "one-example" <div>
             html.push("</div>")

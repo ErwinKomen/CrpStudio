@@ -1648,6 +1648,16 @@ div.hitscroll {
     color:      white;
     background: #222222 !important;   
 }
+/* Section headings of the side-nav */
+.side-nav li label {
+  background: lightgray !important;
+  color: black !important;
+  font-weight: bold;
+  border: black;
+  border-width: 1px;
+  border-radius: 3px;
+}
+
 .top-bar-section li div.label {
   color:        lightblue;
   background:   #222222;
@@ -1724,4 +1734,13 @@ textarea {
   border-color: black !important;
   font-family: Courier New; 
   font-size: 12px;
+}
+
+#corpus-selector {
+  border: 1px;
+  border-radius: 3px;
+ 	vertical-align: middle;
+	padding-top: 20px;
+	padding-bottom: 20px;
+ 
 }
