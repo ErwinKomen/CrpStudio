@@ -13,6 +13,7 @@ Crpstudio.project = {
   currentDir: "",         // the "dir" parameter of the current project
   strQstatus: "",         // The JSON string passed on to R-server "status"
   divStatus: "",          // The name of the div where the status is to be shown
+  recentcrp: "",          // Recently used CRP
   interval: 200,          // Number of milliseconds
   /* ---------------------------------------------------------------------------
    * Name: execute
@@ -179,6 +180,9 @@ Crpstudio.project = {
    *        userid  - the /crpp internal userid for this job
    *       content  - A JSON object containing
    *        table   - the /crpp returned table, if job was completed
+   *        prjlist - adapted "crp-available" list if job was completed
+   *        recent  - adapted "crp-recent" item if job was completed
+   *        
    * History:
    * 6/jul/2015  ERK Created
    */
@@ -237,7 +241,15 @@ Crpstudio.project = {
         $(target).html("Fetching results");
         // Show the final status
         Crpstudio.project.doStatus(oResponse);
-        // And more completeino
+        // Access the content
+        var oContent = oResponse.content;
+        // Adapt the CRP-AVAILABLE list
+        $("#project_list .crp-available").not(".divider").not(".heading").remove();
+        $("#project_list .crp-available").last().append(oContent.prjlist);
+        // ADAPT the CRP-RECENT
+        $("#project_list .crp-recent").not(".divider").not(".heading").remove();
+        $("#project_list .crp-recent").last().append(oContent.recent);
+        // And more completion
         $(target).html("");
         // Make sure the results are visible
         $("#results").removeClass("hidden");
@@ -589,8 +601,9 @@ Crpstudio.project = {
    * Goal: switch the tab within the [Search] page
    * History:
    * 22/jun/2015  ERK Created
+   * 04/aug/2015  ERK Added "sRecentCrp" argument
    */
-	switchTab : function(target) {
+	switchTab : function(target, sRecentCrp) {
 		Crpstudio.debug("switching to search tab "+target+" from "+Crpstudio.project.tab);
 		if (target !== Crpstudio.project.tab) {
 			$("#search .content").removeClass("active");
@@ -615,6 +628,16 @@ Crpstudio.project = {
           if (Crpstudio.project.currentLng & Crpstudio.project.currentLng !== "") {
             // Hide it
             $("#corpus-selector").hide();
+          }
+          // Do we have a 'recent' CRP?
+          if (sRecentCrp && sRecentCrp !== "") {
+            // Show the recent ones
+            $("#project_list li .crp-recent").show();
+            Crpstudio.project.recentcrp = sRecentCrp;
+          } else {
+            // Just hide the recent ones
+            $("#project_list li .crp-recent").hide();
+            Crpstudio.project.recentcrp = "";
           }
           break;
         case "input_editor": 
@@ -664,8 +687,9 @@ Crpstudio.project = {
    * Goal: the user chooses a project, so act on this
    * History:
    * 23/jun/2015  ERK Created
+   * 04/aug/2015  ERK Added "sLng" and "sDir" arguments
    */
-  setProject : function(target, sPrjName) {
+  setProject : function(target, sPrjName, sLng, sDir) {
     // Get the <li>
     var listItem = $(target).parent();
     var strProject = $(target).text();
@@ -683,10 +707,25 @@ Crpstudio.project = {
     // And set the name of the project in the top-bar div
     $("#top_bar_current_project").text(sPrjName);
     // Status: indicate that we are loading the project
-    $("#project_status").html("Loading project...");
+    // EXTINCT: $("#project_status").html("Loading project...");
     $("#project_description").html("<i>Please wait...</i>");
-    // Make the General area invisible
+    // Make the General area INvisible
     $("#project_general").addClass("hidden");
+    // Do we have a lng (+ optional dir)?
+    if (!sLng || sLng === "") {
+      // Hide the corpus-selector
+      $("#corpus-selector").show();
+    } else {
+      // Make sure sDir is defined
+      if (!sDir) sDir = "";
+      // Set the lng + dir
+      Crpstudio.project.setCorpus(sLng, sDir);
+      // Set the correct option within the 'corpus-selector'
+      var sOption = sLng + ":" + sDir;
+      $("#input_lng").val(sOption);
+      // Hide the corpus-selector
+      // $("#corpus-selector").hide();
+    }
     // Issue a request to /crpstudio to load the project
     var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
     params += "&type=info";
@@ -723,7 +762,7 @@ Crpstudio.project = {
           // Put the information on the correct places in the form
           $("#project_general_name").val(sName);
           $("#project_general_author").val(sAuthor);
-          $("#project_general_prjtype").val(sPrjType);
+          $("#project_general_prjtype").val(sPrjType.toLowerCase());
           $("#project_general_goal").val(sGoal);
           $("#project_general_datecreated").html(sDateCreated);
           $("#project_general_datechanged").html(sDateChanged);
@@ -732,6 +771,12 @@ Crpstudio.project = {
           else
             $("#project_general_showsyn").removeClass("checked");
           $("#project_general_comments").val(sComments);
+          
+          // Add event handlers on all input stuff
+          $("#project_general input").on("change keydown paste input", 
+            function() {Crpstudio.project.ctlChanged(this);});
+          $("#project_general textarea").on("change keydown paste input", 
+            function() {Crpstudio.project.ctlChanged(this);});
           
           // Make the General area visible again
           $("#project_general").removeClass("hidden");
@@ -820,7 +865,7 @@ Crpstudio.project = {
             // Did we find any?
             if (liBef === null) {
               // Append it after the divider and heading crp-available
-              $("#project_list .crp-available").append(sPrjLine);
+              $("#project_list .crp-available").last().append(sPrjLine);
             } else {
               $(sPrjLine).insertBefore($(liBef));
             }
@@ -998,6 +1043,43 @@ Crpstudio.project = {
         // No particular action right now
         break;
     }
+  },
+  
+  /**
+   * setPrjType
+   *    Set the project type
+   *    
+   * @param {type} sPrjType
+   * @returns {undefined}
+   */
+  setPrjType : function(sPrjType) {
+    // Pass on this value to /crpstudio and to /crpp
+    var params = "crpname=" + Crpstudio.project.currentPrj + "&userid=" + Crpstudio.currentUser +
+            "&key=prjtype&value="+sPrjType;
+    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_general_prjtype");      
+  },
+  
+  /**
+   * ctlChange
+   *    Process changes in the <input>, which is 'source'
+   *    
+   * @param {type} source
+   * @returns {undefined}
+   */
+  ctlChanged : function(source) {
+    var sKey = "";
+    var sValue = $(source).val();
+    // Determine which 'key' this is
+    switch($(source).attr("id")) {
+      case "project_general_name": sKey = "Name"; break;
+      case "project_general_author": sKey = "Author"; break;
+      case "project_general_goal": sKey = "Goal"; break;
+      case "project_general_comments": sKey = "Comments"; break;
+    }
+    // Pass on this value to /crpstudio and to /crpp
+    var params = "crpname=" + Crpstudio.project.currentPrj + "&userid=" + Crpstudio.currentUser +
+            "&key="+sKey+"&value="+encodeURIComponent(sValue);
+    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_general_prjtype");      
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual

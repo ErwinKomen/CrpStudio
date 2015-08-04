@@ -12,9 +12,9 @@
 			<dl id="search-nav" class="sub-nav" data-tab>
       <!-- Sub-navigation item: [project] -->
 			#if($tab == "project")
-				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor')">$project</a></dd>
+				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor', '${recent}')">$project</a></dd>
 			#else
-				<dd id="project_link"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor')">$project</a></dd>
+				<dd id="project_link"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor', '${recent}')">$project</a></dd>
 			#end
       <!-- Sub-navigation item: [input] -->
 			#if($tab == "input")

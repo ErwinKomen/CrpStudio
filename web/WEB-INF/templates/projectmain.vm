@@ -38,6 +38,7 @@
           <!-- Most RECENTly used CRP (just 1, if any) -->
           <li class="divider crp-recent"></li>
           <li class="heading crp-recent" onclick="Crpstudio.project.sideToggle(this, 'crp-recent')"><label>$labels.getString("project.recent")</label></li>
+          ${recentcrp}
 
           <!-- List of AVAILABLE CRPs -->
           <li class="divider crp-available"></li>
@@ -63,7 +64,7 @@
               <!-- Project NAME -->
               <div class="large-16 medium-16 small-16 row">
                 <div class="large-6 medium-6 small-6 columns">
-                  <Label for="right-label" class="right inline">$labels.getString("project.general.name")</Label>
+                  <label for="right-label" class="right inline">$labels.getString("project.general.name")</label>
                 </div>
                 <div class="large-10 medium-10 small-10 columns">
                   <div class="large-16 medium-16 small-16 row collapse">
@@ -81,7 +82,7 @@
                 <div class="large8 medium-8 small-8 columns">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <Label for="right-label" class="right inline">$labels.getString("project.general.author")</Label>
+                      <label for="right-label" class="right inline">$labels.getString("project.general.author")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
                       <input id="project_general_author" class="general_input" type="text" placeholder="creator of this project">
@@ -92,19 +93,21 @@
                 <div class="large8 medium-8 small-8 columns">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <Label for="right-label" class="right inline">$labels.getString("project.general.prjtype")</Label>
+                      <label for="right-label" class="right inline">$labels.getString("project.general.prjtype")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
-                      <input id="project_general_prjtype" class="general_input" type="text" placeholder="kind of project">
+                      <select id="project_general_prjtype" class="general_input"  placeholder="kind of project">
+                        ${prjtypelist}
+                      </select>
                     </div>
                   </div>
                 </div>
               </div>
               <!-- Project's GOAL -->
               <div class="large-12 medium-12 small-12 row">
-                <Label>$labels.getString("project.general.goal")
+                <label>$labels.getString("project.general.goal")
                   <textarea id="project_general_goal" spellcheck="false" placeholder="goal of this project" rows="3"></textarea>
-                </Label>
+                </label>
               </div>
             </div>
             <!-- The top-right contains data and project-specific preferences -->
@@ -115,24 +118,28 @@
               <div class="row">$labels.getString("project.general.dateedited"): 
                 <div id="project_general_datechanged" class="project_general_date">-</div></div>
               <div class="row">  </div>
+            <!--  THIS should not longer be necessary
               <div class="row collapse">
                 <input type="checkbox" id="project_general_showsyn">
                 <label for="project_general_showsyn">$labels.getString("project.general.showsyn")</label>
               </div>
+              -->
             </div>
           </div>
           <!-- The bottom contains the comments for this project -->
           <div id="project_general_bottom" class="large-16 medium-16 small-16 row">
-            <Label>$labels.getString("project.general.comments"):
+            <label>$labels.getString("project.general.comments"):
               <textarea id="project_general_comments"  spellcheck="false" placeholder="Comments on this project" rows="20"></textarea>
-            </Label>
+            </label>
           </div>
         </div>
       </fieldset>
     </form>
   </div>
 </div>
+<!-- EXTINCT
 <div id="project_status" class="large-16 medium-16 small-16">
   <p></p>
 </div>
+-->
 
