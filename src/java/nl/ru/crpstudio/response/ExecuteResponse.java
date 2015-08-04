@@ -46,6 +46,8 @@ public class ExecuteResponse extends BaseResponse {
       if (!oQuery.has("userid")) { sendErrorResponse("ExecuteResponse: missing @userid"); return;}
       this.params.put("userid", oQuery.getString("userid"));
       this.params.put("crp", oQuery.getString("crp"));
+      // Keep the CRP name for later use
+      this.sCrpName = oQuery.getString("crp");
       this.params.put("lng", oQuery.getString("lng"));
       if (oQuery.has("dir")) { this.params.put("dir", oQuery.getString("dir")); }
       if (oQuery.has("cache")) { 

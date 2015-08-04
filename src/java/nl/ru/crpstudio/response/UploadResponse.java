@@ -75,7 +75,7 @@ public class UploadResponse extends BaseResponse {
 
         // Get the content part
         oContent = oResp.getJSONObject("content");
-        oContent.put("prjline", this.getProjectItem(sPrjName, false));
+        oContent.put("prjline", this.getProjectItem(sPrjName, false, "", ""));
         oContent.put("crpname", sPrjName);
         // Send the output to our caller
         sendStandardResponse("completed", "upload completed successfully", oContent);

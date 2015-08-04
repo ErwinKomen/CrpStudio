@@ -7,7 +7,6 @@
 package nl.ru.crpstudio.response;
 
 import static nl.ru.crpstudio.response.BaseResponse.logger;
-import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
 public class ProjectsResponse extends BaseResponse {
@@ -15,12 +14,20 @@ public class ProjectsResponse extends BaseResponse {
 	@Override
 	protected void completeRequest() {
     try {
+      // Get the user's settings
+      JSONObject oSettings = this.getUserSettings(this.sUserId);
       // Get access to all the corpora the user can choose from
       this.getContext().put("corpuslist", getCorpusList());
       // Get the result tab specifications
       this.getContext().put("tabspecs", getTabSpecsList());
+      // Get a specification of project-types
+      this.getContext().put("prjtypelist", this.getPrjTypeList());
       // Get access to the projects this user can choose from
       this.getContext().put("projecttable", this.getProjectInfo(this.sUserId));
+      // Set the most recently used CRP
+      String sRecentCrp = (oSettings.has("recent")) ? oSettings.getString("recent") : "";
+      this.getContext().put("recentcrp", this.getProjectItem(sRecentCrp, this.sUserId, "crp-recent"));
+      this.getContext().put("recent", sRecentCrp);
       // Indicate which main tab the user has chosen
       this.getContext().put("maintab", "projects");
       // Set the initial tab for the search: project

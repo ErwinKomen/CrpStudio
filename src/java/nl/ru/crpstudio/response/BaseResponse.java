@@ -43,6 +43,7 @@ import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TabSpecifier;
 import nl.ru.crpstudio.util.TemplateManager;
 import nl.ru.crpx.project.CorpusResearchProject;
+import nl.ru.crpx.project.CorpusResearchProject.ProjType;
 import nl.ru.crpx.tools.FileIO;
 import nl.ru.util.FileUtil;
 import nl.ru.util.StringUtil;
@@ -75,6 +76,7 @@ public abstract class BaseResponse {
   protected String sJobId = "";
   protected CrpContainer crpContainer;
   protected CorpusResearchProject crpThis;
+  protected String sCrpName = "";
 	
 	protected long startTime = new Date().getTime();
 
@@ -540,6 +542,12 @@ public abstract class BaseResponse {
       output.put("status", oStat);
       if (oResp.has("content")) {
         oContent = oResp.getJSONObject("content");
+        // Possibly add some more content
+        if (oStat.getString("code").equals("completed")) {
+          // Yes, try to get some more content
+          oContent.put("prjlist", getProjectInfo(this.sUserId));
+          oContent.put("recent", getProjectItem(this.sCrpName, this.sUserId, "crp-recent"));
+        }
         output.put("content", oContent);
         if (oContent.has("message")) sMsg = oContent.getString("message");
       }
@@ -1049,10 +1057,37 @@ public abstract class BaseResponse {
   }
   
   /**
+   * getUserSettings
+   *    Request the "settings.json" object from the /crpp server
+   * 
+   * @param sUser
+   * @return 
+   */
+  public JSONObject getUserSettings(String sUser) {
+    try {
+            // Prepare the parameters for this request
+      this.params.clear();
+      this.params.put("userid", sUser);
+      // Get the JSON object from /crpp containing the projects of this user
+      String sResp = getCrppResponse("settings", "", this.params,null);
+      // Interpret the response
+      JSONObject oResp = new JSONObject(sResp);
+      if (!oResp.has("status") || !oResp.has("content") || 
+          !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+      // Get the list of CRPs
+      return oResp.getJSONObject("content");
+
+    } catch (Exception ex) {
+      logger.DoError("getUserSettings: could not complete", ex);
+      return null;
+    }
+  }
+  /**
    * getProjectInfo -- 
    *    Issue a request to the CRPP to get an overview of the projects
    *    that user @sUser has access to
    * 
+   * @param sUser
    * @return -- HTML string containing a table with projects of this user
    */
   public String getProjectInfo(String sUser) {
@@ -1069,11 +1104,16 @@ public abstract class BaseResponse {
       } else {
         // The list of CRPs is in a table where each element can be selected
         for (int i = 0 ; i < arCrpList.length(); i++) {
+          String sLng = "";
+          String sDir = "";
           // Get this CRP item
           JSONObject oCRP = arCrpList.getJSONObject(i);
           boolean bCrpLoaded = oCRP.getBoolean("loaded");
+          // Possibly get lng+dir
+          if (oCRP.has("lng")) sLng = oCRP.getString("lng");
+          if (oCRP.has("dir")) sDir = oCRP.getString("dir");
           String sCrpName = FileIO.getFileNameWithoutExtension(oCRP.getString("crp"));
-          sb.append(getProjectItem(sCrpName, bCrpLoaded));
+          sb.append(getProjectItem(sCrpName, bCrpLoaded, sLng, sDir));
         }
       }
       // Return the string we made
@@ -1087,15 +1127,76 @@ public abstract class BaseResponse {
   /**
    * getProjectItem
    *    Produce one <li> for the project-list
+   *    If only the CRP is given, then look in the list to find details
    * 
    * @param sCrp
    * @param bLoaded
+   * @param sLng
+   * @param sDir
    * @return 
    */
-  public String getProjectItem(String sCrp, boolean bLoaded) {
+  public String getProjectItem(String sCrp, boolean bLoaded, String sLng, String sDir) {
     String sCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
     return "<li class='crp_"+sCrp+" crp-available'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
-                  sCrp +"\")'>" + sCrpName + "</a></li>\n";
+                  sCrp +"\", \""+sLng+"\", \""+sDir+"\")'>" + sCrpName + "</a></li>\n";
+  }
+  public String getProjectItem(String sCrp, String sUser, String sType) {
+    try {
+      // Possibly adapt [sCrp]
+      if (!sCrp.endsWith(".crpx")) sCrp += ".crpx";
+      // Get the list
+      JSONArray arCrpList = getProjectList(sUser);
+      // The list of CRPs is in a table where each element can be selected
+      for (int i = 0 ; i < arCrpList.length(); i++) {
+        String sLng = "";
+        String sDir = "";
+        // Get this CRP item
+        JSONObject oCRP = arCrpList.getJSONObject(i);
+        boolean bCrpLoaded = oCRP.getBoolean("loaded");
+        // Possibly get lng+dir
+        if (oCRP.has("lng")) sLng = oCRP.getString("lng");
+        if (oCRP.has("dir")) sDir = oCRP.getString("dir");
+        String sCrpName = oCRP.getString("crp").toLowerCase();
+        // Is this the CRP we are looking for?
+        if (sCrp.toLowerCase().equals(sCrpName)) {
+          sCrpName = FileIO.getFileNameWithoutExtension(sCrp)  + ((bCrpLoaded) ? " (loaded)" : "");
+          return "<li class='crp_"+sCrp+" "+sType+"'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
+                  sCrp +"\", \""+sLng+"\", \""+sDir+"\")'>" + sCrpName + "</a></li>\n";
+        }
+      }
+      // Getting here means we have nothing
+      return "";
+    } catch (Exception ex) {
+      logger.DoError("getProjectItem: could not complete", ex);
+      return "error (getProjectItem)";
+    }
+  }
+  
+  /**
+   * getPrjTypeList
+   *    Return an <option> list of selectable prjtype elements
+   * 
+   * @return 
+   */
+  public String getPrjTypeList() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+
+    try {
+      ProjType[] arPrjType = ProjType.values();
+      for (int i=0;i<arPrjType.length;i++) {
+        // Get this project type
+        String sPrjType = ProjType.getName(arPrjType[i]);
+        // Enter the combobox line
+        sb.append("<option value=\"" + sPrjType.toLowerCase() + "\"" + 
+                " onclick='Crpstudio.project.setPrjType(\"" + sPrjType + "\")' >" +
+                sPrjType + "</option>\n");
+      }
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getPrjTypeList: could not complete", ex);
+      return "error (getPrjTypeList)";
+    }
   }
   
   /**
