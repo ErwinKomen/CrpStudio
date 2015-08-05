@@ -775,15 +775,20 @@ Crpstudio.project = {
             $("#project_general_showsyn").removeClass("checked");
           $("#project_general_comments").val(sComments);
           
-          // Add event handlers on all <input> elements under "project_general"
+          // Add event handlers on all INPUT elements under "project_general"
           $("#project_general input").on("change keydown paste input", 
             function() {Crpstudio.project.ctlTimer(this);});
           $("#project_general input").on("blur", 
             function() {Crpstudio.project.ctlChanged(this);});
-          // Add event handlers on all <textarea> elements under "project_general"
+          // Add event handlers on all TEXTAREA elements under "project_general"
           $("#project_general textarea").on("change keydown paste input", 
             function() {Crpstudio.project.ctlTimer(this);});
           $("#project_general textarea").on("blur", 
+            function() {Crpstudio.project.ctlChanged(this);});
+          // Add event handlers on all SELECT elements under "project_general"
+          $("#project_general select").on("change keydown paste input", 
+            function() {Crpstudio.project.ctlTimer(this);});
+          $("#project_general select").on("blur", 
             function() {Crpstudio.project.ctlChanged(this);});
           
           // Make the General area visible again
@@ -1112,11 +1117,16 @@ Crpstudio.project = {
    */
   setPrjType : function(sPrjType) {
     // Pass on this value to /crpstudio and to /crpp
+    /*
     var params = "crpname=" + Crpstudio.project.currentPrj + "&userid=" + Crpstudio.currentUser +
             "&key=prjtype&value="+sPrjType;
     Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_general_prjtype");      
+    */
+    // New method
+    Crpstudio.project.ctlCurrent = $("#project_general_prjtype");
+    Crpstudio.project.ctlTimer($("#project_general_prjtype"));
   },
-  
+    
   /**
    * ctlChange
    *    Process changes in the <input>, which is 'source'
@@ -1126,7 +1136,7 @@ Crpstudio.project = {
    */
   ctlChanged : function(source) {
     // Validate source
-    if (!source) source = Crpstudio.project.ctlCurrent;
+    if (!source || source == null) source = Crpstudio.project.ctlCurrent;
     // Clear any previously set timer
     clearTimeout(Crpstudio.project.typingTimer);
     // Find parameters
@@ -1138,14 +1148,14 @@ Crpstudio.project = {
       case "project_general_author": sKey = "Author"; break;
       case "project_general_goal": sKey = "Goal"; break;
       case "project_general_comments": sKey = "Comments"; break;
-        
+      case "project_general_prjtype": sKey = "ProjType"; break;
     }
     // Pass on this value to /crpstudio and to /crpp
     var oChanges = { "crp": Crpstudio.project.currentPrj,
       "userid": Crpstudio.currentUser, 
       "key": sKey, "value": sValue };
     var params = "changes=" + JSON.stringify(oChanges);
-    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_general_prjtype");      
+    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
   },
   /**
    * ctlTimer
