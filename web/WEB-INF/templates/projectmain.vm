@@ -23,7 +23,7 @@
           <!-- Actions to CREATE/ADD/LOAD a CRP -->
           <li class="heading crp-new" onclick="Crpstudio.project.sideToggle(this, 'crp-new')"><label>$labels.getString("project.new")</label></li>
           <li class="crp-new">
-            <a id="project-upload" onclick="$('#project-upload-input').click();">$labels.getString("project.upload")</a>
+            <a id="project-upload" onclick="$(\"#project-upload-input\").click();">$labels.getString("project.upload")</a>
             <input id="project-upload-input" class="uploadfile" type="file" onchange="Crpstudio.project.uploadCrpFile(this);">
           </li>
           <li class="crp-new"><a id="project-createM" href="#" onclick="Crpstudio.project.createManual(this);">$labels.getString("project.create.manual")</a></li>

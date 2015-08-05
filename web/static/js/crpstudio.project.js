@@ -15,6 +15,9 @@ Crpstudio.project = {
   divStatus: "",          // The name of the div where the status is to be shown
   recentcrp: "",          // Recently used CRP
   interval: 200,          // Number of milliseconds
+  typingTimer: null,      // Timer to make sure we react only X seconds after typing
+  doneTypingIntv: 2000,   // Stop-typing interval: 2 seconds
+  ctlCurrent: null,       // Current control
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
@@ -772,10 +775,15 @@ Crpstudio.project = {
             $("#project_general_showsyn").removeClass("checked");
           $("#project_general_comments").val(sComments);
           
-          // Add event handlers on all input stuff
+          // Add event handlers on all <input> elements under "project_general"
           $("#project_general input").on("change keydown paste input", 
+            function() {Crpstudio.project.ctlTimer(this);});
+          $("#project_general input").on("blur", 
             function() {Crpstudio.project.ctlChanged(this);});
+          // Add event handlers on all <textarea> elements under "project_general"
           $("#project_general textarea").on("change keydown paste input", 
+            function() {Crpstudio.project.ctlTimer(this);});
+          $("#project_general textarea").on("blur", 
             function() {Crpstudio.project.ctlChanged(this);});
           
           // Make the General area visible again
@@ -794,6 +802,56 @@ Crpstudio.project = {
       }
 		} else {
 			$("#project_status").html("ERROR - Failed to load the .crpx result from the server.");
+		}    
+  },
+    /**
+   * processCrpChg
+   *    Process the reply when changes have been made
+   *    
+   * @param {type} response   JSON object returned from /crpstudio/crpchg
+   * @param {type} target
+   * @returns {undefined}
+   */
+  processCrpChg : function(response, target) {
+		if (response !== null) {
+      // Remove waiting
+      $("#project_description").html("");
+      // The response is a standard object containing "status" (code) and "content" (code, message)
+      var oStatus = response.status;
+      var sStatusCode = oStatus.code;
+      var oContent = response.content;
+      switch (sStatusCode) {
+        case "completed":
+          // Have changes been made?
+          if (oContent.changed) {
+            // Get the information passed on about this project
+            var sDateChanged = oContent.datechanged;
+            // Get the CRP for which this was done
+            var sCrpChanged = oContent.crp;
+            if (sCrpChanged === Crpstudio.project.currentPrj) {
+              // Put the information on the correct places in the form
+              $("#project_general_datechanged").html(sDateChanged);
+            }
+            // Show that changes have been made
+            $("#top_bar_saved_project").html(sCrpChanged);
+            $("#top_bar_saved_project").parent().removeClass("hidden");
+            // Wait for some time and then show it again
+            setTimeout(function() {$("#top_bar_saved_project").parent().addClass("hidden");}, 700);
+          }
+          break;
+        case "error":
+          var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+          var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+          $("#project_status").html("Error: " + sErrorCode);
+          $(target).html("Error: " + sErrorMsg);
+          break;
+        default:
+          $("#project_status").html("Error: no reply");
+          $(target).html("Error: no reply received from the /crpstudio server");
+          break;
+      }
+		} else {
+			$("#project_status").html("Server problem - Failed to process changes in the CRP.");
 		}    
   },
   
@@ -1067,6 +1125,11 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   ctlChanged : function(source) {
+    // Validate source
+    if (!source) source = Crpstudio.project.ctlCurrent;
+    // Clear any previously set timer
+    clearTimeout(Crpstudio.project.typingTimer);
+    // Find parameters
     var sKey = "";
     var sValue = $(source).val();
     // Determine which 'key' this is
@@ -1075,11 +1138,31 @@ Crpstudio.project = {
       case "project_general_author": sKey = "Author"; break;
       case "project_general_goal": sKey = "Goal"; break;
       case "project_general_comments": sKey = "Comments"; break;
+        
     }
     // Pass on this value to /crpstudio and to /crpp
-    var params = "crpname=" + Crpstudio.project.currentPrj + "&userid=" + Crpstudio.currentUser +
-            "&key="+sKey+"&value="+encodeURIComponent(sValue);
+    var oChanges = { "crp": Crpstudio.project.currentPrj,
+      "userid": Crpstudio.currentUser, 
+      "key": sKey, "value": sValue };
+    var params = "changes=" + JSON.stringify(oChanges);
     Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_general_prjtype");      
+  },
+  /**
+   * ctlTimer
+   *    Call the function ctlChanged(), but only after a fixed time
+   *    of inactivity (not typing) has taken place
+   *    
+   * @param {type} source
+   * @returns {undefined}
+   */
+  ctlTimer : function(source) {
+    // Clear any previously set timer
+    clearTimeout(Crpstudio.project.typingTimer);
+    // Set the source
+    Crpstudio.project.ctlCurrent = source;
+    // Call a new timer
+    Crpstudio.project.typingTimer = setTimeout(Crpstudio.project.ctlChanged, 
+      Crpstudio.project.doneTypingIntv);
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual
