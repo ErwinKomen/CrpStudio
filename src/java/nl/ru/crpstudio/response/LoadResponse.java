@@ -28,7 +28,7 @@ public class LoadResponse extends BaseResponse {
       if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
       
       // Either load the project from /crpp or fetch it from the internal storage
-      crpThis = crpContainer.getCrp(this, project, sUserId);
+      crpThis = crpContainer.getCrp(this, project, sUserId, false);
       if (crpThis == null) { sendErrorResponse("Could not load CRP:\n" + 
               logger.getErrList().toString()); return;}
 			

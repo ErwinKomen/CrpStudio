@@ -610,7 +610,7 @@ public abstract class BaseResponse {
     JSONArray arContent = null;
     String sMsg = "(undefined)";
     try {
-            // Interpret the response: expecting a JSON string with "status", "content"
+      // Interpret the response: expecting a JSON string with "status", "content"
       JSONObject oResp = new JSONObject(sResp);
       if (!oResp.has("status")) { output.put("error", "processUpdateResponse: /crpp does not return status"); return;}
       // Decypher the status

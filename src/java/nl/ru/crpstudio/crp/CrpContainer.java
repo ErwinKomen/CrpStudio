@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import nl.ru.crpstudio.response.BaseResponse;
+import nl.ru.crpstudio.response.CrpchgResponse;
 import nl.ru.crpstudio.response.LoadResponse;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpx.dataobject.DataObject;
@@ -51,19 +53,25 @@ public class CrpContainer {
    *    Either get an existing CrpInfo object, or get a CRP from /crpp
    *    and create a new CrpInfo object
    * 
-   * @param br
-   * @param sProjectName
-   * @param sUserId
+   * @param br            - 
+   * @param sProjectName  - 
+   * @param sUserId       - 
+   * @param bForce        - 
    * @return 
    */
-  public CrpInfo getCrpInfo(LoadResponse br, String sProjectName, String sUserId) {
+  public CrpInfo getCrpInfo(BaseResponse br, String sProjectName, 
+          String sUserId, boolean bForce) {
     try {
       // Check if this combination already exists in the list
       for (CrpInfo oCrpInfo : loc_crpUserList) {
         // Check if this has the correct project name, language index and user id
         if (oCrpInfo.prjName.equals(sProjectName) && oCrpInfo.userId.equals(sUserId) 
-                && oCrpInfo.prjThis != null
-                /* && oCrpInfo.lngIndex.equals(sLngIndex) */) {
+                && oCrpInfo.prjThis != null ) {
+          // The CRP is already 'in store', but has it been downloaded yet?
+          if (bForce) {
+            // Make sure it is re-downloaded
+            oCrpInfo.refresh();
+          }
           // Return this object
           return oCrpInfo;
         } 
@@ -92,11 +100,13 @@ public class CrpContainer {
    * @param br            - 
    * @param sProjectName  - 
    * @param sUserId       - 
+   * @param bForce        - 
    * @return 
    */
-  public CorpusResearchProject getCrp(LoadResponse br, String sProjectName, String sUserId) {
+  public CorpusResearchProject getCrp(BaseResponse br, String sProjectName, 
+          String sUserId, boolean bForce) {
     try {
-      CrpInfo oCrpInfo= getCrpInfo(br, sProjectName, sUserId);
+      CrpInfo oCrpInfo= getCrpInfo(br, sProjectName, sUserId, bForce);
       // Check what we get back
       if (oCrpInfo == null)
         return null;
@@ -292,21 +302,24 @@ class CrpInfo {
   static String sProjectBase = "/etc/crpstudio/"; // Base directory where user-spaces are stored
   // ==================== Variables belonging to one CrpUser object ============
   CorpusResearchProject prjThis;  // The CRP to which the user has access
-  String prjName;                 // The name of this CRP
+  BaseResponse br;
+  String prjName ;                 // The name of this CRP
   String userId;                  // The user that has access to this CRP
   ErrHandle logger;               // Information and logging
 	Map<String,Object> params;      // Parameters for the Crpp call
   // ================ Initialisation of a new class element ===================
-  public CrpInfo(LoadResponse br, String sProjectName, String sUserId, ErrHandle errHandle) {
+  public CrpInfo(BaseResponse br, String sProjectName, String sUserId, ErrHandle errHandle) {
     // Set our error handler
     this.logger = errHandle;
+    this.prjThis = null;
+    this.br = br;
     // Make sure errors are treated well
     try {
       this.prjName = sProjectName;
       this.userId = sUserId;
       this.params = new HashMap<>();
       // Load the project
-      if (!initCrp(br)) {
+      if (!initCrp()) {
         logger.DoError("CrpInfo: Could not load project [" + sProjectName + "]");
         return;
       }
@@ -314,7 +327,28 @@ class CrpInfo {
       logger.DoError("CrpInfo: error while loading project [" + sProjectName + 
               "]", ex, CrpInfo.class);
     }
-    
+  }
+  
+  /**
+   * refresh
+   *    Re-load the CRP, provided it is already there
+   * 
+   * @return 
+   */
+  public final boolean refresh() {
+    try {
+      // Validate
+      if (this.prjName.isEmpty() || this.prjThis == null) return false;
+      // Download the project
+      if (!getCrp(this.prjThis, true)) return false;
+      
+      // Return positively
+      return true;
+    } catch (Exception ex) {
+      logger.DoError("refresh: error while refreshing project [" + this.prjName + 
+              "]", ex, CrpInfo.class);
+      return false;
+    }
   }
   /* ---------------------------------------------------------------------------
    Name: initCrp
@@ -327,19 +361,42 @@ class CrpInfo {
    History:
    7/nov/2014   ERK Created
    --------------------------------------------------------------------------- */
-  public final boolean initCrp(LoadResponse br) {
+  public final boolean initCrp() {
     try {
       // Create room for a corpus research project
       CorpusResearchProject crpThis = new CorpusResearchProject(false);
+      // Download the project
+      if (!getCrp(crpThis, false)) return false;
+
+      // Get my copy of the project
+      this.prjThis = crpThis;
+      // Return positively
+      return true;
+    } catch (Exception ex) {
+      logger.DoError("There's a problem initializing the CRP", ex, CrpInfo.class);
+      // Return failure
+      return false;
+    }
+  }
+  
+  /**
+   * getCrp
+   *    Perform the actual job of downloading the project
+   * 
+   * @param crpThis
+   * @return 
+   */
+  public boolean getCrp(CorpusResearchProject crpThis, boolean bForce) {
+    try {
       // Set the project file name + path straight
       String sProjectPath = getCrpPath();
       // Is the project there?
       File fProjectPath = new File(sProjectPath);
-      if (!fProjectPath.exists()) {
+      if (!fProjectPath.exists() || bForce) {
         // Fetch the project from /crpp
         this.params.put("userid", userId);
         this.params.put("name", prjName);
-        String sResp = br.getCrppResponse("crpget", "", this.params, null);
+        String sResp = this.br.getCrppResponse("crpget", "", this.params, null);
         if (sResp.isEmpty() || !sResp.startsWith("{")) return false;
         // Convert the response to JSON
         JSONObject oResp = new JSONObject(sResp);
@@ -377,18 +434,14 @@ class CrpInfo {
         logger.DoError("List of errors:\n" + sMsg);
         return false;
       }
-
-
-      // Get my copy of the project
-      this.prjThis = crpThis;
       // Return positively
       return true;
     } catch (Exception ex) {
-      logger.DoError("There's a problem initializing the CRP", ex, CrpInfo.class);
-      // Return failure
+      logger.DoError("Could not download the CRP", ex, CrpInfo.class);
       return false;
     }
   }
+  
   /**
    * getCrpPath
    *    Given the name of a CRP stored in this CrpInfo, get its full path

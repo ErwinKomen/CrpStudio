@@ -30,7 +30,6 @@ import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +48,8 @@ import org.xml.sax.InputSource;
 /**
  * CrpStudio - Provide a servlet for the CorpusStudio web edition
  *             Main entry point for the CrpStudio UI component
+ * 
+ * Note: the acceptable / commands are determined by web.xml
  * 
  * @author Erwin R. Komen
  */
@@ -147,6 +148,7 @@ public class CrpStudio extends HttpServlet {
 
       responses.put("about", new InfoResponse());
       responses.put("corpora", new CorporaResponse());
+      responses.put("crpchg", new CrpchgResponse());
       responses.put("download", new DownloadResponse());
       responses.put("error", new ErrorResponse());
       responses.put("exe", new ExecuteResponse());
