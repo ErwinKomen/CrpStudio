@@ -546,10 +546,22 @@ public abstract class BaseResponse {
         if (oStat.getString("code").equals("completed")) {
           // Yes, try to get some more content
           oContent.put("prjlist", getProjectInfo(this.sUserId));
-          oContent.put("recent", getProjectItem(this.sCrpName, this.sUserId, "crp-recent"));
+          if (oContent.has("query")) {
+            // try to get the CRP name from the 'query' object
+            JSONObject oQuery = new JSONObject(oContent.getString("query"));
+            this.sCrpName = oQuery.getString("crp");
+          }
+          String sRecent = getProjectItem(this.sCrpName, this.sUserId, "crp-recent");
+          logger.debug("crp=["+this.sCrpName+"] user=["+this.sUserId+"] RECENT="+sRecent);
+          oContent.put("recent", sRecent);
+        }
+        if (oContent.has("message")) 
+          sMsg = oContent.getString("message");
+        else if (oStat.has("message")) {
+          sMsg = oStat.getString("message");
+          oContent.put("message", sMsg);
         }
         output.put("content", oContent);
-        if (oContent.has("message")) sMsg = oContent.getString("message");
       }
       // Put the userid separately in the output string we return
       output.put("userid", this.sUserId);
