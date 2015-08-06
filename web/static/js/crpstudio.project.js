@@ -248,10 +248,10 @@ Crpstudio.project = {
         var oContent = oResponse.content;
         // Adapt the CRP-AVAILABLE list
         $("#project_list .crp-available").not(".divider").not(".heading").remove();
-        $("#project_list .crp-available").last().append(oContent.prjlist);
+        $("#project_list .crp-available").last().after(oContent.prjlist);
         // ADAPT the CRP-RECENT
         $("#project_list .crp-recent").not(".divider").not(".heading").remove();
-        $("#project_list .crp-recent").last().append(oContent.recent);
+        $("#project_list .crp-recent").last().after(oContent.recent);
         // And more completion
         $(target).html("");
         // Make sure the results are visible
@@ -262,7 +262,8 @@ Crpstudio.project = {
       case "error":
         // Switch off the progress indicator
         $("#result_progress").addClass("hidden");
-        // Provide an error report
+        // But make the "fetching" section available
+        $("#result_fetching").removeClass("hidden");        // Provide an error report
         if (oStatus.message !== "") {
           var sReport = [];
           // Try to unpack the status
@@ -637,11 +638,14 @@ Crpstudio.project = {
             // Show the recent ones
             $("#project_list li .crp-recent").show();
             Crpstudio.project.recentcrp = sRecentCrp;
-          } else {
+          } 
+          /* Don't do anything with hiding
+          else {
             // Just hide the recent ones
             $("#project_list li .crp-recent").hide();
-            Crpstudio.project.recentcrp = "";
-          }
+            // But DON'T whipe it!!!
+            // Crpstudio.project.recentcrp = "";
+          } */
           break;
         case "input_editor": 
         case "input":
