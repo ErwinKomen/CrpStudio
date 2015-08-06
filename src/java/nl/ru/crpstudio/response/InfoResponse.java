@@ -19,6 +19,10 @@ public class InfoResponse extends BaseResponse {
       // Make sure the current user is known
       this.getContext().put("username", servlet.getUserId());
       this.getContext().put("maintab", "about");
+      // ==== DEBUG
+      // String sAbout = this.getContext().get("aboutUrl").toString();
+      String sDebug = this.applyHtmlTemplate(this.templateMan.getTemplate("about"));
+      // ========================
       this.displayHtmlTemplate(this.templateMan.getTemplate("about"));
     } catch (Exception ex) {
       this.displayError("InfoResponse error: " + ex.getMessage());      
