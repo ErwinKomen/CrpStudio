@@ -1,4 +1,18 @@
 #set($aboutUrl=$labels.getString("aboutUrl"))
+#set($aboutVm=$labels.getString("aboutVm"))
+#set($aboutKomen2011=$labels.getString("about.ref.komen2011"))
+#set($aboutKomen2013a=$labels.getString("about.ref.komen2013a"))
+#set($aboutKomen2013b=$labels.getString("about.ref.komen2013b"))
+#set($aboutBoag2010=$labels.getString("about.ref.boag2010"))
+#set($aboutKomenWin=$labels.getString("about.ref.komenCorpusStudioWin"))
+#set($aboutSonarManual=$labels.getString("about.ref.sonarManual"))
+#set($helpManualPdf = $labels.getString("help.manual.pdf"))
+#set($corporaPage = "./corpora")
 #parse("header.vm")
-		<iframe id="aboutpage" src="$!aboutUrl"></iframe>
+		<!-- 
+    <iframe id="aboutpage" src="$aboutUrl"></iframe>
+    -->
+<div class="about small-14 medium-14 large-14 small-offset-1 medium-offset-1 large-offset-1">
+  #parse($aboutVm)
+</div>
 #parse("footer.vm")

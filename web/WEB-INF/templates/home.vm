@@ -1,7 +1,7 @@
 #set($homeUrl=$labels.getString("homeUrl"))
 #parse("header.vm")
   #if(${userokay} && ${userokay} == "true")
-    <div class="welcome">
+    <div class="welcome small-14 medium-14 large-14 small-offset-1 medium-offset-1 large-offset-1">
     <p>$labels.getString("welcome.line1") <b>${userid}</b>. </p>
     #if($corpus.last && $corpus.last != "")
       <p>$labels.getString("welcome.line2") $corpus.last</p>

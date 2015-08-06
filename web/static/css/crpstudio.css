@@ -148,6 +148,7 @@ h6 {
 
 #nav-right {
 	max-height: 45px;
+	z-index: 1000;
 }
 
 #nav-right > div {
@@ -1744,3 +1745,27 @@ textarea {
 	padding-bottom: 20px;
  
 }
+
+.about p, .about ul, .about ul li { 
+  font-size: medium !important; 
+  font-family: Arial, Helvetica, sans-serif !important; 
+  width: 90%; 
+  margin-left: auto; 
+  margin-right: auto; 
+  line-height: normal !important;
+}
+.about h2 {
+  font-size: 18px !important;
+  font-weight: bold !important;
+  font-family: Arial, Helvetica, sans-serif !important; 
+  width: 90%; 
+  margin-left: auto; 
+  margin-right: auto; 
+}
+.about span.bibtex { 
+  font-family : "Courier New", Courier, monospace !important; 
+}
+.about a, .about a:active, .about a:hover, .about a:visited { 
+  text-decoration: none !important; 
+  font-weight: bold !important; 
+  color: #9b0122 !important; }

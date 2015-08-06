@@ -82,6 +82,12 @@
           <li class="name">$project:<div id="top_bar_current_project" class="label">-</div><div class="DivHelper"></div></li>
           <li class="name">$corpusTitle:<div id="top_bar_current_corpus" class="label">-</div><div class="DivHelper"></div></li>
           <li class="name"><span class="hidden">$projectSaved:<div id="top_bar_saved_project" class="label">-</div><div class="DivHelper"></div></span></li>
+            <!-- Right Nav Section -->
+            <div id="nav-right" class="medium-3 large-5 columns right show-for-medium-up">
+              <div>
+                <a href="#"><img id="navLogo" src="./static/img/logo_cs_white.png" /></a>
+              </div>
+            </div>
         </section>
       </nav>
       <!-- Second top-bar containing navigation items -->
@@ -142,12 +148,6 @@
               </ul>
             </div>
 
-            <!-- Right Nav Section -->
-            <div id="nav-right" class="medium-3 large-5 columns right show-for-medium-up">
-              <div>
-                <a href="#"><img id="navLogo" src="./static/img/logo_cs.png" /></a>
-              </div>
-            </div>
           </div>
         </section>
       </nav>

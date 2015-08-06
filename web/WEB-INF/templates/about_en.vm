@@ -1,0 +1,54 @@
+		<h2>About the Corpus Studio web application</h2>
+    <p>Text collections on the internet are no novelty, and there are lots of programs facilitating access to them.
+      The number of texts that come with <i>syntactic</i> annotation is slowly increasing, and working with these texts has been a challenge.
+      Corpus Studio Web provides comprehensive search capabilities to these texts (since the search language works on the xml texts directly).
+      The basic component to these searches is the 'Corpus Research Project' (a CRP).
+      Such a CRP holds the essential parts of a corpus research task, such as:</p>
+    <ul>
+      <li>the queries that need to be used</li>
+      <li>the order (and hierarchy) of the queries</li>
+      <li>the texts on which the queries are made</li>
+      <li>meta information (author, date, version, description)</li>
+    </ul>
+    <p>Where Corpus Studio facilitated the creation and running of CRPs in a Windows environment, working on whatever texts the user might have available,
+    the web-based version of Corpus Studio is platform independent and keeps the corpora in one central place.</p>
+    <p>The Corpus Studio web version you are now using provides access to the corpora available on the 
+      <a href="$corporaPage">Corpora</a> page.</p>
+    <p>There are two options to use the Corpus Studio web version for other corpora:</p>
+    <ul>
+      <li>Request permission to add the corpus to this Corpus Studio web version (see contact details)</li>
+      <li>Ask the local technical department to install the Corpus Studio web version that is available on GitHub (see details)</li>
+    </ul>
+
+		<p><b>Manuals</b></p>
+ 
+		<p>
+      A pdf version of the Corpus Studio <b>web application</b>'s manual is <a href="$helpManualPdf" target="_blank">here</a>.
+      <br />The English language reference manual to the Windows Corpus Studio program <a href="$aboutKomenWin" target="_blank">hier</a>.
+      <br />Some editions of the Corpus Studio web application give access to the SoNaR corpus.
+      The English manual to this corpus is located <a href="$aboutSonarManual" target="_blank">here</a>.</p>
+
+		<p><b>Credits:</b></p>
+		
+		<p>Acknowledging the use of Corpus Studio in your research can make use of the following reference:</p>
+    <p>Komen, Erwin R. 2011. 
+      <a href="$aboutKomen2011" target="_blank">Coreferenced corpora for information structure research.</a> 
+      In <i>Outposts of Historical Corpus Linguistics: From the Helsinki Corpus to a Proliferation of Resources. (Studies in Variation, Contacts and Change in English 10)</i>
+      Jukka Tyrkkö, Terttu Nevalainen, Matti Rissanen & Matti Kilpiö (eds). 
+      Helsinki, Finland: Research Unit for Variation, Contacts, and Change in English.</p>
+    <p>Komen, Erwin R. 2013. <i><a href="$aboutKomen2013a" target="_blank">Finding focus: a study of the historical development of focus in English.</a></i> Utrecht: LOT.</p>
+    <p>Komen, Erwin R. 2013. <a href="$aboutKomen2013b" target="_blank">Corpus databases with feature pre-calculation</a>. 
+      In <i>Proceedings of the twelfth workshop on treebanks and linguistic theories (TLT12).</i> 
+      Sandra Kübler, Petya Osenova & Martin Volk (eds), 85-96. Sofia, Bulgaria: The institute of information and communication technologies, Bulgarian academy of sciences.</o>
+    
+		<p><b>Acknowledgements</b></p>
+    <p>The original Windows version of CorpusStudio was made with support from NWO...</p>
+    <p>The web-based version of CorpusStudio has been supported by CLARIN-NL, project number ... 
+      It heavily builds on the shoulders of other developers. 
+      The back end web service uses parts of "BlackLab" and "BlackLab Server", Java software that has originally been developed by INL (??).
+      The user-interface is modelled after the "WhiteLab" interface created by Matje ... </p>
+    <p>
+		<p><b>About Xquery</b></p>
+    <p><span class="bibtex">Boag, Scott, Don Chamberlin, Mary F. Fernández, Daniela Florescu, Jonathan Robie, and Jérôme Siméon. 2010. 
+    <a href="$aboutBoag2010" >XQuery 1.0: An XML Query Language (Second Edition): W3C Recommendation</a>.
+      </span></p>
