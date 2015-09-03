@@ -273,17 +273,28 @@ Crpstudio.project = {
             // Is this JSON?
             if (sFirstMsg.charAt(0) === "{") {
               var oMsgLine = JSON.parse(sFirstMsg);
-              // Get the "msg" part
-              if (oMsgLine.msg) {
-                var sMsgContent = oMsgLine.msg;
-                // Is this JSON?
-                if (sMsgContent.charAt(0) === "{") {
-                  var oMsgContent = JSON.parse(sMsgContent);
-                  sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
-                  for (var propThis in oMsgContent) {
-                    sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
+              // Can we do with this object?
+              if (oMsgLine.Type && oMsgLine.Name) {
+                // Use oMsgContent for compatibility with the alternative below
+                var oMsgContent = oMsgLine;
+                sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
+                for (var propThis in oMsgContent) {
+                  sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
+                }
+                sReport.push("</table></div>");
+              } else {
+                // Get the "msg" part
+                if (oMsgLine.msg) {
+                  var sMsgContent = oMsgLine.msg;
+                  // Is this JSON?
+                  if (sMsgContent.charAt(0) === "{") {
+                    var oMsgContent = JSON.parse(sMsgContent);
+                    sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
+                    for (var propThis in oMsgContent) {
+                      sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
+                    }
+                    sReport.push("</table></div>");
                   }
-                  sReport.push("</table></div>");
                 }
               }
             }
