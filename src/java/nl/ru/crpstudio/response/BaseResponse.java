@@ -1197,11 +1197,14 @@ public abstract class BaseResponse {
       ProjType[] arPrjType = ProjType.values();
       for (int i=0;i<arPrjType.length;i++) {
         // Get this project type
-        String sPrjType = ProjType.getName(arPrjType[i]);
-        // Enter the combobox line
-        sb.append("<option value=\"" + sPrjType.toLowerCase() + "\"" + 
-                " onclick='Crpstudio.project.setPrjType(\"" + sPrjType + "\")' >" +
-                sPrjType + "</option>\n");
+        String sPrjType = ProjType.getName(arPrjType[i]).trim();
+        // Make sure empty lines are *not* allowed
+        if (!sPrjType.equals("")) {
+          // Enter the combobox line
+          sb.append("<option value=\"" + sPrjType.toLowerCase() + "\"" + 
+                  " onclick='Crpstudio.project.setPrjType(\"" + sPrjType + "\")' >" +
+                  sPrjType + "</option>\n");
+        }
       }
       // Return the result
       return sb.toString();
