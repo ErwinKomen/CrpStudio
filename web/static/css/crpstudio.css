@@ -1536,6 +1536,8 @@ table#queries tbody tr td.control {
 	width: 75px;
 }
 
+/* ----------- limit max vertical size of Query Results ---- */
+/* Note: this does not work; the table should be inside a div */
 table#queries tbody {
 	max-height: 200px;
 	overflow-y: scroll;

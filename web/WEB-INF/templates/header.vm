@@ -37,6 +37,7 @@
 		<script type="text/javascript" src="./static/js/foundation.accordion.js"></script>
 		<script type="text/javascript" src="./static/js/foundation-datepicker.min.js"></script>
 		<script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
+		<script type="text/javascript" src="./static/js/scrollTableBody.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.project.js"></script>

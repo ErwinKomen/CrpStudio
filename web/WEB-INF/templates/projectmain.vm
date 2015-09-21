@@ -105,18 +105,26 @@
             </div>
             <!-- The top-right contains data and project-specific preferences -->
             <div id="project_general_right" class="large-5 medium=5 small-5 columns">
-              <div class="row">$labels.getString("project.general.datecreated"): 
-                <div id="project_general_datecreated" class="project_general_date">-</div></div>
-              <div class="row">  </div>
-              <div class="row">$labels.getString("project.general.dateedited"): 
-                <div id="project_general_datechanged" class="project_general_date">-</div></div>
-              <div class="row">  </div>
-            <!--  THIS should not longer be necessary
+              <fieldset><legend>Dates</legend>
+                <div class="row">$labels.getString("project.general.datecreated"): 
+                  <div id="project_general_datecreated" class="project_general_date">-</div></div>
+                <div class="row">  </div>
+                <div class="row">$labels.getString("project.general.dateedited"): 
+                  <div id="project_general_datechanged" class="project_general_date">-</div></div>
+                <div class="row">  </div>
+              </fieldset>
+            <!-- ======================= THIS should not longer be necessary
               <div class="row collapse">
                 <input type="checkbox" id="project_general_showsyn">
                 <label for="project_general_showsyn">$labels.getString("project.general.showsyn")</label>
               </div>
-              -->
+              ========================== -->
+              <fieldset><legend>Additional</legend>
+                <div class="row">
+                  <input type="checkbox" id="project_general_dbase">
+                  <label for="project_general_dbase">$labels.getString("project.general.dbase")</label>
+                </div>
+              </fieldset>
             </div>
           </div>
           <!-- The bottom contains the comments for this project -->

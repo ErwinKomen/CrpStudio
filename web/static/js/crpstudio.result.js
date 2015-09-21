@@ -42,6 +42,8 @@ Crpstudio.result = {
       // Add a row for this QC item
       Crpstudio.result.addQCline(iQC, sQcLabel, iTotal, arSubs, arSubCount);
     }
+    // Make sure no more than 10 lines of data are visible
+    // Unfortunately: doesn't work... $("#queries").scrollTableBody({rowsToDisplay:10});
   },
   /* ---------------------------------------------------------------------------
    * Name: addQCline

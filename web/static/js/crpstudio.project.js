@@ -776,11 +776,16 @@ Crpstudio.project = {
           var sDateCreated = oContent.datecreated;
           var sDateChanged = oContent.datechanged;
           var bShowSyntax = oContent.showsyntax;
+          var bDbaseInput = oContent.dbaseinput;
           var sComments = oContent.comments;
           // Put the information on the correct places in the form
           $("#project_general_name").val(sName);
           $("#project_general_author").val(sAuthor);
           $("#project_general_prjtype").val(sPrjType.toLowerCase());
+          if (bDbaseInput === "True")
+            $("#project_general_dbase").addClass("checked");
+          else
+            $("#project_general_dbase").removeClass("checked");
           $("#project_general_goal").val(sGoal);
           $("#project_general_datecreated").html(sDateCreated);
           $("#project_general_datechanged").html(sDateChanged);
@@ -795,17 +800,19 @@ Crpstudio.project = {
             function() {Crpstudio.project.ctlTimer(this);});
           $("#project_general input").on("blur", 
             function() {Crpstudio.project.ctlChanged(this);});
+            
           // Add event handlers on all TEXTAREA elements under "project_general"
           $("#project_general textarea").on("change keydown paste input", 
             function() {Crpstudio.project.ctlTimer(this);});
           $("#project_general textarea").on("blur", 
             function() {Crpstudio.project.ctlChanged(this);});
+            
           // Add event handlers on all SELECT elements under "project_general"
           $("#project_general select").on("change keydown paste input", 
             function() {Crpstudio.project.ctlTimer(this);});
           $("#project_general select").on("blur", 
             function() {Crpstudio.project.ctlChanged(this);});
-          
+            
           // Make the General area visible again
           $("#project_general").removeClass("hidden");
           break;
@@ -1164,6 +1171,7 @@ Crpstudio.project = {
       case "project_general_goal": sKey = "Goal"; break;
       case "project_general_comments": sKey = "Comments"; break;
       case "project_general_prjtype": sKey = "ProjType"; break;
+      case "project_general_dbase": sKey = "DbaseInput"; sValue = ($(source).is(':checked')) ? "True" : "False"; break;
     }
     // Pass on this value to /crpstudio and to /crpp
     var oChanges = { "crp": Crpstudio.project.currentPrj,
