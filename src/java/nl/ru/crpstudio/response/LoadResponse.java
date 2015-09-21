@@ -43,7 +43,7 @@ public class LoadResponse extends BaseResponse {
           oContent.put("datecreated", crpThis.getDateCreated());
           oContent.put("datechanged", crpThis.getDateChanged());
           oContent.put("showsyntax", crpThis.getShowPsd());
-          oContent.put("dbaseinput", crpThis.HasDbaseInput);
+          oContent.put("dbaseinput", crpThis.getDbaseInput());
           oContent.put("comments", crpThis.getComments());
           break;
         default:
