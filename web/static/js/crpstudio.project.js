@@ -782,10 +782,15 @@ Crpstudio.project = {
           $("#project_general_name").val(sName);
           $("#project_general_author").val(sAuthor);
           $("#project_general_prjtype").val(sPrjType.toLowerCase());
-          if (bDbaseInput === "True")
-            $("#project_general_dbase").addClass("checked");
-          else
-            $("#project_general_dbase").removeClass("checked");
+          if (bDbaseInput === "True") {
+            //$("#project_general_dbase").addClass("checked");
+            $("#project_general_dbase").prop("checked", true);
+            // $("#project_general_dbase").each(function(){this.checked = true;});
+          } else {
+            // $("#project_general_dbase").removeClass("checked");
+            $("#project_general_dbase").prop("checked", false);
+            // $("#project_general_dbase").each(function(){this.checked = false;});
+          }
           $("#project_general_goal").val(sGoal);
           $("#project_general_datecreated").html(sDateCreated);
           $("#project_general_datechanged").html(sDateChanged);
