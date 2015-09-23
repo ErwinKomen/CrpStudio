@@ -16,8 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nl.ru.crpstudio.response.BaseResponse;
-import nl.ru.crpstudio.response.CrpchgResponse;
-import nl.ru.crpstudio.response.LoadResponse;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpx.dataobject.DataObject;
 import nl.ru.crpx.dataobject.DataObjectList;

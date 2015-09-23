@@ -18,6 +18,8 @@ public class ProjectsResponse extends BaseResponse {
       JSONObject oSettings = this.getUserSettings(this.sUserId);
       // Get access to all the corpora the user can choose from
       this.getContext().put("corpuslist", getCorpusList());
+      // Get access to all the databases the user can choose from
+      this.getContext().put("dbaselist", getDbaseList());
       // Get the result tab specifications
       this.getContext().put("tabspecs", getTabSpecsList());
       // Get a specification of project-types

@@ -1276,6 +1276,67 @@ public abstract class BaseResponse {
   }
   
   /**
+   * getDbaseList -- Read the corpus information (which has been read
+   *                    from file through CrpUtil) and transform it
+   *                    into a list of corpus options (including the parts??)
+   * @return -- HTML string containing a table with corpus information
+   */
+  public String getDbaseList() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+    try {
+      // Get the array of corpora
+      JSONArray arCorpora = servlet.getCorpora();
+      // Check if anything is defined
+      if (arCorpora.length() == 0) {
+        
+      } else {
+        // Walk all the language entries
+        for (int i = 0 ; i < arCorpora.length(); i++) {
+          // Get this object
+          JSONObject oCorpus = arCorpora.getJSONObject(i);
+          // Read the languages from here
+          String sLng = oCorpus.getString("lng");
+          String sLngName = oCorpus.getString("name");
+          // Read the information from the different parts
+          JSONArray arPart = oCorpus.getJSONArray("parts");
+          // There should be one option for those who want *everything* from one language
+          if (arPart.length()>1) {
+            // Set the string to be displayed in the combobox line
+            String sShow = sLngName + " (" + sLng + ")";
+            // SPecifiy the 'value' for this option
+            String sValue = sLng + ":";
+            // Enter the combobox line
+            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
+                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \"\")' >" +
+                    sShow + "</option>\n");
+          }
+          // Walk all the parts
+          for (int j = 0; j< arPart.length(); j++) {
+            // Get this part as an object
+            JSONObject oPart = arPart.getJSONObject(j);
+            // Get the specification of this part
+            String sName = oPart.getString("name");
+            String sDir = oPart.getString("dir");
+            // Set the string to be displayed in the combobox line
+            String sShow = sLngName + " (" + sLng + "): " + sName + " (" + sDir + ")";
+            // SPecifiy the 'value' for this option
+            String sValue = sLng + ":" + sDir;
+            // Enter the combobox line
+            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
+                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \""+ sDir + "\")' >" +
+                    sShow + "</option>\n");
+          }
+        }      
+      }
+      // Return the string we made
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getDbaseList: could not complete", ex);
+      return "error (getDbaseList)";
+    }
+  }
+  
+  /**
    * getTabSpecsList
    *    Make a list of tab-specification for the results page
    * 
