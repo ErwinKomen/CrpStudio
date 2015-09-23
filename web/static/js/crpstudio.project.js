@@ -630,8 +630,9 @@ Crpstudio.project = {
         case "project_executor":
           // Hide the metadata selector
   				$("#metadata").hide();
-          // Hide CORPUS SELECTOR
+          // Hide CORPUS SELECTOR and DBASE SELECTOR
           $("#corpus-selector").hide();
+          $("#dbase-selector").hide();
           break;
         case "project_editor":
         case "project":
@@ -640,7 +641,7 @@ Crpstudio.project = {
           // Hide the metadata selector
   				$("#metadata").hide();
           // Possibly hide the lng/corpus selector
-          if (Crpstudio.project.currentLng & Crpstudio.project.currentLng !== "") {
+          if (Crpstudio.project.currentLng && Crpstudio.project.currentLng !== "") {
             // Hide it
             $("#corpus-selector").hide();
           }
@@ -664,12 +665,18 @@ Crpstudio.project = {
   				$("#metadata").show();
           // Show the corpus selector
           $("#corpus-selector").show();
+          // Show the database selector if this is a database-input 
+          if (Crpstudio.dbaseInput)
+            $("#dbase-selector").show();
+          else
+            $("#dbase-selector").hide();            
           break;
         case "result_display":
           // Hide the metadata
   				$("#metadata").hide();
           // Hide CORPUS SELECTOR
           $("#corpus-selector").hide();
+          $("#dbase-selector").hide();            
           // Make sure the execute buttons are hidden
           Crpstudio.project.showExeButtons(false);
           // Other actions
@@ -682,6 +689,7 @@ Crpstudio.project = {
   				$("#metadata").hide();
           // Hide CORPUS SELECTOR
           $("#corpus-selector").hide();
+          $("#dbase-selector").hide();            
           // Make sure the execute buttons are hidden
           Crpstudio.project.showExeButtons(false);
           // Other actions
@@ -783,13 +791,11 @@ Crpstudio.project = {
           $("#project_general_author").val(sAuthor);
           $("#project_general_prjtype").val(sPrjType.toLowerCase());
           if (bDbaseInput === "True") {
-            //$("#project_general_dbase").addClass("checked");
             $("#project_general_dbase").prop("checked", true);
-            // $("#project_general_dbase").each(function(){this.checked = true;});
+            Crpstudio.dbaseInput = true;
           } else {
-            // $("#project_general_dbase").removeClass("checked");
             $("#project_general_dbase").prop("checked", false);
-            // $("#project_general_dbase").each(function(){this.checked = false;});
+            Crpstudio.dbaseInput = false;
           }
           $("#project_general_goal").val(sGoal);
           $("#project_general_datecreated").html(sDateCreated);
@@ -1176,7 +1182,12 @@ Crpstudio.project = {
       case "project_general_goal": sKey = "Goal"; break;
       case "project_general_comments": sKey = "Comments"; break;
       case "project_general_prjtype": sKey = "ProjType"; break;
-      case "project_general_dbase": sKey = "DbaseInput"; sValue = ($(source).is(':checked')) ? "True" : "False"; break;
+      case "project_general_dbase": 
+        sKey = "DbaseInput"; 
+        sValue = ($(source).is(':checked')) ? "True" : "False"; 
+        // Make this choice available globally
+        Crpstudio.dbaseInput = true;
+        break;
     }
     // Pass on this value to /crpstudio and to /crpp
     var oChanges = { "crp": Crpstudio.project.currentPrj,

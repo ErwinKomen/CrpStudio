@@ -14,6 +14,7 @@ var Crpstudio = {
 	doDebugXhrResponse : true,  // log full XHR responses? (long)
 	exportLimit : 50000,        // Max size for exporting ???
   currentUser : "-",          // Name of the currently logged-in user
+  dbaseInput : false,         // Do we have a database as input?
 	
 	confirmExport : function() {
 		if (Crpstudio.language === "en")

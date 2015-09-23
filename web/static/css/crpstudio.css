@@ -1739,7 +1739,7 @@ textarea {
   font-size: 12px;
 }
 
-#corpus-selector {
+#corpus-selector, #dbase-selector {
   border: 1px;
   border-radius: 3px;
  	vertical-align: middle;

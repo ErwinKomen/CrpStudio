@@ -115,6 +115,9 @@
       <div id="corpus-selector" $crpsel>
         #parse("crpsel.vm")
       </div>
+      <div id="dbase-selector" $dbasesel>
+        #parse("dbasesel.vm")
+      </div>
 			<div id="metadata" $meta>
 				#parse("metadata.vm")
 			</div>
