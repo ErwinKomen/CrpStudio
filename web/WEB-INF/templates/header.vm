@@ -130,6 +130,14 @@
                   <li id="main-corpora"><a onclick="Crpstudio.switchTab('corpora')">$corpora</a></li>
                 #end
 
+                <!-- Define the DATABASE button -->
+                #set($dbase = $labels.getString("dbases"))
+                #if($maintab && $maintab == "dbases")
+                  <li id="main-dbase" class="active"><a onclick="Crpstudio.switchTab('dbases')">$dbase</a></li>
+                #else
+                  <li id="main-dbase"><a onclick="Crpstudio.switchTab('dbases')">$dbase</a></li>
+                #end
+
                 <!-- Define the PROJECTS button -->
                 #set($projects = $labels.getString("projects"))
                 #if($maintab && $maintab == "projects")

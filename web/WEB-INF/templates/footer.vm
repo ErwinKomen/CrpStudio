@@ -37,6 +37,11 @@
 					$( window ).resize(function() {
 						Crpstudio.corpora.setSizes();
 					});
+				#elseif($maintab == "dbases")
+					Crpstudio.explore.setSizes();
+					$( window ).resize(function() {
+						Crpstudio.corpora.setSizes();
+					});
 				#elseif($maintab == "projects")
 					Crpstudio.project.tab = "$tab";
 					Crpstudio.project.setSizes();

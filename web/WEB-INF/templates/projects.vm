@@ -82,34 +82,37 @@
 			#set($result_active = "")
       #set($document_active = "")
 		
+      <!-- Initially set database list to hidden -->
+      #set($dbasesel = "hidden")
+      <!-- Determine the meta and corpus list selection from the main tab -->
 			#if($tab == "project")
 				#set($project_active = "active")
         #set($meta = "hidden")
-        #set($crsel = "")
+        #set($crpsel = "")
 			#elseif($tab == "input")
 				#set($input_active = "active")
 				#set($meta = "")
-        #set($crsel = "")
+        #set($crpsel = "")
 			#elseif($tab == "definitions")
 				#set($definitions_active = "active")
 				#set($meta = "hidden")
-        #set($crsel = "hidden")
+        #set($crpsel = "hidden")
 			#elseif($tab == "queries")
 				#set($queries_active = "active")
 				#set($meta = "hidden")
-        #set($crsel = "hidden")
+        #set($crpsel = "hidden")
 			#elseif($tab == "constructor")
 				#set($constructor_active = "active")
 				#set($meta = "hidden")
-        #set($crsel = "hidden")
+        #set($crpsel = "hidden")
 			#elseif($tab == "result")
 				#set($result_active = "active")
 				#set($meta = "hidden")
-        #set($crsel = "hidden")
+        #set($crpsel = "hidden")
 			#elseif($tab == "document")
 				#set($document_active = "active")
 				#set($meta = "hidden")
-        #set($crsel = "hidden")
+        #set($crpsel = "hidden")
 			#end
 			
       <div id="corpus-selector" $crpsel>
@@ -144,3 +147,4 @@
 			
 		</div>
 #parse("footer.vm")
+

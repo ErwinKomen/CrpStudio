@@ -435,6 +435,9 @@ var Crpstudio = {
       case "corpora":
         sHelpPart = "corpora";
         break;
+      case "dbases":
+        sHelpPart = "dbases";
+        break;
     }
     // Issue a request to /crpstudio to get the relevant help section
     var params = "section=" + sHelpPart;
