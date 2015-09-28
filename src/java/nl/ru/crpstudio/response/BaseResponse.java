@@ -1046,6 +1046,7 @@ public abstract class BaseResponse {
    *    Issue a request to the CRPP to get an overview of the projects
    *    that user @sUser has access to
    * 
+   * @param sUser
    * @return -- JSON array of items
    */
   public JSONArray getProjectList(String sUser) {
@@ -1064,6 +1065,34 @@ public abstract class BaseResponse {
 
     } catch (Exception ex) {
       logger.DoError("getProjectList: could not complete", ex);
+      return null;
+    }
+  }
+
+  /**
+   * getDbaseList -- 
+   *    Issue a request to the CRPP to get an overview of the databases
+   *    that user @sUser has access to
+   * 
+   * @param sUser
+   * @return -- JSON array of items
+   */
+  public JSONArray getDbaseList(String sUser) {
+    try {
+      // Prepare the parameters for this request
+      this.params.clear();
+      this.params.put("userid", sUser);
+      // Get the JSON object from /crpp containing the projects of this user
+      String sResp = getCrppResponse("dblist", "", this.params,null);
+      // Interpret the response
+      JSONObject oResp = new JSONObject(sResp);
+      if (!oResp.has("status") || !oResp.has("content") || 
+          !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+      // Get the list of CRPs
+      return oResp.getJSONArray("content");
+
+    } catch (Exception ex) {
+      logger.DoError("getDbaseList: could not complete", ex);
       return null;
     }
   }
@@ -1124,8 +1153,8 @@ public abstract class BaseResponse {
           // Possibly get lng+dir
           if (oCRP.has("lng")) sLng = oCRP.getString("lng");
           if (oCRP.has("dir")) sDir = oCRP.getString("dir");
-          String sCrpName = FileIO.getFileNameWithoutExtension(oCRP.getString("crp"));
-          sb.append(getProjectItem(sCrpName, bCrpLoaded, sLng, sDir));
+          String sOneCrpName = FileIO.getFileNameWithoutExtension(oCRP.getString("crp"));
+          sb.append(getProjectItem(sOneCrpName, bCrpLoaded, sLng, sDir));
         }
       }
       // Return the string we made
@@ -1148,9 +1177,9 @@ public abstract class BaseResponse {
    * @return 
    */
   public String getProjectItem(String sCrp, boolean bLoaded, String sLng, String sDir) {
-    String sCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
+    String sOneCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
     return "<li class='crp_"+sCrp+" crp-available'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
-                  sCrp +"\", \""+sLng+"\", \""+sDir+"\")'>" + sCrpName + "</a></li>\n";
+                  sCrp +"\", \""+sLng+"\", \""+sDir+"\")'>" + sOneCrpName + "</a></li>\n";
   }
   public String getProjectItem(String sCrp, String sUser, String sType) {
     try {
@@ -1181,6 +1210,132 @@ public abstract class BaseResponse {
     } catch (Exception ex) {
       logger.DoError("getProjectItem: could not complete", ex);
       return "error (getProjectItem)";
+    }
+  }
+  
+  /**
+   * getDbaseSelList --    
+   *    Get a list of database selections for the user
+   * @param sUser
+   * @return -- HTML string containing a table with database information for [dbasesel.vm]
+   */
+  public String getDbaseSelList(String sUser) {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+    try {
+      // Get the list
+      JSONArray arDbList = getDbaseList(sUser);
+
+      // Check if anything is defined
+      if (arDbList.length() == 0) {
+        // TODO: action if there are no corpus research projects for this user
+        //       User must be offered the opportunity to create a new project
+        
+      } else {
+        // The list of CRPs is in a table where each element can be selected
+        for (int i = 0 ; i < arDbList.length(); i++) {
+          String sLng = "";
+          String sDir = "";
+          // Get this database item
+          JSONObject oDbase = arDbList.getJSONObject(i);
+          // Possibly get lng+dir
+          if (oDbase.has("lng")) sLng = oDbase.getString("lng");
+          if (oDbase.has("dir")) sDir = oDbase.getString("dir");
+          String sDbase = oDbase.getString("dbase");
+          // Set the string to be displayed in the combobox line
+          String sShow = sDbase + " (" + sLng + ":" + sDir + ")";
+          // Enter the combobox line
+          sb.append("<option class=\"noprefix\" value=\"" + sDbase + 
+                  "\" onclick='Crpstudio.project.setDbase(\"" + 
+                  sDbase + "\", \"" + sLng + "\", \"" + sDir + "\")' >" +
+                  sShow + "</option>\n");
+        }
+      }
+      // Return the string we made
+      return sb.toString();      
+    } catch (Exception ex) {
+      logger.DoError("getDbaseList: could not complete", ex);
+      return "error (getDbaseList)";
+    }
+  }
+  
+  /**
+   * getDbaseInfo -- 
+   *    Issue a request to the CRPP to get an overview of the databases
+   *    that user @sUser has access to
+   * 
+   * @param sUser
+   * @return -- HTML string containing a table with databases of this user
+   */
+  public String getDbaseInfo(String sUser) {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+    try {
+      // Get the list
+      JSONArray arDbList = getDbaseList(sUser);
+
+      // Check if anything is defined
+      if (arDbList.length() == 0) {
+        // TODO: action if there are no corpus research projects for this user
+        //       User must be offered the opportunity to create a new project
+        
+      } else {
+        // The list of CRPs is in a table where each element can be selected
+        for (int i = 0 ; i < arDbList.length(); i++) {
+          String sLng = "";
+          String sDir = "";
+          // Get this database item
+          JSONObject oDbase = arDbList.getJSONObject(i);
+          // Possibly get lng+dir
+          if (oDbase.has("lng")) sLng = oDbase.getString("lng");
+          if (oDbase.has("dir")) sDir = oDbase.getString("dir");
+          String sOneDbName = FileIO.getFileNameWithoutExtension(oDbase.getString("crp"));
+          sb.append(getDbaseItem(sOneDbName, sLng, sDir));
+        }
+      }
+      // Return the string we made
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getDbaseInfo: could not complete", ex);
+      return "error (getDbaseInfo)";
+    }
+  }
+  
+  /**
+   * getDbaseItem
+   *    Produce one <li> for the dbase-list
+   *    If only the dbase name is given, then look in the list to find details
+   * 
+   * @param sDbase
+   * @param sUser
+   * @param sType
+   * @return 
+   */
+  public String getDbaseItem(String sDbase, String sUser, String sType) {
+    try {
+      // Possibly adapt [sDbase]
+      if (!sDbase.endsWith(".xml")) sDbase += ".xml";
+      // Get the list
+      JSONArray arDbList = getDbaseList(sUser);
+      // The list of Dbases is in a table where each element can be selected
+      for (int i = 0 ; i < arDbList.length(); i++) {
+        String sLng = "";
+        String sDir = "";
+        // Get this CRP item
+        JSONObject oDbase = arDbList.getJSONObject(i);
+        // Possibly get lng+dir
+        if (oDbase.has("lng")) sLng = oDbase.getString("lng");
+        if (oDbase.has("dir")) sDir = oDbase.getString("dir");
+        String sDbName = oDbase.getString("dbase");
+        // Is this the CRP we are looking for?
+        if (sDbase.toLowerCase().equals(sDbName.toLowerCase())) {
+          return "<li class='crp_"+sDbase+" "+sType+"'><a href=\"#\" onclick='Crpstudio.project.setDbase(this, \""+ 
+                  sDbase +"\", \""+sLng+"\", \""+sDir+"\")'>" + sDbase + "</a></li>\n";
+        }
+      }
+      // Getting here means we have nothing
+      return "";
+    } catch (Exception ex) {
+      logger.DoError("getDbaseItem: could not complete", ex);
+      return "error (getDbaseItem)";
     }
   }
   
@@ -1275,67 +1430,7 @@ public abstract class BaseResponse {
     }
   }
   
-  /**
-   * getDbaseList -- Read the corpus information (which has been read
-   *                    from file through CrpUtil) and transform it
-   *                    into a list of corpus options (including the parts??)
-   * @return -- HTML string containing a table with corpus information
-   */
-  public String getDbaseList() {
-    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
-    try {
-      // Get the array of corpora
-      JSONArray arCorpora = servlet.getCorpora();
-      // Check if anything is defined
-      if (arCorpora.length() == 0) {
-        
-      } else {
-        // Walk all the language entries
-        for (int i = 0 ; i < arCorpora.length(); i++) {
-          // Get this object
-          JSONObject oCorpus = arCorpora.getJSONObject(i);
-          // Read the languages from here
-          String sLng = oCorpus.getString("lng");
-          String sLngName = oCorpus.getString("name");
-          // Read the information from the different parts
-          JSONArray arPart = oCorpus.getJSONArray("parts");
-          // There should be one option for those who want *everything* from one language
-          if (arPart.length()>1) {
-            // Set the string to be displayed in the combobox line
-            String sShow = sLngName + " (" + sLng + ")";
-            // SPecifiy the 'value' for this option
-            String sValue = sLng + ":";
-            // Enter the combobox line
-            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
-                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \"\")' >" +
-                    sShow + "</option>\n");
-          }
-          // Walk all the parts
-          for (int j = 0; j< arPart.length(); j++) {
-            // Get this part as an object
-            JSONObject oPart = arPart.getJSONObject(j);
-            // Get the specification of this part
-            String sName = oPart.getString("name");
-            String sDir = oPart.getString("dir");
-            // Set the string to be displayed in the combobox line
-            String sShow = sLngName + " (" + sLng + "): " + sName + " (" + sDir + ")";
-            // SPecifiy the 'value' for this option
-            String sValue = sLng + ":" + sDir;
-            // Enter the combobox line
-            sb.append("<option class=\"noprefix\" value=\"" + sValue + 
-                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \""+ sDir + "\")' >" +
-                    sShow + "</option>\n");
-          }
-        }      
-      }
-      // Return the string we made
-      return sb.toString();
-    } catch (Exception ex) {
-      logger.DoError("getDbaseList: could not complete", ex);
-      return "error (getDbaseList)";
-    }
-  }
-  
+
   /**
    * getTabSpecsList
    *    Make a list of tab-specification for the results page

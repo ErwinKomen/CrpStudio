@@ -18,14 +18,16 @@ public class ProjectsResponse extends BaseResponse {
       JSONObject oSettings = this.getUserSettings(this.sUserId);
       // Get access to all the corpora the user can choose from
       this.getContext().put("corpuslist", getCorpusList());
-      // Get access to all the databases the user can choose from
-      this.getContext().put("dbaselist", getDbaseList());
+      // Get a list of databases that can be selected
+      this.getContext().put("dbasesellist", getDbaseSelList(this.sUserId));
       // Get the result tab specifications
       this.getContext().put("tabspecs", getTabSpecsList());
       // Get a specification of project-types
       this.getContext().put("prjtypelist", this.getPrjTypeList());
       // Get access to the projects this user can choose from
       this.getContext().put("projecttable", this.getProjectInfo(this.sUserId));
+      // Get access to all the databases the user can choose from
+      this.getContext().put("dbasetable", this.getDbaseInfo(this.sUserId));
       // Set the most recently used CRP
       String sRecentCrp = (oSettings.has("recent")) ? oSettings.getString("recent") : "";
       this.getContext().put("recentcrp", this.getProjectItem(sRecentCrp, this.sUserId, "crp-recent"));
