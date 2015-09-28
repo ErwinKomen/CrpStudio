@@ -1233,13 +1233,11 @@ public abstract class BaseResponse {
       } else {
         // The list of CRPs is in a table where each element can be selected
         for (int i = 0 ; i < arDbList.length(); i++) {
-          String sLng = "";
-          String sDir = "";
           // Get this database item
           JSONObject oDbase = arDbList.getJSONObject(i);
           // Possibly get lng+dir
-          if (oDbase.has("lng")) sLng = oDbase.getString("lng");
-          if (oDbase.has("dir")) sDir = oDbase.getString("dir");
+          String sLng = (oDbase.has("lng")) ? oDbase.getString("lng") : "[none]";
+          String sDir = (oDbase.has("dir")) ? oDbase.getString("dir") : "[none]";
           String sDbase = oDbase.getString("dbase");
           // Set the string to be displayed in the combobox line
           String sShow = sDbase + " (" + sLng + ":" + sDir + ")";
@@ -1287,7 +1285,7 @@ public abstract class BaseResponse {
           // Possibly get lng+dir
           if (oDbase.has("lng")) sLng = oDbase.getString("lng");
           if (oDbase.has("dir")) sDir = oDbase.getString("dir");
-          String sOneDbName = FileIO.getFileNameWithoutExtension(oDbase.getString("crp"));
+          String sOneDbName = FileIO.getFileNameWithoutExtension(oDbase.getString("dbase"));
           sb.append(getDbaseItem(sOneDbName, sLng, sDir));
         }
       }
@@ -1327,7 +1325,7 @@ public abstract class BaseResponse {
         String sDbName = oDbase.getString("dbase");
         // Is this the CRP we are looking for?
         if (sDbase.toLowerCase().equals(sDbName.toLowerCase())) {
-          return "<li class='crp_"+sDbase+" "+sType+"'><a href=\"#\" onclick='Crpstudio.project.setDbase(this, \""+ 
+          return "<li class='db_"+sDbase+" "+sType+"'><a href=\"#\" onclick='Crpstudio.project.setDbase(this, \""+ 
                   sDbase +"\", \""+sLng+"\", \""+sDir+"\")'>" + sDbase + "</a></li>\n";
         }
       }
