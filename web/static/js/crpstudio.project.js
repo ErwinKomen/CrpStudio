@@ -645,6 +645,8 @@ Crpstudio.project = {
             // Hide it
             $("#corpus-selector").hide();
           }
+          // Hide DBASE SELECTOR
+          $("#dbase-selector").hide();
           // Do we have a 'recent' CRP?
           if (sRecentCrp && sRecentCrp !== "") {
             // Show the recent ones

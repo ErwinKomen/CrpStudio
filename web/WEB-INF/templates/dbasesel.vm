@@ -1,6 +1,6 @@
 <!-- Database input selector -->
   $labels.getString("input.dbase")
   <select id="input_dbase" class="meta-medium" >
-    ${dbaselist}
+    ${dbasesellist}
   </select>
 
