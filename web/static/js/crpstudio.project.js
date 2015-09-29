@@ -11,6 +11,9 @@ Crpstudio.project = {
   currentPrj: "",         // The currently being executed project (the CRP name)
   currentLng: "",         // the "lng" parameter of the current project
   currentDir: "",         // the "dir" parameter of the current project
+  currentDb: "",          // The database that serves as current input
+  currentDbLng: "",       // Language according to current db
+  currentDbDir: "",       // Part of language for current db
   strQstatus: "",         // The JSON string passed on to R-server "status"
   divStatus: "",          // The name of the div where the status is to be shown
   recentcrp: "",          // Recently used CRP
@@ -18,6 +21,12 @@ Crpstudio.project = {
   typingTimer: null,      // Timer to make sure we react only X seconds after typing
   doneTypingIntv: 2000,   // Stop-typing interval: 2 seconds
   ctlCurrent: null,       // Current control
+  prj_name: "",           // Field value of this project: name
+  prj_author: "",         // Field value of this project: author
+  prj_prjtype: "",        // Field value of this project: prjtype
+  prj_goal: "",           // Field value of this project: goal
+  prj_dbaseinput: "",     // Field value of this project: dbaseinput (True/False)
+  prj_comments: "",       // Field value of this project: comments
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
@@ -35,12 +44,14 @@ Crpstudio.project = {
     } else {
       // Find out which language corpus the user has chosen
       var oCorpusAndDir = $("#input_lng").val().split(":");
-      var sLng = oCorpusAndDir[0];  // obligatory
-      var sDir = oCorpusAndDir[1];  // May be empty
+      var sLng = oCorpusAndDir[0];    // obligatory
+      var sDir = oCorpusAndDir[1];    // May be empty
+      var sDbase = oCorpusAndDir[2];  // May be empty -- is input database
       var oExeRequest = {};
       // Store these values for posterity (well, for /update requests)
       Crpstudio.project.currentDir = sDir;
       Crpstudio.project.currentLng = sLng;
+      Crpstudio.project.currentDb = sDbase;
       // debugging: show where the status appears
       $("#project_status").text("Processing project: " + sPrjName);
       $("#result_status").text("");
@@ -52,10 +63,17 @@ Crpstudio.project = {
       // Make sure the execute buttons are hidden again
       Crpstudio.project.showExeButtons(false);
       // Create JSON request for the search
-      if (sDir === "")
-        oExeRequest = {"lng": sLng, "crp": sPrjName, "userid": sUserName, "cache": caching};
-      else
-        oExeRequest = {"lng": sLng, "crp": sPrjName, "dir": sDir, "userid": sUserName, "cache": caching};
+      if (sDir === "") {
+        if (sDbase === "")
+          oExeRequest = {"lng": sLng, "crp": sPrjName, "userid": sUserName, "cache": caching};
+        else
+          oExeRequest = {"lng": sLng, "crp": sPrjName, "dbase": sDbase, "userid": sUserName, "cache": caching};
+      } else {
+        if (sDbase ==="")
+          oExeRequest = {"lng": sLng, "crp": sPrjName, "dir": sDir, "userid": sUserName, "cache": caching};
+        else
+          oExeRequest = {"lng": sLng, "crp": sPrjName, "dir": sDir, "dbase": sDbase, "userid": sUserName, "cache": caching};
+      }
       var sExeRequest = "query=" + JSON.stringify(oExeRequest);
       // Set the location of the status div
       Crpstudio.project.divStatus = "#result_report";
@@ -716,8 +734,9 @@ Crpstudio.project = {
    * History:
    * 23/jun/2015  ERK Created
    * 04/aug/2015  ERK Added "sLng" and "sDir" arguments
+   * 29/sep/2015  ERK Added "sDbase" argument
    */
-  setProject : function(target, sPrjName, sLng, sDir) {
+  setProject : function(target, sPrjName, sLng, sDir, sDbase) {
     // Get the <li>
     var listItem = $(target).parent();
     var strProject = $(target).text();
@@ -741,18 +760,25 @@ Crpstudio.project = {
     $("#project_general").addClass("hidden");
     // Do we have a lng (+ optional dir)?
     if (!sLng || sLng === "") {
-      // Hide the corpus-selector
+      // Show the corpus-selector
       $("#corpus-selector").show();
+      // Reset the lng + dir
+      Crpstudio.project.setCorpus("");
     } else {
       // Make sure sDir is defined
       if (!sDir) sDir = "";
       // Set the lng + dir
       Crpstudio.project.setCorpus(sLng, sDir);
       // Set the correct option within the 'corpus-selector'
-      var sOption = sLng + ":" + sDir;
+      var sOption = sLng + ":" + sDir + ":" + sDbase;
       $("#input_lng").val(sOption);
       // Hide the corpus-selector
       // $("#corpus-selector").hide();
+    }
+    if (!sDbase || sDbase === "") {
+      Crpstudio.project.resetDbase();
+    } else {
+      Crpstudio.project.setDbase(sDbase, sLng, sDir);
     }
     // Issue a request to /crpstudio to load the project
     var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
@@ -779,22 +805,26 @@ Crpstudio.project = {
       switch (sStatusCode) {
         case "completed":
           // Get the information passed on about this project
-          var sName = oContent.name;
-          var sAuthor = oContent.author;
-          var sPrjType = oContent.prjtype;
-          var sGoal = oContent.goal;
-          var sDateCreated = oContent.datecreated;
+          var sName = oContent.name; Crpstudio.project.prj_name = sName;
+          var sAuthor = oContent.author; Crpstudio.project.prj_author = sAuthor;
+          var sPrjType = oContent.prjtype; Crpstudio.project.prj_prjtype = sPrjType;
+          var sGoal = oContent.goal; Crpstudio.project.prj_goal = sGoal;
+          var sDateCreated = oContent.datecreated; 
           var sDateChanged = oContent.datechanged;
           var bShowSyntax = oContent.showsyntax;
-          var bDbaseInput = oContent.dbaseinput;
-          var sComments = oContent.comments;
+          var bDbaseInput = oContent.dbaseinput; Crpstudio.project.prj_dbaseinput = bDbaseInput
+          var sComments = oContent.comments; Crpstudio.project.prj_comments = sComments;
           // Put the information on the correct places in the form
           $("#project_general_name").val(sName);
           $("#project_general_author").val(sAuthor);
           $("#project_general_prjtype").val(sPrjType.toLowerCase());
+          // Reset dbase by default
+          Crpstudio.project.setDbase("");
           if (bDbaseInput === "True") {
             $("#project_general_dbase").prop("checked", true);
             Crpstudio.dbaseInput = true;
+            // Check if a database is already specified as input
+            if (oContent.dbase) Crpstudio.project.setDbase(oContent.dbase);
           } else {
             $("#project_general_dbase").prop("checked", false);
             Crpstudio.dbaseInput = false;
@@ -810,21 +840,21 @@ Crpstudio.project = {
           
           // Add event handlers on all INPUT elements under "project_general"
           $("#project_general input").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this);});
+            function() {Crpstudio.project.ctlTimer(this, "input");});
           $("#project_general input").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this);});
+            function() {Crpstudio.project.ctlChanged(this, "blurInput");});
             
           // Add event handlers on all TEXTAREA elements under "project_general"
           $("#project_general textarea").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this);});
+            function() {Crpstudio.project.ctlTimer(this, "textarea");});
           $("#project_general textarea").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this);});
+            function() {Crpstudio.project.ctlChanged(this, "blurTextarea");});
             
           // Add event handlers on all SELECT elements under "project_general"
           $("#project_general select").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this);});
+            function() {Crpstudio.project.ctlTimer(this, "select");});
           $("#project_general select").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this);});
+            function() {Crpstudio.project.ctlChanged(this, "blurSelect");});
             
           // Make the General area visible again
           $("#project_general").removeClass("hidden");
@@ -1125,22 +1155,63 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   setCorpus : function(sCorpusName, sDirName) {
-    // Set the corpus name and dir name in the top section
-    $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
-    // Set these values also in our own variables
-    Crpstudio.project.currentDir = sDirName;
-    Crpstudio.project.currentLng = sCorpusName;
-    // Hide the corpus selector if we are in project mode
-    switch (Crpstudio.project.tab) {
-      case "project_editor":
-      case "project":
-        // Hide the corpus selector
-        $("#corpus-selector").hide();
-        break;
-      default:
-        // No particular action right now
-        break;
+    if (!sDirName && sCorpusName && sCorpusName === "") {
+      // Reset the corpus name and dir name in the top section
+      $("#top_bar_current_corpus").text("-");
+    } else {
+      // Set the corpus name and dir name in the top section
+      $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
+      // Set these values also in our own variables
+      Crpstudio.project.currentDir = sDirName;
+      Crpstudio.project.currentLng = sCorpusName;
+      // Hide the corpus selector if we are in project mode
+      switch (Crpstudio.project.tab) {
+        case "project_editor":
+        case "project":
+          // Hide the corpus selector
+          $("#corpus-selector").hide();
+          break;
+        default:
+          // No particular action right now
+          break;
+      }
     }
+  },
+  
+  /**
+   * setDbase -- select the indicated database as input
+   * 
+   * @param {type} sDbName
+   * @param {type} sLngName
+   * @param {type} sDirName
+   * @returns {undefined}
+   */
+  setDbase : function(sDbName, sLngName, sDirName) {
+    // Set the corpus name and dir name in the top section
+    $("#top_bar_current_dbase").text(sDbName);
+    // Set these values also in our own variables
+    Crpstudio.project.currentDb = sDbName;
+    if (sLngName) Crpstudio.project.currentDbLng = sLngName;
+    if (sDirName) Crpstudio.project.currentDbDir = sDirName;
+    // Pass on this value to /crpstudio and to /crpp
+    var sKey = "source";
+    var sValue = sDbName;
+    var oChanges = { "crp": Crpstudio.project.currentPrj,
+      "userid": Crpstudio.currentUser, 
+      "key": sKey, "value": sValue };
+    var params = "changes=" + JSON.stringify(oChanges);
+    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+  },
+  /**
+   * resetDbase -- reset the current database input
+   * 
+   * @returns {undefined}
+   */
+  resetDbase : function() {
+    // Set the corpus name and dir name in the top section
+    $("#top_bar_current_dbase").text("");
+    // Set these values also in our own variables
+    Crpstudio.project.currentDb = "";    
   },
   
   /**
@@ -1159,7 +1230,8 @@ Crpstudio.project = {
     */
     // New method
     Crpstudio.project.ctlCurrent = $("#project_general_prjtype");
-    Crpstudio.project.ctlTimer($("#project_general_prjtype"));
+    // Crpstudio.project.ctlTimer($("#project_general_prjtype"));
+    Crpstudio.project.ctlTimer($("#project_general_prjtype", "-"));
   },
     
   /**
@@ -1169,7 +1241,7 @@ Crpstudio.project = {
    * @param {type} source
    * @returns {undefined}
    */
-  ctlChanged : function(source) {
+  ctlChanged : function(source, sType) {
     // Validate source
     if (!source || source == null) source = Crpstudio.project.ctlCurrent;
     // Clear any previously set timer
@@ -1177,19 +1249,45 @@ Crpstudio.project = {
     // Find parameters
     var sKey = "";
     var sValue = $(source).val();
+    var sKind = (sType && sType != null) ? sType : "-";
     // Determine which 'key' this is
     switch($(source).attr("id")) {
-      case "project_general_name": sKey = "Name"; break;
-      case "project_general_author": sKey = "Author"; break;
-      case "project_general_goal": sKey = "Goal"; break;
-      case "project_general_comments": sKey = "Comments"; break;
-      case "project_general_prjtype": sKey = "ProjType"; break;
+      case "project_general_name": 
+        if (sValue === Crpstudio.project.prj_name) return; 
+        else Crpstudio.project.prj_name = sValue;
+        sKey = "Name"; 
+        break;
+      case "project_general_author": 
+        if (sValue === Crpstudio.project.prj_author) return; 
+        else Crpstudio.project.prj_author = sValue;
+        sKey = "Author"; break;
+      case "project_general_goal": 
+        if (sValue === Crpstudio.project.prj_goal) return; 
+        else Crpstudio.project.prj_goal = sValue;
+        sKey = "Goal"; break;
+      case "project_general_comments": 
+        if (sValue === Crpstudio.project.prj_comments) return; 
+        else Crpstudio.project.prj_comments = sValue;
+        sKey = "Comments"; break;
+      case "project_general_prjtype": 
+        if (sValue === Crpstudio.project.prj_prjtype) return; 
+        else Crpstudio.project.prj_prjtype = sValue;
+        sKey = "ProjType"; break;
       case "project_general_dbase": 
         sKey = "DbaseInput"; 
         sValue = ($(source).is(':checked')) ? "True" : "False"; 
+        if (sValue === Crpstudio.project.prj_dbaseinput) return; 
+        else Crpstudio.project.prj_dbaseinput = sValue;
+        // ================ DEBUG ===============
+        Crpstudio.debug("ctlChanged [" + $(source).attr("id") + "] val=[" + sValue + "] type=[" + sKind + "]");
+        // ======================================
         // Make this choice available globally
-        Crpstudio.dbaseInput = true;
+        Crpstudio.dbaseInput = (sValue === "True");
         break;
+      default:
+        // Show the source of the key absence
+        Crpstudio.debug("ctlChanged cannot handle: [" + $(source).attr("id") + "]")
+        return;
     }
     // Pass on this value to /crpstudio and to /crpp
     var oChanges = { "crp": Crpstudio.project.currentPrj,
@@ -1206,14 +1304,17 @@ Crpstudio.project = {
    * @param {type} source
    * @returns {undefined}
    */
-  ctlTimer : function(source) {
+  ctlTimer : function(source, sType) {
     // Clear any previously set timer
     clearTimeout(Crpstudio.project.typingTimer);
+    // =============== DEBUG =========
+    Crpstudio.debug("ctlTimer: cleared");
+    // ===============================
     // Set the source
     Crpstudio.project.ctlCurrent = source;
     // Call a new timer
     Crpstudio.project.typingTimer = setTimeout(Crpstudio.project.ctlChanged, 
-      Crpstudio.project.doneTypingIntv);
+      Crpstudio.project.doneTypingIntv, source, sType);
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual

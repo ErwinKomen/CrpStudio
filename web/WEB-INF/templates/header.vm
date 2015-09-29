@@ -10,6 +10,7 @@
 #set($project = $labels.getString("project"))
 #set($user = $labels.getString("user"))
 #set($corpusTitle = $labels.getString("corpus.title"))
+#set($dbTitle = $labels.getString("dbase.title"))
 #set($projectSaved = $labels.getString("project.saved"))
 <!doctype html>
 <html>
@@ -40,6 +41,7 @@
 		<script type="text/javascript" src="./static/js/scrollTableBody.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
+		<script type="text/javascript" src="./static/js/crpstudio.dbase.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.project.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.result.js"></script>
 		<script type="text/javascript" src="./static/js/intro.js"></script>
@@ -82,6 +84,7 @@
           </li>
           <li class="name">$project:<div id="top_bar_current_project" class="label">-</div><div class="DivHelper"></div></li>
           <li class="name">$corpusTitle:<div id="top_bar_current_corpus" class="label">-</div><div class="DivHelper"></div></li>
+          <li class="name">$dbTitle:<div id="top_bar_current_dbase" class="label">-</div><div class="DivHelper"></div></li>
           <li class="name"><span class="hidden">$projectSaved:<div id="top_bar_saved_project" class="label">-</div><div class="DivHelper"></div></span></li>
             <!-- Right Nav Section -->
             <div id="nav-right" class="medium-3 large-5 columns right show-for-medium-up">

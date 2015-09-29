@@ -36,55 +36,55 @@
     </div>
   </div>
 
-  <!-- the part to the right of the side-bar may contain contents of this project -->
+  <!-- the part to the right of the side-bar may contain contents of this database -->
   <div id="dbase_editor" class="large-12 medium-12 small-12 columns">
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>
-        <div id="project_description" class="large-16 medium-16 small-16 row">
-          <i>(no project selected)</i>
+        <div id="dbase_description" class="large-16 medium-16 small-16 row">
+          <i>(no database selected)</i>
         </div>
-        <div id="project_general" class="large-16 medium-16 small-16 row hidden">
-          <div id="project_general_top" class="large-16 medium-16 small-16 row">
-            <!-- The top-left contains name, author, type and goal -->
-            <div id="project_general_left" class="large-11 medium-11 small-11 columns">
-              <!-- Project NAME -->
+        <div id="dbase_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="dbase_general_top" class="large-16 medium-16 small-16 row">
+            <!-- The top-left contains DB NAME, PROJECT NAME, CORPUS and NOTES -->
+            <div id="dbase_general_left" class="large-11 medium-11 small-11 columns">
+              <!-- Database DB NAME -->
               <div class="large-16 medium-16 small-16 row">
                 <div class="large-6 medium-6 small-6 columns">
-                  <label for="right-label" class="right inline">$labels.getString("project.general.name")</label>
+                  <label for="right-label" class="right inline">$labels.getString("dbase.general.namedb")</label>
                 </div>
                 <div class="large-10 medium-10 small-10 columns">
                   <div class="large-16 medium-16 small-16 row collapse">
                     <div class="large-14 medium-14 small-14 columns">
-                      <input id="project_general_name" class="general_input" type="text" placeholder="name (no spaces)">
+                      <input id="dbase_general_namedb" class="general_input" type="text" placeholder="name (no spaces)">
                     </div>
                     <div class="large-2 medium-2 small-2 columns">
-                      <span class="postfix">.crpx</span>
+                      <span class="postfix">.xml</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="large-16 medium-16 small-16 row">
-                <!-- Project AUTHOR -->
+                <!-- Project PRJ NAME -->
                 <div class="large8 medium-8 small-8 columns">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <label for="right-label" class="right inline">$labels.getString("project.general.author")</label>
+                      <label for="right-label" class="right inline">$labels.getString("dbase.general.nameprj")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
-                      <input id="project_general_author" class="general_input" type="text" placeholder="creator of this project">
+                      <input id="dbase_general_nameprj" class="general_input" type="text" placeholder="name of project">
                     </div>
                   </div>
                 </div>
-                <!-- Project PRJTYPE -->
+                <!-- Database LNG -->
                 <div class="large8 medium-8 small-8 columns">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <label for="right-label" class="right inline">$labels.getString("project.general.prjtype")</label>
+                      <label for="right-label" class="right inline">$labels.getString("dbase.general.corpus")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
-                      <select id="project_general_prjtype" class="general_input"  placeholder="kind of project">
-                        ${prjtypelist}
+                      <select id="dbase_general_corpus" class="general_input"  placeholder="kind of project">
+                        ${corpuslist}
                       </select>
                     </div>
                   </div>
