@@ -1286,7 +1286,7 @@ public abstract class BaseResponse {
           if (oDbase.has("lng")) sLng = oDbase.getString("lng");
           if (oDbase.has("dir")) sDir = oDbase.getString("dir");
           String sOneDbName = FileIO.getFileNameWithoutExtension(oDbase.getString("dbase"));
-          sb.append(getDbaseItem(sOneDbName, sLng, sDir));
+          sb.append(getDbaseItem(sOneDbName, sUser, "db-available", arDbList));
         }
       }
       // Return the string we made
@@ -1307,12 +1307,12 @@ public abstract class BaseResponse {
    * @param sType
    * @return 
    */
-  public String getDbaseItem(String sDbase, String sUser, String sType) {
+  public String getDbaseItem(String sDbase, String sUser, String sType, JSONArray arDbList) {
     try {
       // Possibly adapt [sDbase]
       if (!sDbase.endsWith(".xml")) sDbase += ".xml";
       // Get the list
-      JSONArray arDbList = getDbaseList(sUser);
+      if (arDbList == null) arDbList = getDbaseList(sUser);
       // The list of Dbases is in a table where each element can be selected
       for (int i = 0 ; i < arDbList.length(); i++) {
         String sLng = "";
@@ -1325,7 +1325,7 @@ public abstract class BaseResponse {
         String sDbName = oDbase.getString("dbase");
         // Is this the CRP we are looking for?
         if (sDbase.toLowerCase().equals(sDbName.toLowerCase())) {
-          return "<li class='db_"+sDbase+" "+sType+"'><a href=\"#\" onclick='Crpstudio.project.setDbase(this, \""+ 
+          return "<li class='db_"+sDbase+" "+sType+"'><a href=\"#\" onclick='Crpstudio.dbase.setDbase(this, \""+ 
                   sDbase +"\", \""+sLng+"\", \""+sDir+"\")'>" + sDbase + "</a></li>\n";
         }
       }

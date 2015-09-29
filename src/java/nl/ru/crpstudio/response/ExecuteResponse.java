@@ -23,6 +23,7 @@ import nl.ru.util.json.JSONObject;
  *      crp     - name of the Corpus Research Project
  *      lng     - language to be searched by the CRP
  *      dir     - the part of the corpus to be searched
+ *      dbase   - the database that should serve as input
  *      cache   - we decide ourselves whether caching (on the crpp) is on or off
  *    Parameters we have ourselves:
  *      userid  - name of the user currently logged in
@@ -49,7 +50,11 @@ public class ExecuteResponse extends BaseResponse {
       // Keep the CRP name for later use
       this.sCrpName = oQuery.getString("crp");
       this.params.put("lng", oQuery.getString("lng"));
+      // Optional "dir" parameter
       if (oQuery.has("dir")) { this.params.put("dir", oQuery.getString("dir")); }
+      // Optional "dbase" parameter
+      if (oQuery.has("dbase")) { this.params.put("dbase", oQuery.getString("dbase")); }
+      // Determine the caching
       if (oQuery.has("cache")) { 
         // Take over the caching parameter, if specified by the caller
         this.params.put("cache", oQuery.getBoolean("cache")); 

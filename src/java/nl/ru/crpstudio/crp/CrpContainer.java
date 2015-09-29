@@ -137,8 +137,12 @@ public class CrpContainer {
           return new File(sLoc);
         } 
       } 
+      // There is no combination in the list, but it may still be there...
+      String sCrpLoc = CrpInfo.sProjectBase + sUserId + "/" + sProjectName;
+      if (!sCrpLoc.endsWith(".crpx")) sCrpLoc += ".crpx";
+      return new File(sCrpLoc);
       // Return failure
-      return null;
+      // return null;
     } catch (Exception ex) {
       logger.DoError("Could not load or retrieve CRP", ex, CrpContainer.class);
       return null;

@@ -22,13 +22,13 @@ public class DbasesResponse extends BaseResponse {
       this.getContext().put("username", servlet.getUserId());
       // Set the most recently used dbase
       String sRecentDb = (oSettings.has("recentdb")) ? oSettings.getString("recentdb") : "";
-      this.getContext().put("recentdb-line", this.getDbaseItem(sRecentDb, this.sUserId, "db-recent"));
-      this.getContext().put("recentdb-name", sRecentDb);
+      this.getContext().put("recentdb-line", this.getDbaseItem(sRecentDb, this.sUserId, "db-recent", null));
+      this.getContext().put("recentdb", sRecentDb);
       // Indicate which main tab the user has chosen
       this.getContext().put("maintab", "dbases");
-      // Set the initial tab for the databases: explore
-      String tab = this.getParameter("tab", "explore");
-      this.getContext().put("tab", tab);
+      // Set the initial tab for the databases: overview (=explore)
+      String tab = this.getParameter("tabdb", "overview");
+      this.getContext().put("tabdb", tab);
       // The initial tab should not show the metaoptions
   		this.getContext().put("showMetaOptions", "no");
       // Now produce the "dbases" tab 
