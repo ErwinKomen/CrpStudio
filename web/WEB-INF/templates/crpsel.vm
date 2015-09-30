@@ -1,6 +1,6 @@
 <!-- Corpus input selector -->
   $labels.getString("input.corpus")
-  <select id="input_lng" class="meta-medium" >
+  <select id="input_lng" class="meta-medium">
     ${corpuslist}
   </select>
 

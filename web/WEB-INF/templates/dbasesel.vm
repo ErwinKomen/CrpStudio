@@ -1,6 +1,13 @@
 <!-- Database input selector -->
   $labels.getString("input.dbase")
-  <select id="input_dbase" class="meta-medium" >
+  <select id="input_dbase" class="meta-medium">
     ${dbasesellist}
   </select>
+<!-- Second type of database input selection -->
+<!-- ==================== NOT IMPLEMENTED =====================
+  <a href="#" class="button" data-dropdown="drop" aria-controls="drop" aria-expanded="true" >Databases</a>
+  <ul id="input_dbase_drop" data-dropdown-content class="tiny f-dropdown" aria-hidden="false">
+    ${dbasechblist}
+  </ul>
+-->
 

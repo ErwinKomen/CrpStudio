@@ -45,6 +45,9 @@ Crpstudio.project = {
   prj_goal: "",           // Field value of this project: goal
   prj_dbaseinput: "",     // Field value of this project: dbaseinput (True/False)
   prj_comments: "",       // Field value of this project: comments
+  prj_language: "",
+  prj_part: "",
+  prj_dbase: "",
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
@@ -699,15 +702,55 @@ Crpstudio.project = {
           break;
         case "input_editor": 
         case "input":
+          /* =========== META selection is for the future
           // Make sure the metadata selector is being shown
   				$("#metadata").show();
-          // Show the corpus selector
-          $("#corpus-selector").show();
+              */
           // Show the database selector if this is a database-input 
-          if (Crpstudio.dbaseInput)
+          if (Crpstudio.dbaseInput) {
             $("#dbase-selector").show();
-          else
-            $("#dbase-selector").hide();            
+            // Hide the corpus selector
+            $("#corpus-selector").hide();
+            // Figure out which dbase to show as selected
+            if (Crpstudio.project.currentDb && Crpstudio.project.currentDb!=="") {
+              // Select the one with this database setting
+              $("#input_dbase option").filter(
+                      function(i,e) {
+                        var strText = $(e).val();
+                        var arText = strText.split(":");
+                        return arText[0] === Crpstudio.project.currentDb; 
+                      }).prop("selected", true);
+              // Select the option that starts with the corpus name
+              // $('#input_dbase option[value ^= "' + Crpstudio.project.currentDb+ '"]').attr("selected", true);
+              // Note: this is possible, but less well
+            } else {
+              // User must select: deselect everything
+              $("#input_dbase option:selected").attr("selected", false);
+            }
+          } else {
+            // Show the corpus selector
+            $("#corpus-selector").show();
+            // Hide the database selector
+            $("#dbase-selector").hide();
+            // Start by deselecting everything
+            $("#input_lng option:selected").attr("selected", false);
+            // Do we have a 'current' corpus?
+            var sLng = Crpstudio.project.currentLng;
+            if (sLng && sLng !== "") {
+              // There is a current language specified
+              var sDir = Crpstudio.project.currentDir;
+              if (sDir && sDir !== "") {
+                // A sub-part of the corpus is specified
+                $("#input_lng").val(sLng + ":" + sDir);
+              } else {
+                // No sub-part of the corpus is specified
+                $("#input_lng").val(sLng).first();
+                // Now we need to set the global sDir variable
+                var arCrp = $("#input_lng").val().split(":");
+                Crpstudio.project.currentDir = arCrp[1];
+              }
+            }
+          }
           break;
         case "result_display":
           // Hide the metadata
@@ -776,8 +819,12 @@ Crpstudio.project = {
     $("#project_description").html("<i>Please wait...</i>");
     // Make the General area INvisible
     $("#project_general").addClass("hidden");
+    // Possibly correct Dbase, Lng and Dir
+    if (Crpstudio.project.prj_language !== "") sLng = Crpstudio.project.prj_language;
+    if (Crpstudio.project.prj_part !== "") sDir = Crpstudio.project.prj_part;
+    if (Crpstudio.project.prj_dbase !== "") sDbase = Crpstudio.project.prj_dbase;
     // Do we have a lng (+ optional dir)?
-    if (!sLng || sLng === "") {
+    if ((!sLng || sLng === "") && Crpstudio.project.prj_language ==="") {
       // Show the corpus-selector
       $("#corpus-selector").show();
       // Reset the lng + dir
@@ -832,6 +879,11 @@ Crpstudio.project = {
           var bShowSyntax = oContent.showsyntax;
           var bDbaseInput = oContent.dbaseinput; Crpstudio.project.prj_dbaseinput = bDbaseInput
           var sComments = oContent.comments; Crpstudio.project.prj_comments = sComments;
+          var sLanguage = oContent.language; Crpstudio.project.prj_language = sLanguage;
+          var sPart = oContent.part; Crpstudio.project.prj_part = sPart;
+          var sDbase = oContent.dbase; Crpstudio.project.prj_dbase = sDbase;
+          if (sLanguage !== "")
+            Crpstudio.project.setCorpus(sLanguage, sPart);
           // Put the information on the correct places in the form
           $("#project_general_name").val(sName);
           $("#project_general_author").val(sAuthor);
@@ -1182,6 +1234,7 @@ Crpstudio.project = {
       // Set these values also in our own variables
       Crpstudio.project.currentDir = sDirName;
       Crpstudio.project.currentLng = sCorpusName;
+      
       // Hide the corpus selector if we are in project mode
       switch (Crpstudio.project.tab) {
         case "project_editor":
@@ -1189,6 +1242,16 @@ Crpstudio.project = {
           // Hide the corpus selector
           $("#corpus-selector").hide();
           break;
+        case "input_editor":
+        case "input":
+          // Pass on this value to /crpstudio and to /crpp
+          var sKey = "corpus";
+          var sValue = sCorpusName + ":" + sDirName;
+          var oChanges = { "crp": Crpstudio.project.currentPrj,
+            "userid": Crpstudio.currentUser, 
+            "key": sKey, "value": sValue };
+          var params = "changes=" + JSON.stringify(oChanges);
+          Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");              
         default:
           // No particular action right now
           break;
@@ -1306,12 +1369,12 @@ Crpstudio.project = {
           Crpstudio.project.resetDbase();
         } else {
           // Guide the user to the input specification  page
-          Crpstudio.project.switchTab("input_editor");
+          Crpstudio.project.switchTab("input");
         }
         break;
       default:
         // Show the source of the key absence
-        Crpstudio.debug("ctlChanged cannot handle: [" + $(source).attr("id") + "]")
+        Crpstudio.debug("ctlChanged cannot handle: [" + $(source).attr("id") + "]");
         return;
     }
     // Pass on this value to /crpstudio and to /crpp
@@ -1342,6 +1405,8 @@ Crpstudio.project = {
         var sValue = ($(source).is(':checked')) ? "True" : "False"; 
         // Only continue if there is a CHANGE
         if (sValue === Crpstudio.project.prj_dbaseinput) return; 
+        // Make sure the change is recorded globally
+        Crpstudio.dbaseInput = (sValue === "True");
         // If we are changing to "False", then reset the database specifications
         if (sValue === "False") {
           Crpstudio.project.resetDbase();
