@@ -19,7 +19,8 @@ public class ProjectsResponse extends BaseResponse {
       // Get access to all the corpora the user can choose from
       this.getContext().put("corpuslist", getCorpusList());
       // Get a list of databases that can be selected
-      this.getContext().put("dbasesellist", getDbaseSelList(this.sUserId));
+      this.getContext().put("dbasesellist", getDbaseSelList(this.sUserId, "option"));
+      this.getContext().put("dbasechblist", getDbaseSelList(this.sUserId, "checkbox"));
       // Get the result tab specifications
       this.getContext().put("tabspecs", getTabSpecsList());
       // Get a specification of project-types

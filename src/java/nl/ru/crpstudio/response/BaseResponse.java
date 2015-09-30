@@ -1147,14 +1147,16 @@ public abstract class BaseResponse {
         for (int i = 0 ; i < arCrpList.length(); i++) {
           String sLng = "";
           String sDir = "";
+          String sDbase = "";
           // Get this CRP item
           JSONObject oCRP = arCrpList.getJSONObject(i);
           boolean bCrpLoaded = oCRP.getBoolean("loaded");
           // Possibly get lng+dir
           if (oCRP.has("lng")) sLng = oCRP.getString("lng");
           if (oCRP.has("dir")) sDir = oCRP.getString("dir");
+          if (oCRP.has("dbase")) sDbase = oCRP.getString("dbase");
           String sOneCrpName = FileIO.getFileNameWithoutExtension(oCRP.getString("crp"));
-          sb.append(getProjectItem(sOneCrpName, bCrpLoaded, sLng, sDir));
+          sb.append(getProjectItem(sOneCrpName, bCrpLoaded, sLng, sDir, sDbase));
         }
       }
       // Return the string we made
@@ -1174,12 +1176,13 @@ public abstract class BaseResponse {
    * @param bLoaded
    * @param sLng
    * @param sDir
+   * @param sDbase
    * @return 
    */
-  public String getProjectItem(String sCrp, boolean bLoaded, String sLng, String sDir) {
+  public String getProjectItem(String sCrp, boolean bLoaded, String sLng, String sDir, String sDbase) {
     String sOneCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
     return "<li class='crp_"+sCrp+" crp-available'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
-                  sCrp +"\", \""+sLng+"\", \""+sDir+"\")'>" + sOneCrpName + "</a></li>\n";
+                  sCrp +"\", \""+sLng+"\", \""+sDir+"\", \""+sDbase+"\")'>" + sOneCrpName + "</a></li>\n";
   }
   public String getProjectItem(String sCrp, String sUser, String sType) {
     try {
@@ -1191,18 +1194,21 @@ public abstract class BaseResponse {
       for (int i = 0 ; i < arCrpList.length(); i++) {
         String sLng = "";
         String sDir = "";
+        String sDbase = "";
         // Get this CRP item
         JSONObject oCRP = arCrpList.getJSONObject(i);
         boolean bCrpLoaded = oCRP.getBoolean("loaded");
         // Possibly get lng+dir
         if (oCRP.has("lng")) sLng = oCRP.getString("lng");
         if (oCRP.has("dir")) sDir = oCRP.getString("dir");
-        String sCrpName = oCRP.getString("crp").toLowerCase();
         // Is this the CRP we are looking for?
-        if (sCrp.toLowerCase().equals(sCrpName)) {
-          sCrpName = FileIO.getFileNameWithoutExtension(sCrp)  + ((bCrpLoaded) ? " (loaded)" : "");
+        String sOneCrpName = oCRP.getString("crp").toLowerCase();
+        // Get any database directly from the CRP
+        // This does not work: if (oCRP.has("dbase")) sDbase = oCRP.getString("dbase");
+        if (sCrp.toLowerCase().equals(sOneCrpName)) {
+          sOneCrpName = FileIO.getFileNameWithoutExtension(sCrp)  + ((bCrpLoaded) ? " (loaded)" : "");
           return "<li class='crp_"+sCrp+" "+sType+"'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
-                  sCrp +"\", \""+sLng+"\", \""+sDir+"\")'>" + sCrpName + "</a></li>\n";
+                  sCrp +"\", \""+sLng+"\", \""+sDir+"\", \""+sDbase+"\")'>" + sOneCrpName + "</a></li>\n";
         }
       }
       // Getting here means we have nothing
@@ -1219,7 +1225,7 @@ public abstract class BaseResponse {
    * @param sUser
    * @return -- HTML string containing a table with database information for [dbasesel.vm]
    */
-  public String getDbaseSelList(String sUser) {
+  public String getDbaseSelList(String sUser, String sType) {
     StringBuilder sb = new StringBuilder(); // Put everything into a string builder
     try {
       // Get the list
@@ -1241,11 +1247,24 @@ public abstract class BaseResponse {
           String sDbase = oDbase.getString("dbase");
           // Set the string to be displayed in the combobox line
           String sShow = sDbase + " (" + sLng + ":" + sDir + ")";
-          // Enter the combobox line
-          sb.append("<option class=\"noprefix\" value=\"" + sDbase + 
-                  "\" onclick='Crpstudio.project.setDbase(\"" + 
-                  sDbase + "\", \"" + sLng + "\", \"" + sDir + "\")' >" +
-                  sShow + "</option>\n");
+          // Output depends on sType
+          switch(sType) {
+            case "option":    // Use <option> elements
+              // Enter the combobox line
+              sb.append("<option class=\"noprefix\" value=\"" + sDbase + 
+                      "\" onclick='Crpstudio.project.setDbase(\"" + 
+                      sDbase + "\", \"" + sLng + "\", \"" + sDir + "\")' >" +
+                      sShow + "</option>\n");
+              break;
+            case "checkbox":  // Use <li> elements of type "checkbox"
+              // Enter the checkbox line
+              String sId = "dbase_id_" + i;
+              sb.append("<li><a id=\"" + sId + 
+                      "\" href=\"#\" onclick='Crpstudio.project.setDbase(\"" + 
+                      sDbase + "\", \"" + sLng + "\", \"" + sDir + "\")' >" +
+                      sShow + "</a></li>\n");
+              break;
+          }
         }
       }
       // Return the string we made
@@ -1256,6 +1275,7 @@ public abstract class BaseResponse {
     }
   }
   
+ 
   /**
    * getDbaseInfo -- 
    *    Issue a request to the CRPP to get an overview of the databases

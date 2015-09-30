@@ -46,6 +46,8 @@ public class LoadResponse extends BaseResponse {
           oContent.put("dbaseinput", crpThis.getDbaseInput());
           oContent.put("comments", crpThis.getComments());
           oContent.put("dbase", crpThis.getSource());
+          oContent.put("language", crpThis.getLanguage());
+          oContent.put("part", crpThis.getPart());
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");
