@@ -42,7 +42,7 @@
     </div>
   </div>
 
-  <!-- the part to the right of the side-bar may contain contents of this project -->
+  <!-- the part to the right of the side-bar: GENERAL contents of this project -->
   <div id="project_editor" class="large-12 medium-12 small-12 columns">
     <form>
       <fieldset>

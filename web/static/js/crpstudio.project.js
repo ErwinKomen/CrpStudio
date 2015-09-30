@@ -5,6 +5,24 @@
  * @author Erwin R. Komen
  */
 
+/*globals jQuery, crpstudio, Crpstudio, alert: false, */
+var crpstudio = (function ($, crpstudio) {
+  "use strict";
+  crpstudio.project = (function () {
+    // Methods tdbahat are local to [crpstudio.project]
+    var private_methods = {
+      
+    };
+    // Methods that are exported by [crpstudio.project] for others
+    return {
+      
+    };
+  }($, crpstudio.config));
+  
+  return crpstudio;
+  
+}(jQuery, window.crpstudio || {}));
+
 Crpstudio.project = {
   // Local variables within Crpstudio.project
   tab : "project",        // The main tab we are on (equals to "project_editor")
@@ -80,7 +98,7 @@ Crpstudio.project = {
       // Methode #1: Initiate the search by sending a request to /crpp/exe?{...}
       // Crpstudio.postRequest("exe", sExeRequest, Crpstudio.project.processExeCrpp, "#result_status");
       // Method #2: send the request to /crpstudio/exe?{...}
-      Crpstudio.getCrpStudioData("exe", sExeRequest, Crpstudio.project.processExeCrpStudio, "#result_status")
+      Crpstudio.getCrpStudioData("exe", sExeRequest, Crpstudio.project.processExeCrpStudio, "#result_status");
     }
   },
   showExeButtons : function(bShow) {
@@ -129,7 +147,7 @@ Crpstudio.project = {
         var oStatusRequest = {
           "jobid": jobId,
           "userid": sUserId
-        }
+        };
         sStatusRequest = JSON.stringify(oStatusRequest);
         // Make the status available within this JavaScript module
         Crpstudio.project.strQstatus = sStatusRequest;
@@ -231,7 +249,7 @@ Crpstudio.project = {
         var oStatusRequest = {
           "jobid": jobId,
           "userid": sUserId
-        }
+        };
         sStatusRequest = "query=" + JSON.stringify(oStatusRequest);
         // Make the status available within this JavaScript module
         Crpstudio.project.strQstatus = sStatusRequest;
@@ -275,7 +293,7 @@ Crpstudio.project = {
         // Make sure the results are visible
         $("#results").removeClass("hidden");
         $("#results").addClass("active");
-        Crpstudio.result.selectResults('querylines')
+        Crpstudio.result.selectResults('querylines');
         break;
       case "error":
         // Switch off the progress indicator
@@ -819,7 +837,7 @@ Crpstudio.project = {
           $("#project_general_author").val(sAuthor);
           $("#project_general_prjtype").val(sPrjType.toLowerCase());
           // Reset dbase by default
-          Crpstudio.project.setDbase("");
+          Crpstudio.project.resetDbase();
           if (bDbaseInput === "True") {
             $("#project_general_dbase").prop("checked", true);
             Crpstudio.dbaseInput = true;
@@ -1283,6 +1301,13 @@ Crpstudio.project = {
         // ======================================
         // Make this choice available globally
         Crpstudio.dbaseInput = (sValue === "True");
+        // If we are changing to "False", then reset the database specifications
+        if (sValue === "False") {
+          Crpstudio.project.resetDbase();
+        } else {
+          // Guide the user to the input specification  page
+          Crpstudio.project.switchTab("input_editor");
+        }
         break;
       default:
         // Show the source of the key absence
@@ -1301,7 +1326,8 @@ Crpstudio.project = {
    *    Call the function ctlChanged(), but only after a fixed time
    *    of inactivity (not typing) has taken place
    *    
-   * @param {type} source
+   * @param {type}   source
+   * @param {string} sType
    * @returns {undefined}
    */
   ctlTimer : function(source, sType) {
@@ -1310,6 +1336,21 @@ Crpstudio.project = {
     // =============== DEBUG =========
     Crpstudio.debug("ctlTimer: cleared");
     // ===============================
+    // Some controls require immediate action
+    switch ($(source).attr("id")) {
+      case "project_general_dbase": 
+        var sValue = ($(source).is(':checked')) ? "True" : "False"; 
+        // Only continue if there is a CHANGE
+        if (sValue === Crpstudio.project.prj_dbaseinput) return; 
+        // If we are changing to "False", then reset the database specifications
+        if (sValue === "False") {
+          Crpstudio.project.resetDbase();
+        } else {
+          // Guide the user to the input specification  page
+          Crpstudio.project.switchTab("input_editor");
+        }
+        break;
+    }
     // Set the source
     Crpstudio.project.ctlCurrent = source;
     // Call a new timer
