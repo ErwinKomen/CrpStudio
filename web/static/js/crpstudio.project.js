@@ -45,9 +45,9 @@ Crpstudio.project = {
   prj_goal: "",           // Field value of this project: goal
   prj_dbaseinput: "",     // Field value of this project: dbaseinput (True/False)
   prj_comments: "",       // Field value of this project: comments
-  prj_language: "",
-  prj_part: "",
-  prj_dbase: "",
+  prj_language: "",       // Field value of this project: comments
+  prj_part: "",           // Field value of this project: comments
+  prj_dbase: "",          // Field value of this project: comments
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
@@ -660,10 +660,13 @@ Crpstudio.project = {
 	switchTab : function(target, sRecentCrp) {
 		Crpstudio.debug("switching to search tab "+target+" from "+Crpstudio.project.tab);
 		if (target !== Crpstudio.project.tab) {
+      // Bookkeeping
 			$("#search .content").removeClass("active");
 			$("#"+target).addClass("active");
 			$("#subnav dd").removeClass("active");
 			$("#"+target+"_link").addClass("active");
+      // Make sure the global variable is set correctly
+      Crpstudio.project.tab = target;
       // Action depends on target 
       switch (target) {
         case "project_executor":
@@ -785,7 +788,6 @@ Crpstudio.project = {
 				$("#link-spacer").removeClass("hide");
 			}
 			
-			Crpstudio.project.tab = target;
 		}
 	},
   
@@ -843,7 +845,7 @@ Crpstudio.project = {
     if (!sDbase || sDbase === "") {
       Crpstudio.project.resetDbase();
     } else {
-      Crpstudio.project.setDbase(sDbase, sLng, sDir);
+      Crpstudio.project.setDbase(sDbase, sLng, sDir, false);
     }
     // Issue a request to /crpstudio to load the project
     var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
@@ -894,7 +896,7 @@ Crpstudio.project = {
             $("#project_general_dbase").prop("checked", true);
             Crpstudio.dbaseInput = true;
             // Check if a database is already specified as input
-            if (oContent.dbase) Crpstudio.project.setDbase(oContent.dbase);
+            if (sDbase) Crpstudio.project.setDbase(sDbase);
           } else {
             $("#project_general_dbase").prop("checked", false);
             Crpstudio.dbaseInput = false;
@@ -1265,23 +1267,27 @@ Crpstudio.project = {
    * @param {type} sDbName
    * @param {type} sLngName
    * @param {type} sDirName
+   * @param {type} bChange
    * @returns {undefined}
    */
-  setDbase : function(sDbName, sLngName, sDirName) {
+  setDbase : function(sDbName, sLngName, sDirName, bChange) {
     // Set the corpus name and dir name in the top section
     $("#top_bar_current_dbase").text(sDbName);
     // Set these values also in our own variables
     Crpstudio.project.currentDb = sDbName;
     if (sLngName) Crpstudio.project.currentDbLng = sLngName;
     if (sDirName) Crpstudio.project.currentDbDir = sDirName;
-    // Pass on this value to /crpstudio and to /crpp
-    var sKey = "source";
-    var sValue = sDbName;
-    var oChanges = { "crp": Crpstudio.project.currentPrj,
-      "userid": Crpstudio.currentUser, 
-      "key": sKey, "value": sValue };
-    var params = "changes=" + JSON.stringify(oChanges);
-    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+    // Make sure CHANGES are only passed on as /crpchg where this is intended
+    if (bChange) {
+      // Pass on this value to /crpstudio and to /crpp
+      var sKey = "source";
+      var sValue = sDbName;
+      var oChanges = { "crp": Crpstudio.project.currentPrj,
+        "userid": Crpstudio.currentUser, 
+        "key": sKey, "value": sValue };
+      var params = "changes=" + JSON.stringify(oChanges);
+      Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+    }
   },
   /**
    * resetDbase -- reset the current database input
@@ -1377,6 +1383,11 @@ Crpstudio.project = {
         Crpstudio.debug("ctlChanged cannot handle: [" + $(source).attr("id") + "]");
         return;
     }
+    // ===== DEBUGGING ====
+    if (sKey === "source") {
+      Crpstudio.debug("crpchgDD source to: " + sValue);
+    }
+    // ====================
     // Pass on this value to /crpstudio and to /crpp
     var oChanges = { "crp": Crpstudio.project.currentPrj,
       "userid": Crpstudio.currentUser, 
