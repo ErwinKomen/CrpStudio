@@ -52,6 +52,12 @@ public class CrpchgResponse extends BaseResponse {
       String sKeyName = oQuery.getString("key");
       String sKeyValue = oQuery.getString("value");
       
+      // ========== DEBUG ==========
+      //if (sKeyName.equals("source")) {
+      // logger.debug("crpchg source change request to: " + sKeyValue);
+      //}
+      // ===========================
+      
       // Start preparing a /crpp request
       //   Obligatory parameters: 
       //      userid: name of user that has done /exe with the CRP

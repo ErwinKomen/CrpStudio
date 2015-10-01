@@ -1098,6 +1098,40 @@ public abstract class BaseResponse {
   }
   
   /**
+   * getInternalList -- 
+   *    Issue a request to the CRPP to get an overview of the definitions
+   *    that user @sUser has access to in project @sCrpName
+   * 
+   * @param sUser     - Id of the user
+   * @param sCrpName  - Name of the CRP
+   * @param sType     - Kind of list: def, query, qc
+   * @return -- JSON array of items
+   * @history
+   *  1/oct/2015  ERK Created for Java
+   */
+  public JSONArray getInternalList(String sUser, String sCrpName, String sType) {
+    try {
+      // Prepare the parameters for this request
+      this.params.clear();
+      this.params.put("userid", sUser);
+      this.params.put("crpname", sCrpName);
+      this.params.put("type", sType);
+      // Get the JSON object from /crpp containing the projects of this user
+      String sResp = getCrppResponse("getlist", "", this.params,null);
+      // Interpret the response
+      JSONObject oResp = new JSONObject(sResp);
+      if (!oResp.has("status") || !oResp.has("content") || 
+          !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+      // Get the list of CRPs
+      return oResp.getJSONArray("content");
+
+    } catch (Exception ex) {
+      logger.DoError("getInternalList: could not complete", ex);
+      return null;
+    }
+  }
+  
+  /**
    * getUserSettings
    *    Request the "settings.json" object from the /crpp server
    * 
@@ -1253,7 +1287,7 @@ public abstract class BaseResponse {
               // Enter the combobox line
               sb.append("<option class=\"noprefix\" value=\"" + sDbase + 
                       "\" onclick='Crpstudio.project.setDbase(\"" + 
-                      sDbase + "\", \"" + sLng + "\", \"" + sDir + "\")' >" +
+                      sDbase + "\", \"" + sLng + "\", \"" + sDir + "\", true)' >" +
                       sShow + "</option>\n");
               break;
             case "checkbox":  // Use <li> elements of type "checkbox"
@@ -1261,7 +1295,7 @@ public abstract class BaseResponse {
               String sId = "dbase_id_" + i;
               sb.append("<li><a id=\"" + sId + 
                       "\" href=\"#\" onclick='Crpstudio.project.setDbase(\"" + 
-                      sDbase + "\", \"" + sLng + "\", \"" + sDir + "\")' >" +
+                      sDbase + "\", \"" + sLng + "\", \"" + sDir + "\", true)' >" +
                       sShow + "</a></li>\n");
               break;
           }

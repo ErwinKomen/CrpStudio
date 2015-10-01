@@ -48,6 +48,10 @@ public class LoadResponse extends BaseResponse {
           oContent.put("dbase", crpThis.getSource());
           oContent.put("language", crpThis.getLanguage());
           oContent.put("part", crpThis.getPart());
+          oContent.put("deflist", crpThis.getListDef());
+          oContent.put("qrylist", crpThis.getListQuery());
+          oContent.put("qclist", crpThis.getListQC());
+          oContent.put("dbflist", crpThis.getListDbFeat());
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");
