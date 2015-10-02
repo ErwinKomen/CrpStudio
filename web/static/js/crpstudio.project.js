@@ -64,15 +64,21 @@ Crpstudio.project = {
       Crpstudio.debug("user is not defined");
     } else {
       // Find out which language corpus the user has chosen
-      var oCorpusAndDir = $("#input_lng").val().split(":");
+      /* ====== OLD =======
+      var sInputSpec = $("#input_lng").val();
+      var oCorpusAndDir = sInputSpec.split(":");
       var sLng = oCorpusAndDir[0];    // obligatory
       var sDir = oCorpusAndDir[1];    // May be empty
       var sDbase = oCorpusAndDir[2];  // May be empty -- is input database
-      var oExeRequest = {};
       // Store these values for posterity (well, for /update requests)
       Crpstudio.project.currentDir = sDir;
       Crpstudio.project.currentLng = sLng;
       Crpstudio.project.currentDb = sDbase;
+      ===================== */
+      // Find out which language corpus the user has chosen
+      var sLng = Crpstudio.project.currentLng;
+      var sDir = Crpstudio.project.currentDir;
+      var sDbase = Crpstudio.project.currentDb;
       // debugging: show where the status appears
       $("#project_status").text("Processing project: " + sPrjName);
       $("#result_status").text("");
@@ -83,6 +89,8 @@ Crpstudio.project = {
       $("#result_status").text("");
       // Make sure the execute buttons are hidden again
       Crpstudio.project.showExeButtons(false);
+      // Start creating a request object
+      var oExeRequest = {};
       // Create JSON request for the search
       if (sDir === "") {
         if (sDbase === "")
