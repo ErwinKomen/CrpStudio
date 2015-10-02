@@ -821,10 +821,12 @@ Crpstudio.project = {
     $("#project_description").html("<i>Please wait...</i>");
     // Make the General area INvisible
     $("#project_general").addClass("hidden");
+    /*
     // Possibly correct Dbase, Lng and Dir
     if (Crpstudio.project.prj_language !== "") sLng = Crpstudio.project.prj_language;
     if (Crpstudio.project.prj_part !== "") sDir = Crpstudio.project.prj_part;
     if (Crpstudio.project.prj_dbase !== "") sDbase = Crpstudio.project.prj_dbase;
+    */
     // Do we have a lng (+ optional dir)?
     if ((!sLng || sLng === "") && Crpstudio.project.prj_language ==="") {
       // Show the corpus-selector
@@ -884,6 +886,13 @@ Crpstudio.project = {
           var sLanguage = oContent.language; Crpstudio.project.prj_language = sLanguage;
           var sPart = oContent.part; Crpstudio.project.prj_part = sPart;
           var sDbase = oContent.dbase; Crpstudio.project.prj_dbase = sDbase;
+          // Experimental
+          var iDefCount = oContent.deflist.length;
+          var iQryCount = oContent.qrylist.length;
+          var iQcCount = oContent.qclist.length;
+          var iDbfCount = oContent.dbflist.length;
+          $("#project_status").html("defs=" + iDefCount + " qrys=" + iQryCount +
+                  " QCs=" + iQcCount + " dbfeatures=" + iDbfCount);
           if (sLanguage !== "")
             Crpstudio.project.setCorpus(sLanguage, sPart);
           // Put the information on the correct places in the form

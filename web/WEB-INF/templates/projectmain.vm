@@ -39,6 +39,8 @@
           ${projecttable}
         </ul>
       </nav>
+      <div id="project_status">
+      </div>
     </div>
   </div>
 
