@@ -48,6 +48,10 @@ Crpstudio.project = {
   prj_language: "",       // Field value of this project: comments
   prj_part: "",           // Field value of this project: comments
   prj_dbase: "",          // Field value of this project: comments
+  prj_deflist: null,      // Field value of this project: list of definitions
+  prj_qrylist: null,      // Field value of this project: list of queries
+  prj_qclist: null,       // Field value of this project: list of QC elements
+  prj_dbflist: null,      // Field value of this project: list of database features
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
@@ -675,8 +679,14 @@ Crpstudio.project = {
 			$("#"+target+"_link").addClass("active");
       // Make sure the global variable is set correctly
       Crpstudio.project.tab = target;
+      // Initially hide *all* SELECTORs
+      $("#corpus-selector").hide(); $("#dbase-selector").hide();   $("#metadata").hide(); 
+      $("#query-selector").hide(); $("#constructor-selector").hide(); $("#definition-selector").hide();
+      Crpstudio.project.showExeButtons(false);
+      
       // Action depends on target 
       switch (target) {
+        /*
         case "project_executor":
           // Hide the metadata selector
   				$("#metadata").hide();
@@ -684,32 +694,22 @@ Crpstudio.project = {
           $("#corpus-selector").hide();
           $("#dbase-selector").hide();
           break;
+        */
         case "project_editor":
         case "project":
           // Make sure the execute buttons are shown
           Crpstudio.project.showExeButtons(true);
-          // Hide the metadata selector
-  				$("#metadata").hide();
-          // Possibly hide the lng/corpus selector
-          if (Crpstudio.project.currentLng && Crpstudio.project.currentLng !== "") {
-            // Hide it
-            $("#corpus-selector").hide();
+          // Possibly *show* the lng/corpus selector
+          if (!Crpstudio.project.currentLng || Crpstudio.project.currentLng === "") {
+            // Show it
+            $("#corpus-selector").show();
           }
-          // Hide DBASE SELECTOR
-          $("#dbase-selector").hide();
           // Do we have a 'recent' CRP?
           if (sRecentCrp && sRecentCrp !== "") {
             // Show the recent ones
             $("#project_list li .crp-recent").show();
             Crpstudio.project.recentcrp = sRecentCrp;
           } 
-          /* Don't do anything with hiding
-          else {
-            // Just hide the recent ones
-            $("#project_list li .crp-recent").hide();
-            // But DON'T whipe it!!!
-            // Crpstudio.project.recentcrp = "";
-          } */
           break;
         case "input_editor": 
         case "input":
@@ -719,9 +719,8 @@ Crpstudio.project = {
               */
           // Show the database selector if this is a database-input 
           if (Crpstudio.dbaseInput) {
+            // Show the database selector
             $("#dbase-selector").show();
-            // Hide the corpus selector
-            $("#corpus-selector").hide();
             // Figure out which dbase to show as selected
             if (Crpstudio.project.currentDb && Crpstudio.project.currentDb!=="") {
               // Select the one with this database setting
@@ -741,8 +740,6 @@ Crpstudio.project = {
           } else {
             // Show the corpus selector
             $("#corpus-selector").show();
-            // Hide the database selector
-            $("#dbase-selector").hide();
             // Start by deselecting everything
             $("#input_lng option:selected").attr("selected", false);
             // Do we have a 'current' corpus?
@@ -763,27 +760,28 @@ Crpstudio.project = {
             }
           }
           break;
+        case "definitions": case "definition_editor":
+          // Show the definition selector
+          $("#definition-selector").show();
+
+          break;
+        case "queries": case "query_editor":
+          // Show the query selector
+          $("#query-selector").show();
+
+          break;
+        case "constructor": case "constructor_editor":
+          // Show the constructor selector
+          $("#constructor-selector").show();
+
+          break;
         case "result_display":
-          // Hide the metadata
-  				$("#metadata").hide();
-          // Hide CORPUS SELECTOR
-          $("#corpus-selector").hide();
-          $("#dbase-selector").hide();            
-          // Make sure the execute buttons are hidden
-          Crpstudio.project.showExeButtons(false);
           // Other actions
           $(".sub-nav dd").removeClass("active");
           $("#result_link").removeClass("hide");
           $("#result_link").addClass("active");
           break;
         case "document_display":
-          // Hide the metadata
-  				$("#metadata").hide();
-          // Hide CORPUS SELECTOR
-          $("#corpus-selector").hide();
-          $("#dbase-selector").hide();            
-          // Make sure the execute buttons are hidden
-          Crpstudio.project.showExeButtons(false);
           // Other actions
           $(".sub-nav dd").removeClass("active");
           $("#document").removeClass("hide");
@@ -895,10 +893,10 @@ Crpstudio.project = {
           var sPart = oContent.part; Crpstudio.project.prj_part = sPart;
           var sDbase = oContent.dbase; Crpstudio.project.prj_dbase = sDbase;
           // Experimental
-          var iDefCount = oContent.deflist.length;
-          var iQryCount = oContent.qrylist.length;
-          var iQcCount = oContent.qclist.length;
-          var iDbfCount = oContent.dbflist.length;
+          var iDefCount = oContent.deflist.length; Crpstudio.project.prj_deflist = oContent.deflist;
+          var iQryCount = oContent.qrylist.length; Crpstudio.project.prj_qrylist = oContent.qrylist;
+          var iQcCount = oContent.qclist.length; Crpstudio.project.prj_qclist = oContent.qclist;
+          var iDbfCount = oContent.dbflist.length; Crpstudio.project.prj_dbflist = oContent.dbflist;
           $("#project_status").html("defs=" + iDefCount + " qrys=" + iQryCount +
                   " QCs=" + iQcCount + " dbfeatures=" + iDbfCount);
           if (sLanguage !== "")
