@@ -1,6 +1,54 @@
-<!-- side bar: names of queries in this project -->
-<!-- <div id="querylist" class="large-16 medium-16 small-16 row"> -->
+#set($abbr = "qry")
+#set($full = "query")
+#set($listhead = $labels.getString("queries"))
+#set($new_manual = $labels.getString("query.create.manual"))
+#set($new_wizard = $labels.getString("query.create.wizard"))
 
+<!-- side bar: names of queries in this project -->
+<div id="querylist" class="large-16 medium-16 small-16 row">
+
+
+  <!-- the left side-bar used for selecting a query -->
+  <div id="query_selector" class="large-4 medium-4 small-4 columns">
+    <div class="sidebar">
+      <h5>${queries}</h5>
+      <div id="query_download" class="row hidden">
+        <span>$labels.getString("result.export.intro"): </span>
+        <span id="query_download_file"></span>
+      </div>
+      <nav>
+        <ul id="query_list" class="side-nav">
+          <!-- Actions to CREATE/ADD/LOAD a query -->
+          <li class="heading qry-new" onclick="Crpstudio.query.sideToggle(this, 'qry-new')"><label>$labels.getString("query.new")</label></li>
+          <li class="qry-new hidden">
+            <a id="query-upload" onclick="$('#query-upload-input').click();">$labels.getString("query.upload")</a>
+            <input id="query-upload-input" class="uploadfile" type="file" onchange="Crpstudio.query.uploadQryFile(this);">
+          </li>
+          <li class="qry-new hidden"><a id="query-createM" href="#" onclick="$new_manual(this);">
+            $labels.getString("query.create.manual")</a></li>
+          <li class="qry-new hidden"><a id="query-createW" href="#" onclick="Crpstudio.query.createWizard(this);">
+            $labels.getString("query.create.wizard")</a></li>
+
+          <!-- Actions on CURRENTLY loaded query -->
+          <li class="divider qry-current"></li>
+          <li class="heading qry-current" onclick="Crpstudio.query.sideToggle(this, 'qry-current')">
+            <label>$labels.getString("query.current")</label></li>
+          <li class="qry-current hidden"><a id="query-download" href="#" onclick="Crpstudio.query.downloadQryFile(this);">
+            $labels.getString("query.download")</a></li>
+          <li class="qry-current hidden"><a id="query-remove" href="#" onclick="Crpstudio.query.removeQryFile(this);">
+            $labels.getString("query.remove")</a></li>
+
+          <!-- List of AVAILABLE Queries -->
+          <li class="divider qry-available"></li>
+          <li class="heading qry-available" onclick="Crpstudio.query.sideToggle(this, 'qry-available')">
+            <label>$labels.getString("query.available")</label></li>
+          <!-- ${querytable} -->
+        </ul>
+      </nav>
+      <div id="query_status">
+      </div>
+    </div>
+  </div>
 
   <!-- the part to the right of the side-bar: GENERAL contents of this query -->
   <div id="query_editor" class="large-12 medium-12 small-12 columns">
@@ -78,3 +126,4 @@
       </fieldset>
     </form>
   </div>
+</div>

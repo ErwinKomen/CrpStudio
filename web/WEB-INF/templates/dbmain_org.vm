@@ -1,53 +1,90 @@
+<!-- side bar: names of databases of this user -->
+<div id="dbaselist" class="large-16 medium-16 small-16 row">
+  <!-- the left side-bar used for selecting a project -->
+  <div id="dbase_selector" class="large-4 medium-4 small-4 columns">
+    <div class="sidebar">
+      <h5>${dbase}</h5>
+      <div id="dbase_download" class="row hidden">
+        <span>$labels.getString("dbase.export.intro"): </span>
+        <span id="dbase_download_file"></span>
+      </div>
+      <nav>
+        <ul id="dbase_list" class="side-nav">
+          <!-- Actions to CREATE/ADD/LOAD a DB -->
+          <li class="db-new hidden">
+            <a id="dbase-upload" onclick="$('#dbase-upload-input').click();">$labels.getString("dbase.upload")</a>
+            <input id="dbase-upload-input" class="uploadfile" type="file" onchange="Crpstudio.dbase.uploadDbFile(this);">
+          </li>
 
-  <!-- the part to the right of the side-bar: GENERAL contents of this project -->
-  <div id="project_editor" class="large-12 medium-12 small-12 columns">
+          <!-- Actions on CURRENTLY loaded DB -->
+          <li class="divider db-current"></li>
+          <li class="heading db-current" onclick="Crpstudio.project.sideToggle(this, 'db-current')"><label>$labels.getString("dbase.current")</label></li>
+          <li class="db-current hidden"><a id="dbase-download" href="#" onclick="Crpstudio.dbase.downloadDbFile(this);">$labels.getString("dbase.download")</a></li>
+          <li class="db-current hidden"><a id="dbase-remove" href="#" onclick="Crpstudio.dbase.removeDbFile(this);">$labels.getString("dbase.remove")</a></li>
+
+          <!-- Most RECENTly used DB (just 1, if any) -->
+          <li class="divider db-recent"></li>
+          <li class="heading db-recent" onclick="Crpstudio.project.sideToggle(this, 'db-recent')"><label>$labels.getString("dbase.recent")</label></li>
+          ${recentdb}
+
+          <!-- List of AVAILABLE DBs -->
+          <li class="divider db-available"></li>
+          <li class="heading db-available" onclick="Crpstudio.project.sideToggle(this, 'db-available')"><label>$labels.getString("dbase.available")</label></li>
+          ${dbasetable}
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- the part to the right of the side-bar may contain contents of this database -->
+  <div id="dbase_editor" class="large-12 medium-12 small-12 columns">
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>
-        <div id="project_description" class="large-16 medium-16 small-16 row">
-          <i>(no project selected)</i>
+        <div id="dbase_description" class="large-16 medium-16 small-16 row">
+          <i>(no database selected)</i>
         </div>
-        <div id="project_general" class="large-16 medium-16 small-16 row hidden">
-          <div id="project_general_top" class="large-16 medium-16 small-16 row">
-            <!-- The top-left contains name, author, type and goal -->
-            <div id="project_general_left" class="large-11 medium-11 small-11 columns">
-              <!-- Project NAME -->
+        <div id="dbase_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="dbase_general_top" class="large-16 medium-16 small-16 row">
+            <!-- The top-left contains DB NAME, PROJECT NAME, CORPUS and NOTES -->
+            <div id="dbase_general_left" class="large-11 medium-11 small-11 columns">
+              <!-- Database DB NAME -->
               <div class="large-16 medium-16 small-16 row">
                 <div class="large-6 medium-6 small-6 columns">
-                  <label for="right-label" class="right inline">$labels.getString("project.general.name")</label>
+                  <label for="right-label" class="right inline">$labels.getString("dbase.general.namedb")</label>
                 </div>
                 <div class="large-10 medium-10 small-10 columns">
                   <div class="large-16 medium-16 small-16 row collapse">
                     <div class="large-14 medium-14 small-14 columns">
-                      <input id="project_general_name" class="general_input" type="text" placeholder="name (no spaces)">
+                      <input id="dbase_general_namedb" class="general_input" type="text" placeholder="name (no spaces)">
                     </div>
                     <div class="large-2 medium-2 small-2 columns">
-                      <span class="postfix">.crpx</span>
+                      <span class="postfix">.xml</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="large-16 medium-16 small-16 row">
-                <!-- Project AUTHOR -->
+                <!-- Project PRJ NAME -->
                 <div class="large8 medium-8 small-8 columns">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <label for="right-label" class="right inline">$labels.getString("project.general.author")</label>
+                      <label for="right-label" class="right inline">$labels.getString("dbase.general.nameprj")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
-                      <input id="project_general_author" class="general_input" type="text" placeholder="creator of this project">
+                      <input id="dbase_general_nameprj" class="general_input" type="text" placeholder="name of project">
                     </div>
                   </div>
                 </div>
-                <!-- Project PRJTYPE -->
+                <!-- Database LNG -->
                 <div class="large8 medium-8 small-8 columns">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <label for="right-label" class="right inline">$labels.getString("project.general.prjtype")</label>
+                      <label for="right-label" class="right inline">$labels.getString("dbase.general.corpus")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
-                      <select id="project_general_prjtype" class="general_input"  placeholder="kind of project">
-                        ${prjtypelist}
+                      <select id="dbase_general_corpus" class="general_input"  placeholder="kind of project">
+                        ${corpuslist}
                       </select>
                     </div>
                   </div>
@@ -94,4 +131,5 @@
       </fieldset>
     </form>
   </div>
+</div>
 

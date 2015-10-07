@@ -31,6 +31,10 @@
       #end
 		
 			<div id="dbase_explore" class="large-16 medium-16 small-16 content $explore_active">
+        #set( $explorespec = $explorespecs.get(4) )
+        #set( $item_rec = $recentdb )
+        #set( $item_list = $dbasetable )
+        #parse("selector.vm")
 				#parse("dbmain.vm")
 			</div>
 			<div id="dbase_editor" class="large-16 medium-16 small-16 content $edit_active">

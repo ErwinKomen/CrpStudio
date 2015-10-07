@@ -1,0 +1,117 @@
+#set ($exp_abbr = $explorespec.getAbbr() )
+#set ($exp_name = $explorespec.getName() )
+#set ($exp_title = $explorespec.getTitle() )
+#set ($exp_new   = $exp_abbr + "-new" )
+#set ($exp_cur   = $exp_abbr + "-current" )
+#set ($exp_rec   = $exp_abbr + "-recent" )
+#set ($exp_avb   = $exp_abbr + "-available" )
+
+#if ( $explorespec.getLbName("new") )
+  #set ($exp_strNew       = $labels.getString($explorespec.getLbName("new")) )
+#else
+  #set ($exp_strNew = "")
+#end
+#if ( $explorespec.getLbName("upload") )
+  #set ($exp_strUpload    = $labels.getString($explorespec.getLbName("upload")) )
+#else
+  #set ($exp_strUpload = "")
+#end
+#if ( $explorespec.getLbName("current") )
+  #set ($exp_strCurrent   = $labels.getString($explorespec.getLbName("current")) )
+#else
+  #set ($exp_strCurrent = "")
+#end
+#if ( $explorespec.getLbName("recent") )
+  #set ($exp_strRecent   = $labels.getString($explorespec.getLbName("recent")) )
+#else
+  #set ($exp_strRecent = "")
+#end
+#if ( $explorespec.getLbName("download") )
+  #set ($exp_strDownload  = $labels.getString($explorespec.getLbName("download")) )
+#else
+  #set ($exp_strDownload = "")
+#end
+#if ( $explorespec.getLbName("remove") )
+  #set ($exp_strRemove    = $labels.getString($explorespec.getLbName("remove")) )
+#else
+  #set ($exp_strRemove = "")
+#end
+#if ( $explorespec.getLbName("available") )
+  #set ($exp_strAvailable = $labels.getString($explorespec.getLbName("available")) )
+#else
+  #set ($exp_strAvailable = "")
+#end
+#if ( $explorespec.getLbName("create.manual") )
+  #set ($exp_strManual    = $labels.getString($explorespec.getLbName("create.manual")) )
+#else
+  #set ($exp_strManual = "")
+#end
+#if ( $explorespec.getLbName("create.wizard") )
+  #set ($exp_strWizard    = $labels.getString($explorespec.getLbName("create.wizard")) )
+#else
+  #set ($exp_strWizard = "")
+#end
+
+  <!-- the left side-bar used for selecting an item -->
+  <div id="${exp_name}_selector" class="large-4 medium-4 small-4 columns">
+    <div class="sidebar">
+      <h5>$exp_title</h5>
+      <div id="${exp_name}_download" class="row hidden">
+        <span>$labels.getString("result.export.intro"): </span>
+        <span id="${exp_name}_download_file"></span>
+      </div>
+      <nav>
+        <ul id="${exp_name}_list" class="side-nav">
+          <!-- Actions to CREATE/ADD/LOAD an item -->
+          #if ($exp_strNew  && $exp_strNew != "")
+            <li class="heading $exp_new" onclick="Crpstudio.project.sideToggle(this, '$exp_new')"><label>$exp_strNew</label></li>
+            #if ($exp_strUpload && $exp_strUpload != "")
+              <li class="$exp_new hidden">
+                <a id="${exp_name}-upload" onclick="$('#${exp_name}-upload-input').click();">$exp_strUpload</a>
+                <input id="${exp_name}-upload-input" class="uploadfile" type="file" onchange="Crpstudio.project.uploadFile(this, '$exp_name');">
+              </li>
+            #end
+            #if ($exp_strManual && $exp_strManual != "")
+              <li class="$exp_new hidden"><a id="${exp_name}-createM" href="#" onclick="Crpstudio.project.createManual(this, '$exp_name');">
+                $exp_strManual</a></li>
+            #end
+            #if ($exp_strWizard && $exp_strWizard != "")
+              <li class="$exp_new hidden"><a id="${exp_name}-createW" href="#" onclick="Crpstudio.project.createWizard(this, '$exp_name');">
+                $exp_strWizard</a></li>
+            #end
+            <li class="divider $exp_cur"></li>
+          #end
+
+          <!-- Actions on CURRENTLY loaded item -->
+          <li class="heading $exp_cur" onclick="Crpstudio.project.sideToggle(this, '$exp_cur')">
+            <label>$exp_strCurrent</label></li>
+          <li class="$exp_cur hidden"><a id="${exp_name}-download" href="#" onclick="Crpstudio.project.downloadFile(this, '$exp_name');">
+            $exp_strDownload</a></li>
+          <li class="$exp_cur hidden"><a id="${exp_name}-remove" href="#" onclick="Crpstudio.project.removeFile(this, '$exp_name');">
+            $exp_strRemove</a></li>
+
+          <!-- Most RECENTly used item (just 1, if any) -->
+          #if ($exp_strRecent && $exp_strRecent != "")
+            <li class="divider $exp_rec"></li>
+            <li class="heading $exp_rec" onclick="Crpstudio.project.sideToggle(this, '$exp_rec')">
+              <label>$exp_strRecent</label></li>
+            #if ( $item_rec && $item_rec != "" )
+              ${item_rec}
+            #end
+          #end
+
+
+          <!-- List of AVAILABLE Items -->
+          <li class="divider $exp_avb"></li>
+          <li class="heading $exp_avb" onclick="Crpstudio.project.sideToggle(this, '$exp_avb')">
+            <label>$exp_strAvailable </label></li>
+            #if ( $item_list && $item_list != "" )
+              ${item_list}
+            #end
+
+        </ul>
+      </nav>
+      <!-- For debugging: a small status div -->
+      <div id="${exp_name}_status" ></div>
+    </div>
+  </div>

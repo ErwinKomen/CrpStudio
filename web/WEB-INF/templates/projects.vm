@@ -79,6 +79,7 @@
 			#set($definitions_active = "")
 			#set($queries_active = "")
 			#set($constructor_active = "")
+      #set($dbfeat_active = "")
 			#set($result_active = "")
       #set($document_active = "")
 		
@@ -105,6 +106,10 @@
 				#set($constructor_active = "active")
 				#set($meta = "hidden")
         #set($crpsel = "hidden")
+      #elseif($tab == "dbfeat")
+        #set($dbfeat_active = "active")
+				#set($meta = "hidden")
+        #set($crpsel = "hidden")
 			#elseif($tab == "result")
 				#set($result_active = "active")
 				#set($meta = "hidden")
@@ -115,28 +120,52 @@
         #set($crpsel = "hidden")
 			#end
 			
+      #set( $item_rec = "" )
+      #set( $item_list = "" )
       <div id="corpus-selector" $crpsel>
+        <!-- small combobox corpus selector -->
         #parse("crpsel.vm")
       </div>
       <div id="dbase-selector" $dbasesel>
+        <!-- small combobox dbase selector -->
         #parse("dbasesel.vm")
       </div>
 			<div id="metadata" $meta>
+        <!-- awaits implementation -->
 				#parse("metadata.vm")
 			</div>
 			<div id="project_editor" class="large-16 medium-16 small-16 content $project_active">
+        #set( $explorespec = $explorespecs.get(5) )
+        #set( $item_rec = $recentcrp )
+        #set( $item_list = $projectlist )
+        #parse("selector.vm")
 				#parse("projectmain.vm")
 			</div>
 			<div id="input_editor" class="large-16 medium-16 small-16 content $input_active">
 				#parse("input.vm")
 			</div>
 			<div id="definition_editor" class="large-16 medium-16 small-16 content $definitions_active">
+        #set( $explorespec = $explorespecs.get(1) )
+        #set( $item_list = $deftable )
+        #parse("selector.vm")
 				#parse("definitions.vm")
 			</div>
 			<div id="query_editor" class="large-16 medium-16 small-16 content $queries_active">
+        #set( $explorespec = $explorespecs.get(0) )
+        #set( $item_list = $qrytable )
+        #parse("selector.vm")
 				#parse("queries.vm")
 			</div>
-			<div id="constructor_editor" class="large-16 medium-16 small-16 content $queries_active">
+			<div id="dbfeat_editor" class="large-16 medium-16 small-16 content $dbfeat_active">
+        #set( $explorespec = $explorespecs.get(3) )
+        #set( $item_list = $dbftable )
+        #parse("selector.vm")
+				#parse("dbfeat.vm")
+			</div>
+			<div id="constructor_editor" class="large-16 medium-16 small-16 content $constructor_active">
+        #set( $explorespec = $explorespecs.get(2) )
+        #set( $item_list = $qctable )
+        #parse("selector.vm")
 				#parse("constructor.vm")
 			</div>
 			<div id="result_display" class="large-16 medium-16 small-16 content $result_active">

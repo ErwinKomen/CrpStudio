@@ -681,7 +681,7 @@ Crpstudio.project = {
       Crpstudio.project.tab = target;
       // Initially hide *all* SELECTORs
       $("#corpus-selector").hide(); $("#dbase-selector").hide();   $("#metadata").hide(); 
-      $("#query-selector").hide(); $("#constructor-selector").hide(); $("#definition-selector").hide();
+      $("#query_editor").hide(); $("#constructor_editor").hide(); $("#definition_editor").hide();
       Crpstudio.project.showExeButtons(false);
       
       // Action depends on target 
@@ -761,18 +761,23 @@ Crpstudio.project = {
           }
           break;
         case "definitions": case "definition_editor":
+          // Fill the definitions list
+          Crpstudio.project.showlist("definition");
           // Show the definition selector
-          $("#definition-selector").show();
-
+          $("#definition_editor").show();
+          
           break;
         case "queries": case "query_editor":
+          // Fill the query list
+          Crpstudio.project.showlist("query");
           // Show the query selector
-          $("#query-selector").show();
-
+          $("#query_editor").show();
           break;
         case "constructor": case "constructor_editor":
+          // Fill the constructor list
+          Crpstudio.project.showlist("constructor");
           // Show the constructor selector
-          $("#constructor-selector").show();
+          $("#constructor_editor").show();
 
           break;
         case "result_display":
@@ -796,6 +801,58 @@ Crpstudio.project = {
 			
 		}
 	},
+  
+  /**
+   * showlist -- create a set of <li> items to occur in the "available"
+   *             section of one of four different types:
+   *             "query", "definition", "constructor" or "dbfeat"
+   *             
+   * @param {type} sListType
+   * @returns {undefined}
+   * @history
+   *  6/oct/2015  ERK Created
+   */
+  showlist : function(sListType) {
+    var oList = null;   // JSON type list of objects
+    var sPrf = "";      // Prefix
+    var sLoc = ""; // Location on html
+    var arHtml = [];    // To gather the output
+    // Find the correct list
+    switch(sListType) {
+      case "query": sPrf = "qry"; oList = Crpstudio.project.prj_qrylist;break;
+      case "definition": sPrf = "def"; oList = Crpstudio.project.prj_deflist;break;
+      case "constructor": sPrf = "qc"; oList = Crpstudio.project.prj_qclist;break;
+      case "dbfeat": sPrf = "dbf"; oList = Crpstudio.project.prj_dbflist;break;
+    }
+    sLoc = "#" + sListType + "_list" + " ." + sPrf + "-available";
+    // Calculate a list consisting of <li> items
+    // QRY: "QueryId;Name;File;Goal;Comment;Created;Changed"
+    // DEF: "DefId;Name;File;Goal;Comment;Created;Changed"
+    // QC:  "QCid;Input;Query;Output;Result;Cmp;Mother;Goal;Comment"
+    // DBF: "DbFeatId;Name;Pre;QCid;FtNum"
+    for (var i=0;i<oList.length;i++) {
+      var oOneItem = oList[i];
+      var sOneItem = "<li class='" + sPrf + "_" + oOneItem.Name + " " + 
+              sPrf + "-available'><a href=\"#\" onclick='";
+      switch(sListType) {
+        case "query": sOneItem += "Crpstudio.project.setQuery(this, "+ 
+                  oOneItem.QueryId +")'>" + oOneItem.Name; break;
+        case "definition": sOneItem += "Crpstudio.project.setDef(this, "+ 
+                  oOneItem.DefId +")'>" + oOneItem.Name; break;
+        case "constructor": sOneItem += "Crpstudio.project.setQC(this, "+ 
+                  oOneItem.QCid +")'>" + oOneItem.QCid + " " +
+                  oOneItem.Input + " " + oOneItem.Result; break;
+        case "dbfeat": sOneItem += "Crpstudio.project.setDbFeat(this, "+ 
+                  oOneItem.DbFeatId +")'>" + oOneItem.Name + 
+                  " " + oOneItem.FtNum; break;
+      }
+      sOneItem += "</a></li>\n";
+      arHtml.push(sOneItem);
+    }
+    // Adapt the QRY-AVAILABLE list
+    $(sLoc).not(".divider").not(".heading").remove();
+    $(sLoc).last().after(arHtml.join("\n"));
+  },
   
   /* ---------------------------------------------------------------------------
    * Name: setProject

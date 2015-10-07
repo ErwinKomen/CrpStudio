@@ -1,40 +1,6 @@
 <!-- side bar: names of databases of this user -->
-<div id="dbaselist" class="large-16 medium-16 small-16 row">
-  <!-- the left side-bar used for selecting a project -->
-  <div id="dbase_selector" class="large-4 medium-4 small-4 columns">
-    <div class="sidebar">
-      <h5>${dbase}</h5>
-      <div id="dbase_download" class="row hidden">
-        <span>$labels.getString("dbase.export.intro"): </span>
-        <span id="dbase_download_file"></span>
-      </div>
-      <nav>
-        <ul id="dbase_list" class="side-nav">
-          <!-- Actions to CREATE/ADD/LOAD a DB -->
-          <li class="db-new hidden">
-            <a id="dbase-upload" onclick="$('#dbase-upload-input').click();">$labels.getString("dbase.upload")</a>
-            <input id="dbase-upload-input" class="uploadfile" type="file" onchange="Crpstudio.dbase.uploadDbFile(this);">
-          </li>
+<!-- <div id="dbaselist" class="large-16 medium-16 small-16 row"> -->
 
-          <!-- Actions on CURRENTLY loaded DB -->
-          <li class="divider db-current"></li>
-          <li class="heading db-current" onclick="Crpstudio.project.sideToggle(this, 'db-current')"><label>$labels.getString("dbase.current")</label></li>
-          <li class="db-current hidden"><a id="dbase-download" href="#" onclick="Crpstudio.dbase.downloadDbFile(this);">$labels.getString("dbase.download")</a></li>
-          <li class="db-current hidden"><a id="dbase-remove" href="#" onclick="Crpstudio.dbase.removeDbFile(this);">$labels.getString("dbase.remove")</a></li>
-
-          <!-- Most RECENTly used DB (just 1, if any) -->
-          <li class="divider db-recent"></li>
-          <li class="heading db-recent" onclick="Crpstudio.project.sideToggle(this, 'db-recent')"><label>$labels.getString("dbase.recent")</label></li>
-          ${recentdb}
-
-          <!-- List of AVAILABLE DBs -->
-          <li class="divider db-available"></li>
-          <li class="heading db-available" onclick="Crpstudio.project.sideToggle(this, 'db-available')"><label>$labels.getString("dbase.available")</label></li>
-          ${dbasetable}
-        </ul>
-      </nav>
-    </div>
-  </div>
 
   <!-- the part to the right of the side-bar may contain contents of this database -->
   <div id="dbase_editor" class="large-12 medium-12 small-12 columns">
@@ -131,5 +97,4 @@
       </fieldset>
     </form>
   </div>
-</div>
 
