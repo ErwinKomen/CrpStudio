@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import nl.ru.crpstudio.CrpStudio;
 import nl.ru.crpstudio.crp.CrpContainer;
 import nl.ru.crpstudio.util.ErrHandle;
+import nl.ru.crpstudio.util.ExploreSpecifier;
 import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TabSpecifier;
@@ -1499,6 +1500,26 @@ public abstract class BaseResponse {
     // Return the result
     return(tabs);
   }
+  
+  /**
+   * getExploreSpecsList
+   *    Make a list of explorer side-nav-specification for the "projects" sub pages
+   * 
+   * @return 
+   */
+  public LinkedList<ExploreSpecifier> getExploreSpecsList() {
+    LinkedList<ExploreSpecifier> tabs = new LinkedList<>();
+    String[] arTitle = labels.getString("explore.tab.title").split(",");
+    String[] arName = labels.getString("explore.tab.names").split(",");
+    String[] arAbbr = labels.getString("explore.tab.abbr").split(",");
+    for (int i=0;i<arName.length;i++) {
+      ExploreSpecifier tabThis = new ExploreSpecifier(arTitle[i].trim(), arName[i].trim(), arAbbr[i].trim());
+      tabs.add(tabThis);
+    }
+    // Return the result
+    return(tabs);
+  }
+  
 	/**
 	 * Complete the request - automatically called by processRequest()
 	 */

@@ -18,6 +18,8 @@ public class DbasesResponse extends BaseResponse {
       JSONObject oSettings = this.getUserSettings(this.sUserId);
       // Get access to all the databases the user can choose from
       this.getContext().put("dbasetable", this.getDbaseInfo(this.sUserId));
+      // Get the explore tab specifications
+      this.getContext().put("explorespecs", getExploreSpecsList());
       // Make sure the current user is known
       this.getContext().put("username", servlet.getUserId());
       // Set the most recently used dbase

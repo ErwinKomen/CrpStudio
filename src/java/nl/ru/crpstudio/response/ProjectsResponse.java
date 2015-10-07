@@ -23,10 +23,12 @@ public class ProjectsResponse extends BaseResponse {
       this.getContext().put("dbasechblist", getDbaseSelList(this.sUserId, "checkbox"));
       // Get the result tab specifications
       this.getContext().put("tabspecs", getTabSpecsList());
+      // Get the explore tab specifications
+      this.getContext().put("explorespecs", getExploreSpecsList());
       // Get a specification of project-types
       this.getContext().put("prjtypelist", this.getPrjTypeList());
       // Get access to the projects this user can choose from
-      this.getContext().put("projecttable", this.getProjectInfo(this.sUserId));
+      this.getContext().put("projectlist", this.getProjectInfo(this.sUserId));
       // Get access to all the databases the user can choose from
       this.getContext().put("dbasetable", this.getDbaseInfo(this.sUserId));
       // Set the most recently used CRP
