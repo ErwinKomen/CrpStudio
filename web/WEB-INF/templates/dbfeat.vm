@@ -1,5 +1,39 @@
-		<div class="large-8 large-offset-4 medium-10 medium-offset-3 small-12 small-offset-2">
-			<div>
-        look in "dbfeat.vm"
-			</div>
-		</div>
+  <!-- the part to the right of the side-bar: GENERAL contents of this dbfeat -->
+  <div id="dbf_general_editor" class="large-12 medium-12 small-12 columns">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("general")</legend>
+        <div id="dbf_description" class="large-16 medium-16 small-16 row">
+          <i>(no dbfeat selected)</i>
+        </div>
+        <div id="dbf_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="dbf_general_top" class="large-16 medium-16 small-16 row">
+            <!-- DbFeat NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("dbfeat.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns">
+                <input id="dbf_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
+              </div>
+            </div>
+            <!-- DbFeat GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("dbfeat.general.pre")</label>
+              </div>
+              <div class="large-14 medium-13 small-12 columns">
+                <input id="dbf_general_goal" class="left general_input" type="text" placeholder="This dbfeat's goal is ...">
+              </div>
+            </div>
+            <!-- DbFeat's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("dbfeat.general.ftnum")
+                <textarea id="dbf_general_comment" spellcheck="false" placeholder="Description of this dbfeat" rows="3"></textarea>
+              </label>
+            </div>          
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

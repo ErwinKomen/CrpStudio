@@ -39,6 +39,8 @@ Crpstudio.project = {
   typingTimer: null,      // Timer to make sure we react only X seconds after typing
   doneTypingIntv: 2000,   // Stop-typing interval: 2 seconds
   ctlCurrent: null,       // Current control
+  cmQuery: null,
+  cmDef: null,
   prj_name: "",           // Field value of this project: name
   prj_author: "",         // Field value of this project: author
   prj_prjtype: "",        // Field value of this project: prjtype
@@ -52,6 +54,50 @@ Crpstudio.project = {
   prj_qrylist: null,      // Field value of this project: list of queries
   prj_qclist: null,       // Field value of this project: list of QC elements
   prj_dbflist: null,      // Field value of this project: list of database features
+  qry_current: null,      // Currently loaded Query object
+  def_current: null,      // Currently loaded Definition object
+  dbf_current: null,      // Currently loaded DbFeat object
+  qc_current: null,       // Currently loaded QC object (constructor)
+  
+  // Object defining the elements of Query, Definition, DbFeat and Constructor
+  prj_access: [
+    {name: "query", id: "QueryId", descr: "query_description", 
+      gen: "query_general", cur: "qry_current", fields: [
+          { field: "Name", type: "txt", loc: "query_general_name"}, 
+          { field: "File", type: "txt", loc: ""}, 
+          { field: "Goal", type: "txt", loc: "query_general_goal"}, 
+          { field: "Comment", type: "txt", loc: "query_general_comment"}, 
+          { field: "Text", type: "txt", loc: "query_general_text"}, 
+          { field: "Created", type: "cap", loc: "query_general_datecreated"}, 
+          { field: "Changed", type: "cap", loc: "query_general_datechanged"}]},
+    {name: "definition",id: "DefId", descr: "def_description", 
+      gen: "def_general", cur: "def_current", fields: [
+          { field: "Name", type: "txt", loc: "def_general_name"}, 
+          { field: "File", type: "txt", loc: ""}, 
+          { field: "Goal", type: "txt", loc: "def_general_goal"}, 
+          { field: "Comment", type: "txt", loc: "def_general_comment"}, 
+          { field: "Text", type: "txt", loc: "def_general_text"}, 
+          { field: "Created", type: "cap", loc: "def_general_datecreated"}, 
+          { field: "Changed", type: "cap", loc: "def_general_datechanged"}]},
+    {name: "dbfeat", id: "DbFeatId", descr: "dbf_description", 
+      gen: "dbf_general", cur: "dbf_current", fields: [
+          { field: "Name", type: "txt", loc: "dbf_general_name"}, 
+          { field: "Pre", type: "txt", loc: "dbf_general_pre"}, 
+          { field: "QCid", type: "txt", loc: "dbf_general_qcid"}, 
+          { field: "FtNum", type: "txt", loc: "dbf_general_ftnum"}]},
+    {name: "constructor", id: "QCid", descr: "qc_description", 
+      gen: "qc_general", cur: "qc_current", fields: [
+          { field: "Input", type: "txt", loc: "qc_general_input"}, 
+          { field: "Query", type: "txt", loc: "qc_general_query"}, 
+          { field: "Output", type: "txt", loc: "qc_general_output"}, 
+          { field: "Result", type: "txt", loc: "qc_general_result"}, 
+          { field: "Cmp", type: "txt", loc: "qc_general_cmp"}, 
+          { field: "Mother", type: "txt", loc: "qc_general_mother"}, 
+          { field: "Goal", type: "txt", loc: "qc_general_goal"}, 
+          { field: "Comment", type: "txt", loc: "qc_general_comment"}]}
+  ],
+
+  
   /* ---------------------------------------------------------------------------
    * Name: execute
    * Goal: execute the currently set project
@@ -806,9 +852,12 @@ Crpstudio.project = {
    * showlist -- create a set of <li> items to occur in the "available"
    *             section of one of four different types:
    *             "query", "definition", "constructor" or "dbfeat"
+   * Notes: this function should *not* be used for the projectlist
+   *        nor for the databaselist. Those lists are created by /crpstudio
+   *        and sent here upon request            
    *             
-   * @param {type} sListType
-   * @returns {undefined}
+   * @param {string} sListType
+   * @returns {void} 
    * @history
    *  6/oct/2015  ERK Created
    */
@@ -833,17 +882,17 @@ Crpstudio.project = {
     for (var i=0;i<oList.length;i++) {
       var oOneItem = oList[i];
       var sOneItem = "<li class='" + sPrf + "_" + oOneItem.Name + " " + 
-              sPrf + "-available'><a href=\"#\" onclick='";
+              sPrf + "-available'><a href=\"#\" onclick=\"";
       switch(sListType) {
-        case "query": sOneItem += "Crpstudio.project.setQuery(this, "+ 
-                  oOneItem.QueryId +")'>" + oOneItem.Name; break;
-        case "definition": sOneItem += "Crpstudio.project.setDef(this, "+ 
-                  oOneItem.DefId +")'>" + oOneItem.Name; break;
-        case "constructor": sOneItem += "Crpstudio.project.setQC(this, "+ 
-                  oOneItem.QCid +")'>" + oOneItem.QCid + " " +
+        case "query": sOneItem += "Crpstudio.project.setCrpItem('query', "+ 
+                  oOneItem.QueryId +")\">" + oOneItem.Name; break;
+        case "definition": sOneItem += "Crpstudio.project.setCrpItem('definition', "+ 
+                  oOneItem.DefId +")\">" + oOneItem.Name; break;
+        case "constructor": sOneItem += "Crpstudio.project.setCrpItem('constructor', "+ 
+                  oOneItem.QCid +")\">" + oOneItem.QCid + " " +
                   oOneItem.Input + " " + oOneItem.Result; break;
-        case "dbfeat": sOneItem += "Crpstudio.project.setDbFeat(this, "+ 
-                  oOneItem.DbFeatId +")'>" + oOneItem.Name + 
+        case "dbfeat": sOneItem += "Crpstudio.project.setCrpItem('dbfeat', "+ 
+                  oOneItem.DbFeatId +")\">" + oOneItem.Name + 
                   " " + oOneItem.FtNum; break;
       }
       sOneItem += "</a></li>\n";
@@ -852,6 +901,57 @@ Crpstudio.project = {
     // Adapt the QRY-AVAILABLE list
     $(sLoc).not(".divider").not(".heading").remove();
     $(sLoc).last().after(arHtml.join("\n"));
+  },
+
+  /**
+   * getListObject
+   *    Access the list for @sListName, and return the object identified
+   *    by <sIdField, iValue>
+   * 
+   * @param {string} sListType
+   * @param {string} sIdField
+   * @param {int} iValue
+   * @returns {object}
+   */
+  getListObject : function(sListType, sIdField, iValue) {
+    var oList = null;   // JSON type list of objects
+    // Find the correct list
+    switch(sListType) {
+      case "query": sPrf = "qry"; oList = Crpstudio.project.prj_qrylist;break;
+      case "definition": sPrf = "def"; oList = Crpstudio.project.prj_deflist;break;
+      case "constructor": sPrf = "qc"; oList = Crpstudio.project.prj_qclist;break;
+      case "dbfeat": sPrf = "dbf"; oList = Crpstudio.project.prj_dbflist;break;
+      default: return null;
+    }
+    // Walk all the elements of the list
+    for (var i=0;i<oList.length;i++) {
+      var oOneItem = oList[i];
+      var iId = parseInt(oOneItem[sIdField], 10);
+      // Check the id
+      if (iId === iValue) return oOneItem;
+    }
+    // Didn't get it
+    return null;
+  },
+  
+  /**
+   * getItemDescr
+   *    Get the correct item from "prj_access", which describes the details
+   *    of the project's item
+   * 
+   * @param {type} sListType
+   * @returns {object}
+   */
+  getItemDescr: function(sListType) {
+    var oItem = null;
+    // Find the correct item
+    for (var i=0;i<Crpstudio.project.prj_access.length;i++) {
+      oItem = Crpstudio.project.prj_access[i];
+      // Check if this is the item
+      if (oItem.name === sListType) return oItem;
+    }
+    // Didn't find it
+    return null;
   },
   
   /* ---------------------------------------------------------------------------
@@ -916,6 +1016,74 @@ Crpstudio.project = {
     var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
     params += "&type=info";
     Crpstudio.getCrpStudioData("load", params, Crpstudio.project.processLoad, "#project_description");
+  },
+  
+ 
+  /**
+   * setCrpItem
+   *    User selects the indicated item of a CRP, 
+   *    and we need to show the contents of that item
+   *    
+   * @param {type} sType    - the kind of item
+   * @param {type} iItemId  - numerical id of the item
+   * @returns {undefined}   - none
+   * @history
+   *  8/oct/2015  ERK Created
+   */
+  setCrpItem : function(sType, iItemId) {
+    // Validate
+    if (iItemId && iItemId >= 0) {
+      // Find out what kind of item we have
+      var oItemDescr = Crpstudio.project.getItemDescr(sType);
+      // Retrieve the item from the list
+      var oItem = Crpstudio.project.getListObject(oItemDescr.name, oItemDescr.id, iItemId);
+      // Validate
+      if (oItem === null) return;
+      $("#" + oItemDescr.descr).html("<i>Loading...</i>");
+      // Make the General area INvisible
+      $("#" + oItemDescr.gen).addClass("hidden");
+      // Make the current item object available globally
+      Crpstudio.project[oItemDescr.cur] = oItem;
+      // Pass on all the item's values to the html component
+      for (var i=0;i<oItemDescr.fields.length; i++) {
+        var oOneF = oItemDescr.fields[i];
+        // Only set non-empty field defs
+        if (oOneF.txt !== "") {
+          // Get the value of this field
+          var sValue = oItem[oOneF.field];
+          // Showing it depends on the type
+          switch (oOneF.type) {
+            case "txt": // text fields
+              $("#" + oOneF.loc).val(sValue);
+              break;
+            case "cap": // Caption only
+              $("#" + oOneF.loc).html(sValue);
+              break;
+          }
+        }
+      }
+      // We stop loading
+      $("#" + oItemDescr.descr).html("");
+      // Show the General area of the item again
+      $("#" + oItemDescr.gen).removeClass("hidden");
+      
+      // QRY: "QueryId;Name;File;Goal;Comment;Created;Changed"
+      // DEF: "DefId;Name;File;Goal;Comment;Created;Changed"
+      // QC:  "QCid;Input;Query;Output;Result;Cmp;Mother;Goal;Comment"
+      // DBF: "DbFeatId;Name;Pre;QCid;FtNum"
+      
+      // Instantiate the syntax highlighting
+      var cmOptione = {
+        parserfile: ["../contrib/xquery/js/tokenizexquery.js",
+                     "../contrib/xquery/js/parsexquery.js" ],
+        stylesheet: ["css/xqcolors.css"],
+        path: "../../js/",
+        continuousScanning: false, //500,
+        lineNumbers: true   };
+      Crpstudio.project.cmQuery = CodeMirror.fromTextArea("query_general_text");
+      Crpstudio.project.cmDef = CodeMirror.fromTextArea("def_general_text");
+
+    }
   },
   
   /**

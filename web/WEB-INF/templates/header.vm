@@ -34,6 +34,7 @@
 		<link rel="stylesheet" href="./static/css/foundation-datepicker.min.css" type='text/css' />
 		<link rel="stylesheet" href="./static/css/crpstudio.css" type='text/css' />
 		<link rel="stylesheet" href="./static/css/introjs.css" type='text/css' />
+		<link rel="stylesheet" href="./static/css/codemirror.css" type='text/css' />
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -45,6 +46,10 @@
 		<script type="text/javascript" src="./static/js/foundation-datepicker.min.js"></script>
 		<script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
 		<script type="text/javascript" src="./static/js/scrollTableBody.js"></script>
+		<script type="text/javascript" src="./static/js/codemirror.js"></script>
+
+		<!-- <script type="text/javascript" src="./static/js/xquery.js"></script> -->
+
 		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.dbase.js"></script>

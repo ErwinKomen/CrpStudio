@@ -146,25 +146,29 @@
 			</div>
 			<div id="definition_editor" class="large-16 medium-16 small-16 content $definitions_active">
         #set( $explorespec = $explorespecs.get(1) )
-        #set( $item_list = $deftable )
+        #set( $item_list = "" )
+        #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("definitions.vm")
 			</div>
 			<div id="query_editor" class="large-16 medium-16 small-16 content $queries_active">
         #set( $explorespec = $explorespecs.get(0) )
-        #set( $item_list = $qrytable )
+        #set( $item_list = "" )
+        #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("queries.vm")
 			</div>
 			<div id="dbfeat_editor" class="large-16 medium-16 small-16 content $dbfeat_active">
         #set( $explorespec = $explorespecs.get(3) )
-        #set( $item_list = $dbftable )
+        #set( $item_list = "" )
+        #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("dbfeat.vm")
 			</div>
 			<div id="constructor_editor" class="large-16 medium-16 small-16 content $constructor_active">
         #set( $explorespec = $explorespecs.get(2) )
-        #set( $item_list = $qctable )
+        #set( $item_list = "" )
+        #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("constructor.vm")
 			</div>

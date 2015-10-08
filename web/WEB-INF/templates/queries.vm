@@ -1,9 +1,5 @@
-<!-- side bar: names of queries in this project -->
-<!-- <div id="querylist" class="large-16 medium-16 small-16 row"> -->
-
-
   <!-- the part to the right of the side-bar: GENERAL contents of this query -->
-  <div id="query_editor" class="large-12 medium-12 small-12 columns">
+  <div id="query_general_editor" class="large-12 medium-12 small-12 columns">
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>
@@ -12,66 +8,43 @@
         </div>
         <div id="query_general" class="large-16 medium-16 small-16 row hidden">
           <div id="query_general_top" class="large-16 medium-16 small-16 row">
-            <!-- The top-left contains name, author, type and goal -->
-            <div id="query_general_left" class="large-11 medium-11 small-11 columns">
-              <!-- Project NAME -->
-              <div class="large-16 medium-16 small-16 row">
-                <div class="large-6 medium-6 small-6 columns">
-                  <label for="right-label" class="right inline">$labels.getString("query.general.name")</label>
-                </div>
-                <div class="large-10 medium-10 small-10 columns">
-                  <div class="large-16 medium-16 small-16 row collapse">
-                    <div class="large-14 medium-14 small-14 columns">
-                      <input id="query_general_name" class="general_input" type="text" placeholder="name (no spaces)">
-                    </div>
-                    <div class="large-2 medium-2 small-2 columns">
-                      <span class="postfix">.crpx</span>
-                    </div>
-                  </div>
-                </div>
+            <!-- Query NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("query.general.name")</label>
               </div>
-              <div class="large-16 medium-16 small-16 row">
-                <!-- Query AUTHOR -->
-                <div class="large8 medium-8 small-8 columns">
-                  <div class="row">
-                    <div class="large-6 medium-6 small-6 columns">
-                      <label for="right-label" class="right inline">$labels.getString("query.general.author")</label>
-                    </div>
-                    <div class="large-10 medium-10 small-10 columns">
-                      <input id="query_general_author" class="general_input" type="text" placeholder="creator of this project">
-                    </div>
-                  </div>
-                </div>
+              <div class="large-9 medium-8 small-7 columns">
+                <input id="query_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
               </div>
-              <!-- Query's GOAL -->
-              <div class="large-12 medium-12 small-12 row">
-                <label>$labels.getString("query.general.goal")
-                  <textarea id="query_general_goal" spellcheck="false" placeholder="goal of this project" rows="3"></textarea>
-                </label>
-              </div>
-            </div>
-            <!-- The top-right contains data and query-specific preferences -->
-            <div id="query_general_right" class="large-5 medium=5 small-5 columns">
-              <fieldset><legend>Dates</legend>
+              <div class="large-5 medium-5 small-5 columns">
                 <div class="row">$labels.getString("query.general.datecreated"): 
-                  <div id="query_general_datecreated" class="query_general_date">-</div></div>
+                  <div id="query_general_datecreated" class="crpstudio_general_date">-</div></div>
                 <div class="row">  </div>
                 <div class="row">$labels.getString("query.general.dateedited"): 
-                  <div id="query_general_datechanged" class="query_general_date">-</div></div>
+                  <div id="query_general_datechanged" class="crpstudio_general_date">-</div></div>
                 <div class="row">  </div>
-              </fieldset>
+              </div>
             </div>
+            <!-- Query GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("query.general.goal")</label>
+              </div>
+              <div class="large-14 medium-13 small-12 columns">
+                <input id="query_general_goal" class="left general_input" type="text" placeholder="This query's goal is ...">
+              </div>
+            </div>
+            <!-- Query's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("query.general.comments")
+                <textarea id="query_general_comment" spellcheck="false" placeholder="Description of this query" rows="3"></textarea>
+              </label>
+            </div>          
           </div>
-          <!-- The bottom contains: (1) the comments for this project -->
-          <div id="query_general_bottom" class="large-16 medium-16 small-16 row">
-            <label>$labels.getString("query.general.comments"):
-              <textarea id="query_general_comments"  spellcheck="false" placeholder="Comments on this query" rows="20"></textarea>
-            </label>
-          </div>
-          <!-- The bottom contains: (2) the text of the query itself -->
+          <!-- The bottom contains the text of the query itself -->
           <div id="query_general_bottom" class="large-16 medium-16 small-16 row">
             <label>$labels.getString("query.general.text"):
-              <textarea id="query_general_comments"  spellcheck="false" placeholder="Text of this query" rows="20"></textarea>
+              <textarea id="query_general_text" class="xquery" spellcheck="false" placeholder="Text of this query" rows="20"></textarea>
             </label>
           </div>
         </div>

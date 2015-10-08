@@ -1,5 +1,53 @@
-		<div class="large-8 large-offset-4 medium-10 medium-offset-3 small-12 small-offset-2">
-			<div>
-        look in "definitions.vm"
-			</div>
-		</div>
+  <!-- the part to the right of the side-bar: GENERAL contents of this definition -->
+  <div id="def_general_editor" class="large-12 medium-12 small-12 columns">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("general")</legend>
+        <div id="def_description" class="large-16 medium-16 small-16 row">
+          <i>(no definition selected)</i>
+        </div>
+        <div id="def_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="def_general_top" class="large-16 medium-16 small-16 row">
+            <!-- Query NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("definition.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns">
+                <input id="def_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
+              </div>
+              <div class="large-5 medium-5 small-5 columns">
+                <div class="row">$labels.getString("definition.general.datecreated"): 
+                  <div id="def_general_datecreated" class="crpstudio_general_date">-</div></div>
+                <div class="row">  </div>
+                <div class="row">$labels.getString("definition.general.dateedited"): 
+                  <div id="def_general_datechanged" class="crpstudio_general_date">-</div></div>
+                <div class="row">  </div>
+              </div>
+            </div>
+            <!-- Query GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("definition.general.goal")</label>
+              </div>
+              <div class="large-14 medium-13 small-12 columns">
+                <input id="def_general_goal" class="left general_input" type="text" placeholder="This definition's goal is ...">
+              </div>
+            </div>
+            <!-- Query's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("definition.general.comments")
+                <textarea id="def_general_comment" spellcheck="false" placeholder="Description of this definition" rows="3"></textarea>
+              </label>
+            </div>          
+          </div>
+          <!-- The bottom contains the text of the definition itself -->
+          <div id="def_general_bottom" class="large-16 medium-16 small-16 row">
+            <label>$labels.getString("definition.general.text"):
+              <textarea id="def_general_text" class="xdefinition" spellcheck="false" placeholder="Text of this definition" rows="20"></textarea>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

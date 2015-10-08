@@ -52,10 +52,14 @@
   #set ($exp_strWizard = "")
 #end
 
-  <!-- the left side-bar used for selecting an item -->
+<!-- the left side-bar used for selecting an item -->
   <div id="${exp_name}_selector" class="large-4 medium-4 small-4 columns">
-    <div class="sidebar">
-      <h5>$exp_title</h5>
+    <form>
+      <fieldset>
+        <legend>$exp_title</legend>
+
+    <div class="sidebar scrollable">
+      <!-- <h5>$exp_title</h5> -->
       <div id="${exp_name}_download" class="row hidden">
         <span>$labels.getString("result.export.intro"): </span>
         <span id="${exp_name}_download_file"></span>
@@ -114,4 +118,6 @@
       <!-- For debugging: a small status div -->
       <div id="${exp_name}_status" ></div>
     </div>
+    </fieldset>
+    </form>
   </div>

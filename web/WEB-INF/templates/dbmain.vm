@@ -67,10 +67,10 @@
             <div id="project_general_right" class="large-5 medium=5 small-5 columns">
               <fieldset><legend>Dates</legend>
                 <div class="row">$labels.getString("project.general.datecreated"): 
-                  <div id="project_general_datecreated" class="project_general_date">-</div></div>
+                  <div id="project_general_datecreated" class="general_date">-</div></div>
                 <div class="row">  </div>
                 <div class="row">$labels.getString("project.general.dateedited"): 
-                  <div id="project_general_datechanged" class="project_general_date">-</div></div>
+                  <div id="project_general_datechanged" class="general_date">-</div></div>
                 <div class="row">  </div>
               </fieldset>
             <!-- ======================= THIS should not longer be necessary
