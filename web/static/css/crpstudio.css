@@ -402,7 +402,7 @@ div.info > div.content > span > div {
 
 /* Search.main */
 
-#search input, #search textarea {
+#search input, #search textarea, #search .CodeMirror {
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -1713,7 +1713,7 @@ div.hitscroll {
 }
 */
 
-textarea {
+textarea, .CodeMirror {
   background-color: azure;
   font-family: Courier New; 
   font-size: 12px;

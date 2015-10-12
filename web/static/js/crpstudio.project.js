@@ -96,7 +96,19 @@ Crpstudio.project = {
           { field: "Goal", type: "txt", loc: "qc_general_goal"}, 
           { field: "Comment", type: "txt", loc: "qc_general_comment"}]}
   ],
-
+  // Define Xquery highlighting styles
+  cmStyle1 : {            
+    lineNumbers: true,     matchBrackets: true,  continuousScanning: false, 
+    lineWrapping: true,    indentUnit: 2,        tabSize: 2,
+    cursorScrollMargin: 2, resetSelectionOnContextMenu: false,
+    theme: "xq-light2"
+  },
+  cmStyle2 : {
+    lineNumbers: true,     matchBrackets: true,  continuousScanning: false, 
+    lineWrapping: true,    indentUnit: 2,        tabSize: 2,
+    cursorScrollMargin: 2, resetSelectionOnContextMenu: false,
+    theme: "xq-light"
+  },
   
   /* ---------------------------------------------------------------------------
    * Name: execute
@@ -1072,16 +1084,31 @@ Crpstudio.project = {
       // QC:  "QCid;Input;Query;Output;Result;Cmp;Mother;Goal;Comment"
       // DBF: "DbFeatId;Name;Pre;QCid;FtNum"
       
-      // Instantiate the syntax highlighting
-      var cmOptione = {
-        parserfile: ["../contrib/xquery/js/tokenizexquery.js",
-                     "../contrib/xquery/js/parsexquery.js" ],
-        stylesheet: ["css/xqcolors.css"],
-        path: "../../js/",
-        continuousScanning: false, //500,
-        lineNumbers: true   };
-      Crpstudio.project.cmQuery = CodeMirror.fromTextArea("query_general_text");
-      Crpstudio.project.cmDef = CodeMirror.fromTextArea("def_general_text");
+
+      switch (sType) {
+        case "query":
+          // First time?
+          if (Crpstudio.project.cmQuery === null) {
+            // Fix the max-width to what it is now?
+            $("#query_general_bottom").css("max-width",$("#query_general_bottom").width() + "px" );
+            Crpstudio.project.cmQuery = CodeMirror.fromTextArea(
+                    document.getElementById("query_general_text"), Crpstudio.project.cmStyle1);  
+          } else {
+            Crpstudio.project.cmQuery.setValue($("#query_general_text").val());
+          }
+          break;
+        case "definition":
+          if ( Crpstudio.project.cmDef === null) {
+            // Fix the max-width to what it is now?
+            $("#def_general_bottom").css("max-width",$("#def_general_bottom").width() + "px" );
+            Crpstudio.project.cmDef = CodeMirror.fromTextArea(
+                    document.getElementById("def_general_text"), Crpstudio.project.cmStyle1);
+          } else {
+            Crpstudio.project.cmDef.setValue($("#def_general_text").val());
+          }
+          break;
+      }
+
 
     }
   },
@@ -1751,6 +1778,39 @@ Crpstudio.project = {
     // DISABLED!!!
 		// $("#project").css("margin-top",sh+"px");
     Crpstudio.setNavigationSize();
+    /*
+    // Set the sizes for the <textarea> with the Xquery code
+    var iRows = 5;
+    var iHeightLeft = 30;
+    var iHeightPrev = iHeightLeft;
+    // Check which one is visible
+    if ($("#query_general").is(":visible")) {
+      do {
+        // Try more rows
+        iRows++;
+        iHeightPrev = iHeightLeft;
+        // Set the 'rows' attribute for the <textarea> boxes
+        $("#query_general_text").attr("rows", iRows);
+        // Check how much space is left
+        var oQueryPos = $("#query_general_text").position();
+        if (oQueryPos)
+          iHeightLeft = oQueryPos.top + $("#query_general_text").height();
+      } while (iHeightLeft > 25 && iHeightLeft !== iHeightPrev);      
+    } else if ($("#def_general").is(":visible")) {
+      do {
+        // Try more rows
+        iRows++;
+        iHeightPrev = iHeightLeft;
+        // Set the 'rows' attribute for the <textarea> boxes
+        $("#def_general_text").attr("rows", iRows);
+        // Check how much space is left
+        var oDefPos = $("#def_general_text").position();
+        if (oDefPos)
+          iHeightLeft = oDefPos.top + $("#def_general_text").height();
+      } while (iHeightLeft > 25 && iHeightLeft !== iHeightPrev);      
+    }
+    */
+
 	},
   
 

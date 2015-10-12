@@ -2,9 +2,9 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function(mod) {
-  if (typeof exports == "object" && typeof module == "object") // CommonJS
+  if (typeof exports === "object" && typeof module === "object") // CommonJS
     mod(require("../../lib/codemirror"));
-  else if (typeof define == "function" && define.amd) // AMD
+  else if (typeof define === "function" && define.amd) // AMD
     define(["../../lib/codemirror"], mod);
   else // Plain browser env
     mod(CodeMirror);
@@ -23,6 +23,7 @@ CodeMirror.defineMode("xquery", function() {
       , B = kw("keyword b")
       , C = kw("keyword c")
       , operator = kw("operator")
+      , builtin = {type: "builtin", style: "builtin"}
       , atom = {type: "atom", style: "atom"}
       , punctuation = {type: "punctuation", style: null}
       , qualifier = {type: "axis_specifier", style: "qualifier"};
@@ -65,6 +66,36 @@ CodeMirror.defineMode("xquery", function() {
     "ancestor::", "ancestor-or-self::", "following::", "preceding::", "following-sibling::", "preceding-sibling::"];
     for(var i=0, l=axis_specifiers.length; i < l; i++) { kwObj[axis_specifiers[i]] = qualifier; };
 
+    // ERK: define built-in Xquery functions
+    var xq_functions = ["abs", "adjust-dateTime-to-timezone", "adjust-date-to-timezone", "adjust-time-to-timezone", 
+      "avg", "boolean", "ceiling", "codepoint-equal", "codepoints-to-string", "collection", "compare", "concat", "contains", 
+      "count", "current-date", "current-dateTime", "current-time", "data", "dateTime", "day-from-date", "day-from-dateTime", 
+      "days-from-duration", "deep-equal", "default-collation", "distinct-values", "doc", "doc-available", "document-uri", 
+      "encode-for-uri", "ends-with", "error", "escape-html-uri", "escape-uri", "exactly-one", "exists", "false", "floor", 
+      "hours-from-dateTime", "hours-from-duration", "hours-from-time", "id", "implicit-timezone", "index-of", "in-scope-prefixes", 
+      "insert-before", "iri-to-uri", "item-at", "lang", "local-name", "local-name-from-QName", "lower-case", "matches", 
+      "max", "min", "minutes-from-dateTime", "minutes-from-duration", "minutes-from-time", "month-from-date", "month-from-dateTime", 
+      "months-from-duration", "name", "namespace-uri", "namespace-uri-for-prefix", "namespace-uri-from-QName", "nilled", 
+      "node-name", "normalize-space", "normalize-unicode", "not", "number", "one-or-more", "position", "prefix-from-QName", 
+      "QName", "remove", "replace", "resolve-QName", "resolve-uri", "reverse", "root", "round", "round-half-to-even", 
+      "seconds-from-dateTime", "seconds-from-duration", "seconds-from-time", "starts-with", "static-base-uri", "string", 
+      "string-join", "string-length", "string-pad", "string-to-codepoints", "subsequence", "substring", "substring-after", 
+      "substring-before", "sum", "timezone-from-date", "timezone-from-dateTime", "timezone-from-time", "tokenize", "trace", 
+      "translate", "true", "upper-case", "year-from-date", "year-from-dateTime", "years-from-duration", "zero-or-one"];
+    for(var i=0, l=xq_functions.length; i < l; i++) { kwObj[xq_functions[i]] = builtin; };
+    
+    
+    // ERK: define CorpusStudio built-in functions
+    var crpstudio_functions = ["ru:all", "ru:ant", "ru:antidt", "ru:ard", "ru:avd", "ru:avg", "ru:back", 
+      "ru:before", "ru:cat", "ru:chnext", "ru:chnextidt", "ru:chlen", "ru:conv", "ru:dist", 
+      "ru:distri", "ru:docroot", "ru:header", "ru:ErrMsg", "ru:feature", "ru:hasf", "ru:head", 
+      "ru:isnew", "ru:lex", "ru:line", "ru:Location", "ru:matches", "ru:Message", "ru:NodeText", 
+      "ru:one", "ru:out", "ru:periodgrp", "ru:PhraseText", "ru:refnum", "ru:RefState", "ru:relates", 
+      "ru:reduce", "ru:retrieve", "ru:rootnode", "ru:sameindex", "ru:stack", "ru:store", 
+      "ru:textsize", "ru:timblprep", "ru:Trace", "ru:words"];
+    for(var i=0, l=crpstudio_functions.length; i < l; i++) { kwObj[crpstudio_functions[i]] = builtin; };
+    
+
     return kwObj;
   }();
 
@@ -80,7 +111,7 @@ CodeMirror.defineMode("xquery", function() {
         isEQName = isEQNameAhead(stream);
 
     // an XML tag (if not in some sub, chained tokenizer)
-    if (ch == "<") {
+    if (ch === "<") {
       if(stream.match("!--", true))
         return chain(stream, state, tokenXMLComment);
 
@@ -101,20 +132,20 @@ CodeMirror.defineMode("xquery", function() {
       return chain(stream, state, tokenTag(tagName, isclose));
     }
     // start code block
-    else if(ch == "{") {
+    else if(ch === "{") {
       pushStateStack(state,{ type: "codeblock"});
       return null;
     }
     // end code block
-    else if(ch == "}") {
+    else if(ch === "}") {
       popStateStack(state);
       return null;
     }
     // if we're in an XML block
     else if(isInXmlBlock(state)) {
-      if(ch == ">")
+      if(ch === ">")
         return "tag";
-      else if(ch == "/" && stream.eat(">")) {
+      else if(ch === "/" && stream.eat(">")) {
         popStateStack(state);
         return "tag";
       }
@@ -199,7 +230,7 @@ CodeMirror.defineMode("xquery", function() {
       }
       // as previously checked, if the word is element,attribute, axis specifier, call it an "xmlconstructor" and
       // push the stack so we know to look for it on the next word
-      if(word == "element" || word == "attribute" || known.type == "axis_specifier") pushStateStack(state, {type: "xmlconstructor"});
+      if(word === "element" || word === "attribute" || known.type === "axis_specifier") pushStateStack(state, {type: "xmlconstructor"});
 
       // if the word is known, return the details of that else just call this a generic 'word'
       return known ? known.style : "variable";
@@ -210,7 +241,7 @@ CodeMirror.defineMode("xquery", function() {
   function tokenComment(stream, state) {
     var maybeEnd = false, maybeNested = false, nestedCount = 0, ch;
     while (ch = stream.next()) {
-      if (ch == ")" && maybeEnd) {
+      if (ch === ")" && maybeEnd) {
         if(nestedCount > 0)
           nestedCount--;
         else {
@@ -218,11 +249,11 @@ CodeMirror.defineMode("xquery", function() {
           break;
         }
       }
-      else if(ch == ":" && maybeNested) {
+      else if(ch === ":" && maybeNested) {
         nestedCount++;
       }
-      maybeEnd = (ch == ":");
-      maybeNested = (ch == "(");
+      maybeEnd = (ch === ":");
+      maybeNested = (ch === "(");
     }
 
     return "comment";
@@ -234,7 +265,7 @@ CodeMirror.defineMode("xquery", function() {
     return function(stream, state) {
       var ch;
 
-      if(isInString(state) && stream.current() == quote) {
+      if(isInString(state) && stream.current() === quote) {
         popStateStack(state);
         if(f) state.tokenize = f;
         return "string";
@@ -250,7 +281,7 @@ CodeMirror.defineMode("xquery", function() {
 
 
       while (ch = stream.next()) {
-        if (ch ==  quote) {
+        if (ch ===  quote) {
           popStateStack(state);
           if(f) state.tokenize = f;
           break;
@@ -313,19 +344,19 @@ CodeMirror.defineMode("xquery", function() {
   function tokenAttribute(stream, state) {
     var ch = stream.next();
 
-    if(ch == "/" && stream.eat(">")) {
+    if(ch === "/" && stream.eat(">")) {
       if(isInXmlAttributeBlock(state)) popStateStack(state);
       if(isInXmlBlock(state)) popStateStack(state);
       return "tag";
     }
-    if(ch == ">") {
+    if(ch === ">") {
       if(isInXmlAttributeBlock(state)) popStateStack(state);
       return "tag";
     }
-    if(ch == "=")
+    if(ch === "=")
       return null;
     // quoted string
-    if (ch == '"' || ch == "'")
+    if (ch === '"' || ch === "'")
       return chain(stream, state, tokenString(ch, tokenAttribute));
 
     if(!isInXmlAttributeBlock(state))
@@ -348,7 +379,7 @@ CodeMirror.defineMode("xquery", function() {
   function tokenXMLComment(stream, state) {
     var ch;
     while (ch = stream.next()) {
-      if (ch == "-" && stream.match("->", true)) {
+      if (ch === "-" && stream.match("->", true)) {
         state.tokenize = tokenBase;
         return "comment";
       }
@@ -360,7 +391,7 @@ CodeMirror.defineMode("xquery", function() {
   function tokenCDATA(stream, state) {
     var ch;
     while (ch = stream.next()) {
-      if (ch == "]" && stream.match("]", true)) {
+      if (ch === "]" && stream.match("]", true)) {
         state.tokenize = tokenBase;
         return "comment";
       }
@@ -371,7 +402,7 @@ CodeMirror.defineMode("xquery", function() {
   function tokenPreProcessing(stream, state) {
     var ch;
     while (ch = stream.next()) {
-      if (ch == "?" && stream.match(">", true)) {
+      if (ch === "?" && stream.match(">", true)) {
         state.tokenize = tokenBase;
         return "comment meta";
       }
@@ -396,7 +427,7 @@ CodeMirror.defineMode("xquery", function() {
   }
 
   function isIn(state, type) {
-    return (state.stack.length && state.stack[state.stack.length - 1].type == type);
+    return (state.stack.length && state.stack[state.stack.length - 1].type === type);
   }
 
   function pushStateStack(state, newState) {

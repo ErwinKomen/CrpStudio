@@ -8,7 +8,7 @@
         </div>
         <div id="def_general" class="large-16 medium-16 small-16 row hidden">
           <div id="def_general_top" class="large-16 medium-16 small-16 row">
-            <!-- Query NAME -->
+            <!-- Definition NAME -->
             <div class="large-16 medium-16 small-16 row">
               <div class="large-2 medium-3 small-4 columns">
                 <label for="right-label" class="left inline">$labels.getString("definition.general.name")</label>
@@ -25,7 +25,7 @@
                 <div class="row">  </div>
               </div>
             </div>
-            <!-- Query GOAL -->
+            <!-- Definition's GOAL -->
             <div class="large-16 medium-16 small-16 row">
               <div class="large-2 medium-3 small-4 columns">
                 <label for="right-label" class="left inline">$labels.getString("definition.general.goal")</label>
@@ -34,17 +34,17 @@
                 <input id="def_general_goal" class="left general_input" type="text" placeholder="This definition's goal is ...">
               </div>
             </div>
-            <!-- Query's COMMENT -->
+            <!-- Definition's COMMENT -->
             <div class="large-16 medium-16 small-16 row">
               <label>$labels.getString("definition.general.comments")
                 <textarea id="def_general_comment" spellcheck="false" placeholder="Description of this definition" rows="3"></textarea>
               </label>
             </div>          
           </div>
-          <!-- The bottom contains the text of the definition itself -->
-          <div id="def_general_bottom" class="large-16 medium-16 small-16 row">
+          <!-- XQUERY TEXT: The bottom contains the text of the definition itself -->
+          <div id="def_general_bottom" class="large-16 medium-16 small-16 row cm-s-default">
             <label>$labels.getString("definition.general.text"):
-              <textarea id="def_general_text" class="xdefinition" spellcheck="false" placeholder="Text of this definition" rows="20"></textarea>
+              <textarea id="def_general_text" spellcheck="false" placeholder="Text of this definition" rows="20"></textarea>
             </label>
           </div>
         </div>

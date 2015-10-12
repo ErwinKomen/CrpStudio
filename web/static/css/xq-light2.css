@@ -1,0 +1,29 @@
+/**
+ * Copyright (c) 2015 CLARIN-NL.
+ * All rights reserved.
+ *
+ * @author Erwin R. Komen
+ */
+
+
+.cm-s-xq-light2 span.cm-keyword { line-height: 1em; color: blue; }
+.cm-s-xq-light2 span.cm-atom { color: rgb(0,102,153); font-weight: bold; }
+.cm-s-xq-light2 span.cm-number { color: rgb(255,0,0); }
+.cm-s-xq-light2 span.cm-def { text-decoration:underline; }
+.cm-s-xq-light2 span.cm-variable { color: firebrick; }
+.cm-s-xq-light2 span.cm-variable-2 { color: darkred; }
+.cm-s-xq-light2 span.cm-variable-3 { color: #C90000; }
+.cm-s-xq-light2 span.cm-property {}
+.cm-s-xq-light2 span.cm-operator {color: DimGray;}
+.cm-s-xq-light2 span.cm-comment { color: gray; }
+.cm-s-xq-light2 span.cm-string { color: green; }
+.cm-s-xq-light2 span.cm-meta { color: yellow; }
+.cm-s-xq-light2 span.cm-qualifier { color: grey; }
+.cm-s-xq-light2 span.cm-builtin { color:  #7EA656; }
+.cm-s-xq-light2 span.cm-bracket { color: #cc7; }
+.cm-s-xq-light2 span.cm-tag { color: purple; }
+.cm-s-xq-light2 span.cm-attribute { color: purple; font-style: italic; }
+.cm-s-xq-light2 span.cm-error { color: #f00; }
+
+.cm-s-xq-light2 .CodeMirror-activeline-background { background: #e8f2ff; }
+.cm-s-xq-light2 .CodeMirror-matchingbracket { outline:1px solid grey;color:black !important;background:yellow; }
