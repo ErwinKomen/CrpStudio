@@ -1090,9 +1090,10 @@ Crpstudio.project = {
           // First time?
           if (Crpstudio.project.cmQuery === null) {
             // Fix the max-width to what it is now?
-            $("#query_general_bottom").css("max-width",$("#query_general_bottom").width() + "px" );
+            // $("#query_general_bottom").css("max-width",$("#query_general_bottom").width() + "px" );
             Crpstudio.project.cmQuery = CodeMirror.fromTextArea(
                     document.getElementById("query_general_text"), Crpstudio.project.cmStyle1);  
+            Crpstudio.project.setSizes();
           } else {
             Crpstudio.project.cmQuery.setValue($("#query_general_text").val());
           }
@@ -1100,9 +1101,11 @@ Crpstudio.project = {
         case "definition":
           if ( Crpstudio.project.cmDef === null) {
             // Fix the max-width to what it is now?
-            $("#def_general_bottom").css("max-width",$("#def_general_bottom").width() + "px" );
+            // $("#def_general_bottom").css("max-width",$("#def_general_bottom").width() + "px" );
             Crpstudio.project.cmDef = CodeMirror.fromTextArea(
                     document.getElementById("def_general_text"), Crpstudio.project.cmStyle1);
+                        Crpstudio.project.setSizes();
+            Crpstudio.project.setSizes();
           } else {
             Crpstudio.project.cmDef.setValue($("#def_general_text").val());
           }
@@ -1778,6 +1781,21 @@ Crpstudio.project = {
     // DISABLED!!!
 		// $("#project").css("margin-top",sh+"px");
     Crpstudio.setNavigationSize();
+    // Set the vertical size of the Xquery editing area
+    if ($("#query_general").is(":visible") && Crpstudio.project.cmQuery) {
+      var oQueryPos = $("#query_general_bottom").position();
+      var iHeight = $(window).innerHeight() - oQueryPos.top - 290;
+      
+      var iWidth = $("#query_general_comment").width();
+      Crpstudio.project.cmQuery.setSize(iWidth, iHeight);
+    }  else if ($("#def_general").is(":visible") && Crpstudio.project.cmDef) {
+      var oDefPos = $("#def_general_bottom").position();
+      var iHeight = $(window).innerHeight() - oDefPos.top - 290;
+      
+      var iWidth = $("#def_general_comment").width();
+      Crpstudio.project.cmDef.setSize(iWidth, iHeight);
+    }
+    
     /*
     // Set the sizes for the <textarea> with the Xquery code
     var iRows = 5;
