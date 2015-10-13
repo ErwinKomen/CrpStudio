@@ -92,6 +92,7 @@ public class CrpStudio extends HttpServlet {
   public boolean getUserOkay(String sId) {this.bUserOkay = crpUtil.getUserOkay(sId, sSessionId); return bUserOkay; }
   public void setUserId(String sId) {sUserId = sId;}
   public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
+  public void setUserRemove(String sId) {bUserOkay = false; crpUtil.removeUserSession(sId, sSessionId);}
   public void setUserJob(String sJobId) { crpUtil.setUserJob(sUserId, sSessionId, sJobId);}
   public String getUserJob() { return crpUtil.getUserJob(sUserId, sSessionId);}
   public void setUserTable(JSONArray aTable) { crpUtil.setUserJob(sUserId, sSessionId, sUserId);}
@@ -195,6 +196,11 @@ public class CrpStudio extends HttpServlet {
       if (indexName.equals("j_security_check")) {
         // Handle the login stuff
         handleLogin(request);
+        // Set the index name to "home"
+        indexName = "home";
+      } else if (indexName.equals("logoff")) {
+        // Handle the logoff stuff
+        handleLogoff(request);
         // Set the index name to "home"
         indexName = "home";
       }
@@ -381,6 +387,19 @@ public class CrpStudio extends HttpServlet {
       setUserId(this.sUserId);
       setUserOkay(this.sUserId, this.bUserOkay);
     }
+  }
+  
+  /**
+   * handleLogoff -- treat logging off nicely
+   * 
+   * @param request 
+   */
+  public void handleLogoff(HttpServletRequest request) {
+    // REmove the user/session from the stack
+    setUserRemove(this.sUserId);
+    // Make sure we have no current user anymore
+    this.bUserOkay = false;
+    this.sUserId = "";
   }
    /**
    * getLoginAuthorization -- Check the credentials of this user
