@@ -324,6 +324,35 @@ var Crpstudio = {
     Crpstudio.currentUser = sUserName;
     // $("#top_bar_current_user").text(sUserName);
   },
+  
+  /**
+   * logoff -- remove the current user
+   * 
+   * @returns {void}
+   * @history:
+   *  13/oct/2015 ERK Created
+   */
+  logoff : function() {
+    // Issue a request to /crpstudio to get the relevant help section
+    var params = "logoff?userid=" + Crpstudio.currentUser;
+    if (Crpstudio.language !== null) params += "&lang="+Crpstudio.language;
+		window.location = window.location.protocol+params;
+  },
+  
+  /**
+   * login -- this doesn't have functionality (yet)
+   * @type type
+   */
+  login : {
+    /**
+     * accept -- accept a login request
+     * 
+     * @returns {void}
+     */
+    accept : function() {
+      // No need to do anything, actually
+    }
+  },
 	
   /* --------------------------------------------------------------------------
    * Name: switchLanguage

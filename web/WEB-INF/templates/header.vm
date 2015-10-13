@@ -84,9 +84,10 @@
     <!-- Keep the navigation in a special section -->
     <div class="contain-to-grid sticky">
       <!-- Highest top-bar with user/corpus/project information -->
-      <nav class="top-bar where-are-we" data-topbar data-options="sticky_on: large">
+      <nav class="top-bar where-are-we" data-topbar data-options="sticky_on: large, custom_back_text: true, back_text; ''">
         <section class="top-bar-section">
           <!-- Additional user/project information in the top-bar -->
+
           <li id="top_bar_current_user" class="name">$user: 
             <div class="label">
               #if($username) 
@@ -94,8 +95,13 @@
               #else  
                 -
               #end
-            </div><div class="DivHelper"></div>
+            </div>
+            <div class="DivHelper"></div>
           </li>
+          <!-- Provide LOGOFF feature if user is logged in -->
+          #if($username && $username != "" && $username != "-")
+            <li class="name"><a href="#" onclick="Crpstudio.logoff();">$labels.getString("login.logout")</a></li>
+          #end
           <li class="name">$project:<div id="top_bar_current_project" class="label">-</div><div class="DivHelper"></div></li>
           <li class="name">$corpusTitle:<div id="top_bar_current_corpus" class="label">-</div><div class="DivHelper"></div></li>
           <li class="name">$dbTitle:<div id="top_bar_current_dbase" class="label">-</div><div class="DivHelper"></div></li>
