@@ -32,6 +32,10 @@ Crpstudio.project = {
   currentDb: "",          // The database that serves as current input
   currentDbLng: "",       // Language according to current db
   currentDbDir: "",       // Part of language for current db
+  currentQry: -1,         // The QueryId of the currently selected query
+  currentDef: -1,         // The DefId of the currently selected Definition
+  currentQc: -1,          // The QCid of the currently selected QC
+  currentDbf: -1,         // The DbFeatId of the currently selected dbfeat
   strQstatus: "",         // The JSON string passed on to R-server "status"
   divStatus: "",          // The name of the div where the status is to be shown
   recentcrp: "",          // Recently used CRP
@@ -896,14 +900,22 @@ Crpstudio.project = {
       var sOneItem = "<li class='" + sPrf + "_" + oOneItem.Name + " " + 
               sPrf + "-available'><a href=\"#\" onclick=\"";
       switch(sListType) {
-        case "query": sOneItem += "Crpstudio.project.setCrpItem('query', "+ 
+        case "query": 
+          if (parseInt(oOneItem.QueryId,10) === Crpstudio.project.currentQry) sOneItem = sOneItem.replace('available', 'available active');
+          sOneItem += "Crpstudio.project.setCrpItem(this, 'query', "+ 
                   oOneItem.QueryId +")\">" + oOneItem.Name; break;
-        case "definition": sOneItem += "Crpstudio.project.setCrpItem('definition', "+ 
+        case "definition": 
+          if (parseInt(oOneItem.DefId,10) === Crpstudio.project.currentDef) sOneItem = sOneItem.replace('available', 'available active');
+          sOneItem += "Crpstudio.project.setCrpItem(this, 'definition', "+ 
                   oOneItem.DefId +")\">" + oOneItem.Name; break;
-        case "constructor": sOneItem += "Crpstudio.project.setCrpItem('constructor', "+ 
+        case "constructor": 
+          if (parseInt(oOneItem.QCid,10) === Crpstudio.project.currentQc) sOneItem = sOneItem.replace('available', 'available active');
+          sOneItem += "Crpstudio.project.setCrpItem(this, 'constructor', "+ 
                   oOneItem.QCid +")\">" + oOneItem.QCid + " " +
                   oOneItem.Input + " " + oOneItem.Result; break;
-        case "dbfeat": sOneItem += "Crpstudio.project.setCrpItem('dbfeat', "+ 
+        case "dbfeat": 
+          if (parseInt(oOneItem.DbFeatId,10) === Crpstudio.project.currentDbf) sOneItem = sOneItem.replace('available', 'available active');
+          sOneItem += "Crpstudio.project.setCrpItem(this, 'dbfeat', "+ 
                   oOneItem.DbFeatId +")\">" + oOneItem.Name + 
                   " " + oOneItem.FtNum; break;
       }
@@ -975,11 +987,11 @@ Crpstudio.project = {
    * 29/sep/2015  ERK Added "sDbase" argument
    */
   setProject : function(target, sPrjName, sLng, sDir, sDbase) {
-    // Get the <li>
-    var listItem = $(target).parent();
     var strProject = $(target).text();
     // Make sure download info is hidden
     $("#project_download").addClass("hidden");
+    // Get the <li>
+    var listItem = $(target).parent();
     // Look at all the <li> children of <ul>
     var listHost = listItem.parent();
     listHost.children('li').each(function() { $(this).removeClass("active")});
@@ -996,6 +1008,25 @@ Crpstudio.project = {
     $("#project_description").html("<i>Please wait...</i>");
     // Make the General area INvisible
     $("#project_general").addClass("hidden");
+    // Invalidate the 'current' setters
+    Crpstudio.project.currentQry = -1;
+    Crpstudio.project.currentDef = -1;
+    Crpstudio.project.currentDbf = -1;
+    Crpstudio.project.currentQc = -1;
+    // Clear the contents of currently loaded query/def/dbfeat/qc
+    if (Crpstudio.project.cmDef) Crpstudio.project.cmDef.setValue("");
+    if (Crpstudio.project.cmQuery)  Crpstudio.project.cmQuery.setValue("");
+    // Clear definition
+    $("#def_general").addClass("hidden");
+    $("#def_description").html("<i>No definition selected</i>");
+    // Clear query
+    $("#query_general").addClass("hidden");
+    $("#query_description").html("<i>No query selected</i>");
+    // Clear constructor
+    $("#qc_general").addClass("hidden");
+    $("#qc_description").html("<i>No constructor line selected</i>");
+    
+    
     /*
     // Possibly correct Dbase, Lng and Dir
     if (Crpstudio.project.prj_language !== "") sLng = Crpstudio.project.prj_language;
@@ -1042,9 +1073,16 @@ Crpstudio.project = {
    * @history
    *  8/oct/2015  ERK Created
    */
-  setCrpItem : function(sType, iItemId) {
+  setCrpItem : function(target, sType, iItemId) {
     // Validate
     if (iItemId && iItemId >= 0) {
+      // Get the <li>
+      var listItem = $(target).parent();
+      // Look at all the <li> children of <ul>
+      var listHost = listItem.parent();
+      listHost.children('li').each(function() { $(this).removeClass("active")});
+      // Set the "active" class for the one the user has selected
+      $(listItem).addClass("active");
       // Find out what kind of item we have
       var oItemDescr = Crpstudio.project.getItemDescr(sType);
       // Retrieve the item from the list
@@ -1087,28 +1125,49 @@ Crpstudio.project = {
 
       switch (sType) {
         case "query":
+          // Set the id of the currently selected query
+          Crpstudio.project.currentQry = iItemId;
           // First time?
           if (Crpstudio.project.cmQuery === null) {
             // Fix the max-width to what it is now?
             // $("#query_general_bottom").css("max-width",$("#query_general_bottom").width() + "px" );
             Crpstudio.project.cmQuery = CodeMirror.fromTextArea(
                     document.getElementById("query_general_text"), Crpstudio.project.cmStyle1);  
+            // Make sure the visibility is okay
             Crpstudio.project.setSizes();
           } else {
             Crpstudio.project.cmQuery.setValue($("#query_general_text").val());
           }
           break;
         case "definition":
+          // Set the id of the currently selected definition
+          Crpstudio.project.currentDef = iItemId;
+          // First time?
           if ( Crpstudio.project.cmDef === null) {
             // Fix the max-width to what it is now?
             // $("#def_general_bottom").css("max-width",$("#def_general_bottom").width() + "px" );
             Crpstudio.project.cmDef = CodeMirror.fromTextArea(
                     document.getElementById("def_general_text"), Crpstudio.project.cmStyle1);
                         Crpstudio.project.setSizes();
+            // Make sure the visibility is okay
             Crpstudio.project.setSizes();
           } else {
             Crpstudio.project.cmDef.setValue($("#def_general_text").val());
           }
+          break;
+        case "dbfeat":
+          // Set the id of the currently selected dbfeat
+          Crpstudio.project.currentDbf = iItemId;
+          // Make sure the visibility is okay
+          Crpstudio.project.setSizes();
+          break;
+        case "constructor":
+          // Set the id of the currently selected constructor item
+          Crpstudio.project.currentQc = iItemId;
+          // Make sure the visibility is okay
+          Crpstudio.project.setSizes();
+          break;
+        case "dbase": 
           break;
       }
 
@@ -1152,8 +1211,10 @@ Crpstudio.project = {
           var iQryCount = oContent.qrylist.length; Crpstudio.project.prj_qrylist = oContent.qrylist;
           var iQcCount = oContent.qclist.length; Crpstudio.project.prj_qclist = oContent.qclist;
           var iDbfCount = oContent.dbflist.length; Crpstudio.project.prj_dbflist = oContent.dbflist;
+          /* =============== DEBUGGING ======================
           $("#project_status").html("defs=" + iDefCount + " qrys=" + iQryCount +
                   " QCs=" + iQcCount + " dbfeatures=" + iDbfCount);
+             ================================================ */
           if (sLanguage !== "")
             Crpstudio.project.setCorpus(sLanguage, sPart);
           // Put the information on the correct places in the form
@@ -1784,51 +1845,20 @@ Crpstudio.project = {
     // Set the vertical size of the Xquery editing area
     if ($("#query_general").is(":visible") && Crpstudio.project.cmQuery) {
       var oQueryPos = $("#query_general_bottom").position();
+      // Determine the best width and height
       var iHeight = $(window).innerHeight() - oQueryPos.top - 290;
-      
       var iWidth = $("#query_general_comment").width();
+      // Set the new width/height
       Crpstudio.project.cmQuery.setSize(iWidth, iHeight);
     }  else if ($("#def_general").is(":visible") && Crpstudio.project.cmDef) {
       var oDefPos = $("#def_general_bottom").position();
+      // Determine the best width and height
       var iHeight = $(window).innerHeight() - oDefPos.top - 290;
-      
       var iWidth = $("#def_general_comment").width();
+      // Set the new width/height
       Crpstudio.project.cmDef.setSize(iWidth, iHeight);
     }
     
-    /*
-    // Set the sizes for the <textarea> with the Xquery code
-    var iRows = 5;
-    var iHeightLeft = 30;
-    var iHeightPrev = iHeightLeft;
-    // Check which one is visible
-    if ($("#query_general").is(":visible")) {
-      do {
-        // Try more rows
-        iRows++;
-        iHeightPrev = iHeightLeft;
-        // Set the 'rows' attribute for the <textarea> boxes
-        $("#query_general_text").attr("rows", iRows);
-        // Check how much space is left
-        var oQueryPos = $("#query_general_text").position();
-        if (oQueryPos)
-          iHeightLeft = oQueryPos.top + $("#query_general_text").height();
-      } while (iHeightLeft > 25 && iHeightLeft !== iHeightPrev);      
-    } else if ($("#def_general").is(":visible")) {
-      do {
-        // Try more rows
-        iRows++;
-        iHeightPrev = iHeightLeft;
-        // Set the 'rows' attribute for the <textarea> boxes
-        $("#def_general_text").attr("rows", iRows);
-        // Check how much space is left
-        var oDefPos = $("#def_general_text").position();
-        if (oDefPos)
-          iHeightLeft = oDefPos.top + $("#def_general_text").height();
-      } while (iHeightLeft > 25 && iHeightLeft !== iHeightPrev);      
-    }
-    */
-
 	},
   
 

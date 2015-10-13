@@ -7,20 +7,20 @@
 
 .cm-s-xq-light2.CodeMirror { background: whitesmoke;  }
 .cm-s-xq-dark div.CodeMirror-selected { background: lightsteelblue; }
-.cm-s-xq-light2 span.cm-keyword { line-height: 1em; color: blue; }
+.cm-s-xq-light2 span.cm-keyword { line-height: 1.3em; color: blue; }
 .cm-s-xq-light2 span.cm-atom { color: rgb(0,102,153); font-weight: bold; }
-.cm-s-xq-light2 span.cm-number { color: rgb(255,0,0); }
-.cm-s-xq-light2 span.cm-def { text-decoration:underline; }
-.cm-s-xq-light2 span.cm-variable { color: firebrick; }
+.cm-s-xq-light2 span.cm-number { color: steelblue; }
+.cm-s-xq-light2 span.cm-def { color:  darkblue; }
+.cm-s-xq-light2 span.cm-variable { color: black; }
 .cm-s-xq-light2 span.cm-variable-2 { color: darkred; }
 .cm-s-xq-light2 span.cm-variable-3 { color: #C90000; }
 .cm-s-xq-light2 span.cm-property {}
-.cm-s-xq-light2 span.cm-operator {color: DimGray;}
-.cm-s-xq-light2 span.cm-comment { color: gray; }
-.cm-s-xq-light2 span.cm-string { color: green; }
+.cm-s-xq-light2 span.cm-operator {color: darkmagenta;}
+.cm-s-xq-light2 span.cm-comment { color: green; }
+.cm-s-xq-light2 span.cm-string { color: maroon; }
 .cm-s-xq-light2 span.cm-meta { color: yellow; }
-.cm-s-xq-light2 span.cm-qualifier { color: grey; }
-.cm-s-xq-light2 span.cm-builtin { color:  darkgreen; }
+.cm-s-xq-light2 span.cm-qualifier { color: purple; text-decoration:underline; }
+.cm-s-xq-light2 span.cm-builtin { color:  blueviolet; }
 .cm-s-xq-light2 span.cm-bracket { color: #cc7; }
 .cm-s-xq-light2 span.cm-tag { color: purple; }
 .cm-s-xq-light2 span.cm-attribute { color: purple; font-style: italic; }

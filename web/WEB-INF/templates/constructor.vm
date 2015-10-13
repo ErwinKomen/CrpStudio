@@ -1,5 +1,68 @@
-		<div class="large-8 large-offset-4 medium-10 medium-offset-3 small-12 small-offset-2">
-			<div>
-        look in "constructor.vm"
-			</div>
-		</div>
+  <!-- the part to the right of the side-bar: GENERAL contents of this constructor -->
+  <div id="qc_general_editor" class="large-12 medium-12 small-12 columns">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("general")</legend>
+        <div id="qc_description" class="large-16 medium-16 small-16 row">
+          <i>(no constructor selected)</i>
+        </div>
+        <div id="qc_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="qc_general_top" class="large-16 medium-16 small-16 row">
+            <!-- Constructor RESULT -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("constructor.general.result")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns">
+                <input id="qc_general_result" class="left general_input" type="text" placeholder="name (no spaces)">
+              </div>
+            </div>
+            <!-- TWO items in one row -->
+            <div class="large-16 medium-16 small-16 row">
+              <!-- Constructor QUERY -->
+              <div class="large8 medium-8 small-8 columns">
+                <div class="row">
+                  <div class="large-6 medium-6 small-6 columns">
+                    <label for="right-label" class="right inline">$labels.getString("constructor.general.query")</label>
+                  </div>
+                  <div class="large-10 medium-10 small-10 columns">
+                    <select id="qc_general_query" class="general_input"  placeholder="select a query">
+                      <!-- the querylist is created on-the-fly -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <!-- Constructor INPUT -->
+              <div class="large8 medium-8 small-8 columns">
+                <div class="row">
+                  <div class="large-6 medium-6 small-6 columns">
+                    <label for="right-label" class="right inline">$labels.getString("constructor.general.input")</label>
+                  </div>
+                  <div class="large-10 medium-10 small-10 columns">
+                    <select id="qc_general_input" class="general_input"  placeholder="input line">
+                      <!-- the inputlist is created on-the-fly -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Constructor's GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("constructor.general.goal")</label>
+              </div>
+              <div class="large-14 medium-13 small-12 columns">
+                <input id="qc_general_goal" class="left general_input" type="text" placeholder="This constructor's goal is ...">
+              </div>
+            </div>
+            <!-- Constructor's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("constructor.general.comments")
+                <textarea id="qc_general_comment" spellcheck="false" placeholder="Description of this constructor" rows="10"></textarea>
+              </label>
+            </div>          
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

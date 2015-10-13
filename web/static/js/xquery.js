@@ -22,7 +22,8 @@ CodeMirror.defineMode("xquery", function() {
     var A = kw("keyword a")
       , B = kw("keyword b")
       , C = kw("keyword c")
-      , operator = kw("operator")
+      // , operator = kw("operator")
+      , operator = {type: "operator", style: "operator"}
       , builtin = {type: "builtin", style: "builtin"}
       , atom = {type: "atom", style: "atom"}
       , punctuation = {type: "punctuation", style: null}
@@ -57,10 +58,10 @@ CodeMirror.defineMode("xquery", function() {
     'xs:base64Binary', 'xs:anyURI', 'xs:QName', 'xs:byte','xs:boolean','xs:anyURI','xf:yearMonthDuration'];
     for(var i=0, l=types.length; i < l; i++) { kwObj[types[i]] = atom;};
 
-    // each operator will add a property to kwObj with value of {type: "operator", style: "keyword"}
+    // each operator will add a property to kwObj with value of {type: "operator", style: "operator"}
     var operators = ['eq', 'ne', 'lt', 'le', 'gt', 'ge', ':=', '=', '>', '>=', '<', '<=', '.', '|', '?', 
       'and', 'or', 'div', 'idiv', 'mod', '*', '/', '+', '-',
-      'is', '<<', '>>'];
+      'is', '<<', '>>', '@'];
     // ERK: added "is", "<<" and ">>"
     for(var i=0, l=operators.length; i < l; i++) { kwObj[operators[i]] = operator;};
 
@@ -122,6 +123,17 @@ CodeMirror.defineMode("xquery", function() {
         state.tokenize = tokenCDATA;
         return "tag";
       }
+      
+      // ERK: check for Xquery << (precedes)
+      if (stream.match("<", true)) {
+        stream.eat("<");
+        return "operator";
+      }
+      // ERK: check for Xquery <= (less-than-or-equal-to)
+      if (stream.match("=", true)) {
+        stream.eat("=");
+        return "operator";
+      }
 
       if(stream.match("?", false)) {
         return chain(stream, state, tokenPreProcessing);
@@ -144,6 +156,16 @@ CodeMirror.defineMode("xquery", function() {
       popStateStack(state);
       return null;
     }
+    // operator >> (follows)
+    else if(ch === ">" && stream.match(">", true)) {
+      stream.eat(">");
+      return "operator";
+    }
+    // operator >= (greater-than-or-equals)
+    else if(ch === ">" && stream.match("=", true)) {
+      stream.eat("=");
+      return "operator";
+    }
     // if we're in an XML block
     else if(isInXmlBlock(state)) {
       if(ch === ">")
@@ -153,7 +175,7 @@ CodeMirror.defineMode("xquery", function() {
         return "tag";
       }
       else
-        return "variable";
+        return "variable-2";
     }
     // if a number
     else if (/\d/.test(ch)) {
@@ -220,6 +242,12 @@ CodeMirror.defineMode("xquery", function() {
       }
       // is the word a keyword?
       var word = stream.current();
+      
+      // =========== DEBUGGING ========
+      if (word === "is") {
+        var bDebug = true;
+      }
+      // ==============================
       known = keywords.propertyIsEnumerable(word) && keywords[word];
 
       // if we think it's a function call but not yet known,
@@ -229,14 +257,14 @@ CodeMirror.defineMode("xquery", function() {
       // if the previous word was element, attribute, axis specifier, this word should be the name of that
       if(isInXmlConstructor(state)) {
         popStateStack(state);
-        return "variable";
+        return "variable-2";
       }
       // as previously checked, if the word is element,attribute, axis specifier, call it an "xmlconstructor" and
       // push the stack so we know to look for it on the next word
       if(word === "element" || word === "attribute" || known.type === "axis_specifier") pushStateStack(state, {type: "xmlconstructor"});
 
       // if the word is known, return the details of that else just call this a generic 'word'
-      return known ? known.style : "variable";
+      return known ? known.style : "variable-3";
     }
   }
 
