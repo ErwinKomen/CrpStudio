@@ -65,7 +65,7 @@ Crpstudio.project = {
   
   // Object defining the elements of Query, Definition, DbFeat and Constructor
   prj_access: [
-    {name: "query", id: "QueryId", descr: "query_description", 
+    {name: "query", id: "QueryId", listfield: "Name", descr: "query_description", prf: "qry",
       gen: "query_general", cur: "qry_current", fields: [
           { field: "Name", type: "txt", loc: "query_general_name"}, 
           { field: "File", type: "txt", loc: ""}, 
@@ -74,7 +74,7 @@ Crpstudio.project = {
           { field: "Text", type: "txt", loc: "query_general_text"}, 
           { field: "Created", type: "cap", loc: "query_general_datecreated"}, 
           { field: "Changed", type: "cap", loc: "query_general_datechanged"}]},
-    {name: "definition",id: "DefId", descr: "def_description", 
+    {name: "definition",id: "DefId", listfield: "Name", descr: "def_description",  prf: "def",
       gen: "def_general", cur: "def_current", fields: [
           { field: "Name", type: "txt", loc: "def_general_name"}, 
           { field: "File", type: "txt", loc: ""}, 
@@ -83,13 +83,13 @@ Crpstudio.project = {
           { field: "Text", type: "txt", loc: "def_general_text"}, 
           { field: "Created", type: "cap", loc: "def_general_datecreated"}, 
           { field: "Changed", type: "cap", loc: "def_general_datechanged"}]},
-    {name: "dbfeat", id: "DbFeatId", descr: "dbf_description", 
+    {name: "dbfeat", id: "DbFeatId", listfield: "Name", descr: "dbf_description",  prf: "dbf",
       gen: "dbf_general", cur: "dbf_current", fields: [
           { field: "Name", type: "txt", loc: "dbf_general_name"}, 
           { field: "Pre", type: "txt", loc: "dbf_general_pre"}, 
           { field: "QCid", type: "txt", loc: "dbf_general_qcid"}, 
           { field: "FtNum", type: "txt", loc: "dbf_general_ftnum"}]},
-    {name: "constructor", id: "QCid", descr: "qc_description", 
+    {name: "constructor", id: "QCid", listfield: "Result", descr: "qc_description",  prf: "qc",
       gen: "qc_general", cur: "qc_current", fields: [
           { field: "Input", type: "txt", loc: "qc_general_input"}, 
           { field: "Query", type: "txt", loc: "qc_general_query"}, 
@@ -745,18 +745,12 @@ Crpstudio.project = {
       $("#corpus-selector").hide(); $("#dbase-selector").hide();   $("#metadata").hide(); 
       $("#query_editor").hide(); $("#constructor_editor").hide(); $("#definition_editor").hide();
       Crpstudio.project.showExeButtons(false);
+      // Remove textarea event handlers
+      $("#query_general_top").unbind();
+      $("#def_general_top").unbind();
       
       // Action depends on target 
       switch (target) {
-        /*
-        case "project_executor":
-          // Hide the metadata selector
-  				$("#metadata").hide();
-          // Hide CORPUS SELECTOR and DBASE SELECTOR
-          $("#corpus-selector").hide();
-          $("#dbase-selector").hide();
-          break;
-        */
         case "project_editor":
         case "project":
           // Make sure the execute buttons are shown
@@ -827,20 +821,40 @@ Crpstudio.project = {
           Crpstudio.project.showlist("definition");
           // Show the definition selector
           $("#definition_editor").show();
-          
+          // Call setCrpItem() which should check if a 'default' item needs to be shown
+          Crpstudio.project.setCrpItem(null, "definition");    
+          // Switch on event handling in def_general_top to trigger resizing of the Xquery editor
+          Crpstudio.project.addXqueryResizeEvents("def_general_top");
+          // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
+          Crpstudio.project.addChangeEvents("def_general");
           break;
         case "queries": case "query_editor":
           // Fill the query list
           Crpstudio.project.showlist("query");
           // Show the query selector
           $("#query_editor").show();
+          // Call setCrpItem() which should check if a 'default' item needs to be shown
+          Crpstudio.project.setCrpItem(null, "query");          
+          // Switch on event handling in def_general_top to trigger resizing of the Xquery editor
+          Crpstudio.project.addXqueryResizeEvents("query_general_top");
+          // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
+          Crpstudio.project.addChangeEvents("query_general");
           break;
         case "constructor": case "constructor_editor":
           // Fill the constructor list
           Crpstudio.project.showlist("constructor");
           // Show the constructor selector
           $("#constructor_editor").show();
-
+          // Call setCrpItem() which should check if a 'default' item needs to be shown
+          Crpstudio.project.setCrpItem(null, "constructor");          
+          break;
+        case "dbfeat": case "dbfeat_editor":
+          // Fill the constructor list
+          Crpstudio.project.showlist("dbfeat");
+          // Show the constructor selector
+          $("#dbfeat_editor").show();
+          // Call setCrpItem() which should check if a 'default' item needs to be shown
+          Crpstudio.project.setCrpItem(null, "dbfeat");          
           break;
         case "result_display":
           // Other actions
@@ -876,12 +890,14 @@ Crpstudio.project = {
    * @returns {void} 
    * @history
    *  6/oct/2015  ERK Created
+   *  15/oct/2015 ERK 
    */
   showlist : function(sListType) {
     var oList = null;   // JSON type list of objects
     var sPrf = "";      // Prefix
-    var sLoc = ""; // Location on html
+    var sLoc = "";      // Location on html
     var arHtml = [];    // To gather the output
+    
     // Find the correct list
     switch(sListType) {
       case "query": sPrf = "qry"; oList = Crpstudio.project.prj_qrylist;break;
@@ -1061,6 +1077,40 @@ Crpstudio.project = {
     Crpstudio.getCrpStudioData("load", params, Crpstudio.project.processLoad, "#project_description");
   },
   
+  
+  /**
+   * getCrpItem
+   *    Look in the list of CrpItems (def/query/dbfeat/qc) for the one
+   *    having the @id field iItemId, and return the <a> element where it is
+   *    
+   * @param {type} sListType
+   * @param {type} iItemId
+   * @returns {undefined}
+   */
+  getCrpItem : function(sListType, iItemId) {
+    // Access the information object for this type
+    var oItemDesc = Crpstudio.project.getItemDescr(sListType);
+    // Get the NAME of this element
+    var oListItem = Crpstudio.project.getListObject(sListType, oItemDesc.id, iItemId);
+    // Construct the unique class name identifying our target
+    var sClass = oItemDesc.prf + "_" + oListItem[oItemDesc.listfield];
+    // Get the location identifier for this element: Intersection --> no space after "available"
+    var sLoc = "#" + sListType + "_list" + " ." + oItemDesc.prf  + "-available";
+    var oFirst = null;
+    // Ga alle elementen handmatig af
+    $(sLoc).each(function() {
+      if (oFirst === null) oFirst = $(this).children(":last").get();
+      // Check if it has the correct class
+      if ($(this).hasClass(sClass)) {
+        // Find this element's last child, which is the <a> element
+        var oTarget = $(this).children(":last").get();
+        // Return this
+        return oFirst = oTarget;
+      }
+    });
+    // Getting here means we are lost...
+    return oFirst;
+  },
  
   /**
    * setCrpItem
@@ -1072,8 +1122,37 @@ Crpstudio.project = {
    * @returns {undefined}   - none
    * @history
    *  8/oct/2015  ERK Created
+   *  15/oct/2015 ERK When there is no iItemId, check if a default needs to be shown
    */
   setCrpItem : function(target, sType, iItemId) {
+    // Do we need to grab a default item?
+    if (!iItemId) {
+      // No itemid is defined, so check if there *is* anything that could be selected
+      switch(sType) {
+        case "query":
+          if (Crpstudio.project.prj_qrylist.length > 0) {
+            iItemId = (Crpstudio.project.currentQry>=0) ? Crpstudio.project.currentQry : 1;
+          }
+          break;
+        case "definition":
+          if (Crpstudio.project.prj_deflist.length > 0) {
+            iItemId = (Crpstudio.project.currentDef>=0) ? Crpstudio.project.currentDef : 1;
+          }
+          break;
+        case "dbfeat":
+          if (Crpstudio.project.prj_dbflist.length > 0) {
+            iItemId = (Crpstudio.project.currentDbf>=0) ? Crpstudio.project.currentDbf : 1;
+          }
+          break;
+        case "constructor":
+          if (Crpstudio.project.prj_qclist.length > 0) {
+            iItemId = (Crpstudio.project.currentQc>=0) ? Crpstudio.project.currentQc : 1;
+          }
+          break;
+      }
+      // Calculate the target <a> item...
+      target = Crpstudio.project.getCrpItem(sType, iItemId);
+    }
     // Validate
     if (iItemId && iItemId >= 0) {
       // Get the <li>
@@ -1242,6 +1321,8 @@ Crpstudio.project = {
           $("#project_general_comments").val(sComments);
           
           // Add event handlers on all INPUT elements under "project_general"
+          Crpstudio.project.addChangeEvents("project_general");
+          /*
           $("#project_general input").on("change keydown paste input", 
             function() {Crpstudio.project.ctlTimer(this, "input");});
           $("#project_general input").on("blur", 
@@ -1258,6 +1339,7 @@ Crpstudio.project = {
             function() {Crpstudio.project.ctlTimer(this, "select");});
           $("#project_general select").on("blur", 
             function() {Crpstudio.project.ctlChanged(this, "blurSelect");});
+          */
             
           // Make the General area visible again
           $("#project_general").removeClass("hidden");
@@ -1277,6 +1359,53 @@ Crpstudio.project = {
 			$("#project_status").html("ERROR - Failed to load the .crpx result from the server.");
 		}    
   },
+  
+  /**
+   * addChangeEvents
+   *    Add pointers to ctlTimer() and ctlChanged()
+   *    Do this for all [input], [textarea] and [select] elements
+   *       that are under DOM element with id [sItemId]
+   * 
+   * @param {type} sItem
+   * @returns {undefined}
+   */
+  addChangeEvents : function(sItemId) {
+    var sId = "#" + sItemId;
+    // Add event handlers on all INPUT elements under "project_general"
+    $(sId + " input").on("change keydown paste input", 
+      function() {Crpstudio.project.ctlTimer(this, "input");});
+    $(sId + " input").on("blur", 
+      function() {Crpstudio.project.ctlChanged(this, "blurInput");});
+
+    // Add event handlers on all TEXTAREA elements under "project_general"
+    $(sId + " textarea").on("change keydown paste input", 
+      function() {Crpstudio.project.ctlTimer(this, "textarea");});
+    $(sId + " textarea").on("blur", 
+      function() {Crpstudio.project.ctlChanged(this, "blurTextarea");});
+
+    // Add event handlers on all SELECT elements under "project_general"
+    $(sId + " select").on("change keydown paste input", 
+      function() {Crpstudio.project.ctlTimer(this, "select");});
+    $(sId + " select").on("blur", 
+      function() {Crpstudio.project.ctlChanged(this, "blurSelect");});
+    
+  }, 
+  
+  /**
+   * addXqueryResizeEvents
+   *    Add events that help resize the Xquery area below [sItemId]
+   * 
+   * @param {type} sItemId
+   * @returns {undefined}
+   */
+  addXqueryResizeEvents : function(sItemId) {
+    var sId = "#" + sItemId;
+    $(sId).bind("mousedown", function() {Crpstudio.project.setSizes();});
+    $(sId).bind("mousemove", function() {Crpstudio.project.setSizes();});
+    // Catch the mousedown and mouseup events
+    $(sId).bind("mouseup", function() {Crpstudio.project.setSizes();});
+  },
+  
     /**
    * processCrpChg
    *    Process the reply when changes have been made
@@ -1661,20 +1790,21 @@ Crpstudio.project = {
    */
   ctlChanged : function(source, sType) {
     // Validate source
-    if (!source || source == null) source = Crpstudio.project.ctlCurrent;
+    if (!source || source === null) source = Crpstudio.project.ctlCurrent;
     // Clear any previously set timer
     clearTimeout(Crpstudio.project.typingTimer);
     // Find parameters
     var sKey = "";
     var sValue = $(source).val();
-    var sKind = (sType && sType != null) ? sType : "-";
+    var sKind = (sType && sType !== null) ? sType : "-";
+    var iItemId = -1;
     // Determine which 'key' this is
-    switch($(source).attr("id")) {
+    var sElementId = $(source).attr("id");
+    switch(sElementId) {
       case "project_general_name": 
         if (sValue === Crpstudio.project.prj_name) return; 
         else Crpstudio.project.prj_name = sValue;
-        sKey = "Name"; 
-        break;
+        sKey = "Name"; break;
       case "project_general_author": 
         if (sValue === Crpstudio.project.prj_author) return; 
         else Crpstudio.project.prj_author = sValue;
@@ -1710,9 +1840,16 @@ Crpstudio.project = {
         }
         break;
       default:
-        // Show the source of the key absence
-        Crpstudio.debug("ctlChanged cannot handle: [" + $(source).attr("id") + "]");
-        return;
+        // Try to perform a general change function
+        var oItem = Crpstudio.project.doCrpItemChange(sElementId);
+        // Check the return
+        if (oItem === null) {
+          // Show the source of the key absence
+          Crpstudio.debug("ctlChanged cannot handle: [" + $(source).attr("id") + "]");
+          return;
+        }
+        // Get the key and the i
+        sKey = oItem.key; iItemId = oItem.id;
     }
     // ===== DEBUGGING ====
     if (sKey === "source") {
@@ -1722,9 +1859,49 @@ Crpstudio.project = {
     // Pass on this value to /crpstudio and to /crpp
     var oChanges = { "crp": Crpstudio.project.currentPrj,
       "userid": Crpstudio.currentUser, 
-      "key": sKey, "value": sValue };
+      "key": sKey, "value": sValue, "id": iItemId };
     var params = "changes=" + JSON.stringify(oChanges);
     Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+  },
+  
+  /**
+   * doCrpItemChange 
+   *    Process changes in the crp item (def/query/dbfeat/constructor) identified
+   *      by DOM id [sItemId]. Do this in the internally stored CRP item data.
+   *    Then return the 'key' that should be used by a /crpchg request to process
+   *      the changes into the CRP that is stored on the server
+   *      
+   * @param {type} sItemId
+   * @returns {undefined}
+   */
+  doCrpItemChange : function(sItemId) {
+    // Create an object
+    var oBack = {};
+    // Find the correct item
+    for (var i=0;i<Crpstudio.project.prj_access.length;i++) {
+      var oItem = Crpstudio.project.prj_access[i];
+      var iItemId = -1;
+      // The integer element id depends on what we have
+      switch (oItem.name) {
+        case "query": iItemId = Crpstudio.project.currentQry; break;
+        case "definition": iItemId = Crpstudio.project.currentDef; break;
+        case "dbfeat": iItemId = Crpstudio.project.currentDbf; break;
+        case "constructor": iItemId = Crpstudio.project.currentQc; break;
+      }
+      // Walk all the descriptions in this item
+      for (var j=0;j<oItem.fields.length; j++) {
+        var oField = oItem.field[j];
+        // Is this the correct field?
+        if (sItemId === oField.loc) {
+          // We found it: return the information
+          oItem.name = oItem.name + "." + oField.field;
+          oItem.id = iItemId;
+          return oItem;
+        }
+      }
+    }
+    // We did not find it, so return an empty string
+    return null;
   },
   /**
    * ctlTimer
