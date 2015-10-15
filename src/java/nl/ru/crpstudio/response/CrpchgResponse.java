@@ -24,9 +24,11 @@ import nl.ru.util.json.JSONObject;
  *    crp     - name of the CRP 
  *    key     - the name of the control that changes
  *    value   - the new value
+ *    id      - an integer id (-1 for CRP info, positive number for Query/Def etc)
  * 
  * @author Erwin R. Komen
- * @history 4/aug/2015 Created
+ * @history 4/aug/2015  Created
+ *          15/oct/2015 Added @id
  */
 public class CrpchgResponse extends BaseResponse {
 
@@ -45,12 +47,14 @@ public class CrpchgResponse extends BaseResponse {
       if (!oQuery.has("crp")) { sendErrorResponse("UpdateResponse: missing @crp"); return;}
       if (!oQuery.has("key")) { sendErrorResponse("UpdateResponse: missing @key"); return;}
       if (!oQuery.has("value")) { sendErrorResponse("UpdateResponse: missing @value"); return;}
+      if (!oQuery.has("id")) { sendErrorResponse("UpdateResponse: missing @id"); return;}
       
       // Get some parameters
       sCurrentUser = oQuery.getString("userid");
       String sCrpThis = oQuery.getString("crp");
       String sKeyName = oQuery.getString("key");
       String sKeyValue = oQuery.getString("value");
+      int iIdValue = oQuery.getInt("id");
       
       // ========== DEBUG ==========
       //if (sKeyName.equals("source")) {
@@ -71,6 +75,7 @@ public class CrpchgResponse extends BaseResponse {
       oMyQuery.put("crp", sCrpThis);        // Specify the CRP name
       oMyQuery.put("key", sKeyName);        // Name of the key
       oMyQuery.put("value", sKeyValue);     // Value of the key
+      oMyQuery.put("id", iIdValue);         // Value of the id
       if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
       
       // Put my query into the request

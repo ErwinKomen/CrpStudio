@@ -59,6 +59,7 @@ public class LoadResponse extends BaseResponse {
       }
       
       // Send a standard mapped response to the JavaScript caller
+  		this.servlet.log("LoadResponse - sendStandardResponse 'completed'...");
       sendStandardResponse("completed", "CRP has been loaded", oContent);
     } catch (Exception ex) {
       sendErrorResponse("LoadResponse: could not complete: "+ ex.getMessage());
@@ -67,7 +68,7 @@ public class LoadResponse extends BaseResponse {
 
 	@Override
 	protected void logRequest() {
-		this.servlet.log("LoadResponse");
+		this.servlet.log("LoadResponse - logRequest");
 	}
 
 	@Override
