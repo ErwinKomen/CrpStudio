@@ -788,6 +788,20 @@ button.search > span, button.reset > span {
 
 form .row .row, .row .row {
 	margin: 0;
+  padding: 0rem !important;
+  /* margin-bottom: 2px !important; */
+}
+form .row .row .column, form .row .row .columns {
+    padding: 0 0.2rem;
+    /* margin-bottom: -8px; */
+}
+input, textarea {
+  margin: 0 0 0.1rem !important;
+  padding: 0.1rem !important;
+}
+fieldset {
+    margin: 0.1rem 0 !important;
+    padding: 0.5rem !important;
 }
 
 .construct-column {
@@ -1643,6 +1657,11 @@ div.hitscroll {
 .side-nav {
     color: darkblue;
     background: whitesmoke;
+}
+
+.side-nav li {
+  font-size: 0.8rem;
+  margin: 0 0 0rem !important;
 }
 
 .side-nav li a:not(.button) {

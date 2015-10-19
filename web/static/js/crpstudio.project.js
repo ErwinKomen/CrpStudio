@@ -26,6 +26,7 @@ var crpstudio = (function ($, crpstudio) {
 Crpstudio.project = {
   // Local variables within Crpstudio.project
   tab : "project",        // The main tab we are on (equals to "project_editor")
+  currentCorpus: "",      // Currently selected corpus
   currentPrj: "",         // The currently being executed project (the CRP name)
   currentLng: "",         // the "lng" parameter of the current project
   currentDir: "",         // the "dir" parameter of the current project
@@ -1612,7 +1613,7 @@ Crpstudio.project = {
 		}    
   },   
   /**
-   * downloadCrpFile
+   * downloadFile
    *    Check which CRP is currently selected (if any)
    *    Then download that CRP:
    *    (1) from the server --> POST to /crpstudio
@@ -1620,13 +1621,40 @@ Crpstudio.project = {
    * @param {type} elDummy
    * @returns {undefined}
    */
-  downloadCrpFile : function(elDummy) {
-    // Find out which one is currently selected
-    var sCrpName = Crpstudio.project.currentPrj;
-    if (sCrpName && sCrpName !== "") {
+  downloadFile : function(elDummy, sFileType) {
+    // Access the information object for this type
+    var oItemDesc = Crpstudio.project.getItemDescr(sFileType);
+    var sItemName = "";
+    var oListItem = null;
+    // Action depends on the type
+    switch(sFileType) {
+      case "project":     // Download CRP
+        // Find out which one is currently selected
+        sItemName = Crpstudio.project.currentPrj;
+        break;
+      case "corpus":      // Download corpus
+        // Find out which one is currently selected
+        sItemName = Crpstudio.project.currentCorpus;
+        break;
+      case "definition":  // download definitions in Xquery
+        // Access the current element from the list
+        oListItem = Crpstudio.project.getListObject(sFileType, oItemDesc.id, Crpstudio.project.currentDef);
+        sItemName = oListItem[oItemDesc.listfield];
+        break;
+      case "query":       // download definitions in Xquery
+        // Access the current element from the list
+        oListItem = Crpstudio.project.getListObject(sFileType, oItemDesc.id, Crpstudio.project.currentQry);
+        sItemName = oListItem[oItemDesc.listfield];
+        break;
+      case "dbase":       // download database in Xquery
+        // Find out which one is currently selected
+        sItemName = Crpstudio.project.currentDb;
+        break;
+    }
+    if (sItemName && sItemName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      var params = "crpname=" + sCrpName + "&userid=" + Crpstudio.currentUser;
+      var params = "itemname=" + sItemName + "&itemtype=" + sFileType + "&userid=" + Crpstudio.currentUser;
       Crpstudio.getCrpStudioData("download", params, Crpstudio.project.processDownload, "#project_description");      
     }
   },  
@@ -1848,7 +1876,7 @@ Crpstudio.project = {
           Crpstudio.debug("ctlChanged cannot handle: [" + $(source).attr("id") + "]");
           return;
         }
-        // Get the key and the i
+        // Get the key and the id
         sKey = oItem.key; iItemId = oItem.id;
     }
     // ===== DEBUGGING ====
@@ -1890,13 +1918,13 @@ Crpstudio.project = {
       }
       // Walk all the descriptions in this item
       for (var j=0;j<oItem.fields.length; j++) {
-        var oField = oItem.field[j];
+        var oField = oItem.fields[j];
         // Is this the correct field?
         if (sItemId === oField.loc) {
           // We found it: return the information
-          oItem.name = oItem.name + "." + oField.field;
-          oItem.id = iItemId;
-          return oItem;
+          oBack.key = oItem.name + "." + oField.field;
+          oBack.id = iItemId;
+          return oBack;
         }
       }
     }
