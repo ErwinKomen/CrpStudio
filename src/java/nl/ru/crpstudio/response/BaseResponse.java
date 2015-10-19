@@ -1052,17 +1052,25 @@ public abstract class BaseResponse {
    */
   public JSONArray getProjectList(String sUser) {
     try {
-      // Prepare the parameters for this request
-      this.params.clear();
-      this.params.put("userid", sUser);
-      // Get the JSON object from /crpp containing the projects of this user
-      String sResp = getCrppResponse("crplist", "", this.params,null);
-      // Interpret the response
-      JSONObject oResp = new JSONObject(sResp);
-      if (!oResp.has("status") || !oResp.has("content") || 
-          !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+      // Check if we already have the dblist for this user
+      JSONArray arCrpList = servlet.getUserCrpList();
+      if (arCrpList == null) {
+        // Prepare the parameters for this request
+        this.params.clear();
+        this.params.put("userid", sUser);
+        // Get the JSON object from /crpp containing the projects of this user
+        String sResp = getCrppResponse("crplist", "", this.params,null);
+        // Interpret the response
+        JSONObject oResp = new JSONObject(sResp);
+        if (!oResp.has("status") || !oResp.has("content") || 
+            !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+        // Get the resulting list
+        arCrpList = oResp.getJSONArray("content");
+        // Add it to the user's store
+        servlet.setUserCrpList(arCrpList);
+      }
       // Get the list of CRPs
-      return oResp.getJSONArray("content");
+      return arCrpList;
 
     } catch (Exception ex) {
       logger.DoError("getProjectList: could not complete", ex);
@@ -1080,17 +1088,25 @@ public abstract class BaseResponse {
    */
   public JSONArray getDbaseList(String sUser) {
     try {
-      // Prepare the parameters for this request
-      this.params.clear();
-      this.params.put("userid", sUser);
-      // Get the JSON object from /crpp containing the projects of this user
-      String sResp = getCrppResponse("dblist", "", this.params,null);
-      // Interpret the response
-      JSONObject oResp = new JSONObject(sResp);
-      if (!oResp.has("status") || !oResp.has("content") || 
-          !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+      // Check if we already have the dblist for this user
+      JSONArray arDbList = servlet.getUserDbList();
+      if (arDbList == null) {
+        // Prepare the parameters for this request
+        this.params.clear();
+        this.params.put("userid", sUser);
+        // Get the JSON object from /crpp containing the projects of this user
+        String sResp = getCrppResponse("dblist", "", this.params,null);
+        // Interpret the response
+        JSONObject oResp = new JSONObject(sResp);
+        if (!oResp.has("status") || !oResp.has("content") || 
+            !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+        // Get the list
+        arDbList = oResp.getJSONArray("content");
+        // Save it for future use
+        servlet.setUserDbList(arDbList);
+      }
       // Get the list of CRPs
-      return oResp.getJSONArray("content");
+      return arDbList;
 
     } catch (Exception ex) {
       logger.DoError("getDbaseList: could not complete", ex);

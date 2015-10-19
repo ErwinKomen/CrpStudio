@@ -95,6 +95,10 @@ public class CrpStudio extends HttpServlet {
   public void setUserRemove(String sId) {bUserOkay = false; crpUtil.removeUserSession(sId, sSessionId);}
   public void setUserJob(String sJobId) { crpUtil.setUserJob(sUserId, sSessionId, sJobId);}
   public String getUserJob() { return crpUtil.getUserJob(sUserId, sSessionId);}
+  public void setUserDbList(JSONArray aDbList) {crpUtil.setUserList(sUserId, sSessionId, aDbList, "db");}
+  public JSONArray getUserDbList() { return crpUtil.getUserList(sUserId, sSessionId, "db");}
+  public void setUserCrpList(JSONArray aDbList) {crpUtil.setUserList(sUserId, sSessionId, aDbList, "crp");}
+  public JSONArray getUserCrpList() { return crpUtil.getUserList(sUserId, sSessionId, "crp");}
   public void setUserTable(JSONArray aTable) { crpUtil.setUserJob(sUserId, sSessionId, sUserId);}
   public CrpUtil getCrpUtil() {return crpUtil;}
   public ErrHandle getErrHandle() {return errHandle;}

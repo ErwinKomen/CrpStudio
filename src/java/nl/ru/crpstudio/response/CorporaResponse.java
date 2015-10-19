@@ -95,9 +95,17 @@ public class CorporaResponse extends BaseResponse {
                     "<td>" + sName + "</td>"+
                     "<td>" + sDir + "</td>"+
                     "<td>" + sLngName + "</td></tr>\n");
+            // Check if downloading is possible for this one
+            String sDownLoad = "";
+            if (oPart.has("psdx")) 
+              sDownLoad += "<br>download: <a href='#' onclick=\"Crpstudio.corpora.download('"+
+                      oPart.getString("psdx")+"')\">psdx (in .tar.gz)</a>";
+            if (oPart.has("folia")) 
+              sDownLoad += "<br>download: <a href='#' onclick=\"Crpstudio.corpora.download('"+
+                      oPart.getString("folia")+"')\">folia (in .tar.gz)</a>";
             sb.append("<tr  class=\"citationrow hidden\">"+
                     "<td colspan='5'><div class=\"collapse inline-concordance\" id=\"" + sLinkId +"\">" + 
-                    sDescr + "<br>see: <a href='" + sUrl + "'>"+ sUrl + "</a>"+
+                    sDescr + "<br>see: <a href='" + sUrl + "'>"+ sUrl + "</a>"+ sDownLoad +
                     "</div></td></tr>\n");
           }
         }      

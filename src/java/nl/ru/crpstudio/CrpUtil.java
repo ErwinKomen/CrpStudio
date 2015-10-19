@@ -160,6 +160,59 @@ public class CrpUtil {
     // Found nothing
     return "";
   }
+  
+  /**
+   * getUserList -- get the specified list associated with this user
+   * 
+   * @param sUserId
+   * @param sSession
+   * @param sListType
+   * @return 
+   */
+  public JSONArray getUserList(String sUserId, String sSession, String sListType) {
+    // Look for the user
+    for (int i=0;i<userCache.size();i++) {
+      // Get this one
+      UserSession oThis = userCache.get(i);
+      // TODO: what if the user is there, but with a different session??
+      // Check if the combination occurs
+      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+        // Action depends on list type
+        switch (sListType) {
+          case "crp": return oThis.aCrpList;
+          case "db": return oThis.aDbList; 
+        }
+      }
+    }
+    // Found nothing
+    return null;
+  }
+  /**
+   * setUserList -- set the specified list for this user
+   * 
+   * @param sUserId
+   * @param sSession
+   * @param aList 
+   * @param sListType 
+   */
+  public void setUserList(String sUserId, String sSession, JSONArray aList, String sListType) {
+    // Look for the user
+    for (int i=0;i<userCache.size();i++) {
+      // Get this one
+      UserSession oThis = userCache.get(i);
+      // TODO: what if the user is there, but with a different session??
+      // Check if the combination occurs
+      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+        // Action depends on list type
+        switch (sListType) {
+          case "crp": oThis.aCrpList = aList; break;
+          case "db": oThis.aDbList = aList; break;
+        }
+        return;
+      }
+    }
+  }
+  
   /**
    * getUserOkay - find out if the combination User/Session is okay (logged in)
    * 
@@ -252,6 +305,8 @@ class UserSession {
   public String lngLast;    // Last language corpus used
   public String crpLast;    // Last CRP that has been used
   public JSONArray aTable;  // Last JSON Array table used by user
+  public JSONArray aDbList; // List with databases for this user
+  public JSONArray aCrpList;// List of CRPs belonging to this user
   public UserSession(String sUserId, String sSessionId, boolean bUserOkay) {
     this.userId = sUserId;
     this.sessionId = sSessionId;
@@ -259,6 +314,9 @@ class UserSession {
     this.lngLast = "";
     this.crpLast = "";
     this.jobId = "";
+    this.aDbList = null;
+    this.aTable = null;
+    this.aCrpList = null;
   }
 }
 
