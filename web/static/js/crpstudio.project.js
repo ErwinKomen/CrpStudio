@@ -1459,27 +1459,41 @@ Crpstudio.project = {
   },
   
   /**
-   * uploadCrpFile
-   *    Ask user to upload a .crpx file
+   * uploadFile
+   *    Ask user to upload a file (project, corpus, dbase, definition, query)
    * 
-   * @param {type} el
+   * @param {object} el   
+   * @param {string} sItemType
    * @returns {undefined}
    */
-  uploadCrpFile : function(el) {
+  uploadFile : function(el, sItemType) {
     // Make sure download info is hidden
-    $("#project_download").addClass("hidden");
+    $("#"+sItemType+"_download").addClass("hidden");
+    // Initialise itemmain
+    var sItemMain = "";
+    switch (sItemType) {
+      case "definition": 
+      case "query":
+        // Get the current project's name
+        sItemMain = Crpstudio.project.currentPrj;
+        break;
+      case "corpus":    // Main corpus to which this file belongs
+        // TODO: implement
+        break;
+    }
     // Get the name of the file
     var oFile = el.files[0];
-    // Use the standard readXmlFile function
+    // Use the standard readXmlFile function (this reads any TEXT)
 		Crpstudio.readXmlFile(oFile, function(e) {
       // Get the text of the uploaded CRP into a variable
       var text = encodeURIComponent(e.target.result);
       // Signal what we are doing
-      $("#project_description").html("Uploading...");
+      $("#"+sItemType+"_description").html("Uploading...");
       // Send this information to the /crpstudio
-      var params = "file=" + oFile.name + "&userid=" + Crpstudio.currentUser +
-              "&crp=" + text;
-      Crpstudio.getCrpStudioData("upload", params, Crpstudio.project.processUpLoad, "#project_description");
+      var params = "file=" + oFile.name + "&itemtype=" + sItemType + 
+              "&itemmain=" + sItemMain + "&userid=" + Crpstudio.currentUser +
+              "&itemtext=" + text;
+      Crpstudio.getCrpStudioData("upload", params, Crpstudio.project.processUpLoad, "#"+sItemType+"_description");
     });
 	},
   /**
@@ -1492,24 +1506,32 @@ Crpstudio.project = {
    */
   processUpLoad : function(response, target) {
 		if (response !== null) {
-      // Remove waiting
-      $("#project_description").html("");
       // The response is a standard object containing "status" (code) and "content" (code, message)
       var oStatus = response.status;
       var sStatusCode = oStatus.code;
       var oContent = response.content;
+      // Obligatory: itemtype
+      var sItemType = oContent.itemtype;
+      // Remove waiting
+      $("#"+sItemType+"_description").html("");
       switch (sStatusCode) {
         case "completed":
-          // If we have succesfully completed *uploading* a file to /crpstudio,
+          // This is dependent on the item type
+          var sAbbr = "";
+          switch (sItemType) {
+            case "project": sAbbr = "crp"; break;
+            case "definition": sAbbr = "def"; break;
+            case "query": sAbbr = "qry"; break;
+          }
+          // Item-type-independent stuff
+          var sItemName = oContent.itemname;
+          // If we have succesfully completed *uploading* an item to /crpstudio,
           //    then it must be added to the list
-          var sPrjLine = oContent.prjline;
-          var sCrpName = oContent.crpname;
+          var sItemLine = oContent.itemline;
           // Check if there is any reply
-          // if (sPrjLine)
-          //   $("#project_list").append(sPrjLine);
-          if (sPrjLine) {
+          if (sItemLine) {
             // Walk the list of <li> elements with class "crp-available"
-            var arPrjItem = $("#project_list .crp-available").not(".divider").not(".heading");
+            var arPrjItem = $("#"+sItemType+"_list ."+sAbbr+"-available").not(".divider").not(".heading");
             var liBef = null;
             // Start from 0: we are in our own 'section' of "crp-available"
             for (var i=0;i<arPrjItem.size();i++) {
@@ -1517,7 +1539,7 @@ Crpstudio.project = {
               if (arPrjItem[i].childNodes) {
                 var aChild = arPrjItem[i].childNodes.item(0);
                 // Should we put our project before this one?
-                if (aChild.innerHTML.localeCompare(sCrpName)>0) {
+                if (aChild.innerHTML.localeCompare(sItemName)>0) {
                   // The list item must come before the current one
                   liBef = arPrjItem[i];break;
                 }
@@ -1526,27 +1548,28 @@ Crpstudio.project = {
             // Did we find any?
             if (liBef === null) {
               // Append it after the divider and heading crp-available
-              $("#project_list .crp-available").last().append(sPrjLine);
+              $("#"+sItemType+"_list ."+sAbbr+"-available").last().append(sItemLine);
             } else {
-              $(sPrjLine).insertBefore($(liBef));
+              $(sItemLine).insertBefore($(liBef));
             }
           }
           break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
           var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
-          $("#project_status").html("Error: " + sErrorCode);
+          $("#"+sItemType+"_status").html("Error: " + sErrorCode);
           $(target).html("Error: " + sErrorMsg);
           break;
         default:
-          $("#project_status").html("Error: no reply");
+          $("#"+sItemType+"_status").html("Error: no reply");
           $(target).html("Error: no reply received from the /crpstudio server");
           break;
       }
 		} else {
-			$("#project_status").html("ERROR - Failed to load the .crpx result from the server.");
+			$("#"+sItemType+"_status").html("ERROR - Failed to load the .crpx result from the server.");
 		}    
   },  
+  
   /**
    * removeCrpFile
    *    Check which CRP is currently selected (if any)
@@ -1624,7 +1647,8 @@ Crpstudio.project = {
   downloadFile : function(elDummy, sFileType) {
     // Access the information object for this type
     var oItemDesc = Crpstudio.project.getItemDescr(sFileType);
-    var sItemName = "";
+    var sItemName = "";   // Project, corpus or database name
+    var sItemPart = "";   // Part of project, corpus
     var oListItem = null;
     // Action depends on the type
     switch(sFileType) {
@@ -1639,12 +1663,16 @@ Crpstudio.project = {
       case "definition":  // download definitions in Xquery
         // Access the current element from the list
         oListItem = Crpstudio.project.getListObject(sFileType, oItemDesc.id, Crpstudio.project.currentDef);
-        sItemName = oListItem[oItemDesc.listfield];
+        sItemPart = oListItem[oItemDesc.listfield];
+        // Find out which one is currently selected
+        sItemName = Crpstudio.project.currentPrj;
         break;
       case "query":       // download definitions in Xquery
         // Access the current element from the list
         oListItem = Crpstudio.project.getListObject(sFileType, oItemDesc.id, Crpstudio.project.currentQry);
-        sItemName = oListItem[oItemDesc.listfield];
+        sItemPart = oListItem[oItemDesc.listfield];
+        // Find out which one is currently selected
+        sItemName = Crpstudio.project.currentPrj;
         break;
       case "dbase":       // download database in Xquery
         // Find out which one is currently selected
@@ -1654,7 +1682,8 @@ Crpstudio.project = {
     if (sItemName && sItemName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      var params = "itemname=" + sItemName + "&itemtype=" + sFileType + "&userid=" + Crpstudio.currentUser;
+      var params = "itemname=" + sItemName + "&itempart=" + sItemPart + 
+              "&itemtype=" + sFileType + "&userid=" + Crpstudio.currentUser;
       Crpstudio.getCrpStudioData("download", params, Crpstudio.project.processDownload, "#project_description");      
     }
   },  
@@ -1668,12 +1697,15 @@ Crpstudio.project = {
    */
   processDownload : function(response, target) {
 		if (response !== null) {
-      // Remove waiting
-      $("#project_description").html("");
       // The response is a standard object containing "status" (code) and "content" (code, message)
       var oStatus = response.status;
       var sStatusCode = oStatus.code;
       var oContent = response.content;
+      // Content must at least contain item type
+      var sItemType = oContent.itemtype;
+      // if (sItemType === "definition") sItemType = "def";
+      // Remove waiting
+      $("#"+sItemType+"_description").html("");
       switch (sStatusCode) {
         case "completed":
           // Find out which project has been removed
@@ -1684,24 +1716,24 @@ Crpstudio.project = {
             var fFileName = sFile.substring(sFile.lastIndexOf("/")+1);
             fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
             // Show the project_download item
-            $("#project_download").removeClass("hidden");
-            $("#project_download_file").html("<a href=\""+sFile + "\""+
+            $("#"+sItemType+"_download").removeClass("hidden");
+            $("#"+sItemType+"_download_file").html("<a href=\""+sFile + "\""+
                     " target='_blank'\">"+fFileName+"</a>");
           }
           break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
           var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
-          $("#project_status").html("Error: " + sErrorCode);
+          $("#"+sItemType+"_status").html("Error: " + sErrorCode);
           $(target).html("Error: " + sErrorMsg);
           break;
         default:
-          $("#project_status").html("Error: no reply");
+          $("#"+sItemType+"_status").html("Error: no reply");
           $(target).html("Error: no reply received from the /crpstudio server");
           break;
       }
 		} else {
-			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+			$("#"+sItemType+"_status").html("ERROR - Failed to download the item.");
 		}    
   },     
   

@@ -283,7 +283,7 @@ var Crpstudio = {
 	},
   /* --------------------------------------------------------------------------
    * Name: readXmlFile
-   * Goal: Read an xml file
+   * Goal: Read a file as text (doesn't have to be XML)
    *        After reading: call the @callback function
    * History:
    * 8/jul/2015 ERK Created
