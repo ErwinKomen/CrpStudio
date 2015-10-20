@@ -46,6 +46,7 @@ import nl.ru.crpstudio.util.TemplateManager;
 import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.crpx.project.CorpusResearchProject.ProjType;
 import nl.ru.crpx.tools.FileIO;
+import nl.ru.util.ByRef;
 import nl.ru.util.FileUtil;
 import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONArray;
@@ -1077,6 +1078,211 @@ public abstract class BaseResponse {
       return null;
     }
   }
+  
+  /**
+   * setProjectItem
+   *    Add the indicated query or definition to the indicated project
+   * 
+   * @param sCrp      - name of the project to which this item belongs
+   * @param sUser     - user id
+   * @param sItemName - Name of the item
+   * @param sItemText - text of the item (definition or query)
+   * @param sItemType - either "definition" or "query" or "dbfeat"
+   * @return 
+   */
+  public int setProjectItem(String sCrp, String sUser, String sItemName, String sItemText, String sItemType) {
+    int iItemId = -1;  // Id of added query
+    
+    try {
+      // Access the CRP
+      CorpusResearchProject crpRequested = crpContainer.getCrp(this, sCrp, sUser, false);
+      // Prepare the text: change newlines
+      sItemText = sItemText.replace("\r\n", "\n");
+      List<String> lstQueryLine = new ArrayList<>();
+      lstQueryLine.addAll(Arrays.asList(sItemText.split("\n")));
+      
+      // Create a new query item from the text
+      JSONObject oQthis = new JSONObject();
+      // Get the elements of the new object
+      oQthis.put("File", sItemName + ".xq");
+      oQthis.put("Name", sItemName);
+      oQthis.put("Created", getQpart(lstQueryLine, "Created"));
+      oQthis.put("Goal", getQpart(lstQueryLine, "Goal"));
+      oQthis.put("Comment", getQpart(lstQueryLine, "Comment"));
+      oQthis.put("Text", StringUtil.join(lstQueryLine, "\n"));
+      
+      // Add the new item
+      switch(sItemType) {
+        case "query":
+          iItemId = crpRequested.addListQueryItem(oQthis);
+          break;
+        case "definition":
+          iItemId = crpRequested.addListDefItem(oQthis);
+          break;
+        case "dbfeat":
+          iItemId = crpRequested.addListDbFeatItem(oQthis);
+          break;
+      }
+      
+      // Return success
+      return iItemId;
+    } catch (Exception ex) {
+      logger.DoError("setProjectItem: could not complete", ex);
+      return -1;
+    }
+  }
+  
+  /**
+   * getQpart
+   *    Look in the provided @lstQline for text between 
+   *    <sPart> and </sPart> and return this text
+   *    Then delete the line containing this text from the list
+   * @param lstQline  - List of string lines
+   * @param sPart     - The tag to be looked for
+   * @return          - Text between open and close tags
+   */
+  private String getQpart(List<String> lstQline, String sPart) {
+    String sOpen = "<" + sPart + ">";
+    String sClose = "</" + sPart + ">";
+    
+    try {
+      List<String> lstRemove = new ArrayList<>();
+      for (Iterator<String> iter = lstQline.listIterator(); iter.hasNext(); ) {
+      // for (int i=0;i<lstQline.size();i++) {
+        String sLine = iter.next();
+        // Check if the part is in here
+        int iStart = sLine.indexOf(sOpen);
+        if (iStart >= 0) {
+          iStart += sOpen.length();
+          int iEnd = sLine.indexOf(sClose);
+          if (iEnd >=0) {
+            // Retrieve the part
+            String sText = sLine.substring(iStart, iEnd );
+            // Remove from the list
+            iter.remove();
+            // lstQline.remove(sLine);
+            // Return the text
+            return sText;
+          } else {
+            // The end is not on this line, so get what we have and iterate on
+            String sText = sLine.substring(iStart);
+            while (iter.hasNext()) {
+              // Get next line
+              sLine = iter.next();
+              // Check for end mark
+              iEnd = sLine.indexOf(sClose);
+              if (iEnd <0) {
+                // This is not the end, so add the line to what we have
+                sText += "\n" + sLine;
+                // Remove this line
+                iter.remove();
+              } else {
+                // We have the end!
+                sText += "\n" + sLine.substring(0, iEnd);
+                // Remove the line
+                iter.remove();
+                // Return the text we have
+                return sText;
+              }
+            }
+          }
+        }
+      }
+      // Failure
+      return "";
+    } catch (Exception ex) {
+      logger.DoError("getQpart: could not complete", ex);
+      return "";
+    }
+  }
+  
+  /**
+   * getProjectQuery
+   *    Get the CRP from user sUser and return the query with the indicated name
+   * 
+   * @param sCrp
+   * @param sUser
+   * @param sQuery
+   * @return 
+   */
+  public String getProjectQuery(String sCrp, String sUser, String sQuery) {
+    try {
+      // Access the CRP
+      CorpusResearchProject crpRequested = crpContainer.getCrp(this, sCrp, sUser, false);
+      // Access the query
+      JSONObject oQthis = crpRequested.getListQueryByName(sQuery);
+      // Convert into .xq format
+      StringBuilder sb = new StringBuilder();
+      sb.append("(: <Created>" + oQthis.getString("Created") + "</Created> :)\n");
+      sb.append("(: <Goal>" + oQthis.getString("Goal") + "</Goal> :)\n");
+      sb.append("(: <Comment>" + oQthis.getString("Comment") + "</Comment> :)\n");
+      sb.append(oQthis.getString("Text")).append("\n");
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getProjectQuery: could not complete", ex);
+      return null;
+    }
+  }
+  
+  /**
+   * hasProjectItem
+   *    Check if project @sCrp of user @sUser has the item of type @sItemType
+   *      which is called @sItemName
+   * 
+   * @param sCrp
+   * @param sUser
+   * @param sItemName
+   * @param sItemType
+   * @return 
+   */
+  public boolean hasProjectItem(String sCrp, String sUser, String sItemName, String sItemType) {
+    JSONObject oItem = null;
+    
+    try {
+      // Access the CRP
+      CorpusResearchProject crpRequested = crpContainer.getCrp(this, sCrp, sUser, false);
+      // Action depends on type
+      switch (sItemType) {
+        case "query": oItem = crpRequested.getListQueryByName(sItemName); break;
+        case "definition": oItem = crpRequested.getListDefByName(sItemName); break;
+        case "dbfeat": oItem = crpRequested.getListDbFeatByName(sItemName); break;
+      }
+      return (oItem != null);
+    } catch (Exception ex) {
+      logger.DoError("hasProjectItem: could not complete", ex);
+      return false;
+    }
+  }
+
+  /**
+   * getProjectDef
+   *    Get the CRP from user sUser and return the definition with the indicated name
+   * 
+   * @param sCrp
+   * @param sUser
+   * @param sDef
+   * @return 
+   */
+  public String getProjectDef(String sCrp, String sUser, String sDef) {
+    try {
+      // Access the CRP
+      CorpusResearchProject crpRequested = crpContainer.getCrp(this, sCrp, sUser, false);
+      // Access the definition
+      JSONObject oDthis = crpRequested.getListDefByName(sDef);
+      // Convert into .xq format
+      StringBuilder sb = new StringBuilder();
+      sb.append("(: <Created>" + oDthis.getString("Created") + "</Created> :)\n");
+      sb.append("(: <Goal>" + oDthis.getString("Goal") + "</Goal> :)\n");
+      sb.append("(: <Comment>" + oDthis.getString("Comment") + "</Comment> :)\n");
+      sb.append(oDthis.getString("Text")).append("\n");
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getProjectDef: could not complete", ex);
+      return null;
+    }
+  }
 
   /**
    * getDbaseList -- 
@@ -1217,6 +1423,25 @@ public abstract class BaseResponse {
       return "error (getCorpusInfo)";
     }
   }
+  
+  /**
+   * getListItem
+   *    Get an item for the 
+   * 
+   * @param sItemName
+   * @param sItemType
+   * @return 
+   */
+  /*
+  public String getListItem(String sItemName, String sItemType) {
+    try {
+      
+    } catch (Exception ex) {
+      logger.DoError("getListItem: could not complete", ex);
+      return "";
+    }
+  }
+  */
   
   /**
    * getProjectItem
