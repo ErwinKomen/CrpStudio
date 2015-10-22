@@ -131,21 +131,18 @@ Crpstudio.project = {
       Crpstudio.debug("user is not defined");
     } else {
       // Find out which language corpus the user has chosen
-      /* ====== OLD =======
-      var sInputSpec = $("#input_lng").val();
-      var oCorpusAndDir = sInputSpec.split(":");
-      var sLng = oCorpusAndDir[0];    // obligatory
-      var sDir = oCorpusAndDir[1];    // May be empty
-      var sDbase = oCorpusAndDir[2];  // May be empty -- is input database
-      // Store these values for posterity (well, for /update requests)
-      Crpstudio.project.currentDir = sDir;
-      Crpstudio.project.currentLng = sLng;
-      Crpstudio.project.currentDb = sDbase;
-      ===================== */
-      // Find out which language corpus the user has chosen
       var sLng = Crpstudio.project.currentLng;
       var sDir = Crpstudio.project.currentDir;
       var sDbase = Crpstudio.project.currentDb;
+      // Validate
+      if (!sLng || sLng === "") {
+        // Language needs to be set
+        $("#project_status").text("First set language");
+        $("#input_status").text("First set language");
+        // Switch to the language stuff
+        Crpstudio.project.switchTab("input");
+        return;
+      }
       // debugging: show where the status appears
       $("#project_status").text("Processing project: " + sPrjName);
       $("#result_status").text("");
@@ -378,41 +375,49 @@ Crpstudio.project = {
         $("#result_progress").addClass("hidden");
         // But make the "fetching" section available
         $("#result_fetching").removeClass("hidden");        // Provide an error report
-        if (oStatus.message !== "") {
+        // The actual message code should be in the content
+        var oContent = oResponse.content;
+        
+        if (oContent.message !== "") {
           var sReport = [];
           // Try to unpack the status
-          var arMsgs = oStatus.message.split("\n");
-          if (arMsgs.length>0) {
-            var sFirstMsg = arMsgs[0];
-            // Is this JSON?
-            if (sFirstMsg.charAt(0) === "{") {
-              var oMsgLine = JSON.parse(sFirstMsg);
-              // Can we do with this object?
-              if (oMsgLine.Type && oMsgLine.Name) {
-                // Use oMsgContent for compatibility with the alternative below
-                var oMsgContent = oMsgLine;
-                sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
-                for (var propThis in oMsgContent) {
-                  sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
-                }
-                sReport.push("</table></div>");
-              } else {
-                // Get the "msg" part
-                if (oMsgLine.msg) {
-                  var sMsgContent = oMsgLine.msg;
-                  // Is this JSON?
-                  if (sMsgContent.charAt(0) === "{") {
-                    var oMsgContent = JSON.parse(sMsgContent);
-                    sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
-                    for (var propThis in oMsgContent) {
-                      sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
-                    }
-                    sReport.push("</table></div>");
+          var arMsgs = oContent.message.split("\n");
+          var sFirstMsg = arMsgs[0];
+          var oMsgLine = null;
+          // Is this a JSON array?
+          if (sFirstMsg.charAt(0) === "[") {
+            // Assume this is a JSON array, so get the first item
+            oMsgLine = JSON.parse(sFirstMsg)[0];
+          } else if (sFirstMsg.charAt(0) === "{") {
+            oMsgLine = JSON.parse(sFirstMsg);
+          }
+          // Validate
+          if (oMsgLine !== null) {
+            // Can we do with this object?
+            if (oMsgLine.Type && oMsgLine.Name) {
+              // Use oMsgContent for compatibility with the alternative below
+              var oMsgContent = oMsgLine;
+              sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
+              for (var propThis in oMsgContent) {
+                sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
+              }
+              sReport.push("</table></div>");
+            } else {
+              // Get the "msg" part
+              if (oMsgLine.msg) {
+                var sMsgContent = oMsgLine.msg;
+                // Is this JSON?
+                if (sMsgContent.charAt(0) === "{") {
+                  var oMsgContent = JSON.parse(sMsgContent);
+                  sReport.push("<div class=\"status-error large-10 medium-10 small-10 columns\"><h4>Error report:</h4><table>");
+                  for (var propThis in oMsgContent) {
+                    sReport.push("<tr><td>"+propThis+"</td><td>"+oMsgContent[propThis]+"</td></tr>");
                   }
+                  sReport.push("</table></div>");
                 }
               }
             }
-          } 
+          }
           if (!sReport || sReport === null || sReport.length === 0)
             sReport.push(statusMsg);
           // Show the report
@@ -1213,6 +1218,8 @@ Crpstudio.project = {
             // $("#query_general_bottom").css("max-width",$("#query_general_bottom").width() + "px" );
             Crpstudio.project.cmQuery = CodeMirror.fromTextArea(
                     document.getElementById("query_general_text"), Crpstudio.project.cmStyle1);  
+            // Make sure the change event is captured
+            Crpstudio.project.cmQuery.on("change", Crpstudio.project.xqQueryChanged);
             // Make sure the visibility is okay
             Crpstudio.project.setSizes();
           } else {
@@ -1229,6 +1236,8 @@ Crpstudio.project = {
             Crpstudio.project.cmDef = CodeMirror.fromTextArea(
                     document.getElementById("def_general_text"), Crpstudio.project.cmStyle1);
                         Crpstudio.project.setSizes();
+            // Make sure the change event is captured
+            Crpstudio.project.cmDef.on("change", Crpstudio.project.xqDefChanged);
             // Make sure the visibility is okay
             Crpstudio.project.setSizes();
           } else {
@@ -1253,6 +1262,31 @@ Crpstudio.project = {
 
 
     }
+  },
+
+  /**
+   * xqQueryChanged
+   *    Process the changes in a the Query editor
+   * 
+   * @param {type} cm
+   * @param {type} change
+   * @returns {undefined}
+   */
+  xqQueryChanged : function(cm, change) {
+    $("#query_general_text").text(cm.getValue());
+    Crpstudio.project.ctlTimer($("#query_general_text"), "textarea");
+  },
+  /**
+   * xqDefChanged
+   *    Process the changes in a the Definition editor
+   * 
+   * @param {type} cm
+   * @param {type} change
+   * @returns {undefined}
+   */
+  xqDefChanged : function(cm, change) {
+    $("#def_general_text").text(cm.getValue());
+    Crpstudio.project.ctlTimer($("#def_general_text"), "textarea");
   },
   
   /**
