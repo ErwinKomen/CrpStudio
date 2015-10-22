@@ -43,11 +43,11 @@ public class CrpchgResponse extends BaseResponse {
       sLoggedInUser = servlet.getUserId();
       // Collect the JSON from our caller
       oQuery = new JSONObject(request.getParameter("changes"));
-      if (!oQuery.has("userid")) { sendErrorResponse("UpdateResponse: missing @userid"); return;}
-      if (!oQuery.has("crp")) { sendErrorResponse("UpdateResponse: missing @crp"); return;}
-      if (!oQuery.has("key")) { sendErrorResponse("UpdateResponse: missing @key"); return;}
-      if (!oQuery.has("value")) { sendErrorResponse("UpdateResponse: missing @value"); return;}
-      if (!oQuery.has("id")) { sendErrorResponse("UpdateResponse: missing @id"); return;}
+      if (!oQuery.has("userid")) { sendErrorResponse("CrpchgResponse: missing @userid"); return;}
+      if (!oQuery.has("crp")) { sendErrorResponse("CrpchgResponse: missing @crp"); return;}
+      if (!oQuery.has("key")) { sendErrorResponse("CrpchgResponse: missing @key"); return;}
+      if (!oQuery.has("value")) { sendErrorResponse("CrpchgResponse: missing @value"); return;}
+      if (!oQuery.has("id")) { sendErrorResponse("CrpchgResponse: missing @id"); return;}
       
       // Get some parameters
       sCurrentUser = oQuery.getString("userid");
