@@ -44,6 +44,7 @@ Crpstudio.project = {
   typingTimer: null,      // Timer to make sure we react only X seconds after typing
   doneTypingIntv: 2000,   // Stop-typing interval: 2 seconds
   ctlCurrent: null,       // Current control
+  ctlCurrentId: "",       // ID of current control
   cmQuery: null,
   cmDef: null,
   prj_name: "",           // Field value of this project: name
@@ -1274,6 +1275,7 @@ Crpstudio.project = {
    */
   xqQueryChanged : function(cm, change) {
     $("#query_general_text").text(cm.getValue());
+    Crpstudio.project.ctlCurrentId = "def_general_text";
     Crpstudio.project.ctlTimer($("#query_general_text"), "textarea");
   },
   /**
@@ -1286,6 +1288,7 @@ Crpstudio.project = {
    */
   xqDefChanged : function(cm, change) {
     $("#def_general_text").text(cm.getValue());
+    Crpstudio.project.ctlCurrentId = "def_general_text";
     Crpstudio.project.ctlTimer($("#def_general_text"), "textarea");
   },
   
@@ -1885,6 +1888,10 @@ Crpstudio.project = {
   ctlChanged : function(source, sType) {
     // Validate source
     if (!source || source === null) source = Crpstudio.project.ctlCurrent;
+    var sChk = $(source).attr("id");
+    if (!sChk || sChk === "") source = $("#" + Crpstudio.project.ctlCurrentId);
+    // Reset currentid
+    Crpstudio.project.ctlCurrentId = "";
     // Clear any previously set timer
     clearTimeout(Crpstudio.project.typingTimer);
     // Find parameters
