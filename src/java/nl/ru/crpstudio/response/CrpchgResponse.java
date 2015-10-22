@@ -13,6 +13,7 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
+import static nl.ru.util.StringUtil.escapeHexCoding;
 import nl.ru.util.json.JSONObject;
 
 /**
@@ -79,7 +80,15 @@ public class CrpchgResponse extends BaseResponse {
       if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
       
       // Put my query into the request
-      this.params.put("query", oMyQuery);
+      // this.params.put("query", oMyQuery.toString());
+      // NOTE: user base64 encoding to package the stringified query
+      this.params.clear();
+      this.params.put("userid", sCurrentUser);
+      this.params.put("crp", sCrpThis);
+      this.params.put("key", sKeyName);
+      this.params.put("value", escapeHexCoding(sKeyValue));
+      this.params.put("id", iIdValue);
+      if (oMyQuery.has("files")) this.params.put("files", oMyQuery.getString("files") );
 
       // Start preparing the output of "completeRequest()", which is a mapping object
       Map<String,Object> output = new HashMap<>();
@@ -93,8 +102,9 @@ public class CrpchgResponse extends BaseResponse {
       }
       // Issue the request to the /crpp using the 'query' JSON parameter above
       // NOTE: this is a GET request 
-      String sResp = getCrppResponse("crpchg", "", this.params, oMyQuery);
-      if (sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("CrpchgResponse: /crpp does not return JSON"); return;}
+      String sResp = getCrppPostResponse("crpchg", "", this.params);
+      // String sResp = getCrppResponse("crpchg", "", this.params, oMyQuery);
+      if (sResp == null || sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("CrpchgResponse: /crpp does not return JSON"); return;}
       
       // Check for errors
       JSONObject oResp = new JSONObject(sResp);
