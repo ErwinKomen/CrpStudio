@@ -21,18 +21,27 @@ public class ExportResponse extends BaseResponse {
 	protected void completeRequest() {
     String fileName = "";
     try {
+      // Collect the JSON from our POST caller
+      JSONObject oQuery = new JSONObject(request.getParameter("args"));
+      if (!oQuery.has("project")) { sendErrorResponse("RemoveResponse: missing @project"); return;}
+      if (!oQuery.has("table")) { sendErrorResponse("RemoveResponse: missing @table"); return;}
+      if (!oQuery.has("view")) { sendErrorResponse("RemoveResponse: missing @view"); return;}
+      
+      // There are three parameters: project, userid, type
+      project = oQuery.getString("project");
+      String sView = oQuery.getString("view");
+      String sTable = oQuery.getString("table");    // This is a stringified JSON object
+
       // Get the name of the project
-      project = this.request.getParameter("project");
+      // project = this.request.getParameter("project");
       if (project.isEmpty()) {
         // Provide some kind of warning/error??
         logger.DoError("ExportResponse: the parameter [project] is empty");
         return;
       }
-      if (project.endsWith(".crpx")) {
-        project = project.substring(0,project.lastIndexOf("."));
-      }
+      if (project.endsWith(".crpx"))  project = project.substring(0,project.lastIndexOf("."));
       // Get the view number
-      String sView = this.request.getParameter("view");
+      // String sView = this.request.getParameter("view");
       
       // Fetch the CSV information into a string
 			String result = this.jobToCSV(sView);

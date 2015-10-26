@@ -9,6 +9,7 @@ package nl.ru.crpstudio.response;
 
 import java.util.HashMap;
 import java.util.Map;
+import nl.ru.util.json.JSONObject;
 
 /**
  *
@@ -18,11 +19,19 @@ public class HelpResponse extends BaseResponse {
   
 	@Override
 	protected void completeRequest() {
+    String sSection = "";
+    String sType = "";
+    
     try {
       String sHelpFile = "";
+      // Collect the JSON from our POST caller
+      JSONObject oQuery = new JSONObject(request.getParameter("args"));
+      if (oQuery.has("section")) sSection = oQuery.getString("section");
+      if (oQuery.has("type")) sType = oQuery.getString("type");
       // Get the section parameter
-      String sSection = this.request.getParameter("section");
-      String sType =  this.request.getParameter("type");
+      // String sSection = this.request.getParameter("section");
+      // String sType =  this.request.getParameter("type");
+      
       if (sType == null || sType.isEmpty()) sType = "html";
       // Now determine which page should be shown
       switch (sSection) {

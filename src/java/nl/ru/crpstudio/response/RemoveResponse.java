@@ -20,15 +20,26 @@ public class RemoveResponse extends BaseResponse {
     JSONObject oContent = new JSONObject();
 
     try {
+      // Collect the JSON from our POST caller
+      JSONObject oQuery = new JSONObject(request.getParameter("args"));
+      if (!oQuery.has("userid")) { sendErrorResponse("RemoveResponse: missing @userid"); return;}
+      if (!oQuery.has("crpname")) { sendErrorResponse("RemoveResponse: missing @crpname"); return;}
+      
+      // There are three parameters: project, userid, type
+      sUserId = oQuery.getString("userid");
+      sPrjName = oQuery.getString("crpname");
+      
+      
       // There are three parameters: file, userid, crp
-      sPrjName = this.request.getParameter("crpname");
+      // sPrjName = this.request.getParameter("crpname");
       // Validate: all three must be there
       if (sPrjName.isEmpty()) { sendErrorResponse("Project name is not specified"); return;}
       // Remove the "/" or "\" from the file name
       if (sPrjName.endsWith(".crpx")) 
         sPrjName = FileIO.getFileNameWithoutExtension(sPrjName);
+      
       // User is also necessary
-      sUserId = this.request.getParameter("userid");
+      // sUserId = this.request.getParameter("userid");
       if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
       
       // Remove the CRP from the local /crpstudio server

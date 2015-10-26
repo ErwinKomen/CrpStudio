@@ -138,7 +138,7 @@ public class UploadResponse extends BaseResponse {
         sendStandardResponse("completed", "upload completed successfully", oContent);
       } else {
         oContent.put("itemname", "");
-            oContent.put("itemtype", sItemType);
+        oContent.put("itemtype", sItemType);
         oContent.put("itemline", "");
         // Provide meaningful error message
         sendErrorResponse("The project is already loaded. It needs to be removed before it can be uploaded again.");

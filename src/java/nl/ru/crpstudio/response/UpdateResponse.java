@@ -51,7 +51,7 @@ public class UpdateResponse extends BaseResponse {
       // Gather our own parameter(s)
       sUser = servlet.getUserId();
       // Collect the JSON from our caller
-      oQuery = new JSONObject(request.getParameter("query"));
+      oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("lng")) { sendErrorResponse("UpdateResponse: missing @lng"); return;}
       if (!oQuery.has("prj")) { sendErrorResponse("UpdateResponse: missing @prj"); return;}
       if (!oQuery.has("userid")) { sendErrorResponse("UpdateResponse: missing @userid"); return;}

@@ -41,7 +41,7 @@ public class ExecuteResponse extends BaseResponse {
       // Gather our own parameter(s)
       sUser = servlet.getUserId();
       // Collect the JSON from our caller
-      oQuery = new JSONObject(request.getParameter("query"));
+      oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("lng")) { sendErrorResponse("ExecuteResponse: missing @lng"); return;}
       if (!oQuery.has("crp")) { sendErrorResponse("ExecuteResponse: missing @crp"); return;}
       if (!oQuery.has("userid")) { sendErrorResponse("ExecuteResponse: missing @userid"); return;}

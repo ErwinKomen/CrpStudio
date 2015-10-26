@@ -17,10 +17,22 @@ public class LoadResponse extends BaseResponse {
     JSONObject oContent = new JSONObject();
 
     try {
+      // Collect the JSON from our POST caller
+      JSONObject oQuery = new JSONObject(request.getParameter("args"));
+      if (!oQuery.has("userid")) { sendErrorResponse("LoadResponse: missing @userid"); return;}
+      if (!oQuery.has("project")) { sendErrorResponse("LoadResponse: missing @project"); return;}
+      if (!oQuery.has("type")) { sendErrorResponse("LoadResponse: missing @type"); return;}
+      
       // There are three parameters: project, userid, type
-      project = this.request.getParameter("project");
-      loadType = this.request.getParameter("type");
-      sUserId = this.request.getParameter("userid");
+      project = oQuery.getString("project");
+      loadType = oQuery.getString("type");
+      sUserId = oQuery.getString("userid");
+
+      
+      // There are three parameters: project, userid, type
+      //project = this.request.getParameter("project");
+      //loadType = this.request.getParameter("type");
+      //sUserId = this.request.getParameter("userid");
       
       // Validate: all three must be there
       if (project.isEmpty()) { sendErrorResponse("Name of project not specified"); return;}

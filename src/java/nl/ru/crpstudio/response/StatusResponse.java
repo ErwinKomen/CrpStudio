@@ -13,7 +13,6 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
-import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
 /**
@@ -34,8 +33,9 @@ public class StatusResponse extends BaseResponse {
     JSONObject oQuery;
     try {
       // Collect the JSON from our caller
-      String sQuery = request.getParameter("query");
-      if (sQuery.isEmpty()) { sendErrorResponse("StatusResponse received empty @query"); return;}
+      String sQuery = request.getParameter("args");
+      if (sQuery.isEmpty()) { sendErrorResponse("StatusResponse received empty @args"); return;}
+      
       oQuery = new JSONObject(sQuery);
       if (!oQuery.has("userid")) { sendErrorResponse("StatusResponse did not get @userid"); return;}
       if (!oQuery.has("jobid")) { sendErrorResponse("StatusResponse did not get @jobid"); return;}

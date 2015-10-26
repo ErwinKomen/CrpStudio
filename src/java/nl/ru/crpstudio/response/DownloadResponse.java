@@ -6,7 +6,7 @@
  */
 package nl.ru.crpstudio.response;
 
-import java.math.BigInteger;
+// import java.math.BigInteger;
 import nl.ru.crpx.tools.FileIO;
 import nl.ru.util.json.JSONObject;
 
@@ -28,20 +28,34 @@ public class DownloadResponse extends BaseResponse {
       //  Optional:
       //    itempart  - part of corpus (...) or project (query name, definition name)
       
-      sItemName = this.request.getParameter("itemname");
+      // Collect the JSON from our POST caller
+      JSONObject oQuery = new JSONObject(request.getParameter("args"));
+      if (!oQuery.has("itemname")) { sendErrorResponse("DownloadResponse: missing @itemname"); return;}
+      if (!oQuery.has("itemtype")) { sendErrorResponse("DownloadResponse: missing @itemtype"); return;}
+      if (!oQuery.has("userid")) { sendErrorResponse("DownloadResponse: missing @userid"); return;}
+      
+      // Get some parameters
+      sItemName = oQuery.getString("itemname");
+      sUserId = oQuery.getString("userid");
+      sItemType = oQuery.getString("itemtype");
+      
+      // sItemName = this.request.getParameter("itemname");
       // Validate: must have an item name
       if (sItemName.isEmpty()) { sendErrorResponse("Download item name is not specified"); return;}
       // Remove the "/" or "\" from the file name
       if (sItemName.endsWith(".crpx")) 
         sItemName = FileIO.getFileNameWithoutExtension(sItemName);
+      
       // User is also necessary
-      sUserId = this.request.getParameter("userid");
+      // sUserId = this.request.getParameter("userid");
       if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
+      
       // Final necessity: item type
-      sItemType = this.request.getParameter("itemtype");
+      // sItemType = this.request.getParameter("itemtype");
       if (sItemType.isEmpty()) { sendErrorResponse("Download item type is not specified"); return;}
       // Check for item part
-      sItemPart = this.request.getParameter("itempart");
+      if (oQuery.has("itempart"))
+        sItemPart = oQuery.getString("itempart"); // this.request.getParameter("itempart");
       
       // Method validation
       if (servlet.getRequestMethod().equals("GET")) {
