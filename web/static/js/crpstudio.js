@@ -157,7 +157,10 @@ var Crpstudio = {
       cache: false,
       store: false,
       // process query results
-      success : function(responses) { callback(responses, target); },
+      success : function(responses) { 
+        var oResp = JSON.parse(responses);        
+        callback(oResp, target); 
+      },
       // Process any errors
       error : function(jqXHR, textStatus, errorThrown) {
         Crpstudio.debug('The POST request did not succeed: ' + textStatus + 

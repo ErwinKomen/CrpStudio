@@ -1624,16 +1624,17 @@ Crpstudio.project = {
   },  
   
   /**
-   * removeCrpFile
-   *    Check which CRP is currently selected (if any)
-   *    Then remove that CRP:
+   * removeFile
+   *    Check which Item is currently selected (if any)
+   *    Then remove that item:
    *    (1) from the server --> POST to /crpstudio
    *    (2) from the list here --> done in callback
    * 
    * @param {type} elDummy
+   * @param {string} sType
    * @returns {undefined}
    */
-  removeCrpFile : function(elDummy) {
+  removeFile : function(elDummy, sType) {
     // Make sure download info is hidden
     $("#project_download").addClass("hidden");
     // Find out which one is currently selected
