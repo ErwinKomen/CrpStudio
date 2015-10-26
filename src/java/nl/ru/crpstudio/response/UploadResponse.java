@@ -33,19 +33,33 @@ public class UploadResponse extends BaseResponse {
       //  Optional:
       //    itemmain  - main part (project, corpus) to which the item (query/definition/corpus file) belongs
       // There are three parameters: file, userid, crp
-      sFileName = this.request.getParameter("file");
+       // Collect the JSON from our POST caller
+      JSONObject oQuery = new JSONObject(request.getParameter("args"));
+      if (!oQuery.has("userid")) { sendErrorResponse("LoadResponse: missing @userid"); return;}
+      if (!oQuery.has("file")) { sendErrorResponse("LoadResponse: missing @file"); return;}
+      if (!oQuery.has("itemtype")) { sendErrorResponse("LoadResponse: missing @itemtype"); return;}
+      if (!oQuery.has("itemtext")) { sendErrorResponse("LoadResponse: missing @itemtext"); return;}
+      
+      // There are three parameters: project, userid, type
+      sUserId = oQuery.getString("userid");
+      sFileName = oQuery.getString("file");
+      String sItemType = oQuery.getString("itemtype");
+      String sItemMain = "";
+      if (oQuery.has("itemmain")) sItemMain = oQuery.getString("itemmain");
+      
+      // sFileName = this.request.getParameter("file");
       // Validate: all three must be there
       if (sFileName.isEmpty()) { sendErrorResponse("File name of project not specified"); return;}
       // Remove the "/" or "\" from the file name
       sItemName = FileIO.getFileNameWithoutExtension(sFileName);
       // User is also necessary
-      sUserId = this.request.getParameter("userid");
+      // sUserId = this.request.getParameter("userid");
       if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
       // Obligatory: itemtype
-      String sItemType = this.request.getParameter("itemtype");
+      // String sItemType = this.request.getParameter("itemtype");
       if (sItemType.isEmpty()) { sendErrorResponse("The [itemtype] is not specified"); return; }
       // Optional: itemmain
-      String sItemMain = this.request.getParameter("itemmain");
+      // sItemMain = this.request.getParameter("itemmain");
       
       // Other initialisations
       boolean bIsNew = true;
@@ -90,7 +104,8 @@ public class UploadResponse extends BaseResponse {
       }
       if (bIsNew) {
         // Retrieve the text of the item
-        sItemText = this.request.getParameter("itemtext");
+        // sItemText = this.request.getParameter("itemtext");
+        sItemText = oQuery.getString("itemtext");
         // Validate: item text may not be empty
         if (sItemText.isEmpty()) { sendErrorResponse("Upload: The item has no contents"); return;}
         
