@@ -83,8 +83,13 @@ Crpstudio.dbase = {
     $("#dbase_general").addClass("hidden");
 
     // Issue a request to /crpstudio to load the database (well, the header of it)
-    var params = "dbase=" + sDbName + "&userid=" + Crpstudio.currentUser;
-    params += "&type=info";
+    // var params = "dbase=" + sDbName + "&userid=" + Crpstudio.currentUser;
+    // params += "&type=info";
+    
+    var oArgs = { "dbase": sDbName,
+      "type": "info", "userid": Crpstudio.currentUser };
+    var params = JSON.stringify(oArgs);
+    
     Crpstudio.getCrpStudioData("loaddb", params, Crpstudio.dbase.processLoad, "#dbase_description");
   },
   /**
@@ -177,8 +182,13 @@ Crpstudio.dbase = {
       // Signal what we are doing
       $("#dbase_description").html("Uploading...");
       // Send this information to the /crpstudio
-      var params = "file=" + oFile.name + "&userid=" + Crpstudio.currentUser +
-              "&db=" + text;
+      // var params = "file=" + oFile.name + "&userid=" + Crpstudio.currentUser +
+      //         "&db=" + text;
+      
+      var oArgs = { "file": oFile.name,
+        "db": text, "userid": Crpstudio.currentUser };
+      var params = JSON.stringify(oArgs);
+
       Crpstudio.getCrpStudioData("upload-db", params, Crpstudio.dbase.processUpLoad, "#dbase_description");
     });
 	},
@@ -263,7 +273,12 @@ Crpstudio.dbase = {
     if (sDbName && sDbName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      var params = "dbname=" + sDbName + "&userid=" + Crpstudio.currentUser;
+      // var params = "dbname=" + sDbName + "&userid=" + Crpstudio.currentUser;
+      
+      var oArgs = { "dbname": sDbName,
+        "userid": Crpstudio.currentUser };
+      var params = JSON.stringify(oArgs);      
+      
       Crpstudio.getCrpStudioData("remove-db", params, Crpstudio.dbase.processRemove, "#dbase_description");      
     }
   },
@@ -323,7 +338,12 @@ Crpstudio.dbase = {
     if (sDbName && sDbName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      var params = "dbname=" + sDbName + "&userid=" + Crpstudio.currentUser;
+      // var params = "dbname=" + sDbName + "&userid=" + Crpstudio.currentUser;
+      
+      var oArgs = { "dbname": sDbName,
+        "userid": Crpstudio.currentUser };
+      var params = JSON.stringify(oArgs);
+      
       Crpstudio.getCrpStudioData("download-db", params, Crpstudio.dbase.processDownload, "#dbase_description");      
     }
   },  
@@ -398,10 +418,11 @@ Crpstudio.dbase = {
       default: return;
     }
     // Pass on this value to /crpstudio and to /crpp
-    var oChanges = { "dbase": Crpstudio.dbase.currentDb,
+    var oArgs = { "dbase": Crpstudio.dbase.currentDb,
       "userid": Crpstudio.currentUser, 
       "key": sKey, "value": sValue };
-    var params = "changes=" + JSON.stringify(oChanges);
+    // var params = "changes=" + JSON.stringify(oChanges);
+    var params = JSON.stringify(oArgs);
     Crpstudio.getCrpStudioData("dbchg", params, Crpstudio.dbase.processDbChg, "#dbase_description");      
   },  
   

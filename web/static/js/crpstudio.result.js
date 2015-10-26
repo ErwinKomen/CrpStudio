@@ -315,14 +315,18 @@ Crpstudio.result = {
       }
 
       // Pack what we have into a string
-      // var params = "table="+ encodeURIComponent(JSON.stringify(oBack));
-      var params = "project="+encodeURIComponent(Crpstudio.project.currentPrj)
-              + "&table="+ encodeURIComponent(JSON.stringify(oBack))
-              + "&view=" + iView;
+      //var params = "project="+encodeURIComponent(Crpstudio.project.currentPrj)
+      //        + "&table="+ encodeURIComponent(JSON.stringify(oBack))
+      //        + "&view=" + iView;
       // Call /crpstudio/export with the information we have gathered
+      // 
+      // Pass on this value to /crpstudio and to /crpp
+      var oArgs = { "project": Crpstudio.project.currentPrj, "table": JSON.stringify(oBack),
+        "view": iView };
+      var params = JSON.stringify(oArgs);
+
       // Method #1: use POST request
-      Crpstudio.getCrpStudioData("export", params, 
-          Crpstudio.result.processExport, "#result_status_" + iView);  
+      Crpstudio.getCrpStudioData("export", params, Crpstudio.result.processExport, "#result_status_" + iView);  
     }
   },
   
@@ -532,7 +536,8 @@ Crpstudio.result = {
       if (sSub && sSub !== "") sInfo += " cat=["+sSub+"]";
       if (sFile && sFile !== "") sInfo += " file=["+sFile+"]";
       $("#results_info_2").html(sInfo);
-      var params = "query=" + JSON.stringify(oQuery);
+      // var params = "query=" + JSON.stringify(oQuery);
+      var params = JSON.stringify(oQuery);
       Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
     } else {
       Crpstudio.result.currentFile = sFile;
@@ -578,7 +583,8 @@ Crpstudio.result = {
       "lng": Crpstudio.project.currentLng, "dir": Crpstudio.project.currentDir, 
       "type": sType, "start": iStart, 
       "count": iRequesting, "files": [ ]};
-    var params = "query=" + JSON.stringify(oQuery);
+    // var params = "query=" + JSON.stringify(oQuery);
+    var params = JSON.stringify(oQuery);
     Crpstudio.getCrpStudioData("update", params, Crpstudio.result.processFileHits, element);   
   },
   /**

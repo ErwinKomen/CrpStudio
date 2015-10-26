@@ -154,6 +154,8 @@ Crpstudio.project = {
       $("#result_status").text("");
       // Make sure the execute buttons are hidden again
       Crpstudio.project.showExeButtons(false);
+     // Set the location of the status div
+      Crpstudio.project.divStatus = "#result_report";
       // Start creating a request object
       var oExeRequest = {};
       // Create JSON request for the search
@@ -168,13 +170,12 @@ Crpstudio.project = {
         else
           oExeRequest = {"lng": sLng, "crp": sPrjName, "dir": sDir, "dbase": sDbase, "userid": sUserName, "cache": caching};
       }
-      var sExeRequest = "query=" + JSON.stringify(oExeRequest);
-      // Set the location of the status div
-      Crpstudio.project.divStatus = "#result_report";
-      // Methode #1: Initiate the search by sending a request to /crpp/exe?{...}
-      // Crpstudio.postRequest("exe", sExeRequest, Crpstudio.project.processExeCrpp, "#result_status");
-      // Method #2: send the request to /crpstudio/exe?{...}
-      Crpstudio.getCrpStudioData("exe", sExeRequest, Crpstudio.project.processExeCrpStudio, "#result_status");
+      // var sExeRequest = "query=" + JSON.stringify(oExeRequest);
+      var params = JSON.stringify(oExeRequest);
+
+      // Send the request to /crpstudio/exe?{...}
+      // Crpstudio.getCrpStudioData("exe", sExeRequest, Crpstudio.project.processExeCrpStudio, "#result_status");
+      Crpstudio.getCrpStudioData("exe", params, Crpstudio.project.processExeCrpStudio, "#result_status");
     }
   },
   showExeButtons : function(bShow) {
@@ -326,7 +327,8 @@ Crpstudio.project = {
           "jobid": jobId,
           "userid": sUserId
         };
-        sStatusRequest = "query=" + JSON.stringify(oStatusRequest);
+        // sStatusRequest = "query=" + JSON.stringify(oStatusRequest);
+        sStatusRequest = JSON.stringify(oStatusRequest);
         // Make the status available within this JavaScript module
         Crpstudio.project.strQstatus = sStatusRequest;
         // Make sure the results are not visible yet
@@ -1079,8 +1081,16 @@ Crpstudio.project = {
       Crpstudio.project.setDbase(sDbase, sLng, sDir, false);
     }
     // Issue a request to /crpstudio to load the project
-    var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
-    params += "&type=info";
+    // var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
+    // params += "&type=info";
+    
+    // Pass on this value to /crpstudio and to /crpp
+    var oArgs = { "project": sPrjName,
+      "userid": Crpstudio.currentUser, 
+      "type": "info" };
+    // var params = "changes=" + JSON.stringify(oChanges);
+    var params = JSON.stringify(oArgs);
+    
     Crpstudio.getCrpStudioData("load", params, Crpstudio.project.processLoad, "#project_description");
   },
   
@@ -1527,9 +1537,15 @@ Crpstudio.project = {
       // Signal what we are doing
       $("#"+sItemType+"_description").html("Uploading...");
       // Send this information to the /crpstudio
-      var params = "file=" + oFile.name + "&itemtype=" + sItemType + 
-              "&itemmain=" + sItemMain + "&userid=" + Crpstudio.currentUser +
-              "&itemtext=" + text;
+      //var params = "file=" + oFile.name + "&itemtype=" + sItemType + 
+      //        "&itemmain=" + sItemMain + "&userid=" + Crpstudio.currentUser +
+      //        "&itemtext=" + text;
+      
+      // Pass on this value to /crpstudio and to /crpp
+      var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
+        "userid": Crpstudio.currentUser, "itemtext": text };
+      var params = JSON.stringify(oArgs);
+      
       Crpstudio.getCrpStudioData("upload", params, Crpstudio.project.processUpLoad, "#"+sItemType+"_description");
     });
 	},
@@ -1625,7 +1641,11 @@ Crpstudio.project = {
     if (sCrpName && sCrpName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      var params = "crpname=" + sCrpName + "&userid=" + Crpstudio.currentUser;
+      // var params = "crpname=" + sCrpName + "&userid=" + Crpstudio.currentUser;
+      // Pass on this value to /crpstudio and to /crpp
+      var oArgs = { "crpname": sCrpName,
+        "userid": Crpstudio.currentUser };
+      var params = JSON.stringify(oArgs);
       Crpstudio.getCrpStudioData("remove", params, Crpstudio.project.processRemove, "#project_description");      
     }
   },
@@ -1719,8 +1739,12 @@ Crpstudio.project = {
     if (sItemName && sItemName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      var params = "itemname=" + sItemName + "&itempart=" + sItemPart + 
-              "&itemtype=" + sFileType + "&userid=" + Crpstudio.currentUser;
+      //var params = "itemname=" + sItemName + "&itempart=" + sItemPart + 
+      //        "&itemtype=" + sFileType + "&userid=" + Crpstudio.currentUser;
+      // Pass on this value to /crpstudio and to /crpp
+      var oArgs = { "itemname": sItemName, "itempart": sItemPart,
+        "userid": Crpstudio.currentUser, "itemtype": sFileType };
+      var params = JSON.stringify(oArgs);
       Crpstudio.getCrpStudioData("download", params, Crpstudio.project.processDownload, "#project_description");      
     }
   },  
@@ -1806,10 +1830,11 @@ Crpstudio.project = {
           // Pass on this value to /crpstudio and to /crpp
           var sKey = "corpus";
           var sValue = sCorpusName + ":" + sDirName;
-          var oChanges = { "crp": Crpstudio.project.currentPrj,
+          var oArgs = { "crp": Crpstudio.project.currentPrj,
             "userid": Crpstudio.currentUser, 
             "key": sKey, "value": sValue };
-          var params = "changes=" + JSON.stringify(oChanges);
+          // var params = "changes=" + JSON.stringify(oChanges);
+          var params = JSON.stringify(oArgs);
           Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");              
         default:
           // No particular action right now
@@ -1839,10 +1864,11 @@ Crpstudio.project = {
       // Pass on this value to /crpstudio and to /crpp
       var sKey = "source";
       var sValue = sDbName;
-      var oChanges = { "crp": Crpstudio.project.currentPrj,
+      var oArgs = { "crp": Crpstudio.project.currentPrj,
         "userid": Crpstudio.currentUser, 
         "key": sKey, "value": sValue };
-      var params = "changes=" + JSON.stringify(oChanges);
+      // var params = "changes=" + JSON.stringify(oChanges);
+      var params = JSON.stringify(oArgs);
       Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
     }
   },
@@ -1866,15 +1892,8 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   setPrjType : function(sPrjType) {
-    // Pass on this value to /crpstudio and to /crpp
-    /*
-    var params = "crpname=" + Crpstudio.project.currentPrj + "&userid=" + Crpstudio.currentUser +
-            "&key=prjtype&value="+sPrjType;
-    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_general_prjtype");      
-    */
     // New method
     Crpstudio.project.ctlCurrent = $("#project_general_prjtype");
-    // Crpstudio.project.ctlTimer($("#project_general_prjtype"));
     Crpstudio.project.ctlTimer($("#project_general_prjtype", "-"));
   },
     
@@ -1961,7 +1980,9 @@ Crpstudio.project = {
     var oChanges = { "crp": Crpstudio.project.currentPrj,
       "userid": Crpstudio.currentUser, 
       "key": sKey, "value": sValue, "id": iItemId };
-    var params = "changes=" + JSON.stringify(oChanges);
+    // var params = "changes=" + JSON.stringify(oChanges);
+    // Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+    var params = JSON.stringify(oChanges);
     Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
   },
   

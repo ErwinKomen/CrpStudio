@@ -138,8 +138,37 @@ var Crpstudio = {
 		xhr.send(params);
 	},
 	
+  /* ====================================================================================
+     Name: getCrpStudioData
+     Goal: Issue an AJAX request using jQuery
+     History:
+     26/oct/2015  ERK Modified from [rvisualization.js - ExecuteAjaxRequest]
+     ==================================================================================== */
+  getCrpStudioData: function(sCommand, sData, callback, target) {
+    // Create search URL
+    // var urlSearch = Crpstudio.baseUrl + sCommand + "/";
+    var urlSearch = Crpstudio.baseUrl + sCommand ;
+    // Send the query /crpstudio for processing
+    $.ajax({
+      type: 'POST',
+      url : urlSearch,          // Address to pass the POST request to
+      dataType : 'text',			  // The kind of data I am expecting back
+      data : { "args": sData},	// String data that I am sending packed in Json
+      cache: false,
+      store: false,
+      // process query results
+      success : function(responses) { callback(responses, target); },
+      // Process any errors
+      error : function(jqXHR, textStatus, errorThrown) {
+        Crpstudio.debug('The POST request did not succeed: ' + textStatus + 
+                        ' Response=' + jqXHR.responseText);
+      }
+    });
+    return (true);
+   },
+    
   /* --------------------------------------------------------------------------
-   * Name: getCrpStudioData
+   * Name: getCrpStudioData_old
    * Goal: Make a request to the /crpstudio service 
    *       What we send *to* the /crpstudio service:
    *       - we issue the command in "type" (/crpstudio/type)
@@ -153,7 +182,7 @@ var Crpstudio = {
    * History:
    * 22/jun/2015 ERK Created
    */
-	getCrpStudioData : function(type, params, callback, target) {
+	getCrpStudioData_old : function(type, params, callback, target) {
     // Since this is a POST request, we need a trailing "/" !!!
 		var xhr = Crpstudio.createRequest('POST', Crpstudio.baseUrl + type + "/");
     // Validate
@@ -169,7 +198,7 @@ var Crpstudio = {
     // params = params + "&rand=" + new Date().getTime() ;
 
     // Debugging: show what we are sending on the console
-		Crpstudio.debug("getCrpStudioData: "+Crpstudio.baseUrl + type + "?" + params);
+		Crpstudio.debug("getCrpStudioData_old: "+Crpstudio.baseUrl + type + "?" + params);
 		
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 		// xhr.setRequestHeader("Cache-Control", "no-cache, must-revalidate");
@@ -262,6 +291,8 @@ var Crpstudio = {
 
 		xhr.send(params);
 	},
+  
+
 	
   /* --------------------------------------------------------------------------
    * Name: readFile
@@ -469,7 +500,9 @@ var Crpstudio = {
         break;
     }
     // Issue a request to /crpstudio to get the relevant help section
-    var params = "section=" + sHelpPart;
+    // var params = "section=" + sHelpPart;
+    var oArgs = { "section": sHelpPart };
+    var params = JSON.stringify(oArgs);
     Crpstudio.getCrpStudioData("help", params, Crpstudio.processHelp, "_blank");
   },
   

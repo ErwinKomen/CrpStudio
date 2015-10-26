@@ -47,7 +47,12 @@ var crpstudio = (function ($, crpstudio) {
         if (sCorpusName && sCorpusName !== "") {
           // Note: /crpstudio must check when the last download of this project was
           // Send this information to the /crpstudio
-          var params = "itemname=" + sCorpusName + "itemtype=corpus&userid=" + Crpstudio.currentUser;
+          var oArgs = { "itemname": sCorpusName,
+            "itemtype": "corpus", "userid": Crpstudio.currentUser };
+          // var params = "changes=" + JSON.stringify(oChanges);
+          // Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+          var params = JSON.stringify(oArgs);
+          // var params = "itemname=" + sCorpusName + "itemtype=corpus&userid=" + Crpstudio.currentUser;
           Crpstudio.getCrpStudioData("download", params, Crpstudio.project.processDownload, "#project_description");      
         }
       },  
