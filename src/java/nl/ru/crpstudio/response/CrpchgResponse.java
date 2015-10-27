@@ -112,7 +112,7 @@ public class CrpchgResponse extends BaseResponse {
       boolean bChanged = oContent.getBoolean("changed");
       // Only re-load the CRP if any changes were made
       if (bChanged) {
-        // Force to fetch the CRP again from the /crpp
+        // Force to fetch the CRP again from the /crpp: copy from /crpp >> /crpstudio
         crpThis = crpContainer.getCrp(this, sCrpThis, sCurrentUser, true);
         if (crpThis == null) { sendErrorResponse("Could not load CRP:\n" + 
                 logger.getErrList().toString()); return;}
