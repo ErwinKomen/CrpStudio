@@ -1003,6 +1003,30 @@ Crpstudio.project = {
     return null;
   },
   
+  /**
+   * getItemField
+   *    Get the location (the <div> id) associated with field @sFieldName in the
+   *    list of type @sListType
+   * 
+   * @param {type} sListType
+   * @param {type} sFieldName
+   * @returns {undefined}
+   */
+  getItemFieldLoc: function(sListType, sFieldName) {
+    var oItem = Crpstudio.project.getItemDescr(sListType);
+    // Get the fields object
+    var oFields = oItem.fields;
+    // Walk all the fields
+    for (var i=0;i<oFields.length;i++ ) {
+      // Is this the correc field?
+      if (oFields[i].field === sFieldName) {
+        return oFields[i].loc;
+      }
+    }
+    // Failure
+    return "";
+  },
+  
   /* ---------------------------------------------------------------------------
    * Name: setProject
    * Goal: the user chooses a project, so act on this
@@ -1277,7 +1301,7 @@ Crpstudio.project = {
 
   /**
    * xqQueryChanged
-   *    Process the changes in a the Query editor
+   *    Process the changes in the Query editor
    * 
    * @param {type} cm
    * @param {type} change
@@ -1285,12 +1309,12 @@ Crpstudio.project = {
    */
   xqQueryChanged : function(cm, change) {
     $("#query_general_text").text(cm.getValue());
-    Crpstudio.project.ctlCurrentId = "def_general_text";
+    Crpstudio.project.ctlCurrentId = "query_general_text";
     Crpstudio.project.ctlTimer($("#query_general_text"), "textarea");
   },
   /**
    * xqDefChanged
-   *    Process the changes in a the Definition editor
+   *    Process the changes in the Definition editor
    * 
    * @param {type} cm
    * @param {type} change
@@ -1464,12 +1488,15 @@ Crpstudio.project = {
    */
   processCrpChg : function(response, target) {
 		if (response !== null) {
-      // Remove waiting
-      $("#project_description").html("");
       // The response is a standard object containing "status" (code) and "content" (code, message)
       var oStatus = response.status;
       var sStatusCode = oStatus.code;
       var oContent = response.content;
+      // Try to retrieve item type
+      var sItemType = oContent.itemtype;
+      if (!sItemType || sItemType === "") sItemType = "project";
+      // Remove waiting
+      $("#"+sItemType+"_description").html("");
       switch (sStatusCode) {
         case "completed":
           // Have changes been made?
@@ -1478,30 +1505,62 @@ Crpstudio.project = {
             var sDateChanged = oContent.datechanged;
             // Get the CRP for which this was done
             var sCrpChanged = oContent.crp;
-            if (sCrpChanged === Crpstudio.project.currentPrj) {
-              // Put the information on the correct places in the form
-              $("#project_general_datechanged").html(sDateChanged);
+            if (sItemType === "project") {
+              if (sCrpChanged === Crpstudio.project.currentPrj) {
+                // Put the information on the correct places in the form
+                $("#"+sItemType+"_general_datechanged").html(sDateChanged);
+              }
+              // Show that changes have been made
+              $("#top_bar_saved_project").html(sCrpChanged);
+              $("#top_bar_saved_project").parent().removeClass("hidden");
+              // Wait for some time and then show it again
+              setTimeout(function() {$("#top_bar_saved_project").parent().addClass("hidden");}, 700);
+            } else {
+              // Get the key/value/id
+              var sKey = oContent.key;
+              var sValue = oContent.value;
+              var iId = oContent.id;
+              // Actions depend on the type we have
+              switch (sItemType) {
+                case "query":
+                  // Adapt our list
+                  Crpstudio.project.prj_qrylist = oContent.itemlist;
+                  // Adapt the date 
+                  var qryChanged = Crpstudio.project.getItemFieldLoc(sItemType, "Changed");
+                  $("#" + qryChanged).html(sDateChanged);
+                  break;
+                case "definition":
+                  // Adapt our list
+                  Crpstudio.project.prj_deflist = oContent.itemlist;
+                  // Adapt the date 
+                  var defChanged = Crpstudio.project.getItemFieldLoc(sItemType, "Changed");
+                  $("#" + defChanged).html(sDateChanged);
+                  break;
+                case "constructor":
+                  // Adapt our list
+                  Crpstudio.project.prj_qclist = oContent.itemlist;
+                  break;
+                case "dbfeat":
+                  // Adapt our list
+                  Crpstudio.project.prj_dbflist = oContent.itemlist;
+                  break;
+              }
             }
-            // Show that changes have been made
-            $("#top_bar_saved_project").html(sCrpChanged);
-            $("#top_bar_saved_project").parent().removeClass("hidden");
-            // Wait for some time and then show it again
-            setTimeout(function() {$("#top_bar_saved_project").parent().addClass("hidden");}, 700);
           }
           break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
           var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
-          $("#project_status").html("Error: " + sErrorCode);
+          $("#"+sItemType+"_status").html("Error: " + sErrorCode);
           $(target).html("Error: " + sErrorMsg);
           break;
         default:
-          $("#project_status").html("Error: no reply");
+          $("#"+sItemType+"_status").html("Error: no reply");
           $(target).html("Error: no reply received from the /crpstudio server");
           break;
       }
 		} else {
-			$("#project_status").html("Server problem - Failed to process changes in the CRP.");
+			$("#"+sItemType+"_status").html("Server problem - Failed to process changes in the CRP.");
 		}    
   },
   
@@ -1533,7 +1592,8 @@ Crpstudio.project = {
     // Use the standard readXmlFile function (this reads any TEXT)
 		Crpstudio.readXmlFile(oFile, function(e) {
       // Get the text of the uploaded CRP into a variable
-      var text = encodeURIComponent(e.target.result);
+      // var text = encodeURIComponent(e.target.result);
+      var text = e.target.result;
       // Signal what we are doing
       $("#"+sItemType+"_description").html("Uploading...");
       // Send this information to the /crpstudio
@@ -1636,7 +1696,7 @@ Crpstudio.project = {
    */
   removeFile : function(elDummy, sType) {
     // Prepare variable
-    var oArgs = null; var iItemId = -1; var lstItem = null; var itemName = "";
+    var oArgs = null; var iItemId = -1; var lstItem = null; var sCrpName = "";
     var sItemMain = "";
     // Make sure download info is hidden
     $("#"+sType+"_download").addClass("hidden");
@@ -1644,7 +1704,7 @@ Crpstudio.project = {
     switch(sType) {
       case "project":
         // Find out which one is currently selected
-        itemName = Crpstudio.project.currentPrj;
+        sCrpName = Crpstudio.project.currentPrj;
         sItemMain = "ROOT";                       // Project is root
         break;
       case "query":
@@ -1671,11 +1731,11 @@ Crpstudio.project = {
         // Unable to handle this, so leave
         return;
     }
-    if (itemName && itemName !== "") {
+    if (sCrpName && sCrpName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send removal request to /crpstudio, which checks and passes it on to /crpp
       oArgs = { "itemid": iItemId, "itemtype": sType, "itemmain": sItemMain,  
-                "itemname": itemName, "userid": Crpstudio.currentUser };
+                "crp": sCrpName, "userid": Crpstudio.currentUser };
       // Send the remove request
       var params = JSON.stringify(oArgs);
       Crpstudio.getCrpStudioData("remove", params, Crpstudio.project.processRemove, "#"+sType+"_description");      
@@ -1691,37 +1751,69 @@ Crpstudio.project = {
    */
   processRemove : function(response, target) {
 		if (response !== null) {
-      // Remove waiting
-      $("#project_description").html("");
       // The response is a standard object containing "status" (code) and "content" (code, message)
       var oStatus = response.status;
       var sStatusCode = oStatus.code;
       var oContent = response.content;
+      // Preliminmary item type
+      var sItemType = "";
       switch (sStatusCode) {
         case "completed":
-          // Find out which project has been removed
-          var sCrpName = oContent.crpname;
-          // Validate
-          if (sCrpName) {
-            // Remove the project from the list
-            $("#project_list .crp_"+sCrpName).remove();
-            // More sure project general is not displayed anymore
-            // $("#project_general").addClass("hidden");
+          // Get all the necessary information from the [content] block
+          var sCrpName = oContent.crp;
+          var sItemMain = oContent.itemmain;
+          var iItemId = oContent.itemid;
+          sItemType = oContent.itemtype;
+          // Remove waiting
+          $("#"+sItemType+"_description").html("");
+          // Action depends on type
+          switch (sItemType) {
+            case "project":
+              // Validate
+              if (sCrpName) {
+                // Remove the project from the list
+                $("#"+sItemType+"_list .crp_"+sCrpName).remove();
+              }
+              break;
+            case "query":
+              // TODO: re-draw the entire Query list
+              
+              // TODO: select the indicated new query in the list
+              
+              break;
+            case "definition":
+              // TODO: re-draw the entire Definition list
+              
+              // TODO: select the indicated new definition in the list
+              
+              break;
+            case "constructor":
+              //TODO: implement code to update the list that is being shown
+              
+              break;
+            case "dbfeat":
+              // Get the itemmain: the QC we are part of
+              
+              // TODO: re-draw the entire Query list
+              
+              // TODO: select the indicated new query in the list
+              
+              break;
           }
           break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
           var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
-          $("#project_status").html("Error: " + sErrorCode);
+          $("#"+sItemType+"_status").html("Error: " + sErrorCode);
           $(target).html("Error: " + sErrorMsg);
           break;
         default:
-          $("#project_status").html("Error: no reply");
+          $("#"+sItemType+"_status").html("Error: no reply");
           $(target).html("Error: no reply received from the /crpstudio server");
           break;
       }
 		} else {
-			$("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+			$("#"+sItemType+"_status").html("ERROR - Failed to remove the .crpx result from the server.");
 		}    
   },   
   /**
@@ -1901,7 +1993,7 @@ Crpstudio.project = {
         "key": sKey, "value": sValue };
       // var params = "changes=" + JSON.stringify(oChanges);
       var params = JSON.stringify(oArgs);
-      Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+      Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#dbase_description");      
     }
   },
   /**
@@ -2002,6 +2094,12 @@ Crpstudio.project = {
         }
         // Get the key and the id
         sKey = oItem.key; iItemId = oItem.id;
+        // Possibly get the value from another source
+        if (sElementId.contains("query_")) {
+          sValue = Crpstudio.project.cmQuery.getValue(); 
+        } else if (sElementId.contains("def_")) {
+          sValue = Crpstudio.project.cmDef.getValue(); 
+        }
     }
     // ===== DEBUGGING ====
     if (sKey === "source") {
@@ -2012,8 +2110,6 @@ Crpstudio.project = {
     var oChanges = { "crp": Crpstudio.project.currentPrj,
       "userid": Crpstudio.currentUser, 
       "key": sKey, "value": sValue, "id": iItemId };
-    // var params = "changes=" + JSON.stringify(oChanges);
-    // Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
     var params = JSON.stringify(oChanges);
     Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
   },
