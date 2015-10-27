@@ -45,8 +45,8 @@ Crpstudio.project = {
   doneTypingIntv: 2000,   // Stop-typing interval: 2 seconds
   ctlCurrent: null,       // Current control
   ctlCurrentId: "",       // ID of current control
-  cmQuery: null,
-  cmDef: null,
+  cmQuery: null,          // 
+  cmDef: null,            // 
   prj_name: "",           // Field value of this project: name
   prj_author: "",         // Field value of this project: author
   prj_prjtype: "",        // Field value of this project: prjtype
@@ -64,6 +64,9 @@ Crpstudio.project = {
   def_current: null,      // Currently loaded Definition object
   dbf_current: null,      // Currently loaded DbFeat object
   qc_current: null,       // Currently loaded QC object (constructor)
+  qry_dirty: false,       // Flag to indicate that the 'Text' area of Query has changed
+  def_dirty: false,       // Flag to indicate that the 'Text' area of Definition has changed
+  bIsSelecting: false,    // Flag to indicate that selection changes take place
   
   // Object defining the elements of Query, Definition, DbFeat and Constructor
   prj_access: [
@@ -1004,6 +1007,73 @@ Crpstudio.project = {
   },
   
   /**
+   * setOneItem
+   *    Set the value of the item identified by @sItemType/@sKey/@iIdValue
+   *    
+   * @param {type} sItemType
+   * @param {type} sKey
+   * @param {type} iIdValue
+   * @param {type} sValue
+   * @returns {undefined}
+   */
+  setOneItem: function(sItemType, sKey, iIdValue, sValue) {
+    // Get a descriptor object
+    var oDescr = Crpstudio.project.getItemDescr(sItemType);
+    // Action depends on item type
+    switch(sItemType) {
+      case "query":
+        // Walk all the elements of the list
+        for (var i=0;i<Crpstudio.project.prj_qrylist.length;i++) {
+          var oOneItem = Crpstudio.project.prj_qrylist[i];
+          var iId = parseInt(oOneItem[oDescr.id], 10);
+          // Check the id
+          if (iId === iIdValue) {
+            //Change the item's field value
+            Crpstudio.project.prj_qrylist[i][sKey] = sValue;
+          }
+        }
+        break;
+      case "definition":
+        // Walk all the elements of the list
+        for (var i=0;i<Crpstudio.project.prj_deflist.length;i++) {
+          var oOneItem = Crpstudio.project.prj_deflist[i];
+          var iId = parseInt(oOneItem[oDescr.id], 10);
+          // Check the id
+          if (iId === iIdValue) {
+            //Change the item's field value
+            Crpstudio.project.prj_deflist[i][sKey] = sValue;
+          }
+        }
+        break;
+      case "dbfeat":
+        // Walk all the elements of the list
+        for (var i=0;i<Crpstudio.project.prj_dbflist.length;i++) {
+          var oOneItem = Crpstudio.project.prj_dbflist[i];
+          var iId = parseInt(oOneItem[oDescr.id], 10);
+          // Check the id
+          if (iId === iIdValue) {
+            //Change the item's field value
+            Crpstudio.project.prj_dbflist[i][sKey] = sValue;
+          }
+        }
+        break;
+      case "constructor":
+        // Walk all the elements of the list
+        for (var i=0;i<Crpstudio.project.prj_qclist.length;i++) {
+          var oOneItem = Crpstudio.project.prj_qclist[i];
+          var iId = parseInt(oOneItem[oDescr.id], 10);
+          // Check the id
+          if (iId === iIdValue) {
+            //Change the item's field value
+            Crpstudio.project.prj_qclist[i][sKey] = sValue;
+          }
+        }
+        break;
+    }
+
+  },
+  
+  /**
    * getItemField
    *    Get the location (the <div> id) associated with field @sFieldName in the
    *    list of type @sListType
@@ -1516,33 +1586,33 @@ Crpstudio.project = {
               // Wait for some time and then show it again
               setTimeout(function() {$("#top_bar_saved_project").parent().addClass("hidden");}, 700);
             } else {
-              // Get the key/value/id
+              // Get the key/value/id of the change that took place
               var sKey = oContent.key;
               var sValue = oContent.value;
               var iId = oContent.id;
               // Actions depend on the type we have
               switch (sItemType) {
                 case "query":
-                  // Adapt our list
-                  Crpstudio.project.prj_qrylist = oContent.itemlist;
+                  // Perform the change in the JavaScript object
+                  Crpstudio.project.setOneItem(sItemType, sKey, iId, sValue);
                   // Adapt the date 
                   var qryChanged = Crpstudio.project.getItemFieldLoc(sItemType, "Changed");
                   $("#" + qryChanged).html(sDateChanged);
                   break;
                 case "definition":
-                  // Adapt our list
-                  Crpstudio.project.prj_deflist = oContent.itemlist;
+                  // Perform the change in the JavaScript object
+                  Crpstudio.project.setOneItem(sItemType, sKey, iId, sValue);
                   // Adapt the date 
                   var defChanged = Crpstudio.project.getItemFieldLoc(sItemType, "Changed");
                   $("#" + defChanged).html(sDateChanged);
                   break;
                 case "constructor":
-                  // Adapt our list
-                  Crpstudio.project.prj_qclist = oContent.itemlist;
+                  // Perform the change in the JavaScript object
+                  Crpstudio.project.setOneItem(sItemType, sKey, iId, sValue);
                   break;
                 case "dbfeat":
-                  // Adapt our list
-                  Crpstudio.project.prj_dbflist = oContent.itemlist;
+                  // Perform the change in the JavaScript object
+                  Crpstudio.project.setOneItem(sItemType, sKey, iId, sValue);
                   break;
               }
             }
@@ -2096,8 +2166,14 @@ Crpstudio.project = {
         sKey = oItem.key; iItemId = oItem.id;
         // Possibly get the value from another source
         if (sElementId.contains("query_")) {
+          // Do not accept query text changes if we are selecting
+          if (Crpstudio.project.bIsSelecting) return;
+          // Get correct value
           sValue = Crpstudio.project.cmQuery.getValue(); 
         } else if (sElementId.contains("def_")) {
+          // Do not accept query text changes if we are selecting
+          if (Crpstudio.project.bIsSelecting) return;
+          // Get correct value
           sValue = Crpstudio.project.cmDef.getValue(); 
         }
     }
