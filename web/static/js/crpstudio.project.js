@@ -1630,24 +1630,55 @@ Crpstudio.project = {
    *    (1) from the server --> POST to /crpstudio
    *    (2) from the list here --> done in callback
    * 
-   * @param {type} elDummy
-   * @param {string} sType
-   * @returns {undefined}
+   * @param {type} elDummy  - Not used right now
+   * @param {string} sType  - Type of file to remove
+   * @returns {undefined}   - no return
    */
   removeFile : function(elDummy, sType) {
+    // Prepare variable
+    var oArgs = null; var iItemId = -1; var lstItem = null; var itemName = "";
+    var sItemMain = "";
     // Make sure download info is hidden
-    $("#project_download").addClass("hidden");
-    // Find out which one is currently selected
-    var sCrpName = Crpstudio.project.currentPrj;
-    if (sCrpName && sCrpName !== "") {
+    $("#"+sType+"_download").addClass("hidden");
+    // Action depends on the type
+    switch(sType) {
+      case "project":
+        // Find out which one is currently selected
+        itemName = Crpstudio.project.currentPrj;
+        sItemMain = "ROOT";                       // Project is root
+        break;
+      case "query":
+        // Validate
+        iItemId = Crpstudio.project.currentQry;
+        sItemMain = Crpstudio.project.currentPrj; // Query is part of a CRP
+        break;
+      case "definition":
+        // Validate
+        iItemId = Crpstudio.project.currentDef;
+        sItemMain = Crpstudio.project.currentPrj; // Definition is part of a CRP
+        break;
+      case "dbfeat":
+        // Validate
+        iItemId = Crpstudio.project.currentDbf;
+        sItemMain = Crpstudio.project.currentQc; // DbFeat is part of a QC
+        break;
+      case "constructor":
+        // Validate
+        iItemId = Crpstudio.project.currentQc;
+        sItemMain = Crpstudio.project.currentPrj; // Constructor is part of a CRP
+        break;
+      default:
+        // Unable to handle this, so leave
+        return;
+    }
+    if (itemName && itemName !== "") {
       // Note: /crpstudio must check when the last download of this project was
-      // Send this information to the /crpstudio
-      // var params = "crpname=" + sCrpName + "&userid=" + Crpstudio.currentUser;
-      // Pass on this value to /crpstudio and to /crpp
-      var oArgs = { "crpname": sCrpName,
-        "userid": Crpstudio.currentUser };
+      // Send removal request to /crpstudio, which checks and passes it on to /crpp
+      oArgs = { "itemid": iItemId, "itemtype": sType, "itemmain": sItemMain,  
+                "itemname": itemName, "userid": Crpstudio.currentUser };
+      // Send the remove request
       var params = JSON.stringify(oArgs);
-      Crpstudio.getCrpStudioData("remove", params, Crpstudio.project.processRemove, "#project_description");      
+      Crpstudio.getCrpStudioData("remove", params, Crpstudio.project.processRemove, "#"+sType+"_description");      
     }
   },
   /**
