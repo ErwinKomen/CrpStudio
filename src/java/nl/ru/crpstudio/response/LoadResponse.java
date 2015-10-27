@@ -28,12 +28,6 @@ public class LoadResponse extends BaseResponse {
       loadType = oQuery.getString("type");
       sUserId = oQuery.getString("userid");
 
-      
-      // There are three parameters: project, userid, type
-      //project = this.request.getParameter("project");
-      //loadType = this.request.getParameter("type");
-      //sUserId = this.request.getParameter("userid");
-      
       // Validate: all three must be there
       if (project.isEmpty()) { sendErrorResponse("Name of project not specified"); return;}
       if (loadType.isEmpty()) { sendErrorResponse("Specify type of information needed"); return;}

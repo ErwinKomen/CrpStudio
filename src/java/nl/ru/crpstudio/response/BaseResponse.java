@@ -336,10 +336,10 @@ public abstract class BaseResponse {
       } catch (IOException e) {
         e.printStackTrace();
       }
-      return null;
+      return "";
     } catch (Exception ex) {
 			ex.printStackTrace();
-      return null;
+      return "";
     }
 	}
 

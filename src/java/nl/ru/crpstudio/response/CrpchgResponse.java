@@ -57,18 +57,13 @@ public class CrpchgResponse extends BaseResponse {
       String sKeyValue = oQuery.getString("value");
       int iIdValue = oQuery.getInt("id");
       
-      // ========== DEBUG ==========
-      //if (sKeyName.equals("source")) {
-      // logger.debug("crpchg source change request to: " + sKeyValue);
-      //}
-      // ===========================
-      
       // Start preparing a /crpp request
       //   Obligatory parameters: 
       //      userid: name of user that has done /exe with the CRP
       //      crp:    Corpus research project name (including extension)
       //      key:    The Query Constructor line for which we want information
       //      value:  Results should start with @start
+      //      id:     If this is a query, then QueryId and so on
       // =============================================================================
       // Obligatory parameters:
       JSONObject oMyQuery = new JSONObject();
@@ -80,7 +75,6 @@ public class CrpchgResponse extends BaseResponse {
       if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
       
       // Put my query into the request
-      // this.params.put("query", oMyQuery.toString());
       // NOTE: user base64 encoding to package the stringified query
       this.params.clear();
       this.params.put("userid", sCurrentUser);
@@ -124,6 +118,20 @@ public class CrpchgResponse extends BaseResponse {
                 logger.getErrList().toString()); return;}
         // Add the adapted date to the content
         oContent.put("datechanged", crpThis.getDateChanged());
+        // Depending on the type (project, query, definition) an adapted list needs to be sent
+        int iDot = sKeyName.indexOf(".");
+        if (iDot >0) {
+          String sType = sKeyName.substring(0, iDot);
+          String sKey = sKeyName.substring(iDot+1);
+          oContent.put("itemtype", sType);
+          // Also copy the key/value
+          oContent.put("key", sKey);
+          oContent.put("value", sKeyValue);
+          oContent.put("id", iIdValue);
+        } else {
+          oContent.put("itemtype", "project");
+        }
+        
       }
       
       // Send a standard positive response
