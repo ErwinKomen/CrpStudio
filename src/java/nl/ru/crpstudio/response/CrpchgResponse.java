@@ -14,6 +14,7 @@ import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 import static nl.ru.util.StringUtil.escapeHexCoding;
+import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
 /**
@@ -38,6 +39,7 @@ public class CrpchgResponse extends BaseResponse {
     String sLoggedInUser; // Currently logged in user
     String sCurrentUser;  // User named within the request
     JSONObject oQuery;    // Contents of the request
+    boolean bIsList = false;
     
     try {
       // Gather our own parameter(s)
@@ -46,43 +48,65 @@ public class CrpchgResponse extends BaseResponse {
       oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("userid")) { sendErrorResponse("CrpchgResponse: missing @userid"); return;}
       if (!oQuery.has("crp")) { sendErrorResponse("CrpchgResponse: missing @crp"); return;}
-      if (!oQuery.has("key")) { sendErrorResponse("CrpchgResponse: missing @key"); return;}
-      if (!oQuery.has("value")) { sendErrorResponse("CrpchgResponse: missing @value"); return;}
-      if (!oQuery.has("id")) { sendErrorResponse("CrpchgResponse: missing @id"); return;}
+      // Check for 'key' or 'list'
+      if (!oQuery.has("key") && oQuery.has("list"))
+        bIsList = true;
+      else {      
+        if (!oQuery.has("key")) { sendErrorResponse("CrpchgResponse: missing @key"); return;}
+        if (!oQuery.has("value")) { sendErrorResponse("CrpchgResponse: missing @value"); return;}
+        if (!oQuery.has("id")) { sendErrorResponse("CrpchgResponse: missing @id"); return;}
+      }
       
-      // Get some parameters
+      // Get the common parameters
       sCurrentUser = oQuery.getString("userid");
       String sCrpThis = oQuery.getString("crp");
-      String sKeyName = oQuery.getString("key");
-      String sKeyValue = oQuery.getString("value");
-      int iIdValue = oQuery.getInt("id");
       
       // Start preparing a /crpp request
       //   Obligatory parameters: 
       //      userid: name of user that has done /exe with the CRP
       //      crp:    Corpus research project name (including extension)
+      //   Either:
       //      key:    The Query Constructor line for which we want information
       //      value:  Results should start with @start
       //      id:     If this is a query, then QueryId and so on
+      //   Or: a list of key/value/id objects
       // =============================================================================
       // Obligatory parameters:
       JSONObject oMyQuery = new JSONObject();
       oMyQuery.put("userid", sCurrentUser); // Name of the user
       oMyQuery.put("crp", sCrpThis);        // Specify the CRP name
-      oMyQuery.put("key", sKeyName);        // Name of the key
-      oMyQuery.put("value", sKeyValue);     // Value of the key
-      oMyQuery.put("id", iIdValue);         // Value of the id
-      if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
       
+      /*
       // Put my query into the request
-      // NOTE: user base64 encoding to package the stringified query
+      // NOTE: use base64 encoding to package the stringified query
       this.params.clear();
       this.params.put("userid", sCurrentUser);
       this.params.put("crp", sCrpThis);
-      this.params.put("key", sKeyName);
-      this.params.put("value", escapeHexCoding(sKeyValue));
-      this.params.put("id", iIdValue);
-      if (oMyQuery.has("files")) this.params.put("files", oMyQuery.getString("files") );
+      */
+
+      // Action depends on list or not
+      if (bIsList) {
+        JSONArray arList = oQuery.getJSONArray("list");
+        oMyQuery.put("list", arList);
+        if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
+      } else {
+        String sKeyName = oQuery.getString("key");
+        String sKeyValue = oQuery.getString("value");
+        int iIdValue = oQuery.getInt("id");
+
+        oMyQuery.put("key", sKeyName);                      // Name of the key
+        oMyQuery.put("value", escapeHexCoding(sKeyValue));  // Value of the key
+        oMyQuery.put("id", iIdValue);                       // Value of the id
+        if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
+        
+        /*
+        this.params.put("key", sKeyName);
+        this.params.put("value", escapeHexCoding(sKeyValue));
+        this.params.put("id", iIdValue);
+        if (oMyQuery.has("files")) this.params.put("files", oMyQuery.getString("files") );
+                */
+      }
+      
 
       // Start preparing the output of "completeRequest()", which is a mapping object
       Map<String,Object> output = new HashMap<>();
@@ -96,8 +120,8 @@ public class CrpchgResponse extends BaseResponse {
       }
       // Issue the request to the /crpp using the 'query' JSON parameter above
       // NOTE: this is a GET request 
-      String sResp = getCrppPostResponse("crpchg", "", this.params);
-      // String sResp = getCrppResponse("crpchg", "", this.params, oMyQuery);
+      // Original: send [this.params] String sResp = getCrppPostResponse("crpchg", "", this.params);
+      String sResp = getCrppPostResponse("crpchg", "", oMyQuery);
       if (sResp == null || sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("CrpchgResponse: /crpp does not return JSON"); return;}
       
       // Check for errors
@@ -118,6 +142,9 @@ public class CrpchgResponse extends BaseResponse {
                 logger.getErrList().toString()); return;}
         // Add the adapted date to the content
         oContent.put("datechanged", crpThis.getDateChanged());
+        
+        // No further changes are really needed to the list returned by /crpp...
+        /*
         // Depending on the type (project, query, definition) an adapted list needs to be sent
         int iDot = sKeyName.indexOf(".");
         if (iDot >0) {
@@ -131,6 +158,7 @@ public class CrpchgResponse extends BaseResponse {
         } else {
           oContent.put("itemtype", "project");
         }
+                */
         
       }
       

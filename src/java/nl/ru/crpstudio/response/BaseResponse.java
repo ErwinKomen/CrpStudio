@@ -307,8 +307,6 @@ public abstract class BaseResponse {
    * @return        - string returning the response
    */
 	public String getCrppPostResponse(String index, String trail, Map<String,Object> params) {
-    String parameters = "";
-    
     try {
       // Take over the parameters
       this.params = params;
@@ -321,9 +319,21 @@ public abstract class BaseResponse {
           String sEsc = URLEncoder.encode(params.get(sParam).toString(), "UTF-8");
           oParams.put(sParam, sEsc);
         }
-        // Serialize the JSON into a string
-        parameters = oParams.toString();
-      }
+        // Call the function with the JSON object
+        return getCrppPostResponse(index, trail, oParams);
+      } else 
+        return "";
+    } catch (Exception ex) {
+			ex.printStackTrace();
+      return "";
+    }
+  }
+	public String getCrppPostResponse(String index, String trail, JSONObject oParams) {
+    String parameters = "";
+    
+    try {
+      // Serialize the JSON into a string
+      parameters = oParams.toString();
       // Calculate the request URL
       String url = this.labels.getString("crppUrlInternal")+ "/" + index + trail;
       // Keep this URL for reference

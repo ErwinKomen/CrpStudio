@@ -83,8 +83,10 @@ public class QueryServiceHandler {
    *    Where 'makeRequest'  issues a GET one, this method uses a POST one
    * 
    * @param params
+   * @param sParamString
    * @return        String with the response from the service
    * @author        Erwin R. Komen
+   * @throws java.io.IOException
    */
   public String postRequest(Map<String, String[]> params, String sParamString) throws IOException {
 		// if the same request has already been cached, return that
