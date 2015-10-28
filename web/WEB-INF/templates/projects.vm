@@ -51,6 +51,12 @@
           <span>$labels.getString("project.execute")</span> (no cache)
         </button>
       </dd>
+      <!-- On the navigation bar: [SAVING changes] -->
+      <dd id="project_saving">
+        <button onclick="Crpstudio.project.histSave(true)" class="small">
+          <span>$labels.getString("project.save")</span>
+        </button>
+      </dd>
       <!-- Spacer between projects and results -->
 			#if($tab == "result" || $tab == "document")
 				<dd id="link-spacer">||</dd>

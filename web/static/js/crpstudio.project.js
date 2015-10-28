@@ -5,25 +5,9 @@
  * @author Erwin R. Komen
  */
 
-/*globals jQuery, crpstudio, Crpstudio, alert: false, */
-var crpstudio = (function ($, crpstudio) {
-  "use strict";
-  crpstudio.project = (function () {
-    // Methods tdbahat are local to [crpstudio.project]
-    var private_methods = {
-      
-    };
-    // Methods that are exported by [crpstudio.project] for others
-    return {
-      
-    };
-  }($, crpstudio.config));
-  
-  return crpstudio;
-  
-}(jQuery, window.crpstudio || {}));
-
+/*globals jQuery, crpstudio, erwin, Crpstudio, alert: false, */
 Crpstudio.project = {
+  
   // Local variables within Crpstudio.project
   tab : "project",        // The main tab we are on (equals to "project_editor")
   currentCorpus: "",      // Currently selected corpus
@@ -45,6 +29,7 @@ Crpstudio.project = {
   doneTypingIntv: 2000,   // Stop-typing interval: 2 seconds
   ctlCurrent: null,       // Current control
   ctlCurrentId: "",       // ID of current control
+  lstHistory: [],         // List of changes: type, id, crp, key, value
   cmQuery: null,          // 
   cmDef: null,            // 
   prj_name: "",           // Field value of this project: name
@@ -60,16 +45,28 @@ Crpstudio.project = {
   prj_qrylist: null,      // Field value of this project: list of queries
   prj_qclist: null,       // Field value of this project: list of QC elements
   prj_dbflist: null,      // Field value of this project: list of database features
+  prj_genlist: null,      // Field value of this project: list of 'general' settings
   qry_current: null,      // Currently loaded Query object
   def_current: null,      // Currently loaded Definition object
   dbf_current: null,      // Currently loaded DbFeat object
   qc_current: null,       // Currently loaded QC object (constructor)
+  dirty: false,           // Project needs saving or not
   qry_dirty: false,       // Flag to indicate that the 'Text' area of Query has changed
   def_dirty: false,       // Flag to indicate that the 'Text' area of Definition has changed
   bIsSelecting: false,    // Flag to indicate that selection changes take place
   
   // Object defining the elements of Query, Definition, DbFeat and Constructor
   prj_access: [
+    {name: "project", id: "", listfield: "Name", descr: "project_description", prf: "crp",
+      gen: "project_general", cur: "crp_current", fields: [
+          { field: "Name", type: "txt", loc: "project_general_name"}, 
+          { field: "Author", type: "txt", loc: "project_general_author"}, 
+          { field: "PrjType", type: "txt", loc: "project_general_prjtype"}, 
+          { field: "Comment", type: "txt", loc: "project_general_comments"}, 
+          { field: "Goal", type: "txt", loc: "project_general_goal"}, 
+          { field: "DbaseInput", type: "txt", loc: "project_general_dbase"}, 
+          { field: "Created", type: "cap", loc: "project_general_datecreated"}, 
+          { field: "Changed", type: "cap", loc: "project_general_datechanged"}]},
     {name: "query", id: "QueryId", listfield: "Name", descr: "query_description", prf: "qry",
       gen: "query_general", cur: "qry_current", fields: [
           { field: "Name", type: "txt", loc: "query_general_name"}, 
@@ -147,6 +144,7 @@ Crpstudio.project = {
         Crpstudio.project.switchTab("input");
         return;
       }
+      
       // debugging: show where the status appears
       $("#project_status").text("Processing project: " + sPrjName);
       $("#result_status").text("");
@@ -181,6 +179,13 @@ Crpstudio.project = {
       Crpstudio.getCrpStudioData("exe", params, Crpstudio.project.processExeCrpStudio, "#result_status");
     }
   },
+  
+  /**
+   * showExeButtons -- show or hide the Execute buttons
+   * 
+   * @param {type} bShow
+   * @returns {undefined}
+   */
   showExeButtons : function(bShow) {
     if (bShow) {
       $("#project_executor").removeClass("hidden");
@@ -188,6 +193,20 @@ Crpstudio.project = {
     } else {
       $("#project_executor").addClass("hidden");
       $("#project_executor_nocache").addClass("hidden");
+    }
+  },
+  
+  /**
+   * showSaveButton -- show or hide the SAVE button
+   * 
+   * @param {type} bShow
+   * @returns {undefined}
+   */
+  showSaveButton : function(bShow) {
+    if (bShow) {
+      $("#project_saving").removeClass("hidden");
+    } else {
+      $("#project_saving").addClass("hidden");
     }
   },
   /*
@@ -765,8 +784,10 @@ Crpstudio.project = {
       switch (target) {
         case "project_editor":
         case "project":
-          // Make sure the execute buttons are shown
-          Crpstudio.project.showExeButtons(true);
+          // Make sure the execute buttons are NOT YET shown
+          Crpstudio.project.showExeButtons(false);
+          // Make sure the Save button is not yet shown
+          Crpstudio.project.showSaveButton(false);
           // Possibly *show* the lng/corpus selector
           if (!Crpstudio.project.currentLng || Crpstudio.project.currentLng === "") {
             // Show it
@@ -954,6 +975,28 @@ Crpstudio.project = {
     $(sLoc).not(".divider").not(".heading").remove();
     $(sLoc).last().after(arHtml.join("\n"));
   },
+  
+  /**
+   * setGenList -- create and return an object containing the general settings in oContent
+   * 
+   * @param {type} oContent
+   * @returns {undefined}
+   */
+  setGenList : function(oContent) {
+    var oBack = {};
+    oBack.Name = oContent.name;
+    oBack.Author = oContent.author;
+    oBack.PrjType = oContent.prjtype;
+    oBack.Goal = oContent.goal;
+    oBack.Created = oContent.datecreated;
+    oBack.Changed = oContent.datechanged;
+    oBack.DbaseInput = oContent.dbaseinput;
+    oBack.Comments = oContent.comments;
+    oBack.Language = oContent.language;
+    oBack.Part = oContent.part;
+    oBack.Dbase = oContent.dbase;
+    return oBack;
+  },
 
   /**
    * getListObject
@@ -969,6 +1012,7 @@ Crpstudio.project = {
     var oList = null;   // JSON type list of objects
     // Find the correct list
     switch(sListType) {
+      case "project": sPrf = "crp"; oList = Crpstudio.project.prj_genlist; return oList;
       case "query": sPrf = "qry"; oList = Crpstudio.project.prj_qrylist;break;
       case "definition": sPrf = "def"; oList = Crpstudio.project.prj_deflist;break;
       case "constructor": sPrf = "qc"; oList = Crpstudio.project.prj_qclist;break;
@@ -1004,6 +1048,48 @@ Crpstudio.project = {
     }
     // Didn't find it
     return null;
+  },
+  
+  /**
+   * getItemObject 
+   *    Use the location (the @id) to get an object of the item
+   * 
+   * @param {type} sLocation
+   * @returns {undefined}
+   */
+  getItemObject: function(sLocation) {
+    var oItem = null;
+    // Find the correct item
+    for (var i=0;i<Crpstudio.project.prj_access.length;i++) {
+      oItem = Crpstudio.project.prj_access[i];
+      // Walk through the fields
+      for (var j=0;j< oItem.fields.length;j++) {
+        if (oItem.fields[j].loc === sLocation) {
+          // We found it!
+          return {type: oItem.name, key: oItem.fields[j].field};
+        }
+      }
+    }
+    // Didn't find it
+    return null;
+  },
+  
+  /**
+   * getItemValue -- get the value of the indicated item
+   *                 use the on-board lists to get it
+   * @param {type} sListType
+   * @param {type} iItemId
+   * @param {type} sCrp
+   * @param {type} sKey
+   * @returns {undefined}
+   */
+  getItemValue : function(sListType, iItemId, sCrp, sKey) {
+    // Access the information object for this type
+    var oItemDesc = Crpstudio.project.getItemDescr(sListType);
+    // Access the item from the correct list
+    var oListItem = Crpstudio.project.getListObject(sListType, oItemDesc.id, iItemId);
+    // Get the value of the indicated field
+    return oListItem[sKey];
   },
   
   /**
@@ -1106,6 +1192,23 @@ Crpstudio.project = {
    * 29/sep/2015  ERK Added "sDbase" argument
    */
   setProject : function(target, sPrjName, sLng, sDir, sDbase) {
+    // Are we switching?
+    if (sPrjName !== Crpstudio.project.currentPrj) {
+      // Is saving needed?
+      if (Crpstudio.project.dirty) {
+        // Ask user to save changes
+        var userOk = confirm("Save changes in this CRP?");  
+        if (userOk) {
+          // Get the changes saved
+          Crpstudio.project.histSave(true);
+        } else {
+          // Clear the history for this CRP
+          Crpstudio.project.histClear(Crpstudio.project.currentPrj);
+        }
+      }
+      // Make sure the save button is hidden
+      Crpstudio.project.showSaveButton(false);      
+    }
     var strProject = $(target).text();
     // Make sure download info is hidden
     $("#project_download").addClass("hidden");
@@ -1146,12 +1249,6 @@ Crpstudio.project = {
     $("#qc_description").html("<i>No constructor line selected</i>");
     
     
-    /*
-    // Possibly correct Dbase, Lng and Dir
-    if (Crpstudio.project.prj_language !== "") sLng = Crpstudio.project.prj_language;
-    if (Crpstudio.project.prj_part !== "") sDir = Crpstudio.project.prj_part;
-    if (Crpstudio.project.prj_dbase !== "") sDbase = Crpstudio.project.prj_dbase;
-    */
     // Do we have a lng (+ optional dir)?
     if ((!sLng || sLng === "") && Crpstudio.project.prj_language ==="") {
       // Show the corpus-selector
@@ -1174,9 +1271,6 @@ Crpstudio.project = {
     } else {
       Crpstudio.project.setDbase(sDbase, sLng, sDir, false);
     }
-    // Issue a request to /crpstudio to load the project
-    // var params = "project=" + sPrjName + "&userid=" + Crpstudio.currentUser;
-    // params += "&type=info";
     
     // Pass on this value to /crpstudio and to /crpp
     var oArgs = { "project": sPrjName,
@@ -1378,9 +1472,14 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   xqQueryChanged : function(cm, change) {
-    $("#query_general_text").text(cm.getValue());
+    var sValue = cm.getValue();
+    $("#query_general_text").text(sValue());
     Crpstudio.project.ctlCurrentId = "query_general_text";
+    Crpstudio.project.histAdd("query", Crpstudio.project.currentQry, Crpstudio.project.currentPrj,
+        "Text", sValue);
+    /*
     Crpstudio.project.ctlTimer($("#query_general_text"), "textarea");
+    */
   },
   /**
    * xqDefChanged
@@ -1391,9 +1490,14 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   xqDefChanged : function(cm, change) {
-    $("#def_general_text").text(cm.getValue());
+    var sValue = cm.getValue();
+    $("#def_general_text").text(sValue());
     Crpstudio.project.ctlCurrentId = "def_general_text";
+    Crpstudio.project.histAdd("definition", Crpstudio.project.currentDef, Crpstudio.project.currentPrj,
+        "Text", sValue);
+    /*
     Crpstudio.project.ctlTimer($("#def_general_text"), "textarea");
+    */
   },
   
   /**
@@ -1432,6 +1536,7 @@ Crpstudio.project = {
           var iQryCount = oContent.qrylist.length; Crpstudio.project.prj_qrylist = oContent.qrylist;
           var iQcCount = oContent.qclist.length; Crpstudio.project.prj_qclist = oContent.qclist;
           var iDbfCount = oContent.dbflist.length; Crpstudio.project.prj_dbflist = oContent.dbflist;
+          Crpstudio.project.prj_genlist = Crpstudio.project.setGenList(oContent);
           /* =============== DEBUGGING ======================
           $("#project_status").html("defs=" + iDefCount + " qrys=" + iQryCount +
                   " QCs=" + iQcCount + " dbfeatures=" + iDbfCount);
@@ -1464,27 +1569,11 @@ Crpstudio.project = {
           
           // Add event handlers on all INPUT elements under "project_general"
           Crpstudio.project.addChangeEvents("project_general");
-          /*
-          $("#project_general input").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this, "input");});
-          $("#project_general input").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this, "blurInput");});
-            
-          // Add event handlers on all TEXTAREA elements under "project_general"
-          $("#project_general textarea").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this, "textarea");});
-          $("#project_general textarea").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this, "blurTextarea");});
-            
-          // Add event handlers on all SELECT elements under "project_general"
-          $("#project_general select").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this, "select");});
-          $("#project_general select").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this, "blurSelect");});
-          */
             
           // Make the General area visible again
           $("#project_general").removeClass("hidden");
+          // Make sure the execute buttons are shown
+          Crpstudio.project.showExeButtons(true);
           break;
         case "error":
           var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
@@ -1516,20 +1605,26 @@ Crpstudio.project = {
     // Add event handlers on all INPUT elements under "project_general"
     $(sId + " input").on("change keydown paste input", 
       function() {Crpstudio.project.ctlTimer(this, "input");});
+    /*
     $(sId + " input").on("blur", 
       function() {Crpstudio.project.ctlChanged(this, "blurInput");});
+    */
 
     // Add event handlers on all TEXTAREA elements under "project_general"
     $(sId + " textarea").on("change keydown paste input", 
       function() {Crpstudio.project.ctlTimer(this, "textarea");});
+    /*
     $(sId + " textarea").on("blur", 
       function() {Crpstudio.project.ctlChanged(this, "blurTextarea");});
+    */
 
     // Add event handlers on all SELECT elements under "project_general"
     $(sId + " select").on("change keydown paste input", 
       function() {Crpstudio.project.ctlTimer(this, "select");});
+    /*
     $(sId + " select").on("blur", 
       function() {Crpstudio.project.ctlChanged(this, "blurSelect");});
+    */
     
   }, 
   
@@ -1569,6 +1664,10 @@ Crpstudio.project = {
       $("#"+sItemType+"_description").html("");
       switch (sStatusCode) {
         case "completed":
+          // Make sure the save button is hidden
+          Crpstudio.project.showSaveButton(false);
+          // Reset the dirty flag
+          Crpstudio.project.dirty = false;
           // Have changes been made?
           if (oContent.changed) {
             // Get the information passed on about this project
@@ -2029,7 +2128,8 @@ Crpstudio.project = {
             "key": sKey, "value": sValue };
           // var params = "changes=" + JSON.stringify(oChanges);
           var params = JSON.stringify(oArgs);
-          Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");              
+          Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");  
+          break;
         default:
           // No particular action right now
           break;
@@ -2090,6 +2190,92 @@ Crpstudio.project = {
     Crpstudio.project.ctlCurrent = $("#project_general_prjtype");
     Crpstudio.project.ctlTimer($("#project_general_prjtype", "-"));
   },
+  
+  /**
+   * histAdd - add one item to the history
+   * 
+   * @param {type} sType  - project, query, definition etc
+   * @param {type} iId    - numerical id of query/def etc
+   * @param {type} sCrp   - name of the CRP
+   * @param {type} sKey   - field name (e.g. "Goal", "Text")
+   * @param {type} sValue - new value of the field
+   * @returns {undefined}
+   */
+  histAdd : function(sType, iId, sCrp, sKey, sValue) {
+    // Possibly get the last item of history
+    var iSize = Crpstudio.project.lstHistory.length;
+    if (iSize >0) {
+      var oLast = Crpstudio.project.lstHistory[iSize-1];
+      // Check if this pertains to the same type/id/crp/key
+      if (oLast.type === sType && oLast.id === iId && oLast.crp === sCrp &&
+              oLast.key === sKey) {
+        // We simply adapt the last item
+        oLast.value = sValue;
+        Crpstudio.project.lstHistory[iSize-1] = oLast;
+      }
+    } else {
+      // Check what the 'old' value was
+      var sOld = Crpstudio.project.getItemValue(sType, iId, sCrp, sKey);
+      // We need to *add* a new element: create the element
+      var oNew = {type: sType, id: iId, crp: sCrp, key: sKey, value: sValue, old: sOld, saved: false};
+      // Add the new element to the list
+      Crpstudio.project.lstHistory.push(oNew);
+    }
+    
+    // Make sure the save button is shown
+    Crpstudio.project.showSaveButton(true);
+    // Indicate the project needs saving
+    Crpstudio.project.dirty = true;
+  },
+  
+  /**
+   * histClear -- Clear the history for the specified project
+   * 
+   * @param {type} sCrpName
+   * @returns {undefined}
+   */
+  histClear: function(sCrpName) {
+    var arHist = Crpstudio.project.lstHistory;
+    // Walk all the items in the history
+    for (var i=arHist.length-1; i>=0;i--) {
+      // Access this item for convenience
+      var oItem = arHist[i];
+      // Check if this item relates to the indicated CRP
+      if (oItem.crp === sCrpName) {
+        // Clear this item
+        arHist.splice(i,1);
+      }
+    }
+  },
+  
+  /**
+   * histSave -- save current history and clear it
+   * 
+   * @param {type} bClear
+   * @returns {undefined}
+   */
+  histSave : function(bClear) {
+    var arSend = [];
+    var arHist = Crpstudio.project.lstHistory;
+    for (var i=0;i<arHist.length;i++) {
+      var oItem = arHist[i];
+      if (!oItem.saved && oItem.crp === Crpstudio.project.currentPrj) {
+        // Create a new 'key' item
+        var sKey = oItem.key;
+        if (oItem.type !== "project") sKey = oItem.type + "." + sKey;
+        // COpy it
+        arSend.push({key: oItem.key, id: oItem.id, value: oItem.value});
+      }
+    }
+    // Pass on this value to /crpstudio and to /crpp
+    var oChanges = { "crp": Crpstudio.project.currentPrj,
+      "userid": Crpstudio.currentUser, "list": arSend };
+    var params = JSON.stringify(oChanges);
+    // Clear the history list
+    if (bClear) Crpstudio.project.lstHistory.clear();
+    // Send the changes
+    Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+  },
     
   /**
    * ctlChange
@@ -2114,6 +2300,9 @@ Crpstudio.project = {
     var iItemId = -1;
     // Determine which 'key' this is
     var sElementId = $(source).attr("id");
+    // Validate: do not proceed if there is no valid element selected
+    if (sElementId === "") return;
+    // COntinue
     switch(sElementId) {
       case "project_general_name": 
         if (sValue === Crpstudio.project.prj_name) return; 
@@ -2244,16 +2433,18 @@ Crpstudio.project = {
     // =============== DEBUG =========
     Crpstudio.debug("ctlTimer: cleared");
     // ===============================
+    var sCallerId = $(source).attr("id");
+    var sValue = $(source).val();
     // Some controls require immediate action
-    switch ($(source).attr("id")) {
+    switch (sCallerId) {
       case "project_general_dbase": 
-        var sValue = ($(source).is(':checked')) ? "True" : "False"; 
+        var sChbValue = ($(source).is(':checked')) ? "True" : "False"; 
         // Only continue if there is a CHANGE
-        if (sValue === Crpstudio.project.prj_dbaseinput) return; 
+        if (sChbValue === Crpstudio.project.prj_dbaseinput) return; 
         // Make sure the change is recorded globally
-        Crpstudio.dbaseInput = (sValue === "True");
+        Crpstudio.dbaseInput = (sChbValue === "True");
         // If we are changing to "False", then reset the database specifications
-        if (sValue === "False") {
+        if (sChbValue === "False") {
           Crpstudio.project.resetDbase();
         } else {
           // Guide the user to the input specification  page
@@ -2263,9 +2454,27 @@ Crpstudio.project = {
     }
     // Set the source
     Crpstudio.project.ctlCurrent = source;
-    // Call a new timer
+    
+    // Find out who we are by looking up the caller's @id value
+    var oItem = Crpstudio.project.getItemObject(sCallerId);
+    // Get the current iItemId
+    var iItemId = -1;
+    switch(oItem.type) {
+      case "query": iItemId = Crpstudio.project.currentQry;break;
+      case "definition": iItemId = Crpstudio.project.currentDef;break;
+      case "constructor": iItemId = Crpstudio.project.currentQc;break;
+      case "dbfeat": iItemId = Crpstudio.project.currentDbf;break;
+    }
+    
+    // Process the change by calling [histAdd]
+    Crpstudio.project.histAdd(oItem.type, iItemId, Crpstudio.project.currentPrj,
+        oItem.key, sValue);
+    
+    /* ========== OLD ========
+    // OLD BEHAVIOUR: Call a new timer
     Crpstudio.project.typingTimer = setTimeout(Crpstudio.project.ctlChanged, 
       Crpstudio.project.doneTypingIntv, source, sType);
+      ======================== */
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual
@@ -2373,6 +2582,7 @@ Crpstudio.project = {
    */
   editQC : function(iQC) {
     // TODO: implement
+    
   }
 	  
 };
