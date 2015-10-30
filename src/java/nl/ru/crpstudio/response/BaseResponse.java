@@ -1523,7 +1523,9 @@ public abstract class BaseResponse {
         //       User must be offered the opportunity to create a new project
         
       } else {
-        // The list of CRPs is in a table where each element can be selected
+        // The first item is a prompt to the user to make a selection
+        sb.append("<option class=\"noprefix\" value=\"-\" >(Make a selection)</option>\n");
+        // The list of database is in a table where each element can be selected
         for (int i = 0 ; i < arDbList.length(); i++) {
           // Get this database item
           JSONObject oDbase = arDbList.getJSONObject(i);
@@ -1688,6 +1690,8 @@ public abstract class BaseResponse {
       if (arCorpora.length() == 0) {
         
       } else {
+        // The first item is a prompt to the user to make a selection
+        sb.append("<option class=\"noprefix\" value=\"-\" >(Make a selection)</option>\n");
         // Walk all the language entries
         for (int i = 0 ; i < arCorpora.length(); i++) {
           // Get this object

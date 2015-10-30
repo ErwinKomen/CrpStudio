@@ -9,8 +9,8 @@ package nl.ru.crpstudio.response;
 import java.util.HashMap;
 import java.util.Map;
 import nl.ru.crpx.tools.FileIO;
-import static nl.ru.util.StringUtil.escapeHexCoding;
-import static nl.ru.util.StringUtil.unescapeHexCoding;
+import static nl.ru.util.StringUtil.compressSafe;
+import static nl.ru.util.StringUtil.decompressSafe;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
@@ -116,7 +116,7 @@ public class UploadResponse extends BaseResponse {
         switch (sItemType) {
           case "project":
             // Convert to Base64
-            sItemText = escapeHexCoding(sItemText);
+            sItemText = compressSafe(sItemText);
             // Send the CRP to /crpp 
             oContent = this.sendProjectToServer(sUserId, sItemName, sItemText);
             oContent.put("itemline", this.getProjectItem(sItemName, false, "", "", ""));
@@ -127,7 +127,7 @@ public class UploadResponse extends BaseResponse {
             // Add the actual item
             iItemId = this.setProjectItem(sItemMain, sUserId, sItemName, sItemText, sItemType);
             // The content must contain: (1) the whole new list of definitions, (2) the DefId of the new one
-            oContent.put("itemlist", crpThis.getListQuery());
+            oContent.put("itemlist", crpThis.getListDef());
             oContent.put("itemid", iItemId);
             oContent.put("itemname", sItemName);
             oContent.put("itemtype", sItemType);
@@ -136,11 +136,11 @@ public class UploadResponse extends BaseResponse {
           case "query":
             // Add the actual item
             iItemId = this.setProjectItem(sItemMain, sUserId, sItemName, sItemText, sItemType);
-            // The content must contain: (1) the whole new list of definitions, (2) the DefId of the new one
-            oContent.put("itemlist", crpThis.getListDef());
-            oContent.put("itemid", iItemId);
-            oContent.put("itemname", sItemName);
-            oContent.put("itemtype", sItemType);
+            // The content must contain: (1) the whole new list of definitions, (2) the QueryId of the new one
+            oContent.put("itemlist", crpThis.getListQuery()); // List object of all queries
+            oContent.put("itemid", iItemId);                  // The new query's QueryId
+            oContent.put("itemname", sItemName);              // Name of the query
+            oContent.put("itemtype", sItemType);              // This item: "query"
             oContent.put("itemline", "");
             break;
           default:
@@ -156,7 +156,7 @@ public class UploadResponse extends BaseResponse {
         oContent.put("itemtype", sItemType);
         oContent.put("itemline", "");
         // Provide meaningful error message
-        sendErrorResponse("The project is already loaded. It needs to be removed before it can be uploaded again.");
+        sendErrorResponse("The "+sItemType+" is already loaded. It needs to be removed before it can be uploaded again.");
       }
 
     } catch (Exception ex) {

@@ -13,7 +13,8 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
-import static nl.ru.util.StringUtil.escapeHexCoding;
+import static nl.ru.util.StringUtil.compressSafe;
+import static nl.ru.util.StringUtil.decompressSafe;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
@@ -71,40 +72,52 @@ public class CrpchgResponse extends BaseResponse {
       //      id:     If this is a query, then QueryId and so on
       //   Or: a list of key/value/id objects
       // =============================================================================
-      // Obligatory parameters:
-      JSONObject oMyQuery = new JSONObject();
-      oMyQuery.put("userid", sCurrentUser); // Name of the user
-      oMyQuery.put("crp", sCrpThis);        // Specify the CRP name
       
-      /*
-      // Put my query into the request
-      // NOTE: use base64 encoding to package the stringified query
+      // Start putting my query into the request
       this.params.clear();
       this.params.put("userid", sCurrentUser);
       this.params.put("crp", sCrpThis);
-      */
 
       // Action depends on list or not
       if (bIsList) {
         JSONArray arList = oQuery.getJSONArray("list");
-        oMyQuery.put("list", arList);
-        if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
+        JSONArray arCoded = new JSONArray();
+        // But put hex coding on the values
+        for (int i=0;i<arList.length(); i++) {
+          JSONObject oThis = arList.getJSONObject(i);
+          JSONObject oNew = new JSONObject();
+          oNew.put("key", oThis.getString("key"));
+          oNew.put("id", oThis.getInt("id"));
+          // oNew.put("value", compressSafe(oThis.getString("value")));
+          oNew.put("value", oThis.getString("value"));
+          arCoded.put(oNew);
+          // =-========= DEBUG ==========
+          // logger.debug("Added list element: " + oThis.getString("value"));
+          // ============================
+        }
+        // Add the list paramter
+        this.params.put("list", compressSafe(arCoded.toString()));
+        /*
+        String sStart = arCoded.toString();
+        String sCoded = compressSafe(sStart);
+        String sVerify = decompressSafe(sCoded);
+        if (!sStart.equals(sVerify)) {
+          // =-========= DEBUG ==========
+          logger.debug("Combined list: " + sCoded + " = ["+decompressSafe(sCoded)+"]" );
+          // ============================
+        }
+        this.params.put("list", sCoded);
+        */
+        if (oQuery.has("files")) {this.params.put("files", compressSafe(oQuery.getJSONArray("files").toString())); }
       } else {
         String sKeyName = oQuery.getString("key");
         String sKeyValue = oQuery.getString("value");
         int iIdValue = oQuery.getInt("id");
 
-        oMyQuery.put("key", sKeyName);                      // Name of the key
-        oMyQuery.put("value", escapeHexCoding(sKeyValue));  // Value of the key
-        oMyQuery.put("id", iIdValue);                       // Value of the id
-        if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
-        
-        /*
         this.params.put("key", sKeyName);
-        this.params.put("value", escapeHexCoding(sKeyValue));
+        this.params.put("value", compressSafe(sKeyValue));
         this.params.put("id", iIdValue);
-        if (oMyQuery.has("files")) this.params.put("files", oMyQuery.getString("files") );
-                */
+        if (oQuery.has("files")) this.params.put("files", oQuery.getJSONArray("files") );
       }
       
 
@@ -119,9 +132,12 @@ public class CrpchgResponse extends BaseResponse {
         e1.printStackTrace();
       }
       // Issue the request to the /crpp using the 'query' JSON parameter above
-      // NOTE: this is a GET request 
+      // NOTE: this is a POST request 
+      // this.params.clear();
+      // this.params.put("query", oMyQuery.toString());
       // Original: send [this.params] String sResp = getCrppPostResponse("crpchg", "", this.params);
-      String sResp = getCrppPostResponse("crpchg", "", oMyQuery);
+      String sResp = getCrppPostResponse("crpchg", "", this.params);
+      // String sResp = getCrppPostResponse("crpchg", "", oMyQuery);
       if (sResp == null || sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("CrpchgResponse: /crpp does not return JSON"); return;}
       
       // Check for errors
@@ -138,27 +154,11 @@ public class CrpchgResponse extends BaseResponse {
       if (bChanged) {
         // Force to fetch the CRP again from the /crpp: copy from /crpp >> /crpstudio
         crpThis = crpContainer.getCrp(this, sCrpThis, sCurrentUser, true);
-        if (crpThis == null) { sendErrorResponse("Could not load CRP:\n" + 
-                logger.getErrList().toString()); return;}
+        if (crpThis == null) { 
+          sendErrorResponse("Could not load CRP:\n" + logger.getErrList().toString()); 
+          return;}
         // Add the adapted date to the content
         oContent.put("datechanged", crpThis.getDateChanged());
-        
-        // No further changes are really needed to the list returned by /crpp...
-        /*
-        // Depending on the type (project, query, definition) an adapted list needs to be sent
-        int iDot = sKeyName.indexOf(".");
-        if (iDot >0) {
-          String sType = sKeyName.substring(0, iDot);
-          String sKey = sKeyName.substring(iDot+1);
-          oContent.put("itemtype", sType);
-          // Also copy the key/value
-          oContent.put("key", sKey);
-          oContent.put("value", sKeyValue);
-          oContent.put("id", iIdValue);
-        } else {
-          oContent.put("itemtype", "project");
-        }
-                */
         
       }
       
