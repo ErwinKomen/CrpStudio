@@ -23,11 +23,13 @@ public class RemoveResponse extends BaseResponse {
 
     try {
       // Expected JSON format example:
-      // { "itemid":    3, 
-      //   "itemtype":  "query", 
-      //   "itemmain":  "queryName", 
+      // { "itemid":    -1, 
+      //   "itemtype":  "project", 
+      //   "itemmain":  "ROOT", 
       //   "crp":       "ParticleA.crpx", 
-      //   "userid":    "monkey" }
+      //   "userid":    "guest" }
+      // NOTE:
+      //   Removing of *parts* of a CRP is done by /crpchg calls
       
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
@@ -70,46 +72,13 @@ public class RemoveResponse extends BaseResponse {
           // Set the action for /crpp
           sAction = "crpdel";
           break;
-        case "query":       // Remove a query from a CRP
-          // Must have item id and itemmain
-          if (iItemId <1 ) { sendErrorResponse("RemoveResponse: remove project requires @itemid"); return;}
-          if (sItemMain.isEmpty() ) { sendErrorResponse("RemoveResponse: remove project requires @itemmain"); return;}
-          // Local action: remove the query from the crp
-          int iQryIdx = crpThis.getListQueryId(iItemId); if (iQryIdx <0) {sendErrorResponse("RemoveResponse: cannot find query id"); return;}
-          JSONObject oQryObj = crpThis.getListQueryItem(iQryIdx); if (oQryObj==null) {sendErrorResponse("RemoveResponse: cannot find query obj"); return;}
-          crpThis.delListQueryItem(oQryObj);
-          // Set the action
-          sAction = "remove";
-          break;
-        case "definition":  // Remove definition from CRP
-          // Must have item id
-          if (iItemId <1 ) { sendErrorResponse("RemoveResponse: remove project requires @itemid"); return;}
-          if (sItemMain.isEmpty() ) { sendErrorResponse("RemoveResponse: remove project requires @itemmain"); return;}
-          // Local action: remove the definition from the crp
-          int iDefIdx = crpThis.getListQueryId(iItemId); if (iDefIdx <0) {sendErrorResponse("RemoveResponse: cannot find query id"); return;}
-          JSONObject oDefObj = crpThis.getListQueryItem(iDefIdx); if (oDefObj==null) {sendErrorResponse("RemoveResponse: cannot find query obj"); return;}
-          crpThis.delListDefItem(oDefObj);
-          // Set the action
-          sAction = "remove";
-          break;
-        case "constructor": // Remove QC item from QC list
-          // Must have item id
-          if (iItemId <1  ) { sendErrorResponse("RemoveResponse: remove project requires @itemid"); return;}
-          if (sItemMain.isEmpty() ) { sendErrorResponse("RemoveResponse: remove project requires @itemmain"); return;}
-          // TODO: Implement removing QC from constructor
-          
-          // Set the action
-          sAction = "remove";
-          break;
-        case "dbfeat":      // Remove database feature from list
-          // Must have item id
-          if (iItemId <1 ) { sendErrorResponse("RemoveResponse: remove project requires @itemid"); return;}
-          if (sItemMain.isEmpty() ) { sendErrorResponse("RemoveResponse: remove project requires @itemmain"); return;}
-          // TODO: Implement removing QC from constructor line
+        case "dbase":       // Remove a database
+          // TODO: implement removal of database
 
           // Set the action
-          sAction = "remove";
+          sAction = "dbdel";
           break;
+
         default:
           // TODO: error response
           break;
