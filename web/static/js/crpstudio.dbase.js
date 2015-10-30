@@ -78,7 +78,7 @@ Crpstudio.dbase = {
     // And set the name of the project in the top-bar div
     $("#top_bar_current_dbase").text(sDbName);
     // Status: indicate that we are loading the project
-    $("#dbase_description").html("<i>Please wait...</i>");
+    $("#dbase_description").html("<i>Loading database...</i>");
     // Make the General area INvisible
     $("#dbase_general").addClass("hidden");
 

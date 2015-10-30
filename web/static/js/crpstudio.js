@@ -342,6 +342,7 @@ var Crpstudio = {
 		if (target !== Crpstudio.tab) {
 			if (Crpstudio.language !== null) {
 				window.location = window.location.protocol+target+"?lang="+Crpstudio.language;
+        
 			} else {
 				window.location = window.location.protocol+target;
 			}

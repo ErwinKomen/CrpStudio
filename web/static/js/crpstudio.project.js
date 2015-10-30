@@ -762,9 +762,9 @@ Crpstudio.project = {
    * 22/jun/2015  ERK Created
    * 04/aug/2015  ERK Added "sRecentCrp" argument
    */
-	switchTab : function(target, sRecentCrp) {
+	switchTab : function(target, sRecentCrp, bForce) {
 		Crpstudio.debug("switching to search tab "+target+" from "+Crpstudio.project.tab);
-		if (target !== Crpstudio.project.tab) {
+		if (target !== Crpstudio.project.tab || bForce) {
       // Bookkeeping
 			$("#search .content").removeClass("active");
 			$("#"+target).addClass("active");
@@ -779,26 +779,41 @@ Crpstudio.project = {
       // Remove textarea event handlers
       $("#query_general_top").unbind();
       $("#def_general_top").unbind();
+      // Capture the current selecting state
+      var bSelState = Crpstudio.project.bIsSelecting;
       
       // Action depends on target 
       switch (target) {
         case "project_editor":
         case "project":
-          // Make sure the execute buttons are NOT YET shown
-          Crpstudio.project.showExeButtons(false);
+          // Selecting...
+          Crpstudio.project.bIsSelecting = true;
+          // The execute buttons are shown if there is a current project
+          var bHaveProject = (Crpstudio.project.currentPrj!==undefined && Crpstudio.project.currentPrj!=="");
+          Crpstudio.project.showExeButtons(bHaveProject);
           // The Save button must be shown if the 'dirty' flag is set
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           // Possibly *show* the lng/corpus selector
-          if (!Crpstudio.project.currentLng || Crpstudio.project.currentLng === "") {
+          if (Crpstudio.project.currentPrj!=="" && 
+              (!Crpstudio.project.currentLng || Crpstudio.project.currentLng === "")) {
             // Show it
             $("#corpus-selector").show();
           }
+          // Do we have a current project?
+          if (Crpstudio.project.currentPrj === "") {
+            // Make clear user understands he has to choose
+            $("#project_description").removeClass("hidden");
+            $("#project_description").html("<i>No project selected</i>");
+            $("#project_general").addClass("hidden");
+          }
           // Do we have a 'recent' CRP?
-          if (sRecentCrp && sRecentCrp !== "") {
+          if (sRecentCrp!=undefined && sRecentCrp !== "") {
             // Show the recent ones
             $("#project_list li .crp-recent").show();
             Crpstudio.project.recentcrp = sRecentCrp;
           } 
+          // We are open for changes again
+          Crpstudio.project.bIsSelecting = bSelState;
           break;
         case "input_editor": 
         case "input":
@@ -856,6 +871,8 @@ Crpstudio.project = {
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           break;
         case "definitions": case "definition_editor":
+          // Prevent undesired change triggers
+          Crpstudio.project.bIsSelecting = true;
           // Fill the definitions list
           Crpstudio.project.showlist("definition");
           // Show the definition selector
@@ -868,8 +885,12 @@ Crpstudio.project = {
           Crpstudio.project.addChangeEvents("def_general");
           // The Save button must be shown if the 'dirty' flag is set
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
+          // We are open for changes again
+          Crpstudio.project.bIsSelecting = bSelState;
           break;
         case "queries": case "query_editor":
+          // Prevent undesired change triggers
+          Crpstudio.project.bIsSelecting = true;
           // Fill the query list
           Crpstudio.project.showlist("query");
           // Show the query selector
@@ -882,8 +903,12 @@ Crpstudio.project = {
           Crpstudio.project.addChangeEvents("query_general");
           // The Save button must be shown if the 'dirty' flag is set
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
+          // We are open for changes again
+          Crpstudio.project.bIsSelecting = bSelState;
           break;
         case "constructor": case "constructor_editor":
+          // Prevent undesired change triggers
+          Crpstudio.project.bIsSelecting = true;
           // Fill the constructor list
           Crpstudio.project.showlist("constructor");
           // Show the constructor selector
@@ -892,8 +917,12 @@ Crpstudio.project = {
           Crpstudio.project.setCrpItem(null, "constructor");          
           // The Save button must be shown if the 'dirty' flag is set
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
+          // We are open for changes again
+          Crpstudio.project.bIsSelecting = bSelState;
           break;
         case "dbfeat": case "dbfeat_editor":
+          // Prevent undesired change triggers
+          Crpstudio.project.bIsSelecting = true;
           // Fill the constructor list
           Crpstudio.project.showlist("dbfeat");
           // Show the constructor selector
@@ -902,6 +931,8 @@ Crpstudio.project = {
           Crpstudio.project.setCrpItem(null, "dbfeat");          
           // The Save button must be shown if the 'dirty' flag is set
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
+          // We are open for changes again
+          Crpstudio.project.bIsSelecting = bSelState;
           break;
         case "result_display":
           // Other actions
@@ -950,12 +981,17 @@ Crpstudio.project = {
     var arHtml = [];    // To gather the output
     
     // Find the correct list
+    oList = Crpstudio.project.getList(sListType);
+    // Find the prefix
+    var oItemDesc = Crpstudio.project.getItemDescr(sListType);
+    var sPrf = oItemDesc.prf;
+    /*
     switch(sListType) {
       case "query": sPrf = "qry"; oList = Crpstudio.project.prj_qrylist;break;
       case "definition": sPrf = "def"; oList = Crpstudio.project.prj_deflist;break;
       case "constructor": sPrf = "qc"; oList = Crpstudio.project.prj_qclist;break;
       case "dbfeat": sPrf = "dbf"; oList = Crpstudio.project.prj_dbflist;break;
-    }
+    } */
     sLoc = "#" + sListType + "_list" + " ." + sPrf + "-available";
     // Calculate a list consisting of <li> items
     // QRY: "QueryId;Name;File;Goal;Comment;Created;Changed"
@@ -1015,6 +1051,25 @@ Crpstudio.project = {
     oBack.Dbase = oContent.dbase;
     return oBack;
   },
+  
+  /**
+   * 
+   * @param {type} sListType
+   * @returns {object}
+   */
+  getList : function(sListType) {
+    var oList = null;   // JSON type list of objects
+    // Find the correct list
+    switch(sListType) {
+      case "project":     oList = Crpstudio.project.prj_genlist; break;
+      case "query":       oList = Crpstudio.project.prj_qrylist;break;
+      case "definition":  oList = Crpstudio.project.prj_deflist;break;
+      case "constructor": oList = Crpstudio.project.prj_qclist;break;
+      case "dbfeat":      oList = Crpstudio.project.prj_dbflist;break;
+    }
+    // Return what we found
+    return oList;
+  },
 
   /**
    * getListObject
@@ -1027,7 +1082,9 @@ Crpstudio.project = {
    * @returns {object}
    */
   getListObject : function(sListType, sIdField, iValue) {
-    var oList = null;   // JSON type list of objects
+    var oList = Crpstudio.project.getList(sListType);   // JSON type list of objects
+    if (sListType === "project" || oList === null) return oList;
+    /*
     // Find the correct list
     switch(sListType) {
       case "project": sPrf = "crp"; oList = Crpstudio.project.prj_genlist; return oList;
@@ -1036,7 +1093,7 @@ Crpstudio.project = {
       case "constructor": sPrf = "qc"; oList = Crpstudio.project.prj_qclist;break;
       case "dbfeat": sPrf = "dbf"; oList = Crpstudio.project.prj_dbflist;break;
       default: return null;
-    }
+    } */
     // Walk all the elements of the list
     for (var i=0;i<oList.length;i++) {
       var oOneItem = oList[i];
@@ -1210,13 +1267,19 @@ Crpstudio.project = {
    * 29/sep/2015  ERK Added "sDbase" argument
    */
   setProject : function(target, sPrjName, sLng, sDir, sDbase) {
+    // Capture previous selecting state
+    //var bSelState = Crpstudio.project.bIsSelecting;
+    // Set the previous selection state to 'false'
+    var bSelState = false;
     // Are we switching?
     if (sPrjName !== Crpstudio.project.currentPrj) {
       // Is saving needed?
       if (Crpstudio.project.dirty) {
         // Ask user to save changes
-        var userOk = confirm("Save changes in this CRP?");  
+        var userOk = confirm("Save changes in this ["+Crpstudio.project.currentPrj+"]?");  
         if (userOk) {
+          // Indicate that we are selectiong
+          Crpstudio.project.bIsSelecting = true;
           // Get the changes saved
           Crpstudio.project.histSave(true);
         } else {
@@ -1245,7 +1308,7 @@ Crpstudio.project = {
     $("#top_bar_current_project").text(sPrjName);
     // Status: indicate that we are loading the project
     // EXTINCT: $("#project_status").html("Loading project...");
-    $("#project_description").html("<i>Please wait...</i>");
+    $("#project_description").html("<i>Loading project...</i>");
     // Make the General area INvisible
     $("#project_general").addClass("hidden");
     // Invalidate the 'current' setters
@@ -1253,9 +1316,11 @@ Crpstudio.project = {
     Crpstudio.project.currentDef = -1;
     Crpstudio.project.currentDbf = -1;
     Crpstudio.project.currentQc = -1;
+    /* ============== this does not work
     // Clear the contents of currently loaded query/def/dbfeat/qc
-    if (Crpstudio.project.cmDef) Crpstudio.project.cmDef.setValue("");
-    if (Crpstudio.project.cmQuery)  Crpstudio.project.cmQuery.setValue("");
+    if (Crpstudio.project.cmDef !== null) Crpstudio.project.cmDef.setValue("");
+    if (Crpstudio.project.cmQuery !== null)  Crpstudio.project.cmQuery.setValue("");
+    ================= */
     // Clear definition
     $("#def_general").addClass("hidden");
     $("#def_description").html("<i>No definition selected</i>");
@@ -1289,6 +1354,8 @@ Crpstudio.project = {
     } else {
       Crpstudio.project.setDbase(sDbase, sLng, sDir, false);
     }
+    // Indicate we are no longer selecting
+    Crpstudio.project.bIsSelecting = bSelState;
     
     // Pass on this value to /crpstudio and to /crpp
     var oArgs = { "project": sPrjName,
@@ -1300,6 +1367,47 @@ Crpstudio.project = {
     Crpstudio.getCrpStudioData("load", params, Crpstudio.project.processLoad, "#project_description");
   },
   
+  /**
+   * removeItemFromList
+   *    Remove item @iItemId from the list of type @sItemType
+   * 
+   * @param {type} sItemType
+   * @param {type} iItemId
+   * @returns {int}           - Id of the element that should now be selected
+   */
+  removeItemFromList : function(sItemType, iItemId) {
+    // Validate
+    if (iItemId <1 || !sItemType || sItemType==="") return;
+    // Get the correct list
+    var oList = Crpstudio.project.getList(sItemType);
+    // Access the information object for this type
+    var oItemDesc = Crpstudio.project.getItemDescr(sItemType);    
+    // Find out what the correct Id-field is
+    var sIdField = oItemDesc.id;
+    // Walk the list until we get the correct element
+    for (var i=0;i<oList.length;i++) {
+      // Check if this is the correct element
+      var oThis = oList[i];
+      if (parseInt(oThis[sIdField],10) === iItemId) {
+        // This is the item that needs to be deleted
+        oList.splice(i,1);
+        // Check what the next item is that should be selected
+        if (oList.length>= i+1) {
+          // Return the next item in the list
+          oThis = oList[i];
+          return oThis[sIdField];
+        } else if (oList.length>0) {
+          // Return the *last* item in the list
+          oThis = oList[oList.length-1];
+          return oThis[sIdField];
+        } else {
+          // Nothing is left, so return negatively
+          return -1;
+        }
+      }
+    }
+    return -1;
+  },
   
   /**
    * getCrpItem
@@ -1397,6 +1505,9 @@ Crpstudio.project = {
       $("#" + oItemDescr.descr).html("<i>Loading...</i>");
       // Make the General area INvisible
       $("#" + oItemDescr.gen).addClass("hidden");
+      // Indicate we are selecting
+      var bSelState = Crpstudio.project.bIsSelecting;
+      Crpstudio.project.bIsSelecting = true;
       // Make the current item object available globally
       Crpstudio.project[oItemDescr.cur] = oItem;
       // Pass on all the item's values to the html component
@@ -1480,6 +1591,8 @@ Crpstudio.project = {
           break;
       }
 
+      // We are no longer selecting
+      Crpstudio.project.bIsSelecting = bSelState;
 
     }
   },
@@ -1493,6 +1606,9 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   xqQueryChanged : function(cm, change) {
+    // DOn't proceed if we are selecting
+    if (Crpstudio.project.bIsSelecting) return;
+    // Okay, proceed
     var sValue = cm.getValue();
     $("#query_general_text").text(sValue);
     Crpstudio.project.ctlCurrentId = "query_general_text";
@@ -1511,6 +1627,9 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   xqDefChanged : function(cm, change) {
+    // DOn't proceed if we are selecting
+    if (Crpstudio.project.bIsSelecting) return;
+    // Okay, proceed
     var sValue = cm.getValue();
     $("#def_general_text").text(sValue);
     Crpstudio.project.ctlCurrentId = "def_general_text";
@@ -1834,20 +1953,26 @@ Crpstudio.project = {
           // Further action really depends on the item type
           switch(sItemType) {
             case "project":
-              // Add the item to the list directly
+              // Get the item line from the oContent structure
               var sItemLine = oContent.itemline;
+              // Add the item line to the correct <ul> list
               if (!Crpstudio.project.itemInsertLine(sItemLine, sItemName, sItemType, sAbbr))
                 $(target).html("Error: could not insert new CRP " + sItemName);
               break;
             case "definition": case "query":
               // Get the id
               var iItemId = oContent.itemid;
-              // Fill the definitions list
+              // Fill the query/definition list, but switch off 'selecting'
+              var bSelState = Crpstudio.project.bIsSelecting;
+              Crpstudio.project.bIsSelecting = true;
               Crpstudio.project.showlist(sItemType);
+              Crpstudio.project.bIsSelecting = bSelState;
               // Get the <a> element of the newly to be selected item
               var targetA = Crpstudio.project.getCrpItem(sItemType, iItemId);
               // Call setCrpItem() which will put focus on the indicated item
-              Crpstudio.project.setCrpItem(targetA, sItemType, iItemId);    
+              Crpstudio.project.setCrpItem(targetA, sItemType, iItemId);
+              // Add the uploaded query/definition to the History List
+              Crpstudio.project.histAddItem(sItemType, iItemId);
               break;
           }
           break;
@@ -1919,18 +2044,23 @@ Crpstudio.project = {
    * @param {string} sType  - Type of file to remove
    * @returns {undefined}   - no return
    */
-  removeFile : function(elDummy, sType) {
+  removeFile : function(elDummy, sItemType) {
     // Prepare variable
     var oArgs = null; var iItemId = -1; var lstItem = null; var sCrpName = "";
     var sItemMain = "";
     // Make sure download info is hidden
-    $("#"+sType+"_download").addClass("hidden");
+    $("#"+sItemType+"_download").addClass("hidden");
+    // Find out which project is currently selected
+    sCrpName = Crpstudio.project.currentPrj;
     // Action depends on the type
-    switch(sType) {
+    switch(sItemType) {
       case "project":
-        // Find out which one is currently selected
-        sCrpName = Crpstudio.project.currentPrj;
+        // There is no real itemmain
         sItemMain = "ROOT";                       // Project is root
+        break;
+      case "dbase":
+        // There is no real itemmain
+        sItemMain = "ROOT";                       // Databases is root
         break;
       case "query":
         // Validate
@@ -1957,18 +2087,51 @@ Crpstudio.project = {
         return;
     }
     if (sCrpName && sCrpName !== "") {
-      // Note: /crpstudio must check when the last download of this project was
-      // Send removal request to /crpstudio, which checks and passes it on to /crpp
-      oArgs = { "itemid": iItemId, "itemtype": sType, "itemmain": sItemMain,  
-                "crp": sCrpName, "userid": Crpstudio.currentUser };
-      // Send the remove request
-      var params = JSON.stringify(oArgs);
-      Crpstudio.getCrpStudioData("remove", params, Crpstudio.project.processRemove, "#"+sType+"_description");      
+      // Action depends on the type
+      switch (sItemType) {
+        case "project":
+          // Note: /crpstudio must check when the last download of this project was
+          // Send removal request to /crpstudio, which checks and passes it on to /crpp
+          oArgs = { "itemid": iItemId, "itemtype": sItemType, "itemmain": sItemMain,  
+                    "crp": sCrpName, "userid": Crpstudio.currentUser };
+          // Send the remove request
+          var params = JSON.stringify(oArgs);
+          Crpstudio.getCrpStudioData("remove", params, Crpstudio.project.processRemove, "#"+sItemType+"_description");      
+          break;
+        case "query": case "definition": 
+          // Make a call to histAdd, which signals the deletion
+          Crpstudio.project.histAdd(sItemType, iItemId, sCrpName, "delete", "");
+          // Delete the item from the list
+          var iItemNext = Crpstudio.project.removeItemFromList(sItemType, iItemId);
+          // Fill the query/definition list, but switch off 'selecting'
+          var bSelState = Crpstudio.project.bIsSelecting;
+          Crpstudio.project.bIsSelecting = true;
+          Crpstudio.project.showlist(sItemType);
+          Crpstudio.project.bIsSelecting = bSelState;
+          // Can we select the next item?
+          if (iItemNext > 0) {
+            // Set the new item id
+            var iItemNextId = parseInt(iItemNext, 10);
+            // Get the <a> element of the newly to be selected item
+            var targetA = Crpstudio.project.getCrpItem(sItemType, iItemNextId);
+            // Call setCrpItem() which will put focus on the indicated item
+            Crpstudio.project.setCrpItem(targetA, sItemType, iItemNextId);
+          }
+          break;
+        case "dbfeat": case "constructor":
+          // TODO: check this out!!
+          //       Possibly do as above
+          //       But for constructor: more checking is needed??
+          // Make a call to histAdd
+          histAdd(sItemType, iItemId, sCrpName, "delete", "");
+          break;
+      }
     }
   },
   /**
    * processRemove
    *    Brushing up after project has been deleted
+   *    NOTE: this is *not* a brush up after CRP parts deletion -- see processCrpChg
    *    
    * @param {type} response   JSON object returned from /crpstudio/remove
    * @param {type} target
@@ -1995,34 +2158,14 @@ Crpstudio.project = {
           switch (sItemType) {
             case "project":
               // Validate
-              if (sCrpName) {
+              if (sCrpName!==null && sCrpName!==undefined) {
                 // Remove the project from the list
                 $("#"+sItemType+"_list .crp_"+sCrpName).remove();
+                // Remove the current project
+                Crpstudio.project.currentPrj = "";
+                // Indicate that the user needs to make a new selection
+                Crpstudio.project.switchTab("project_editor", "", true);
               }
-              break;
-            case "query":
-              // TODO: re-draw the entire Query list
-              
-              // TODO: select the indicated new query in the list
-              
-              break;
-            case "definition":
-              // TODO: re-draw the entire Definition list
-              
-              // TODO: select the indicated new definition in the list
-              
-              break;
-            case "constructor":
-              //TODO: implement code to update the list that is being shown
-              
-              break;
-            case "dbfeat":
-              // Get the itemmain: the QC we are part of
-              
-              // TODO: re-draw the entire Query list
-              
-              // TODO: select the indicated new query in the list
-              
               break;
           }
           break;
@@ -2301,6 +2444,40 @@ Crpstudio.project = {
   },
   
   /**
+   * histAddItem
+   *    Add all elements of item in the list of @sItemType with @iItemId
+   * 
+   * @param {type} sItemType
+   * @param {type} iItemId
+   * @returns {undefined}
+   */
+  histAddItem : function(sItemType, iItemId) {
+    // Validate: the @id must be 1 or higher
+    if (!sItemType || !iItemId || iItemId <1) return;
+    // Access the information object for this type
+    var oItemDesc = Crpstudio.project.getItemDescr(sItemType);
+    // Access the item from the correct list
+    var oListItem = Crpstudio.project.getListObject(sItemType, oItemDesc.id, iItemId);
+    // Start out with a histAdd that signals the creation of a new item
+    Crpstudio.project.histAdd(sItemType, iItemId, Crpstudio.project.currentPrj, "create", "")
+    // Walk all the fields of this item
+    var arFields = oItemDesc.fields;
+    for (var i=0;i<arFields.length;i++) {
+      // Get the descriptor of this item
+      var oFieldDesc = arFields[i];
+      // Check if this one needs to be done
+      if (oFieldDesc.loc !== "") {
+        // Yes, this one needs an addHist treatment
+        var sValue = oListItem[oFieldDesc.field];
+        // Only add if we really have a value
+        if (sValue) 
+          Crpstudio.project.histAdd(sItemType, iItemId, Crpstudio.project.currentPrj, oFieldDesc.field, sValue);
+      }
+    }
+    
+  },
+  
+  /**
    * histClear -- Clear the history for the specified project
    * 
    * @param {type} sCrpName
@@ -2318,6 +2495,10 @@ Crpstudio.project = {
         arHist.splice(i,1);
       }
     }
+    // Reset the dirty flag if needed
+    // if (arHist.length === 0) Crpstudio.project.dirty = false;
+    // (No 'if' is needed, perhaps??)
+    Crpstudio.project.dirty = false;
   },
   
   /**
@@ -2569,9 +2750,11 @@ Crpstudio.project = {
     // Make sure download info is hidden
     $("#project_download").addClass("hidden");
     // Get the <li>
-    var listItem = $(target).parent();
+    // var listItem = $(target).parent();
+    var listItem = $(target).closest('li');
     // Look at all the <li> children of <ul>
-    var listHost = listItem.parent();
+    // var listHost = listItem.parent();
+    var listHost = listItem.closest('ul');
     listHost.children('li').each(function() { $(this).removeClass("active")});
     // Set the "active" class for the one the user has selected
     $(listItem).addClass("active");

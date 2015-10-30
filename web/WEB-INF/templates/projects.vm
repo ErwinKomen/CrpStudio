@@ -185,5 +185,8 @@
 			</div>
 			
 		</div>
+<script  type="text/javascript">
+  window.onload = Crpstudio.project.switchTab("project_editor", "", true);
+</script>
 #parse("footer.vm")
 
