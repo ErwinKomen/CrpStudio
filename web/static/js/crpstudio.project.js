@@ -59,23 +59,23 @@ Crpstudio.project = {
   prj_access: [
     {name: "project", id: "", listfield: "Name", descr: "project_description", prf: "crp",
       gen: "project_general", cur: "crp_current", fields: [
-          { field: "Name", type: "txt", loc: "project_general_name"}, 
-          { field: "Author", type: "txt", loc: "project_general_author"}, 
-          { field: "PrjType", type: "txt", loc: "project_general_prjtype"}, 
-          { field: "Comment", type: "txt", loc: "project_general_comments"}, 
-          { field: "Goal", type: "txt", loc: "project_general_goal"}, 
-          { field: "DbaseInput", type: "txt", loc: "project_general_dbase"}, 
-          { field: "Created", type: "cap", loc: "project_general_datecreated"}, 
-          { field: "Changed", type: "cap", loc: "project_general_datechanged"}]},
+          { field: "Name",        type: "txt", loc: "project_general_name"}, 
+          { field: "Author",      type: "txt", loc: "project_general_author"}, 
+          { field: "ProjectType", type: "txt", loc: "project_general_prjtype"}, 
+          { field: "Comments",    type: "txt", loc: "project_general_comments"}, 
+          { field: "Goal",        type: "txt", loc: "project_general_goal"}, 
+          { field: "DbaseInput",  type: "txt", loc: "project_general_dbase"}, 
+          { field: "Created",     type: "cap", loc: "project_general_datecreated"}, 
+          { field: "Changed",     type: "cap", loc: "project_general_datechanged"}]},
     {name: "query", id: "QueryId", listfield: "Name", descr: "query_description", prf: "qry",
       gen: "query_general", cur: "qry_current", fields: [
-          { field: "Name", type: "txt", loc: "query_general_name"}, 
-          { field: "File", type: "txt", loc: ""}, 
-          { field: "Goal", type: "txt", loc: "query_general_goal"}, 
-          { field: "Comment", type: "txt", loc: "query_general_comment"}, 
-          { field: "Text", type: "txt", loc: "query_general_text"}, 
-          { field: "Created", type: "cap", loc: "query_general_datecreated"}, 
-          { field: "Changed", type: "cap", loc: "query_general_datechanged"}]},
+          { field: "Name",        type: "txt", loc: "query_general_name"}, 
+          { field: "File",        type: "txt", loc: ""}, 
+          { field: "Goal",        type: "txt", loc: "query_general_goal"}, 
+          { field: "Comment",     type: "txt", loc: "query_general_comment"}, 
+          { field: "Text",        type: "txt", loc: "query_general_text"}, 
+          { field: "Created",     type: "cap", loc: "query_general_datecreated"}, 
+          { field: "Changed",     type: "cap", loc: "query_general_datechanged"}]},
     {name: "definition",id: "DefId", listfield: "Name", descr: "def_description",  prf: "def",
       gen: "def_general", cur: "def_current", fields: [
           { field: "Name", type: "txt", loc: "def_general_name"}, 
@@ -786,8 +786,8 @@ Crpstudio.project = {
         case "project":
           // Make sure the execute buttons are NOT YET shown
           Crpstudio.project.showExeButtons(false);
-          // Make sure the Save button is not yet shown
-          Crpstudio.project.showSaveButton(false);
+          // The Save button must be shown if the 'dirty' flag is set
+          Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           // Possibly *show* the lng/corpus selector
           if (!Crpstudio.project.currentLng || Crpstudio.project.currentLng === "") {
             // Show it
@@ -825,6 +825,10 @@ Crpstudio.project = {
             } else {
               // User must select: deselect everything
               $("#input_dbase option:selected").attr("selected", false);
+              // Select the element requesting the user to make a choice
+              $("#input_dbase option[index == 0]").attr("selected", true);
+              // This should go to the histAdd
+              // Crpstudio.project.histAdd("project", -1, Crpstudio.project.currentPrj, "Source",);
             }
           } else {
             // Show the corpus selector
@@ -848,6 +852,8 @@ Crpstudio.project = {
               }
             }
           }
+          // The Save button must be shown if the 'dirty' flag is set
+          Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           break;
         case "definitions": case "definition_editor":
           // Fill the definitions list
@@ -860,6 +866,8 @@ Crpstudio.project = {
           Crpstudio.project.addXqueryResizeEvents("def_general_top");
           // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
           Crpstudio.project.addChangeEvents("def_general");
+          // The Save button must be shown if the 'dirty' flag is set
+          Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           break;
         case "queries": case "query_editor":
           // Fill the query list
@@ -872,6 +880,8 @@ Crpstudio.project = {
           Crpstudio.project.addXqueryResizeEvents("query_general_top");
           // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
           Crpstudio.project.addChangeEvents("query_general");
+          // The Save button must be shown if the 'dirty' flag is set
+          Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           break;
         case "constructor": case "constructor_editor":
           // Fill the constructor list
@@ -880,6 +890,8 @@ Crpstudio.project = {
           $("#constructor_editor").show();
           // Call setCrpItem() which should check if a 'default' item needs to be shown
           Crpstudio.project.setCrpItem(null, "constructor");          
+          // The Save button must be shown if the 'dirty' flag is set
+          Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           break;
         case "dbfeat": case "dbfeat_editor":
           // Fill the constructor list
@@ -888,12 +900,16 @@ Crpstudio.project = {
           $("#dbfeat_editor").show();
           // Call setCrpItem() which should check if a 'default' item needs to be shown
           Crpstudio.project.setCrpItem(null, "dbfeat");          
+          // The Save button must be shown if the 'dirty' flag is set
+          Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           break;
         case "result_display":
           // Other actions
           $(".sub-nav dd").removeClass("active");
           $("#result_link").removeClass("hide");
           $("#result_link").addClass("active");
+          // Don't show save button
+          Crpstudio.project.showSaveButton(false);
           break;
         case "document_display":
           // Other actions
@@ -901,6 +917,8 @@ Crpstudio.project = {
           $("#document").removeClass("hide");
           $("#document_link").removeClass("hide");
           $("#document_link").addClass("active");
+          // Don't show save button
+          Crpstudio.project.showSaveButton(false);
           break;
       }
       // When to show the spacer before [result] and [document]
@@ -1267,7 +1285,7 @@ Crpstudio.project = {
       // $("#corpus-selector").hide();
     }
     if (!sDbase || sDbase === "") {
-      Crpstudio.project.resetDbase();
+      Crpstudio.project.resetDbase(false);
     } else {
       Crpstudio.project.setDbase(sDbase, sLng, sDir, false);
     }
@@ -1304,16 +1322,16 @@ Crpstudio.project = {
     var oFirst = null;
     // Ga alle elementen handmatig af
     $(sLoc).each(function() {
-      if (oFirst === null) oFirst = $(this).children(":last").get();
+      if (oFirst === null) oFirst = $(this).children(":last").get(0);
       // Check if it has the correct class
       if ($(this).hasClass(sClass)) {
         // Find this element's last child, which is the <a> element
-        var oTarget = $(this).children(":last").get();
+        var oTarget = $(this).children(":last").get(0);
         // Return this
         return oFirst = oTarget;
       }
     });
-    // Getting here means we are lost...
+    // Return the result of the search function
     return oFirst;
   },
  
@@ -1361,9 +1379,12 @@ Crpstudio.project = {
     // Validate
     if (iItemId && iItemId >= 0) {
       // Get the <li>
-      var listItem = $(target).parent();
+      // var listItem = $(target).parent();
+      var listItem = $(target).closest("li");
       // Look at all the <li> children of <ul>
-      var listHost = listItem.parent();
+      // var listHost = listItem.parent();
+      // Get the <ul> above it
+      var listHost = $(target).closest('ul');
       listHost.children('li').each(function() { $(this).removeClass("active")});
       // Set the "active" class for the one the user has selected
       $(listItem).addClass("active");
@@ -1473,7 +1494,7 @@ Crpstudio.project = {
    */
   xqQueryChanged : function(cm, change) {
     var sValue = cm.getValue();
-    $("#query_general_text").text(sValue());
+    $("#query_general_text").text(sValue);
     Crpstudio.project.ctlCurrentId = "query_general_text";
     Crpstudio.project.histAdd("query", Crpstudio.project.currentQry, Crpstudio.project.currentPrj,
         "Text", sValue);
@@ -1491,7 +1512,7 @@ Crpstudio.project = {
    */
   xqDefChanged : function(cm, change) {
     var sValue = cm.getValue();
-    $("#def_general_text").text(sValue());
+    $("#def_general_text").text(sValue);
     Crpstudio.project.ctlCurrentId = "def_general_text";
     Crpstudio.project.histAdd("definition", Crpstudio.project.currentDef, Crpstudio.project.currentPrj,
         "Text", sValue);
@@ -1548,7 +1569,7 @@ Crpstudio.project = {
           $("#project_general_author").val(sAuthor);
           $("#project_general_prjtype").val(sPrjType.toLowerCase());
           // Reset dbase by default
-          Crpstudio.project.resetDbase();
+          Crpstudio.project.resetDbase(false);
           if (bDbaseInput === "True") {
             $("#project_general_dbase").prop("checked", true);
             Crpstudio.dbaseInput = true;
@@ -1603,7 +1624,10 @@ Crpstudio.project = {
   addChangeEvents : function(sItemId) {
     var sId = "#" + sItemId;
     // Add event handlers on all INPUT elements under "project_general"
-    $(sId + " input").on("change keydown paste input", 
+    $(sId + " input").on("change paste input", 
+      function() {Crpstudio.project.ctlTimer(this, "input");});
+    // Checkbox: bind on the click event
+    $(sId + " input:checkbox").on("click", 
       function() {Crpstudio.project.ctlTimer(this, "input");});
     /*
     $(sId + " input").on("blur", 
@@ -1611,7 +1635,7 @@ Crpstudio.project = {
     */
 
     // Add event handlers on all TEXTAREA elements under "project_general"
-    $(sId + " textarea").on("change keydown paste input", 
+    $(sId + " textarea").on("change paste input", 
       function() {Crpstudio.project.ctlTimer(this, "textarea");});
     /*
     $(sId + " textarea").on("blur", 
@@ -1619,7 +1643,7 @@ Crpstudio.project = {
     */
 
     // Add event handlers on all SELECT elements under "project_general"
-    $(sId + " select").on("change keydown paste input", 
+    $(sId + " select").on("change paste input", 
       function() {Crpstudio.project.ctlTimer(this, "select");});
     /*
     $(sId + " select").on("blur", 
@@ -1783,7 +1807,7 @@ Crpstudio.project = {
    *    What to do when a project has been loaded
    *    
    * @param {type} response   JSON object returned from /crpstudio/load
-   * @param {type} target
+   * @param {type} target     The 'description' <div> for this 'item' type
    * @returns {undefined}
    */
   processUpLoad : function(response, target) {
@@ -1802,38 +1826,29 @@ Crpstudio.project = {
           var sAbbr = "";
           switch (sItemType) {
             case "project": sAbbr = "crp"; break;
-            case "definition": sAbbr = "def"; break;
-            case "query": sAbbr = "qry"; break;
+            case "definition": sAbbr = "def"; Crpstudio.project.prj_deflist = oContent.itemlist; break;
+            case "query": sAbbr = "qry"; Crpstudio.project.prj_qrylist = oContent.itemlist; break;
           }
           // Item-type-independent stuff
           var sItemName = oContent.itemname;
-          // If we have succesfully completed *uploading* an item to /crpstudio,
-          //    then it must be added to the list
-          var sItemLine = oContent.itemline;
-          // Check if there is any reply
-          if (sItemLine) {
-            // Walk the list of <li> elements with class "crp-available"
-            var arPrjItem = $("#"+sItemType+"_list ."+sAbbr+"-available").not(".divider").not(".heading");
-            var liBef = null;
-            // Start from 0: we are in our own 'section' of "crp-available"
-            for (var i=0;i<arPrjItem.size();i++) {
-              // It must have a <a> child node
-              if (arPrjItem[i].childNodes) {
-                var aChild = arPrjItem[i].childNodes.item(0);
-                // Should we put our project before this one?
-                if (aChild.innerHTML.localeCompare(sItemName)>0) {
-                  // The list item must come before the current one
-                  liBef = arPrjItem[i];break;
-                }
-              }              
-            }
-            // Did we find any?
-            if (liBef === null) {
-              // Append it after the divider and heading crp-available
-              $("#"+sItemType+"_list ."+sAbbr+"-available").last().append(sItemLine);
-            } else {
-              $(sItemLine).insertBefore($(liBef));
-            }
+          // Further action really depends on the item type
+          switch(sItemType) {
+            case "project":
+              // Add the item to the list directly
+              var sItemLine = oContent.itemline;
+              if (!Crpstudio.project.itemInsertLine(sItemLine, sItemName, sItemType, sAbbr))
+                $(target).html("Error: could not insert new CRP " + sItemName);
+              break;
+            case "definition": case "query":
+              // Get the id
+              var iItemId = oContent.itemid;
+              // Fill the definitions list
+              Crpstudio.project.showlist(sItemType);
+              // Get the <a> element of the newly to be selected item
+              var targetA = Crpstudio.project.getCrpItem(sItemType, iItemId);
+              // Call setCrpItem() which will put focus on the indicated item
+              Crpstudio.project.setCrpItem(targetA, sItemType, iItemId);    
+              break;
           }
           break;
         case "error":
@@ -1851,6 +1866,47 @@ Crpstudio.project = {
 			$("#"+sItemType+"_status").html("ERROR - Failed to load the .crpx result from the server.");
 		}    
   },  
+  
+  /**
+   * itemInsertLine
+   *    Create a <li> element for the indicated list and insert it
+   * 
+   * @param {type} sItemLine
+   * @param {type} sItemName
+   * @param {type} sItemType
+   * @param {type} sAbbr
+   * @returns {undefined}
+   */
+  itemInsertLine : function(sItemLine, sItemName, sItemType, sAbbr) {
+    // Check if there is any reply
+    if (sItemLine) {
+      // Walk the list of <li> elements with class "crp-available"
+      var arPrjItem = $("#"+sItemType+"_list ."+sAbbr+"-available").not(".divider").not(".heading");
+      var liBef = null;
+      // Start from 0: we are in our own 'section' of "crp-available"
+      for (var i=0;i<arPrjItem.size();i++) {
+        // It must have a <a> child node
+        if (arPrjItem[i].childNodes) {
+          var aChild = arPrjItem[i].childNodes.item(0);
+          // Should we put our project before this one?
+          if (aChild.innerHTML.localeCompare(sItemName)>0) {
+            // The list item must come before the current one
+            liBef = arPrjItem[i];break;
+          }
+        }              
+      }
+      // Did we find any?
+      if (liBef === null) {
+        // Append it after the divider and heading crp-available
+        $("#"+sItemType+"_list ."+sAbbr+"-available").last().append(sItemLine);
+      } else {
+        $(sItemLine).insertBefore($(liBef));
+      }
+      return true;
+    }    
+    // Getting here: failure
+    return false;
+  },
   
   /**
    * removeFile
@@ -2155,15 +2211,20 @@ Crpstudio.project = {
     if (sDirName) Crpstudio.project.currentDbDir = sDirName;
     // Make sure CHANGES are only passed on as /crpchg where this is intended
     if (bChange) {
+      // Process the change by calling [histAdd]
+      Crpstudio.project.histAdd("project", -1, Crpstudio.project.currentPrj,
+          "Source", sDbName);
+
+/*
       // Pass on this value to /crpstudio and to /crpp
       var sKey = "source";
       var sValue = sDbName;
       var oArgs = { "crp": Crpstudio.project.currentPrj,
-        "userid": Crpstudio.currentUser, 
-        "key": sKey, "value": sValue };
+        "userid": Crpstudio.currentUser, "key": sKey, "value": sValue };
       // var params = "changes=" + JSON.stringify(oChanges);
       var params = JSON.stringify(oArgs);
-      Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#dbase_description");      
+      Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#dbase_description");  
+      */
     }
   },
   /**
@@ -2171,11 +2232,19 @@ Crpstudio.project = {
    * 
    * @returns {undefined}
    */
-  resetDbase : function() {
+  resetDbase : function(bChange) {
     // Set the corpus name and dir name in the top section
     $("#top_bar_current_dbase").text("");
     // Set these values also in our own variables
     Crpstudio.project.currentDb = "";    
+    // Only process if we know there are changes
+    if (bChange) {
+      // Process the change by calling [histAdd]
+      Crpstudio.project.histAdd("project", -1, Crpstudio.project.currentPrj,
+          "Source", "");
+      Crpstudio.project.histAdd("project", -1, Crpstudio.project.currentPrj,
+          "DbaseInput", "False");
+    }
   },
   
   /**
@@ -2204,6 +2273,7 @@ Crpstudio.project = {
   histAdd : function(sType, iId, sCrp, sKey, sValue) {
     // Possibly get the last item of history
     var iSize = Crpstudio.project.lstHistory.length;
+    var bAdded = false;
     if (iSize >0) {
       var oLast = Crpstudio.project.lstHistory[iSize-1];
       // Check if this pertains to the same type/id/crp/key
@@ -2212,8 +2282,10 @@ Crpstudio.project = {
         // We simply adapt the last item
         oLast.value = sValue;
         Crpstudio.project.lstHistory[iSize-1] = oLast;
+        bAdded = true;
       }
-    } else {
+    } 
+    if (!bAdded) {
       // Check what the 'old' value was
       var sOld = Crpstudio.project.getItemValue(sType, iId, sCrp, sKey);
       // We need to *add* a new element: create the element
@@ -2263,8 +2335,8 @@ Crpstudio.project = {
         // Create a new 'key' item
         var sKey = oItem.key;
         if (oItem.type !== "project") sKey = oItem.type + "." + sKey;
-        // COpy it
-        arSend.push({key: oItem.key, id: oItem.id, value: oItem.value});
+        // COpy it -- making use of the adapted key
+        arSend.push({key: sKey, id: oItem.id, value: oItem.value});
       }
     }
     // Pass on this value to /crpstudio and to /crpp
@@ -2272,7 +2344,12 @@ Crpstudio.project = {
       "userid": Crpstudio.currentUser, "list": arSend };
     var params = JSON.stringify(oChanges);
     // Clear the history list
-    if (bClear) Crpstudio.project.lstHistory.clear();
+    if (bClear) 
+      Crpstudio.project.lstHistory = [];
+    else {
+      // At least clear the project history
+      Crpstudio.project.histClear(Crpstudio.project.currentPrj);
+    }
     // Send the changes
     Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
   },
@@ -2434,7 +2511,12 @@ Crpstudio.project = {
     Crpstudio.debug("ctlTimer: cleared");
     // ===============================
     var sCallerId = $(source).attr("id");
-    var sValue = $(source).val();
+    var sValue;
+    // Value depends on the type
+    if ($(source).is("input:checkbox"))
+      sValue = ($(source).is(':checked')) ? "True" : "False"; 
+    else 
+      sValue = $(source).val();
     // Some controls require immediate action
     switch (sCallerId) {
       case "project_general_dbase": 
@@ -2443,11 +2525,12 @@ Crpstudio.project = {
         if (sChbValue === Crpstudio.project.prj_dbaseinput) return; 
         // Make sure the change is recorded globally
         Crpstudio.dbaseInput = (sChbValue === "True");
+        Crpstudio.project.prj_dbaseinput = sChbValue;
         // If we are changing to "False", then reset the database specifications
         if (sChbValue === "False") {
-          Crpstudio.project.resetDbase();
+          Crpstudio.project.resetDbase(true);
         } else {
-          // Guide the user to the input specification  page
+          // Guide the user to the input specification page where a database must be selected
           Crpstudio.project.switchTab("input_editor");
         }
         break;
