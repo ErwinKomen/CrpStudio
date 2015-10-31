@@ -156,6 +156,7 @@
         #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("definitions.vm")
+        #parse("defcreate.vm")
 			</div>
 			<div id="query_editor" class="large-16 medium-16 small-16 content $queries_active">
         #set( $explorespec = $explorespecs.get(0) )
@@ -163,6 +164,7 @@
         #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("queries.vm")
+        #parse("qrycreate.vm")
 			</div>
 			<div id="dbfeat_editor" class="large-16 medium-16 small-16 content $dbfeat_active">
         #set( $explorespec = $explorespecs.get(3) )

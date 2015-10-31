@@ -1,0 +1,40 @@
+  <!-- the part to the right of the side-bar: NEW definition creation form -->
+  <div id="def_new_create" class="large-12 medium-12 small-12 columns hidden">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("definition.new.intro")</legend>
+        <div id="def_new" class="large-16 medium-16 small-16 row">
+          <div id="def_new_top" class="large-16 medium-16 small-16 row">
+            <!-- Definition NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("definition.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns">
+                <input id="def_new_name" class="left general_input" type="text" placeholder="name (no spaces)">
+              </div>
+            </div>
+            <!-- Definition's GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("definition.general.goal")</label>
+              </div>
+              <div class="large-14 medium-13 small-12 columns">
+                <input id="def_new_goal" class="left general_input" type="text" placeholder="This definition's goal is ...">
+              </div>
+            </div>
+            <!-- Definition's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("definition.general.comments")
+                <textarea id="def_new_comment" spellcheck="false" placeholder="Description of this definition" rows="10"></textarea>
+              </label>
+            </div>   
+          </div>
+          <div id="def_new_buttons"  class="large-16 medium-16 small-16 row">
+            <button onclick="Crpstudio.project.createItem('definition','new');" class="search small">$labels.getString("definition.new.create")</button>
+            <button onclick="Crpstudio.project.createItem('definition','cancel');" class="search small">$labels.getString("definition.new.cancel")</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

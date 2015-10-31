@@ -2742,29 +2742,44 @@ Crpstudio.project = {
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual
-   * Goal: manually create a project
+   * Goal: manually create a project, query, defintion and so forth
    * History:
    * 23/jun/2015  ERK Created
    */
-  createManual : function(target) {
-    // Make sure download info is hidden
-    $("#project_download").addClass("hidden");
-    // Get the <li>
-    // var listItem = $(target).parent();
-    var listItem = $(target).closest('li');
-    // Look at all the <li> children of <ul>
-    // var listHost = listItem.parent();
-    var listHost = listItem.closest('ul');
-    listHost.children('li').each(function() { $(this).removeClass("active")});
-    // Set the "active" class for the one the user has selected
-    $(listItem).addClass("active");
-    // Make sure the new project is being selected
-    var strProject = "...name of this project";
-    Crpstudio.project.currentPrj = strProject;
-    // And set the name of the project in the top-bar div
-    $("#top_bar_current_project").text("new...");
-    // Adapt the text of the project description
-    $("#project_description").html("<p>You have chosen: <b>" + strProject + "</b></p>");
+  createManual : function(target, sItemType) {
+    // Action depends on the kind of item
+    switch (sItemType) {
+      case "project":
+        // Make sure download info is hidden
+        $("#project_download").addClass("hidden");
+        // Get the <li>
+        // var listItem = $(target).parent();
+        var listItem = $(target).closest('li');
+        // Look at all the <li> children of <ul>
+        // var listHost = listItem.parent();
+        var listHost = listItem.closest('ul');
+        listHost.children('li').each(function() { $(this).removeClass("active")});
+        // Set the "active" class for the one the user has selected
+        $(listItem).addClass("active");
+        // Make sure the new project is being selected
+        var strProject = "...name of this project";
+        Crpstudio.project.currentPrj = strProject;
+        // And set the name of the project in the top-bar div
+        $("#top_bar_current_project").text("new...");
+        // Adapt the text of the project description
+        $("#project_description").html("<p>You have chosen: <b>" + strProject + "</b></p>");
+        break;
+      case "query":
+        // Make sure the new query form becomes visible
+        $("#query_general_editor").addClass("hidden");
+        $("#query_new_create").removeClass("hidden");
+        break;
+      case "definition":
+        // Make sure the new definition form becomes visible
+        $("#def_general_editor").addClass("hidden");
+        $("#def_new_create").removeClass("hidden");
+        break;
+    }
   },
   /* ---------------------------------------------------------------------------
    * Name: createWizard
@@ -2776,9 +2791,9 @@ Crpstudio.project = {
     // Make sure download info is hidden
     $("#project_download").addClass("hidden");
     // Get the <li>
-    var listItem = $(target).parent();
+    var listItem = $(target).closest('li');
     // Look at all the <li> children of <ul>
-    var listHost = listItem.parent();
+    var listHost = listItem.closest('ul');
     listHost.children('li').each(function() { $(this).removeClass("active")});
     // Set the "active" class for the one the user has selected
     $(listItem).addClass("active");
@@ -2789,6 +2804,134 @@ Crpstudio.project = {
     $("#top_bar_current_project").text("wizard...");
     // Adapt the text of the project description
     $("#project_description").html("<p>You have chosen: <b>" + strProject + "</b></p>");
+  },
+  
+  /**
+   * createItem
+   *    Create a new qry/def/dbf/ and so on
+   * 
+   * @param {type} sItemType
+   * @param {type} sAction
+   * @returns {undefined}
+   */
+  createItem : function(sItemType, sAction) {
+    var bOkay = false;
+    // First look at the action
+    switch(sAction) {
+      case "new":
+        // Check the information provided
+        var sItemName = $("#"+sItemType+"_new_name").val();
+        var sItemGoal = $("#"+sItemType+"_new_goal").val();
+        var sItemComment = $("#"+sItemType+"_new_comment").val();
+        // Only the item NAME is obligatory
+        if (sItemName !=="") {
+          // Create a new item
+          var iItemId = Crpstudio.project.createListItem(sItemType, 
+            {Name: sItemName, Goal: sItemGoal, Comment: sItemComment, Text: "-"});
+            
+          // Hide the form
+          switch(sItemType) {
+           case "query":
+             $("#query_new_create").addClass("hidden");
+             $("#query_general_editor").removeClass("hidden");
+             break;
+           case "definition":
+             $("#def_new_create").addClass("hidden");
+             $("#def_general_editor").removeClass("hidden");
+             break;
+          }
+        
+          // Make sure the list is re-drawn
+          // Fill the query/definition list, but switch off 'selecting'
+          var bSelState = Crpstudio.project.bIsSelecting;
+          Crpstudio.project.bIsSelecting = true;
+          Crpstudio.project.showlist(sItemType);
+          Crpstudio.project.bIsSelecting = bSelState;
+          // Get the <a> element of the newly to be selected item
+          var targetA = Crpstudio.project.getCrpItem(sItemType, iItemId);
+          // Call setCrpItem() which will put focus on the indicated item
+          Crpstudio.project.setCrpItem(targetA, sItemType, iItemId);
+          // Indicate all went well
+          // bOkay = true;
+        }
+        break;
+      case "cancel":
+        // Return to the current item
+        bOkay = true;
+        break;
+    }
+    // Hide the form if all is well
+    if (bOkay) {
+      switch(sItemType) {
+        case "query":
+          $("#query_new_create").addClass("hidden");
+          $("#query_general_editor").removeClass("hidden");
+          break;
+        case "definition":
+          $("#def_new_create").addClass("hidden");
+          $("#def_general_editor").removeClass("hidden");
+          break;
+      }
+    }
+  },
+  
+  /**
+   * getNewId 
+   *    Create a new id for list @oList, using field @sIdField
+   * 
+   * @param {type} oList
+   * @param {type} sIdField
+   * @returns {undefined}
+   */
+  getNewId : function(oList, sIdField) {
+    var iItemId = 0;
+    // Validate
+    if (oList === null) return 0;
+    // Check for trivial case
+    if (oList.length===0) iItemId = 1;
+    // Walk through all members, looking for the maximum
+    for (var i=0;i<oList.length;i++) {
+      var oItem = oList[i];
+      var iThisId = parseInt(oItem[sIdField],10);
+      if (iThisId > iItemId) iItemId = iThisId;
+    }
+    // Return the result
+    return iItemId+1;
+  },
+  
+  /**
+   * createListItem 
+   *    Create a new item for the list of type @sListType
+   * 
+   * @param {type} sListType
+   * @param {type} oStart
+   * @returns {int}           new item's id (numerical)
+   */
+  createListItem : function(sListType, oStart) {
+    // Get a descriptor object
+    var oDescr = Crpstudio.project.getItemDescr(sListType);
+    // Find the correct list
+    var oList = Crpstudio.project.getList(sListType);
+    var iItemId = Crpstudio.project.getNewId(oList, oDescr.id);
+    // Start preparing a new object
+    var oNew = {}; oNew[oDescr.id] = iItemId.toString();
+    // Get the fields array
+    var arField = oDescr.fields;
+    // Walk all the fields
+    for (var i=0;i<arField.length;i++) {
+      // Add this field to the object
+      var oOneField = arField[i].field; oNew[oOneField] = "";
+    }
+    // Adapt the fields provided by [oStart]
+    for (var propt in oStart) {
+      oNew[propt] = oStart[propt];
+    }
+    // Add the new item to the correct list
+    oList.push(oNew);
+    // Indicate in the history that this new object must be created
+    Crpstudio.project.histAddItem(sListType, iItemId);
+    // Return the new id
+    return iItemId;
   },
   
   /**

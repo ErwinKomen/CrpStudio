@@ -1,0 +1,40 @@
+  <!-- the part to the right of the side-bar: NEW query creation form -->
+  <div id="query_new_create" class="large-12 medium-12 small-12 columns hidden">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("query.new.intro")</legend>
+        <div id="query_new" class="large-16 medium-16 small-16 row">
+          <div id="query_new_top" class="large-16 medium-16 small-16 row">
+            <!-- Query NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("query.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns">
+                <input id="query_new_name" class="left general_input" type="text" placeholder="name (no spaces)">
+              </div>
+            </div>
+            <!-- Query's GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("query.general.goal")</label>
+              </div>
+              <div class="large-14 medium-13 small-12 columns">
+                <input id="query_new_goal" class="left general_input" type="text" placeholder="This query's goal is ...">
+              </div>
+            </div>
+            <!-- Query's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("query.general.comments")
+                <textarea id="query_new_comment" spellcheck="false" placeholder="Description of this query" rows="10"></textarea>
+              </label>
+            </div>   
+          </div>
+          <div id="query_new_buttons"  class="large-16 medium-16 small-16 row">
+            <button onclick="Crpstudio.project.createItem('query','new');" class="search small">$labels.getString("query.new.create")</button>
+            <button onclick="Crpstudio.project.createItem('query','cancel');" class="search small">$labels.getString("query.new.cancel")</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
