@@ -63,9 +63,9 @@ Crpstudio.result = {
       +"<td id=\"qc_"+iQC+"\">"+sQcLabel+"</td>"
       +"<td id=\"qc_"+iQC+"\"><a "+ sSwitchClick + ">(all together)</a></td>"
       +"<td id=\"total_"+iQC+"\"><a "+ sSwitchClick + ">"+iTotal+"</a></td>"
-      +"<td class=\"control\"><button onclick=\"Crpstudio.project.editQC("+iQC+")\" class=\"edit\">EDIT</button></td>"
-      +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results',"
-      +iQC+")\" class=\"edit\">DETAILS</button></td>"
+      +"<td class=\"control\"><a href=\"#\"  onclick=\"Crpstudio.project.editQC("+iQC+")\" class=\"button radius edit\">EDIT</a></td>"
+      +"<td class=\"control hidden\"><a href=\"#\"  onclick=\"Crpstudio.result.selectResults('results',"
+      +iQC+")\" class=\"button radius edit\">DETAILS</a></td>"
       +"</tr>";
     // Add the row to the appropriate table
     $("#queries > tbody").append(qcRow);
@@ -80,8 +80,8 @@ Crpstudio.result = {
         +"<td id=\"sub_"+iQC+"_"+i+"\"><a "+ sSwitchClick + ">"+arSubNames[i]+"</a></td>"
         +"<td id=\"total_"+iQC+"_"+i+"\"><a "+ sSwitchClick + ">"+arSubCounts[i]+"</a></td>"
         +"<td></td>"
-        +"<td class=\"control hidden\"><button onclick=\"Crpstudio.result.selectResults('results',"
-        +iQC+","+i+")\" class=\"edit\">DETAILS</button></td>"
+        +"<td class=\"control hidden\"><a href=\"#\"  onclick=\"Crpstudio.result.selectResults('results',"
+        +iQC+","+i+")\" class=\"button radius edit\">DETAILS</a></td>"
         +"</tr>";
       // Add the row to the appropriate table
       $("#queries > tbody").append(qcRow);

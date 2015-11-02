@@ -8,30 +8,35 @@
         </div>
         <div id="def_general" class="large-16 medium-16 small-16 row hidden">
           <div id="def_general_top" class="large-16 medium-16 small-16 row">
-            <!-- Definition NAME -->
+            <!-- Definition NAME+GOAL -->
             <div class="large-16 medium-16 small-16 row">
-              <div class="large-2 medium-3 small-4 columns">
-                <label for="right-label" class="left inline">$labels.getString("definition.general.name")</label>
+              <div class="large-12 medium-12 small-12 columns">
+                <div class="row">
+                  <!-- Definition NAME -->
+                  <div class="large-2 medium-3 small-4 columns">
+                    <label for="right-label" class="left inline">$labels.getString("definition.general.name")</label>
+                  </div>
+                  <div class="large-14 medium-13 small-12 columns">
+                    <input id="def_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
+                  </div>
+                </div>
+                <div class="row">
+                <!-- Definition GOAL -->
+                  <div class="large-2 medium-3 small-4 columns">
+                    <label for="right-label" class="left inline">$labels.getString("definition.general.goal")</label>
+                  </div>
+                  <div class="large-14 medium-13 small-12 columns">
+                    <input id="def_general_goal" class="left general_input" type="text" placeholder="This definition's goal is ...">
+                  </div>
+                </div>
               </div>
-              <div class="large-9 medium-8 small-7 columns">
-                <input id="def_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
-              </div>
-              <div class="large-5 medium-5 small-5 columns">
+              <div class="large-4 medium-4 small-4 columns">
                 <div class="row">$labels.getString("definition.general.datecreated"): 
                   <div id="def_general_datecreated" class="crpstudio_general_date">-</div></div>
                 <div class="row">  </div>
                 <div class="row">$labels.getString("definition.general.dateedited"): 
                   <div id="def_general_datechanged" class="crpstudio_general_date">-</div></div>
                 <div class="row">  </div>
-              </div>
-            </div>
-            <!-- Definition's GOAL -->
-            <div class="large-16 medium-16 small-16 row">
-              <div class="large-2 medium-3 small-4 columns">
-                <label for="right-label" class="left inline">$labels.getString("definition.general.goal")</label>
-              </div>
-              <div class="large-14 medium-13 small-12 columns">
-                <input id="def_general_goal" class="left general_input" type="text" placeholder="This definition's goal is ...">
               </div>
             </div>
             <!-- Definition's COMMENT -->

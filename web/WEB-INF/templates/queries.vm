@@ -8,15 +8,29 @@
         </div>
         <div id="query_general" class="large-16 medium-16 small-16 row hidden">
           <div id="query_general_top" class="large-16 medium-16 small-16 row">
-            <!-- Query NAME -->
+            <!-- Query NAME + GOAL -->
             <div class="large-16 medium-16 small-16 row">
-              <div class="large-2 medium-3 small-4 columns">
-                <label for="right-label" class="left inline">$labels.getString("query.general.name")</label>
+              <div class="large-12 medium-12 small-12 columns">
+                <div class="row">
+                  <!-- Query NAME -->
+                  <div class="large-2 medium-3 small-4 columns">
+                    <label for="right-label" class="left inline">$labels.getString("query.general.name")</label>
+                  </div>
+                  <div class="large-14 medium-13 small-12 columns">
+                    <input id="query_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
+                  </div>
+                </div>
+                <div class="row">
+                <!-- Query GOAL -->
+                  <div class="large-2 medium-3 small-4 columns">
+                    <label for="right-label" class="left inline">$labels.getString("query.general.goal")</label>
+                  </div>
+                  <div class="large-14 medium-13 small-12 columns">
+                    <input id="query_general_goal" class="left general_input" type="text" placeholder="This query's goal is ...">
+                  </div>
+                </div>
               </div>
-              <div class="large-9 medium-8 small-7 columns">
-                <input id="query_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
-              </div>
-              <div class="large-5 medium-5 small-5 columns">
+              <div class="large-4 medium-4 small-4 columns">
                 <!-- Query DATE CREATED -->
                 <div class="row">$labels.getString("query.general.datecreated"): 
                   <div id="query_general_datecreated" class="crpstudio_general_date">-</div></div>
@@ -25,15 +39,6 @@
                 <div class="row">$labels.getString("query.general.dateedited"): 
                   <div id="query_general_datechanged" class="crpstudio_general_date">-</div></div>
                 <div class="row">  </div>
-              </div>
-            </div>
-            <!-- Query GOAL -->
-            <div class="large-16 medium-16 small-16 row">
-              <div class="large-2 medium-3 small-4 columns">
-                <label for="right-label" class="left inline">$labels.getString("query.general.goal")</label>
-              </div>
-              <div class="large-14 medium-13 small-12 columns">
-                <input id="query_general_goal" class="left general_input" type="text" placeholder="This query's goal is ...">
               </div>
             </div>
             <!-- Query's COMMENT -->

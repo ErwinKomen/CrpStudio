@@ -58,7 +58,7 @@ Crpstudio.project = {
   // Object defining the elements of Query, Definition, DbFeat and Constructor
   prj_access: [
     {name: "project", id: "", listfield: "Name", descr: "project_description", prf: "crp",
-      gen: "project_general", cur: "crp_current", fields: [
+      gen: "project_general", cur: "crp_current", divprf: "project", fields: [
           { field: "Name",        type: "txt", loc: "project_general_name"}, 
           { field: "Author",      type: "txt", loc: "project_general_author"}, 
           { field: "ProjectType", type: "txt", loc: "project_general_prjtype"}, 
@@ -68,7 +68,7 @@ Crpstudio.project = {
           { field: "Created",     type: "cap", loc: "project_general_datecreated"}, 
           { field: "Changed",     type: "cap", loc: "project_general_datechanged"}]},
     {name: "query", id: "QueryId", listfield: "Name", descr: "query_description", prf: "qry",
-      gen: "query_general", cur: "qry_current", fields: [
+      gen: "query_general", cur: "qry_current", divprf: "query", fields: [
           { field: "Name",        type: "txt", loc: "query_general_name"}, 
           { field: "File",        type: "txt", loc: ""}, 
           { field: "Goal",        type: "txt", loc: "query_general_goal"}, 
@@ -77,30 +77,30 @@ Crpstudio.project = {
           { field: "Created",     type: "cap", loc: "query_general_datecreated"}, 
           { field: "Changed",     type: "cap", loc: "query_general_datechanged"}]},
     {name: "definition",id: "DefId", listfield: "Name", descr: "def_description",  prf: "def",
-      gen: "def_general", cur: "def_current", fields: [
-          { field: "Name", type: "txt", loc: "def_general_name"}, 
-          { field: "File", type: "txt", loc: ""}, 
-          { field: "Goal", type: "txt", loc: "def_general_goal"}, 
-          { field: "Comment", type: "txt", loc: "def_general_comment"}, 
-          { field: "Text", type: "txt", loc: "def_general_text"}, 
-          { field: "Created", type: "cap", loc: "def_general_datecreated"}, 
-          { field: "Changed", type: "cap", loc: "def_general_datechanged"}]},
+      gen: "def_general", cur: "def_current", divprf: "def", fields: [
+          { field: "Name",        type: "txt", loc: "def_general_name"}, 
+          { field: "File",        type: "txt", loc: ""}, 
+          { field: "Goal",        type: "txt", loc: "def_general_goal"}, 
+          { field: "Comment",     type: "txt", loc: "def_general_comment"}, 
+          { field: "Text",        type: "txt", loc: "def_general_text"}, 
+          { field: "Created",     type: "cap", loc: "def_general_datecreated"}, 
+          { field: "Changed",     type: "cap", loc: "def_general_datechanged"}]},
     {name: "dbfeat", id: "DbFeatId", listfield: "Name", descr: "dbf_description",  prf: "dbf",
-      gen: "dbf_general", cur: "dbf_current", fields: [
-          { field: "Name", type: "txt", loc: "dbf_general_name"}, 
-          { field: "Pre", type: "txt", loc: "dbf_general_pre"}, 
-          { field: "QCid", type: "txt", loc: "dbf_general_qcid"}, 
-          { field: "FtNum", type: "txt", loc: "dbf_general_ftnum"}]},
+      gen: "dbf_general", cur: "dbf_current", divprf: "dbf", fields: [
+          { field: "Name",        type: "txt", loc: "dbf_general_name"}, 
+          { field: "Pre",         type: "txt", loc: "dbf_general_pre"}, 
+          { field: "QCid",        type: "txt", loc: "dbf_general_qcid"}, 
+          { field: "FtNum",       type: "txt", loc: "dbf_general_ftnum"}]},
     {name: "constructor", id: "QCid", listfield: "Result", descr: "qc_description",  prf: "qc",
-      gen: "qc_general", cur: "qc_current", fields: [
-          { field: "Input", type: "txt", loc: "qc_general_input"}, 
-          { field: "Query", type: "txt", loc: "qc_general_query"}, 
-          { field: "Output", type: "txt", loc: "qc_general_output"}, 
-          { field: "Result", type: "txt", loc: "qc_general_result"}, 
-          { field: "Cmp", type: "txt", loc: "qc_general_cmp"}, 
-          { field: "Mother", type: "txt", loc: "qc_general_mother"}, 
-          { field: "Goal", type: "txt", loc: "qc_general_goal"}, 
-          { field: "Comment", type: "txt", loc: "qc_general_comment"}]}
+      gen: "qc_general", cur: "qc_current", divprf: "qc", fields: [
+          { field: "Input",       type: "txt", loc: "qc_general_input"}, 
+          { field: "Query",       type: "txt", loc: "qc_general_query"}, 
+          { field: "Output",      type: "txt", loc: "qc_general_output"}, 
+          { field: "Result",      type: "txt", loc: "qc_general_result"}, 
+          { field: "Cmp",         type: "txt", loc: "qc_general_cmp"}, 
+          { field: "Mother",      type: "txt", loc: "qc_general_mother"}, 
+          { field: "Goal",        type: "txt", loc: "qc_general_goal"}, 
+          { field: "Comment",     type: "txt", loc: "qc_general_comment"}]}
   ],
   // Define Xquery highlighting styles
   cmStyle1 : {            
@@ -1748,26 +1748,15 @@ Crpstudio.project = {
     // Checkbox: bind on the click event
     $(sId + " input:checkbox").on("click", 
       function() {Crpstudio.project.ctlTimer(this, "input");});
-    /*
-    $(sId + " input").on("blur", 
-      function() {Crpstudio.project.ctlChanged(this, "blurInput");});
-    */
+    // Note: do not set the .on("blur") event, because that is not really necessary
 
     // Add event handlers on all TEXTAREA elements under "project_general"
     $(sId + " textarea").on("change paste input", 
       function() {Crpstudio.project.ctlTimer(this, "textarea");});
-    /*
-    $(sId + " textarea").on("blur", 
-      function() {Crpstudio.project.ctlChanged(this, "blurTextarea");});
-    */
 
     // Add event handlers on all SELECT elements under "project_general"
     $(sId + " select").on("change paste input", 
       function() {Crpstudio.project.ctlTimer(this, "select");});
-    /*
-    $(sId + " select").on("blur", 
-      function() {Crpstudio.project.ctlChanged(this, "blurSelect");});
-    */
     
   }, 
   
@@ -2816,13 +2805,16 @@ Crpstudio.project = {
    */
   createItem : function(sItemType, sAction) {
     var bOkay = false;
+    var oDescr = Crpstudio.project.getItemDescr(sItemType);
     // First look at the action
     switch(sAction) {
       case "new":
         // Check the information provided
-        var sItemName = $("#"+sItemType+"_new_name").val();
-        var sItemGoal = $("#"+sItemType+"_new_goal").val();
-        var sItemComment = $("#"+sItemType+"_new_comment").val();
+        var sDivPrf = oDescr.divprf;
+        var sItemName = $("#"+sDivPrf+"_new_name").val();
+        var sItemGoal = $("#"+sDivPrf+"_new_goal").val();
+        var sItemComment = $("#"+sDivPrf+"_new_comment").val();
+        
         // Only the item NAME is obligatory
         if (sItemName !=="") {
           // Create a new item
@@ -2846,13 +2838,13 @@ Crpstudio.project = {
           var bSelState = Crpstudio.project.bIsSelecting;
           Crpstudio.project.bIsSelecting = true;
           Crpstudio.project.showlist(sItemType);
-          Crpstudio.project.bIsSelecting = bSelState;
           // Get the <a> element of the newly to be selected item
           var targetA = Crpstudio.project.getCrpItem(sItemType, iItemId);
           // Call setCrpItem() which will put focus on the indicated item
           Crpstudio.project.setCrpItem(targetA, sItemType, iItemId);
           // Indicate all went well
           // bOkay = true;
+          Crpstudio.project.bIsSelecting = bSelState;
         }
         break;
       case "cancel":

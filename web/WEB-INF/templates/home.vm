@@ -17,14 +17,16 @@
       <div class="small-12 medium-10 large-8 small-centered medium-centered large-centered columns">
         <p><span class="info">$labels.getString("login.line1")</span>
            <span class="info">$labels.getString("login.line2")</span></p>
-        <form method="post" action="j_security_check">
+        <form id="login_form" method="post" action="j_security_check">
           <table>
             <tr><td>$labels.getString("login.name")</td>
               <td><input type="text" name="j_username"></td></tr>
               <td></td>
             <tr><td>$labels.getString("login.password")</td>
               <td><input type="password" name= "j_password"></td>
-              <td><button onclick="Crpstudio.login.accept();" class="tiny">OK</button></td>
+              <td><button onclick="Crpstudio.login.accept();" class="radius tiny">OK</button></td>
+              <!-- <td><a href="#" type="submit" form="login_form" onclick="Crpstudio.login.accept();" class="button radius tiny">OK</a></td> -->
+              <!-- <td><input type="button" onclick="Crpstudio.login.accept();" class="button radius tiny">OK</td> -->
             </tr>
           </table>
         </form>

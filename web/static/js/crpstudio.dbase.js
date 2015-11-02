@@ -128,20 +128,14 @@ Crpstudio.dbase = {
           // Add event handlers on all INPUT elements under "project_general"
           $("#dbase_general input").on("change keydown paste input", 
             function() {Crpstudio.dbase.ctlTimer(this);});
-          $("#dbase_general input").on("blur", 
-            function() {Crpstudio.dbase.ctlChanged(this);});
             
           // Add event handlers on all TEXTAREA elements under "project_general"
           $("#dbase_general textarea").on("change keydown paste input", 
             function() {Crpstudio.project.ctlTimer(this);});
-          $("#dbase_general textarea").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this);});
             
           // Add event handlers on all SELECT elements under "project_general"
           $("#dbase_general select").on("change keydown paste input", 
             function() {Crpstudio.project.ctlTimer(this);});
-          $("#dbase_general select").on("blur", 
-            function() {Crpstudio.project.ctlChanged(this);});
             
           // Make the General area visible again
           $("#dbase_general").removeClass("hidden");

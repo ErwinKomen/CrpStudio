@@ -385,7 +385,10 @@ var Crpstudio = {
      * @returns {void}
      */
     accept : function() {
-      // No need to do anything, actually
+      // Set the page
+      Crpstudio.tab = "j_security_check";
+      // Switch there
+      window.location = window.location.protocol+Crpstudio.tab;
     }
   },
 	
@@ -396,7 +399,7 @@ var Crpstudio = {
    * 22/jun/2015 ERK Copied from WhiteLab
    */  
 	switchLanguage : function(lang) {
-		Crpstudio.language = lang;
+		Crpstudio.language = "lang";
 		if (Crpstudio.tab === "search" && Crpstudio.project.tab !== "result" && Crpstudio.project.tab !== "document") {
 			window.location = window.location.protocol+Crpstudio.tab+"?lang="+Crpstudio.language+"&tab="+Crpstudio.project.tab;
 		} else {

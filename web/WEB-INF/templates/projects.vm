@@ -41,21 +41,21 @@
 				<dd id="constructor_link"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
 			#end
       <!-- On the navigation bar: [execution] -->
-      <dd id="project_executor">
-        <button onclick="Crpstudio.project.execute(true)" class="search small">
+      <dd id="project_executor" class="execute">
+        <a href="#" onclick="Crpstudio.project.execute(true)" class="tablink">
           <span>$labels.getString("project.execute")</span>
-        </button>
+        </a>
       </dd>
-      <dd id="project_executor_nocache">
-        <button onclick="Crpstudio.project.execute(false)" class="search small">
+      <dd id="project_executor_nocache" class="execute">
+        <a href="#" onclick="Crpstudio.project.execute(false)" class="tablink">
           <span>$labels.getString("project.execute")</span> (no cache)
-        </button>
+        </a>
       </dd>
       <!-- On the navigation bar: [SAVING changes] -->
-      <dd id="project_saving">
-        <button onclick="Crpstudio.project.histSave(true)" class="small">
+      <dd id="project_saving" class="save">
+        <a href="#" onclick="Crpstudio.project.histSave(true)" class="tablink">
           <span>$labels.getString("project.save")</span>
-        </button>
+        </a>
       </dd>
       <!-- Spacer between projects and results -->
 			#if($tab == "result" || $tab == "document")

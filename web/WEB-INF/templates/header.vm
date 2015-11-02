@@ -78,7 +78,7 @@
 		</div>
 		<![endif]-->
 		<div class="cookies">
-			<span class="info">$labels.getString("cookies.line1") <button onclick="Crpstudio.cookies.accept();" class="tiny">OK</button></span>
+			<span class="info">$labels.getString("cookies.line1") <a href="$" onclick="Crpstudio.cookies.accept();" class="button radius tiny">OK</button></a>
 			<span class="info">$labels.getString("cookies.line2")</span>
 		</div>
     <!-- Keep the navigation in a special section -->
