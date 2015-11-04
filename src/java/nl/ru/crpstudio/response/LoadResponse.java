@@ -58,6 +58,7 @@ public class LoadResponse extends BaseResponse {
           oContent.put("qrylist", crpThis.getListQuery());
           oContent.put("qclist", crpThis.getListQC());
           oContent.put("dbflist", crpThis.getListDbFeat());
+          oContent.put("crplist", this.getProjectList(sUserId));
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");
