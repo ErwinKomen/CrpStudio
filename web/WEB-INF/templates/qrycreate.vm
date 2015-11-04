@@ -12,6 +12,7 @@
               </div>
               <div class="large-9 medium-8 small-7 columns">
                 <input id="query_new_name" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="query_new_name_error" class="hidden">Name must be new and not have spaces</small>
               </div>
             </div>
             <!-- Query's GOAL -->

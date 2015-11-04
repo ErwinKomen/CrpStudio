@@ -15,6 +15,7 @@
               </div>
               <div class="large-9 medium-8 small-7 columns">
                 <input id="qc_general_result" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="qc_general_name_error" class="hidden">Result label must be new and not have spaces</small>
               </div>
             </div>
             <!-- TWO items in one row -->

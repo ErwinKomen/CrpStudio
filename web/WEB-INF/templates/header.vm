@@ -54,6 +54,10 @@
     ========================================================================== -->
 
 		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
+<!-- ============================ WEG ========================================
+		<script type="text/javascript" src="./static/js/crpstudio.config.js"></script>
+		<script type="text/javascript" src="./static/js/crpstudio.item.js"></script>
+    ========================================================================== -->
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.dbase.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.project.js"></script>

@@ -20,6 +20,7 @@
                   <div class="large-16 medium-16 small-16 row collapse">
                     <div class="large-14 medium-14 small-14 columns">
                       <input id="project_general_name" class="general_input" type="text" placeholder="name (no spaces)">
+                      <small id="project_general_name_error" class="hidden">Name must be new and not have spaces</small>
                     </div>
                     <div class="large-2 medium-2 small-2 columns">
                       <span class="postfix">.crpx</span>

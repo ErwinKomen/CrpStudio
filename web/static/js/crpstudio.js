@@ -340,12 +340,11 @@ var Crpstudio = {
    */  
 	switchTab : function(target) {
 		if (target !== Crpstudio.tab) {
-			if (Crpstudio.language !== null) {
-				window.location = window.location.protocol+target+"?lang="+Crpstudio.language;
-        
-			} else {
-				window.location = window.location.protocol+target;
-			}
+      // Get the 'lang' parameter
+      var sLang = "";
+			if (Crpstudio.language !== null) sLang = "?lang=" + Crpstudio.language;
+      // Switch to the 'target' page using the lang parameter
+      window.location = window.location.protocol+target+sLang;
 		}
 	},
   

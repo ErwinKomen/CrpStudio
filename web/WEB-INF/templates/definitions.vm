@@ -18,6 +18,7 @@
                   </div>
                   <div class="large-14 medium-13 small-12 columns">
                     <input id="def_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
+                    <small id="def_general_name_error" class="hidden">Name must be new and not have spaces</small>
                   </div>
                 </div>
                 <div class="row">

@@ -38,14 +38,15 @@ Crpstudio.project = {
   prj_goal: "",           // Field value of this project: goal
   prj_dbaseinput: "",     // Field value of this project: dbaseinput (True/False)
   prj_comments: "",       // Field value of this project: comments
-  prj_language: "",       // Field value of this project: comments
-  prj_part: "",           // Field value of this project: comments
-  prj_dbase: "",          // Field value of this project: comments
+  prj_language: "",       // Field value of this project: language
+  prj_part: "",           // Field value of this project: part
+  prj_dbase: "",          // Field value of this project: dbase
   prj_deflist: null,      // Field value of this project: list of definitions
   prj_qrylist: null,      // Field value of this project: list of queries
   prj_qclist: null,       // Field value of this project: list of QC elements
   prj_dbflist: null,      // Field value of this project: list of database features
   prj_genlist: null,      // Field value of this project: list of 'general' settings
+  prj_crplist: null,      // List of currently available CRPs
   qry_current: null,      // Currently loaded Query object
   def_current: null,      // Currently loaded Definition object
   dbf_current: null,      // Currently loaded DbFeat object
@@ -807,7 +808,7 @@ Crpstudio.project = {
             $("#project_general").addClass("hidden");
           }
           // Do we have a 'recent' CRP?
-          if (sRecentCrp!=undefined && sRecentCrp !== "") {
+          if (sRecentCrp!==undefined && sRecentCrp !== "") {
             // Show the recent ones
             $("#project_list li .crp-recent").show();
             Crpstudio.project.recentcrp = sRecentCrp;
@@ -915,6 +916,8 @@ Crpstudio.project = {
           $("#constructor_editor").show();
           // Call setCrpItem() which should check if a 'default' item needs to be shown
           Crpstudio.project.setCrpItem(null, "constructor");          
+          // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
+          Crpstudio.project.addChangeEvents("qc_general");
           // The Save button must be shown if the 'dirty' flag is set
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           // We are open for changes again
@@ -929,6 +932,8 @@ Crpstudio.project = {
           $("#dbfeat_editor").show();
           // Call setCrpItem() which should check if a 'default' item needs to be shown
           Crpstudio.project.setCrpItem(null, "dbfeat");          
+          // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
+          Crpstudio.project.addChangeEvents("dbf_general");
           // The Save button must be shown if the 'dirty' flag is set
           Crpstudio.project.showSaveButton(Crpstudio.project.dirty);
           // We are open for changes again
@@ -1584,6 +1589,8 @@ Crpstudio.project = {
         case "constructor":
           // Set the id of the currently selected constructor item
           Crpstudio.project.currentQc = iItemId;
+          // Is this the first time we are visiting QC?
+          
           // Make sure the visibility is okay
           Crpstudio.project.setSizes();
           break;
@@ -1676,6 +1683,7 @@ Crpstudio.project = {
           var iQryCount = oContent.qrylist.length; Crpstudio.project.prj_qrylist = oContent.qrylist;
           var iQcCount = oContent.qclist.length; Crpstudio.project.prj_qclist = oContent.qclist;
           var iDbfCount = oContent.dbflist.length; Crpstudio.project.prj_dbflist = oContent.dbflist;
+          Crpstudio.project.prj_crplist = oContent.crplist;
           Crpstudio.project.prj_genlist = Crpstudio.project.setGenList(oContent);
           /* =============== DEBUGGING ======================
           $("#project_status").html("defs=" + iDefCount + " qrys=" + iQryCount +
@@ -2403,6 +2411,8 @@ Crpstudio.project = {
    * @returns {undefined}
    */
   histAdd : function(sType, iId, sCrp, sKey, sValue) {
+    // If this is a change in name, then check it immediately
+    if (!Crpstudio.project.itemCheck(sType, iId, sKey, sValue)) return;
     // Possibly get the last item of history
     var iSize = Crpstudio.project.lstHistory.length;
     var bAdded = false;
@@ -2424,6 +2434,19 @@ Crpstudio.project = {
       var oNew = {type: sType, id: iId, crp: sCrp, key: sKey, value: sValue, old: sOld, saved: false};
       // Add the new element to the list
       Crpstudio.project.lstHistory.push(oNew);
+    }
+    // Check if the value needs to be adapted in a list
+    switch (sKey) {
+      case "delete":
+      case "create":
+        // No changes here
+        break;
+      default:
+        // Change in list
+        Crpstudio.project.setOneItem(sType, sKey, iId, sValue);
+        // Check if list needs to be re-drawn
+        
+        break;
     }
     
     // Make sure the save button is shown
@@ -2722,6 +2745,30 @@ Crpstudio.project = {
     // Process the change by calling [histAdd]
     Crpstudio.project.histAdd(oItem.type, iItemId, Crpstudio.project.currentPrj,
         oItem.key, sValue);
+        
+    // Not for 'project' type
+    switch (oItem.type) {
+      case "project":
+        break;
+      default:
+        // Check if list needs to be re-drawn
+        var oDescr = Crpstudio.project.getItemDescr(oItem.type);
+        if (oItem.key === oDescr.listfield) {
+          // Make sure the list is re-drawn
+          // Fill the query/definition list, but switch off 'selecting'
+          var bSelState = Crpstudio.project.bIsSelecting;
+          Crpstudio.project.bIsSelecting = true;
+          Crpstudio.project.showlist(oItem.type);
+          // Get the <a> element of the newly to be selected item
+          var targetA = Crpstudio.project.getCrpItem(oItem.type, iItemId);
+          // Call setCrpItem() which will put focus on the indicated item
+          Crpstudio.project.setCrpItem(targetA, oItem.type, iItemId);
+          // Indicate all went well
+          // bOkay = true;
+          Crpstudio.project.bIsSelecting = bSelState;
+        }
+        break;
+    }
     
     /* ========== OLD ========
     // OLD BEHAVIOUR: Call a new timer
@@ -2806,17 +2853,28 @@ Crpstudio.project = {
   createItem : function(sItemType, sAction) {
     var bOkay = false;
     var oDescr = Crpstudio.project.getItemDescr(sItemType);
+    var sDivPrf = oDescr.divprf;
+    // Reset any previous naming
+    $("#"+sDivPrf+"_new_name_error").removeClass("error");
+    $("#"+sDivPrf+"_new_name_error").addClass("hidden");
     // First look at the action
     switch(sAction) {
       case "new":
         // Check the information provided
-        var sDivPrf = oDescr.divprf;
         var sItemName = $("#"+sDivPrf+"_new_name").val();
         var sItemGoal = $("#"+sDivPrf+"_new_goal").val();
         var sItemComment = $("#"+sDivPrf+"_new_comment").val();
         
-        // Only the item NAME is obligatory
+        // Only the item NAME is obligatory + check the NAME item
         if (sItemName !=="") {
+          // Validate: check 
+          if (!Crpstudio.project.itemNameCheck(sItemType, sItemName)) {
+            // Signal that the name is not correct
+            $("#"+sDivPrf+"_new_name_error").html("Duplicate: "+sItemName)
+            $("#"+sDivPrf+"_new_name_error").addClass("error");
+            $("#"+sDivPrf+"_new_name_error").removeClass("hidden");
+            return;
+          }
           // Create a new item
           var iItemId = Crpstudio.project.createListItem(sItemType, 
             {Name: sItemName, Goal: sItemGoal, Comment: sItemComment, Text: "-"});
@@ -2865,6 +2923,107 @@ Crpstudio.project = {
           break;
       }
     }
+  },
+  
+  /**
+   * itemNameCheck
+   *    Check if name @sItemName already exists for @sItemType
+   *    
+   * @param {type} sItemType
+   * @param {type} sItemName
+   * @returns {boolean}       - true if the item is okay (it *not* a duplicate)
+   */
+  itemNameCheck : function(sItemType, sItemName) {
+    // Get the list
+    var oList = Crpstudio.project.getList(sItemType);
+    // Find out which name need to be checked
+    var oDescr = Crpstudio.project.getItemDescr(sItemType);
+    var sListField = oDescr.listfield;
+    // Walk the list
+    for (var i=0;i<oList.length;i++) {
+      // Get this item
+      var oItem = oList[i];
+      if (oItem[sListField] === sItemName) return false;
+    }
+    // Getting here means we're okay
+    return true;
+  },
+  
+  /**
+   * itemCheck
+   *    Check if item of type @sItemType kan have a @sKey with @sValue
+   *    
+   * @param {type} sItemType
+   * @param {type} iId        - @id value of the item to be checked
+   * @param {type} sKey
+   * @param {type} sValue
+   * @returns {bool}          - Return true if the check is okay
+   */
+  itemCheck : function(sItemType, iId, sKey, sValue) {
+    var bOkay = true;
+    // Find out which name needs to be checked
+    var oDescr = Crpstudio.project.getItemDescr(sItemType);
+    var sListField = oDescr.listfield;
+    var sIdField = oDescr.id;
+    var sId = iId.toString();
+    // Check if this is the listfield
+    if (sListField === sKey) {
+      // This is the list field, so check the value
+      if (sValue.contains(" ")) {
+        bOkay = false;
+      } else {
+        // Check if the name occurs already
+        switch (sItemType) {
+          case "project":
+            var oList = Crpstudio.project.prj_crplist;
+            var sCurCrp = Crpstudio.project.currentPrj;
+            // Walk the list
+            for (var i=0;i<oList.length;i++) {
+              // Get this item
+              var oItem = oList[i];
+              if (oItem["crp"] !== sCurCrp+".crpx") {
+                if (oItem["crp"] === sValue+".crpx") { bOkay = false; break; }
+              }
+            }
+            break;
+          default:
+            var oList = Crpstudio.project.getList(sItemType);
+            // Walk the list
+            for (var i=0;i<oList.length;i++) {
+              // Get this item
+              var oItem = oList[i];
+              if (oItem[sListField] === sValue && oItem[sIdField] !== sId) { bOkay = false; break; }
+            }
+            break;
+        }
+      }
+    }
+    // Get the name of the <div> for this field
+    var sLoc = "";
+    for (var i=0;i<oDescr.fields.length;i++) {
+      var oFieldDescr = oDescr.fields[i];
+      if (oFieldDescr.field === sKey) {
+        sLoc = oFieldDescr.loc; break;
+      }
+    }
+    // FOund the loc?>
+    if (sLoc !== "") {
+      var sLocErr = sLoc + "_error";
+      // Action if we're not okay
+      if (!bOkay) {
+        // Put the location in error mode
+        $("#"+sLocErr).addClass("error");
+        $("#"+sLocErr).removeClass("hidden");
+      } else {
+        // Remove possible error mode
+        $("#"+sLocErr).removeClass("error");
+        $("#"+sLocErr).addClass("hidden");
+      }
+
+    }
+    
+    // Getting here means we're okay
+    return bOkay;
   },
   
   /**
