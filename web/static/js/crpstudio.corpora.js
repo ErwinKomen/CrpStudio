@@ -8,7 +8,7 @@
 /*globals jQuery, crpstudio, Crpstudio, alert: false, */
 var crpstudio = (function ($, crpstudio) {
   "use strict";
-  crpstudio.corpora = (function () {
+  crpstudio.corpora = (function ($, config) {
     var currentCorpus = "";
     // Methods that are local to [crpstudio.project]
     var private_methods = {

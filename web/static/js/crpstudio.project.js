@@ -4,10 +4,10 @@
  *
  * @author Erwin R. Komen
  */
-
-/*globals jQuery, crpstudio, erwin, Crpstudio, alert: false, */
+/*jslint white: true, sloppy:true */
+/*globals window,jQuery, crpstudio, erwin, Crpstudio, alert: false */
 Crpstudio.project = {
-  
+
   // Local variables within Crpstudio.project
   tab : "project",        // The main tab we are on (equals to "project_editor")
   currentCorpus: "",      // Currently selected corpus
@@ -990,13 +990,6 @@ Crpstudio.project = {
     // Find the prefix
     var oItemDesc = Crpstudio.project.getItemDescr(sListType);
     var sPrf = oItemDesc.prf;
-    /*
-    switch(sListType) {
-      case "query": sPrf = "qry"; oList = Crpstudio.project.prj_qrylist;break;
-      case "definition": sPrf = "def"; oList = Crpstudio.project.prj_deflist;break;
-      case "constructor": sPrf = "qc"; oList = Crpstudio.project.prj_qclist;break;
-      case "dbfeat": sPrf = "dbf"; oList = Crpstudio.project.prj_dbflist;break;
-    } */
     sLoc = "#" + sListType + "_list" + " ." + sPrf + "-available";
     // Calculate a list consisting of <li> items
     // QRY: "QueryId;Name;File;Goal;Comment;Created;Changed"
@@ -1089,16 +1082,6 @@ Crpstudio.project = {
   getListObject : function(sListType, sIdField, iValue) {
     var oList = Crpstudio.project.getList(sListType);   // JSON type list of objects
     if (sListType === "project" || oList === null) return oList;
-    /*
-    // Find the correct list
-    switch(sListType) {
-      case "project": sPrf = "crp"; oList = Crpstudio.project.prj_genlist; return oList;
-      case "query": sPrf = "qry"; oList = Crpstudio.project.prj_qrylist;break;
-      case "definition": sPrf = "def"; oList = Crpstudio.project.prj_deflist;break;
-      case "constructor": sPrf = "qc"; oList = Crpstudio.project.prj_qclist;break;
-      case "dbfeat": sPrf = "dbf"; oList = Crpstudio.project.prj_dbflist;break;
-      default: return null;
-    } */
     // Walk all the elements of the list
     for (var i=0;i<oList.length;i++) {
       var oOneItem = oList[i];
@@ -1382,7 +1365,7 @@ Crpstudio.project = {
    */
   removeItemFromList : function(sItemType, iItemId) {
     // Validate
-    if (iItemId <1 || !sItemType || sItemType==="") return;
+    if (iItemId <1 || !sItemType || sItemType==="") return -1;
     // Get the correct list
     var oList = Crpstudio.project.getList(sItemType);
     // Access the information object for this type
@@ -1400,11 +1383,11 @@ Crpstudio.project = {
         if (oList.length>= i+1) {
           // Return the next item in the list
           oThis = oList[i];
-          return oThis[sIdField];
+          return parseInt(oThis[sIdField],10);
         } else if (oList.length>0) {
           // Return the *last* item in the list
           oThis = oList[oList.length-1];
-          return oThis[sIdField];
+          return parseInt(oThis[sIdField],10);
         } else {
           // Nothing is left, so return negatively
           return -1;
@@ -1959,6 +1942,10 @@ Crpstudio.project = {
             case "definition": case "query":
               // Get the id
               var iItemId = oContent.itemid;
+              // Show the list, putting the focus on the new item id
+              Crpstudio.project.itemListShow(sItemType, iItemId);
+
+              /*
               // Fill the query/definition list, but switch off 'selecting'
               var bSelState = Crpstudio.project.bIsSelecting;
               Crpstudio.project.bIsSelecting = true;
@@ -1968,6 +1955,7 @@ Crpstudio.project = {
               var targetA = Crpstudio.project.getCrpItem(sItemType, iItemId);
               // Call setCrpItem() which will put focus on the indicated item
               Crpstudio.project.setCrpItem(targetA, sItemType, iItemId);
+                    */
               // Add the uploaded query/definition to the History List
               Crpstudio.project.histAddItem(sItemType, iItemId);
               break;
@@ -2100,6 +2088,10 @@ Crpstudio.project = {
           Crpstudio.project.histAdd(sItemType, iItemId, sCrpName, "delete", "");
           // Delete the item from the list
           var iItemNext = Crpstudio.project.removeItemFromList(sItemType, iItemId);
+          // Show the list, putting the focus on the new item id
+          Crpstudio.project.itemListShow(sItemType, iItemNext);
+          
+          /*
           // Fill the query/definition list, but switch off 'selecting'
           var bSelState = Crpstudio.project.bIsSelecting;
           Crpstudio.project.bIsSelecting = true;
@@ -2114,6 +2106,7 @@ Crpstudio.project = {
             // Call setCrpItem() which will put focus on the indicated item
             Crpstudio.project.setCrpItem(targetA, sItemType, iItemNextId);
           }
+                            */
           break;
         case "dbfeat": case "constructor":
           // TODO: check this out!!
@@ -2413,6 +2406,10 @@ Crpstudio.project = {
   histAdd : function(sType, iId, sCrp, sKey, sValue) {
     // If this is a change in name, then check it immediately
     if (!Crpstudio.project.itemCheck(sType, iId, sKey, sValue)) return;
+    // Check what the 'old' value was
+    var sOld = Crpstudio.project.getItemValue(sType, iId, sCrp, sKey);
+    // Some changes cause perculation (e.g. query name change --> QC list)
+    if (!Crpstudio.project.itemPerculate(sType, iId, sCrp, sKey, sValue, sOld)) return;
     // Possibly get the last item of history
     var iSize = Crpstudio.project.lstHistory.length;
     var bAdded = false;
@@ -2428,8 +2425,6 @@ Crpstudio.project = {
       }
     } 
     if (!bAdded) {
-      // Check what the 'old' value was
-      var sOld = Crpstudio.project.getItemValue(sType, iId, sCrp, sKey);
       // We need to *add* a new element: create the element
       var oNew = {type: sType, id: iId, crp: sCrp, key: sKey, value: sValue, old: sOld, saved: false};
       // Add the new element to the list
@@ -2755,18 +2750,8 @@ Crpstudio.project = {
         var oDescr = Crpstudio.project.getItemDescr(oItem.type);
         if (oItem.key === oDescr.listfield) {
           // Make sure the list is re-drawn
-          // Fill the query/definition list, but switch off 'selecting'
-          var bSelState = Crpstudio.project.bIsSelecting;
-          Crpstudio.project.bIsSelecting = true;
-          Crpstudio.project.showlist(oItem.type);
-          // Get the <a> element of the newly to be selected item
-          var targetA = Crpstudio.project.getCrpItem(oItem.type, iItemId);
-          // Call setCrpItem() which will put focus on the indicated item
-          Crpstudio.project.setCrpItem(targetA, oItem.type, iItemId);
-          // Indicate all went well
-          // bOkay = true;
-          Crpstudio.project.bIsSelecting = bSelState;
-        }
+          Crpstudio.project.itemListShow(oItem.type, iItemId);
+         }
         break;
     }
     
@@ -2775,6 +2760,33 @@ Crpstudio.project = {
     Crpstudio.project.typingTimer = setTimeout(Crpstudio.project.ctlChanged, 
       Crpstudio.project.doneTypingIntv, source, sType);
       ======================== */
+  },
+  
+  /**
+   * itemListShow 
+   *    Re-draw the list of type @sItemType
+   *    Put the focus on item @iItemId
+   * 
+   * @param {string} sItemType
+   * @param {int} iItemId
+   * @returns {void}
+   */
+  itemListShow : function(sItemType, iItemId) {
+    // Make sure the list is re-drawn
+    // Fill the query/definition list, but switch off 'selecting'
+    var bSelState = Crpstudio.project.bIsSelecting;
+    Crpstudio.project.bIsSelecting = true;
+    Crpstudio.project.showlist(sItemType);
+    // Check value of id
+    if (iItemId >=0) {
+      // Get the <a> element of the newly to be selected item
+      var targetA = Crpstudio.project.getCrpItem(sItemType, iItemId);
+      // Call setCrpItem() which will put focus on the indicated item
+      Crpstudio.project.setCrpItem(targetA, sItemType, iItemId);
+      // Indicate all went well
+      // bOkay = true;
+      Crpstudio.project.bIsSelecting = bSelState;
+    }
   },
   /* ---------------------------------------------------------------------------
    * Name: createManual
@@ -2892,6 +2904,9 @@ Crpstudio.project = {
           }
         
           // Make sure the list is re-drawn
+          Crpstudio.project.itemListShow(sItemType, iItemId);
+
+/*
           // Fill the query/definition list, but switch off 'selecting'
           var bSelState = Crpstudio.project.bIsSelecting;
           Crpstudio.project.bIsSelecting = true;
@@ -2903,6 +2918,7 @@ Crpstudio.project = {
           // Indicate all went well
           // bOkay = true;
           Crpstudio.project.bIsSelecting = bSelState;
+              */
         }
         break;
       case "cancel":
@@ -3026,6 +3042,68 @@ Crpstudio.project = {
     return bOkay;
   },
   
+  /**
+   * itemPerculate
+   *    Perculate change in type @sItemType of @sKey with @sValue
+   *    
+   * @param {string} sItemType
+   * @param {int} iId           - @id value of the item to be checked
+   * @param {string} sCrp       - name of current CRP
+   * @param {string} sKey
+   * @param {string} sValue
+   * @param {string} sOldValue  - value of the @sKey before changes
+   * @returns {bool}            - Return true if the perculation proceeded well
+   */
+  itemPerculate : function(sItemType, iId, sCrp, sKey, sValue, sOldValue) {
+    var bOkay = true;
+    // Find out which item is changing
+    var oDescr = Crpstudio.project.getItemDescr(sItemType);
+    var sListField = oDescr.listfield;
+    var sIdField = oDescr.id;
+    var sId = iId.toString();
+    // Perculation actions depend on the type of element
+    switch (sItemType) {
+      case "query":
+        // Check if this is the listfield (i.e. @Name)
+        if (sListField === sKey) {
+          // Also change the @Query field in the QC list -- where appropriate
+          var oList = Crpstudio.project.prj_qclist;
+          for (var i=0;i<oList.length;i++) {
+            var bChanged = false;
+            // Get this item
+            var oItem = oList[i];
+            // Check: Query, Output, Result
+            if (oItem["Query"] === sOldValue) { 
+              // First perculation: need to create a histAdd
+              //    This requires the id...
+              var iQCid = parseInt(oItem["QCid"],10);              
+              Crpstudio.project.histAdd("constructor",iQCid, sCrp, "Query", sValue); 
+              if (oItem["Output"] === sOldValue) { 
+                oItem["Output"] = sValue; 
+                Crpstudio.project.histAdd("constructor",iQCid, sCrp, "Output", sValue);
+              }
+              if (oItem["Result"] === sOldValue) { 
+                oItem["Result"] = sValue; 
+                Crpstudio.project.histAdd("constructor",iQCid, sCrp, "Result", sValue);
+              }
+              // Only now make the change in the *list*
+              oItem["Query"] = sValue; 
+              bChanged = true;
+            }            
+            // Possibly put the list element back correcte
+            if (bChanged) oList[i] = oItem;
+          }
+        }
+        break;
+      default:
+        // No other actions are required
+        break;
+    }
+    
+    // Getting here means we're okay
+    return bOkay;
+  },
+
   /**
    * getNewId 
    *    Create a new id for list @oList, using field @sIdField
