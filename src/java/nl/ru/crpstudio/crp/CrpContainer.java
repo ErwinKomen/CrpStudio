@@ -255,7 +255,7 @@ public class CrpContainer {
   
   /**
    * removeCrpInfo
-   * Remove the CrpInfo object satisfying the indecated conditions
+   * Remove the CrpInfo object satisfying the indicated conditions
    * 
    * @param sProjectName
    * // @param sLngIndex
