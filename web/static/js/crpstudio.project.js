@@ -2396,12 +2396,12 @@ Crpstudio.project = {
   /**
    * histAdd - add one item to the history
    * 
-   * @param {type} sType  - project, query, definition etc
-   * @param {type} iId    - numerical id of query/def etc
-   * @param {type} sCrp   - name of the CRP
-   * @param {type} sKey   - field name (e.g. "Goal", "Text")
-   * @param {type} sValue - new value of the field
-   * @returns {undefined}
+   * @param {string} sType  - project, query, definition etc
+   * @param {int} iId       - numerical id of query/def etc
+   * @param {string} sCrp   - name of the CRP
+   * @param {string} sKey   - field name (e.g. "Goal", "Text")
+   * @param {string} sValue - new value of the field
+   * @returns {void}
    */
   histAdd : function(sType, iId, sCrp, sKey, sValue) {
     // If this is a change in name, then check it immediately
@@ -2414,14 +2414,23 @@ Crpstudio.project = {
     var iSize = Crpstudio.project.lstHistory.length;
     var bAdded = false;
     if (iSize >0) {
-      var oLast = Crpstudio.project.lstHistory[iSize-1];
-      // Check if this pertains to the same type/id/crp/key
-      if (oLast.type === sType && oLast.id === iId && oLast.crp === sCrp &&
-              oLast.key === sKey) {
-        // We simply adapt the last item
-        oLast.value = sValue;
-        Crpstudio.project.lstHistory[iSize-1] = oLast;
-        bAdded = true;
+      // Look for the last entry in lstHistory with the same type/id/crp/key
+      for (var i=iSize-1; i>=0 && !bAdded;i--) {
+        var oThis = Crpstudio.project.lstHistory[i];
+        // Check if this pertains to the same type/id/crp/key
+        if (oThis.type === sType && oThis.id === iId && oThis.crp === sCrp &&
+                oThis.key === sKey) {
+          // Is the value equal?
+          if (oThis.value === sValue) {
+            // Then no changes are needed
+            bAdded = true;
+          } else if (i === iSize-1) {
+            // We simply adapt the last item
+            oThis.value = sValue;
+            Crpstudio.project.lstHistory[iSize-1] = oThis;
+            bAdded = true;
+          }
+        } 
       }
     } 
     if (!bAdded) {
@@ -2511,20 +2520,39 @@ Crpstudio.project = {
   /**
    * histSave -- save current history and clear it
    * 
-   * @param {type} bClear
-   * @returns {undefined}
+   * @param {bool} bClear
+   * @returns {void}
    */
   histSave : function(bClear) {
     var arSend = [];
     var arHist = Crpstudio.project.lstHistory;
-    for (var i=0;i<arHist.length;i++) {
+    var arHad = [];
+    // Copy the original history array to a new one, combining type + key
+    // TODO: leave out the ones we've already had
+    for (var i=arHist.length-1;i>=0;i--) {
+      // Access this element
       var oItem = arHist[i];
-      if (!oItem.saved && oItem.crp === Crpstudio.project.currentPrj) {
-        // Create a new 'key' item
-        var sKey = oItem.key;
-        if (oItem.type !== "project") sKey = oItem.type + "." + sKey;
-        // COpy it -- making use of the adapted key
-        arSend.push({key: sKey, id: oItem.id, value: oItem.value});
+      // get the 'signature' and see if we've already had it
+      var oHad = {crp: oItem.crp, key: oItem.key, type: oItem.type, id: oItem.id};
+      var bHaveHad = false;
+      for (var j=0;j<arHad.length;j++) {
+        var oOneHad = arHad[j];
+        if (oOneHad.crp === oHad.crp && oOneHad.key === oHad.key && 
+            oOneHad.type === oHad.type && oOneHad.id === oHad.id) {
+          // We've had it already!
+          bHaveHad = true; break;
+        }
+      }
+      if (!bHaveHad) {
+        arHad.push(oHad);
+        // Put the item in the send-array
+        if (!oItem.saved && oItem.crp === Crpstudio.project.currentPrj) {
+          // Create a new 'key' item
+          var sKey = oItem.key;
+          if (oItem.type !== "project") sKey = oItem.type + "." + sKey;
+          // COpy it -- making use of the adapted key
+          arSend.push({key: sKey, id: oItem.id, value: oItem.value});
+        }
       }
     }
     // Pass on this value to /crpstudio and to /crpp
