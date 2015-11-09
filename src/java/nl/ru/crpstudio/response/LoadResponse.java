@@ -37,12 +37,14 @@ public class LoadResponse extends BaseResponse {
       crpThis = crpContainer.getCrp(this, project, sUserId, false);
       if (crpThis == null) { sendErrorResponse("Could not load CRP:\n" + 
               logger.getErrList().toString()); return;}
-			
+      // Get the CrpId of this project
+      int iCrpId = crpContainer.getCrpId(this, project, sUserId);
       // The actual reply depends on the @loadType
       switch(loadType) {
         case "info":
           // Place the 'general CRP parameters in a JSONObject
           oContent.put("name", crpThis.getName());
+          oContent.put("CrpId", iCrpId);
           oContent.put("author", crpThis.getAuthor());
           oContent.put("prjtype", crpThis.getProjectType());
           oContent.put("goal", crpThis.getGoal());
@@ -58,7 +60,7 @@ public class LoadResponse extends BaseResponse {
           oContent.put("qrylist", crpThis.getListQuery());
           oContent.put("qclist", crpThis.getListQC());
           oContent.put("dbflist", crpThis.getListDbFeat());
-          oContent.put("crplist", this.getProjectList(sUserId));
+          oContent.put("crplist", this.makeListOfCrps(sUserId, crpThis));
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");

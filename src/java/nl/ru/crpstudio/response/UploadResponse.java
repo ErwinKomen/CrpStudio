@@ -117,9 +117,18 @@ public class UploadResponse extends BaseResponse {
           case "project":
             // Convert to Base64
             sItemText = compressSafe(sItemText);
-            // Send the CRP to /crpp 
+            // Send the CRP to /crpp and get a reaction
             oContent = this.sendProjectToServer(sUserId, sItemName, sItemText);
-            oContent.put("itemline", this.getProjectItem(sItemName, false, "", "", ""));
+            // Invalidate the current project list
+            servlet.setUserCrpList(null);
+            
+            // Load the project here
+            crpThis = crpContainer.getCrp(this, sItemName, sUserId, false);
+            // Add the necessary items to the reply
+            oContent.put("itemlist", this.makeListOfCrps(sUserId, crpThis));
+            oContent.put("itemid", this.crpContainer.getCrpId(this, sItemName, sUserId));
+            // oContent.put("itemline", this.getProjectItem(sItemName, false, "", "", ""));
+            oContent.put("itemline", "");
             oContent.put("itemname", sItemName);
             oContent.put("itemtype", sItemType);
             break;

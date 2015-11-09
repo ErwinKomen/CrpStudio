@@ -22,6 +22,7 @@ import nl.ru.crpx.dataobject.DataObjectList;
 import nl.ru.crpx.dataobject.DataObjectMapElement;
 import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.util.FileUtil;
+import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 
 /**
@@ -113,6 +114,36 @@ public class CrpContainer {
     } catch (Exception ex) {
       logger.DoError("Could not load or retrieve CRP", ex, CrpContainer.class);
       return null;
+    }
+  }
+  
+  /**
+   * getCrpId - Get the numerical id of the CRP for the indicated user
+   * 
+   * @param br
+   * @param sProjectName  - Name of the Corpus Research Project
+   * @param sUserId       - Name of the user
+   * @return 
+   */
+  public int getCrpId(BaseResponse br, String sProjectName, String sUserId) {
+    try {
+      // Get a list of all projects for this user
+      JSONArray arPrjList = br.getProjectList(sUserId);
+      String sCrpName = sProjectName + ".crpx";
+      // Walk the list until we find the @sProjectName
+      for (int i=0;i<arPrjList.length(); i++) {
+        // Is this the one?
+        JSONObject oOneItem = arPrjList.getJSONObject(i);
+        if (oOneItem.getString("crp").equals(sCrpName)) {
+          // We found it
+          return oOneItem.getInt("CrpId");
+        }
+      }
+      // Getting here means failure...
+      return -1;
+    } catch (Exception ex) {
+      logger.DoError("Could not get CrpId", ex, CrpContainer.class);
+      return -1;
     }
   }
   
@@ -305,8 +336,9 @@ class CrpInfo {
   // ==================== Variables belonging to one CrpUser object ============
   CorpusResearchProject prjThis;  // The CRP to which the user has access
   BaseResponse br;
-  String prjName ;                 // The name of this CRP
+  String prjName ;                // The name of this CRP
   String userId;                  // The user that has access to this CRP
+  int crpId;                      // Numerical id for this combination of CRP and userid
   ErrHandle logger;               // Information and logging
 	Map<String,Object> params;      // Parameters for the Crpp call
   // ================ Initialisation of a new class element ===================

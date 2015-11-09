@@ -1063,7 +1063,7 @@ public abstract class BaseResponse {
    */
   public JSONArray getProjectList(String sUser) {
     try {
-      // Check if we already have the dblist for this user
+      // Check if we already have the CrpList for this user
       JSONArray arCrpList = servlet.getUserCrpList();
       if (arCrpList == null) {
         // Prepare the parameters for this request
@@ -1085,6 +1085,55 @@ public abstract class BaseResponse {
 
     } catch (Exception ex) {
       logger.DoError("getProjectList: could not complete", ex);
+      return null;
+    }
+  }
+  
+  /**
+   * makeListOfCrps -- Make a list of CRPs and put information about 
+   *                   the indicated @sCrpName in it
+   * 
+   * @param sUser
+   * @param crpThis
+   * @return 
+   */
+  public JSONArray makeListOfCrps(String sUser, CorpusResearchProject crpThis) {
+    try {
+      JSONArray arCrpList = getProjectList(sUser);
+      // Find the correct CRP
+      String sProjectName = crpThis.getName();
+      String sFullName = sProjectName + ".crpx";
+      // Walk the list until we find the @sProjectName
+      for (int i=0;i<arCrpList.length(); i++) {
+        // Is this the one?
+        JSONObject oOneItem = arCrpList.getJSONObject(i);
+        // Some items need to be duplicated with different names
+        String sOneName = oOneItem.getString("crp").replace(".crpx", "");
+        oOneItem.put("Name", sOneName);
+        // Language and part may not be specified
+        String sLng = ""; String sDir = "";
+        if (oOneItem.has("lng")) sLng = oOneItem.getString("lng");
+        if (oOneItem.has("dir")) sDir = oOneItem.getString("dir");
+        oOneItem.put("Language", sLng);
+        oOneItem.put("Part", sDir);
+        // Check if this is the 'focus' item
+        if (oOneItem.getString("crp").equals(sFullName)) {
+          // We found it: put additional information from the CRP here          
+          oOneItem.put("Author", crpThis.getAuthor());
+          oOneItem.put("PrjType", crpThis.getProjectType().toLowerCase());
+          oOneItem.put("Goal", crpThis.getGoal());
+          oOneItem.put("Created", crpThis.getDateCreated());
+          oOneItem.put("Changed", crpThis.getDateChanged());
+          oOneItem.put("Comments", crpThis.getComments());
+          oOneItem.put("DbaseInput", crpThis.getDbaseInput());
+        }
+        // Put the item back into the list
+        arCrpList.put(i, oOneItem);
+      }
+      // Return the complete list
+      return arCrpList;
+    } catch (Exception ex) {
+      logger.DoError("makeListOfCrps: could not complete", ex);
       return null;
     }
   }

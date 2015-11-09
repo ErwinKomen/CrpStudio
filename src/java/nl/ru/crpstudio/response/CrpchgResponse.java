@@ -37,10 +37,11 @@ public class CrpchgResponse extends BaseResponse {
 
 	@Override
 	protected void completeRequest() {
-    String sLoggedInUser; // Currently logged in user
-    String sCurrentUser;  // User named within the request
-    JSONObject oQuery;    // Contents of the request
+    String sLoggedInUser;         // Currently logged in user
+    String sCurrentUser;          // User named within the request
+    JSONObject oQuery;            // Contents of the request
     boolean bIsList = false;
+    boolean bNeedReload = false;  // Set if re-loading the list of CRPs is needed
     
     try {
       // Gather our own parameter(s)
@@ -82,32 +83,20 @@ public class CrpchgResponse extends BaseResponse {
       if (bIsList) {
         JSONArray arList = oQuery.getJSONArray("list");
         JSONArray arCoded = new JSONArray();
-        // But put hex coding on the values
+        // Prepare the list for coding
         for (int i=0;i<arList.length(); i++) {
           JSONObject oThis = arList.getJSONObject(i);
           JSONObject oNew = new JSONObject();
-          oNew.put("key", oThis.getString("key"));
+          String sKey = oThis.getString("key");
+          oNew.put("key", sKey);
           oNew.put("id", oThis.getInt("id"));
-          // oNew.put("value", compressSafe(oThis.getString("value")));
           oNew.put("value", oThis.getString("value"));
           arCoded.put(oNew);
-          // =-========= DEBUG ==========
-          // logger.debug("Added list element: " + oThis.getString("value"));
-          // ============================
+          // Check for reloading
+          if (sKey.equals("Part") || sKey.equals("Language")) bNeedReload = true;
         }
-        // Add the list paramter
+        // Add the list parameter, but compress it 
         this.params.put("list", compressSafe(arCoded.toString()));
-        /*
-        String sStart = arCoded.toString();
-        String sCoded = compressSafe(sStart);
-        String sVerify = decompressSafe(sCoded);
-        if (!sStart.equals(sVerify)) {
-          // =-========= DEBUG ==========
-          logger.debug("Combined list: " + sCoded + " = ["+decompressSafe(sCoded)+"]" );
-          // ============================
-        }
-        this.params.put("list", sCoded);
-        */
         if (oQuery.has("files")) {this.params.put("files", compressSafe(oQuery.getJSONArray("files").toString())); }
       } else {
         String sKeyName = oQuery.getString("key");
@@ -118,6 +107,8 @@ public class CrpchgResponse extends BaseResponse {
         this.params.put("value", compressSafe(sKeyValue));
         this.params.put("id", iIdValue);
         if (oQuery.has("files")) this.params.put("files", oQuery.getJSONArray("files") );
+        // Check for reloading
+        if (sKeyName.equals("Part") || sKeyName.equals("Language")) bNeedReload = true;
       }
       
 
@@ -159,7 +150,8 @@ public class CrpchgResponse extends BaseResponse {
           return;}
         // Add the adapted date to the content
         oContent.put("datechanged", crpThis.getDateChanged());
-        
+        // Invalidate the current project list
+        servlet.setUserCrpList(null);
       }
       
       // Send a standard positive response
