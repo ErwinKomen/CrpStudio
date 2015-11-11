@@ -6,7 +6,7 @@
  */
 
 Crpstudio.dbase = {
-  // Local variables within Crpstudio.project
+  // Local variables within crpstudio.project
   tab : "project",        // The main tab we are on (equals to "project_editor")
   currentDb: "",          // The currently being executed project (the CRP name)
   currentLng: "",         // the "lng" parameter of the current project
@@ -25,7 +25,7 @@ Crpstudio.dbase = {
    * 29/sep/2015  ERK Created
    */
 	switchTab : function(target, sRecentDb) {
-		Crpstudio.debug("switching to dbase tab "+target+" from "+Crpstudio.dbase.tab);
+		crpstudio.main.debug("switching to dbase tab "+target+" from "+Crpstudio.dbase.tab);
 		if (target !== Crpstudio.dbase.tab) {
 			$("#search .content").removeClass("active");
 			$("#"+target).addClass("active");
@@ -83,11 +83,11 @@ Crpstudio.dbase = {
     $("#dbase_general").addClass("hidden");
 
     // Issue a request to /crpstudio to load the database (well, the header of it)
-    // var params = "dbase=" + sDbName + "&userid=" + Crpstudio.currentUser;
+    // var params = "dbase=" + sDbName + "&userid=" + crpstudio.main.currentUser;
     // params += "&type=info";
     
     var oArgs = { "dbase": sDbName,
-      "type": "info", "userid": Crpstudio.currentUser };
+      "type": "info", "userid": crpstudio.main.currentUser };
     var params = JSON.stringify(oArgs);
     
     Crpstudio.getCrpStudioData("loaddb", params, Crpstudio.dbase.processLoad, "#dbase_description");
@@ -131,11 +131,11 @@ Crpstudio.dbase = {
             
           // Add event handlers on all TEXTAREA elements under "project_general"
           $("#dbase_general textarea").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this);});
+            function() {crpstudio.project.ctlTimer(this);});
             
           // Add event handlers on all SELECT elements under "project_general"
           $("#dbase_general select").on("change keydown paste input", 
-            function() {Crpstudio.project.ctlTimer(this);});
+            function() {crpstudio.project.ctlTimer(this);});
             
           // Make the General area visible again
           $("#dbase_general").removeClass("hidden");
@@ -176,11 +176,11 @@ Crpstudio.dbase = {
       // Signal what we are doing
       $("#dbase_description").html("Uploading...");
       // Send this information to the /crpstudio
-      // var params = "file=" + oFile.name + "&userid=" + Crpstudio.currentUser +
+      // var params = "file=" + oFile.name + "&userid=" + crpstudio.main.currentUser +
       //         "&db=" + text;
       
       var oArgs = { "file": oFile.name,
-        "db": text, "userid": Crpstudio.currentUser };
+        "db": text, "userid": crpstudio.main.currentUser };
       var params = JSON.stringify(oArgs);
 
       Crpstudio.getCrpStudioData("upload-db", params, Crpstudio.dbase.processUpLoad, "#dbase_description");
@@ -267,10 +267,10 @@ Crpstudio.dbase = {
     if (sDbName && sDbName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      // var params = "dbname=" + sDbName + "&userid=" + Crpstudio.currentUser;
+      // var params = "dbname=" + sDbName + "&userid=" + crpstudio.main.currentUser;
       
       var oArgs = { "dbname": sDbName,
-        "userid": Crpstudio.currentUser };
+        "userid": crpstudio.main.currentUser };
       var params = JSON.stringify(oArgs);      
       
       Crpstudio.getCrpStudioData("remove-db", params, Crpstudio.dbase.processRemove, "#dbase_description");      
@@ -332,10 +332,10 @@ Crpstudio.dbase = {
     if (sDbName && sDbName !== "") {
       // Note: /crpstudio must check when the last download of this project was
       // Send this information to the /crpstudio
-      // var params = "dbname=" + sDbName + "&userid=" + Crpstudio.currentUser;
+      // var params = "dbname=" + sDbName + "&userid=" + crpstudio.main.currentUser;
       
       var oArgs = { "dbname": sDbName,
-        "userid": Crpstudio.currentUser };
+        "userid": crpstudio.main.currentUser };
       var params = JSON.stringify(oArgs);
       
       Crpstudio.getCrpStudioData("download-db", params, Crpstudio.dbase.processDownload, "#dbase_description");      
@@ -413,7 +413,7 @@ Crpstudio.dbase = {
     }
     // Pass on this value to /crpstudio and to /crpp
     var oArgs = { "dbase": Crpstudio.dbase.currentDb,
-      "userid": Crpstudio.currentUser, 
+      "userid": crpstudio.main.currentUser, 
       "key": sKey, "value": sValue };
     // var params = "changes=" + JSON.stringify(oChanges);
     var params = JSON.stringify(oArgs);
@@ -434,7 +434,7 @@ Crpstudio.dbase = {
     // Set the source
     Crpstudio.dbase.ctlCurrent = source;
     // Call a new timer
-    Crpstudio.dbase.typingTimer = setTimeout(Crpstudio.project.ctlChanged, 
+    Crpstudio.dbase.typingTimer = setTimeout(crpstudio.project.ctlChanged, 
       Crpstudio.dbase.doneTypingIntv);
   },
   /* ---------------------------------------------------------------------------
@@ -453,7 +453,7 @@ Crpstudio.dbase = {
     // Set the top-margin, so that what we show is really LOW
     // DISABLED!!!
 		// $("#project").css("margin-top",sh+"px");
-    Crpstudio.setNavigationSize();
+    crpstudio.main.setNavigationSize();
 	}
   
 };

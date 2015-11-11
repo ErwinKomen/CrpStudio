@@ -24,7 +24,7 @@
         </div>
         <!-- Stop execution -->
         <div id="project_execution_cancel" class="large-4 medium-4 small-4 columns">
-            <a href="#" onclick="Crpstudio.project.reset()" class="button radius reset small secondary">
+            <a href="#" onclick="crpstudio.project.reset()" class="button radius reset small secondary">
               <span>$labels.getString("project.cancel")</span>
             </a>
         </div>        
@@ -46,7 +46,7 @@
               <div class="export large-16 medium-16 small-16 row">
                 <div id="results_info_5" class="large-6 medium-6 small-6 columns"></div>
                 <div class="large-3 medium-3 small-4 columns">
-                  <a href="#" class="button radius small" onclick="Crpstudio.result.doExport(5);">$labels.getString("result.export")</a>
+                  <a href="#" class="button radius small" onclick="crpstudio.result.doExport(5);">$labels.getString("result.export")</a>
                 </div>
                 <div id="results_export_5" class="large-7 medium-7 small-6 columns hidden">
                   <span>$labels.getString("result.export.intro"): </span>
@@ -82,7 +82,7 @@
       <div id="results" class="result-content large-16 medium-16 small-16 hidden">
         <div class="large-16 medium-16 small-16 row">
           <div class="large-2 medium-4 small-6 columns">
-            <a href="#" class="button radius search small" onclick="Crpstudio.result.selectResults('querylines')">&lt;&lt;</a>
+            <a href="#" class="button radius search small" onclick="crpstudio.result.selectResults('querylines')">&lt;&lt;</a>
           </div>
           <div class="large-14 medium-12 small-10 columns">
             <h4>$labels.getString("result.results"):</h4>
@@ -98,16 +98,16 @@
                 #set ($tabLabel = "result.tab" + $tabspec.getView())
                 #set ($tabName = $labels.getString($tabLabel))
                 #if($view == "1")
-                  <li class="active disabled"><a onclick="Crpstudio.result.update($view)">$tabName</a></li>
+                  <li class="active disabled"><a onclick="crpstudio.result.update($view)">$tabName</a></li>
                 #else
-                  <li><a onclick="Crpstudio.result.update($view)">$tabName</a></li>
+                  <li><a onclick="crpstudio.result.update($view)">$tabName</a></li>
                 #end
               #end
               <!-- 
-              <li class="active disabled"><a onclick="Crpstudio.result.update(1)">$labels.getString("result.tab1")</a></li>
-              <li><a onclick="Crpstudio.result.update(2)">$labels.getString("result.tab2")</a></li>
-              <li><a onclick="Crpstudio.result.update(3)">$labels.getString("result.tab3")</a></li>
-              <li><a onclick="Crpstudio.result.update(4)">$labels.getString("result.tab4")</a></li>
+              <li class="active disabled"><a onclick="crpstudio.result.update(1)">$labels.getString("result.tab1")</a></li>
+              <li><a onclick="crpstudio.result.update(2)">$labels.getString("result.tab2")</a></li>
+              <li><a onclick="crpstudio.result.update(3)">$labels.getString("result.tab3")</a></li>
+              <li><a onclick="crpstudio.result.update(4)">$labels.getString("result.tab4")</a></li>
               -->
             </ul>
             <!-- there are a number of tabs, specified by "result.tab.names" -->
@@ -135,7 +135,7 @@
                   <!-- (1) Left COMBOBOX allowing for 'resultsperpage' choosing -->
                   <div class="small-text jump-left large-3 medium-3 small-4 columns"> 
                     $result_pagination_show
-                    <select id="page_size" class="show-select meta-small" onchange="Crpstudio.result.update( $view, {number: $(this).val(), sort: ''})">
+                    <select id="page_size" class="show-select meta-small" onchange="crpstudio.result.update( $view, {number: $(this).val(), sort: ''})">
                       <!-- Default option: 10 results per page -->
                       <option value="10" selected="true">10</option>
                       <option value="20">20</option>
@@ -159,7 +159,7 @@
                     <input type="hidden" class="max-results" value="20"></input>
                     <input class="page-select meta-small" type="number" min="1" max="1" value="1"></input>
                     &#160;$result_of <span id="$resultNumOfPages"></span>
-                    <a href="#"  class="button radius small go" onclick="Crpstudio.result.goToPage(this)">$result_go</a>
+                    <a href="#"  class="button radius small go" onclick="crpstudio.result.goToPage(this)">$result_go</a>
                   </div>
 
                 </div>
@@ -173,7 +173,7 @@
                 <!-- EXPORT button and information about the current QC -->
                 <div class="export large-16 medium-16 small-16 row">
                   <div class="large-offset-1 medium-offset-1 small-offset-1 large-3 medium-3 small-4 columns">
-                    <a href="#" class="button radius small" onclick="Crpstudio.result.doExport($view);">$labels.getString("result.export")</a>
+                    <a href="#" class="button radius small" onclick="crpstudio.result.doExport($view);">$labels.getString("result.export")</a>
                   </div>
                   <div id="$resultsExportId" class="large-9 medium-9 small-8 columns hidden">
                     <span>$labels.getString("result.export.intro"): </span>

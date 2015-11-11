@@ -1,24 +1,15 @@
-		<div class="footer">CorpusStudioWeb v0.2.3 (5/nov/2015) &copy; 
+		<div class="footer">CorpusStudioWeb v0.3.1 (11/nov/2015) &copy; 
       <a href="http://www.meertens.knaw.nl">Meertens Instituut</a> 2015 - 
       Development: <a href="http://www.clarin.nl">CLARIN-NL</a> - 
       Powered by: <a href="https://github.com/ErwinKomen/CrppServer" target="_blank">Crpp Server</a> &copy; 
       <a href="http://www.meertens.knaw.nl">Meertens Instituut</a> 2015</div>
 		<script>
-			Crpstudio.baseUrl = location.pathname.replace(/^\/([^\/]+)\/.*$/, "/$1/");
-			Crpstudio.crppUrl = '$labels.getString("crppUrlInternal")/';
-			Crpstudio.blsUrl = '$labels.getString("blsUrlExternal")/$labels.getString("corpus")/';
 			
-			#if($lang)
-				Crpstudio.language = "$lang";
-			#end
-      #if($username)
-        Crpstudio.setUser("${username}");
-      #end
 		
 			$(document).foundation();
 			
 			$(function() {
-				var state = Crpstudio.cookies.checkCookie('corpusstudio');
+				var state = crpstudio.main.cookies.checkCookie('corpusstudio');
 				if (state !== undefined) {
 					$("div.cookies").removeClass("active");
 					$("nav.topbar").css({top : 0});
@@ -26,16 +17,25 @@
 					$("div.cookies").addClass("active");
 					$("nav.topbar").css({top : 50});
 				}
-				Crpstudio.tab = "$maintab";
+        crpstudio.config.baseUrl = location.pathname.replace(/^\/([^\/]+)\/.*$/, "/$1/");
+        crpstudio.config.crppUrl = '$labels.getString("crppUrlInternal")/';
+        crpstudio.config.blsUrl = '$labels.getString("blsUrlExternal")/$labels.getString("corpus")/';
+        #if($lang)
+          crpstudio.config.language = "$lang";
+        #end
+        #if($username)
+          crpstudio.main.setUser("${username}");
+        #end
+				crpstudio.main.tab = "$maintab";
 				#if($maintab == "home")
-					Crpstudio.home.setSizes();
+					crpstudio.main.home.setSizes();
 					$( window ).resize(function() {
-						Crpstudio.home.setSizes();
+						crpstudio.main.home.setSizes();
 					});
 				#elseif($maintab == "corpora")
-					Crpstudio.corpora.setSizes();
+					crpstudio.corpora.setSizes();
 					$( window ).resize(function() {
-						Crpstudio.corpora.setSizes();
+						crpstudio.corpora.setSizes();
 					});
 				#elseif($maintab == "dbases")
 					Crpstudio.dbase.setSizes();
@@ -43,25 +43,25 @@
 						Crpstudio.dbase.setSizes();
 					});
 				#elseif($maintab == "projects")
-					Crpstudio.project.tab = "$tab";
-					Crpstudio.project.setSizes();
+					crpstudio.project.tab = "$tab";
+					crpstudio.project.setSizes();
 					$( window ).resize(function() {
-						Crpstudio.project.setSizes();
+						crpstudio.project.setSizes();
 					});
 				#elseif($maintab == "about")
-					Crpstudio.about.setSizes();
+					crpstudio.main.about.setSizes();
 					$( window ).resize(function() {
-						Crpstudio.about.setSizes();
+						crpstudio.main.about.setSizes();
 					});
 				#end
 			});
 
 			$(document).keypress(function(e) {
-			    if(e.which == 13 && Crpstudio.tab === 'projects' && 
-              (Crpstudio.project.tab === 'simple' || 
-                Crpstudio.project.tab === 'extended' || 
-               Crpstudio.project.tab === 'advanced')) {
-			    	$( "#"+Crpstudio.project.tab ).find(".search").trigger( "click" );
+			    if(e.which == 13 && crpstudio.main.tab === 'projects' && 
+              (crpstudio.project.tab === 'simple' || 
+                crpstudio.project.tab === 'extended' || 
+               crpstudio.project.tab === 'advanced')) {
+			    	$( "#"+crpstudio.project.tab ).find(".search").trigger( "click" );
 			    }
 			});
 			

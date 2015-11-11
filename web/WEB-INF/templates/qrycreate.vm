@@ -32,8 +32,8 @@
             </div>   
           </div>
           <div id="query_new_buttons"  class="large-16 medium-16 small-16 row">
-            <a href="#" onclick="Crpstudio.project.createItem('query','new');" class="button search small radius">$labels.getString("query.new.create")</a>
-            <a href="#" onclick="Crpstudio.project.createItem('query','cancel');" class="button search small radius">$labels.getString("query.new.cancel")</a>
+            <a href="#" onclick="crpstudio.project.createItem('query','new');" class="button search small radius">$labels.getString("query.new.create")</a>
+            <a href="#" onclick="crpstudio.project.createItem('query','cancel');" class="button search small radius">$labels.getString("query.new.cancel")</a>
           </div>
         </div>
       </fieldset>

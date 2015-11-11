@@ -24,9 +24,9 @@
               <td></td>
             <tr><td>$labels.getString("login.password")</td>
               <td><input type="password" name= "j_password"></td>
-              <td><button onclick="Crpstudio.login.accept();" class="radius tiny">OK</button></td>
-              <!-- <td><a href="#" type="submit" form="login_form" onclick="Crpstudio.login.accept();" class="button radius tiny">OK</a></td> -->
-              <!-- <td><input type="button" onclick="Crpstudio.login.accept();" class="button radius tiny">OK</td> -->
+              <td><button onclick="crpstudio.main.login.accept();" class="radius tiny">OK</button></td>
+              <!-- <td><a href="#" type="submit" form="login_form" onclick="crpstudio.main.login.accept();" class="button radius tiny">OK</a></td> -->
+              <!-- <td><input type="button" onclick="crpstudio.main.login.accept();" class="button radius tiny">OK</td> -->
             </tr>
           </table>
         </form>

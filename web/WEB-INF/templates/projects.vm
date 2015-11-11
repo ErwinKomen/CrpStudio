@@ -12,48 +12,48 @@
 			<dl id="search-nav" class="sub-nav" data-tab>
       <!-- Sub-navigation item: [project] -->
 			#if($tab == "project")
-				<dd id="project_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor', '${recent}')">$project</a></dd>
+				<dd id="project_link" class="active"><a class="tablink" onclick="crpstudio.project.switchTab('project_editor', '${recent}')">$project</a></dd>
 			#else
-				<dd id="project_link"><a class="tablink" onclick="Crpstudio.project.switchTab('project_editor', '${recent}')">$project</a></dd>
+				<dd id="project_link"><a class="tablink" onclick="crpstudio.project.switchTab('project_editor', '${recent}')">$project</a></dd>
 			#end
       <!-- Sub-navigation item: [input] -->
 			#if($tab == "input")
-				<dd id="input_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('input_editor')">$input</a></dd>
+				<dd id="input_link" class="active"><a class="tablink" onclick="crpstudio.project.switchTab('input_editor')">$input</a></dd>
 			#else
-				<dd id="input_link"><a class="tablink" onclick="Crpstudio.project.switchTab('input_editor')">$input</a></dd>
+				<dd id="input_link"><a class="tablink" onclick="crpstudio.project.switchTab('input_editor')">$input</a></dd>
 			#end
       <!-- Sub-navigation item: [Definitions] -->
 			#if($tab == "definitions")
-				<dd id="definitions_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('definition_editor')">$definitions</a></dd>
+				<dd id="definitions_link" class="active"><a class="tablink" onclick="crpstudio.project.switchTab('definition_editor')">$definitions</a></dd>
 			#else
-				<dd id="definitions_link"><a class="tablink" onclick="Crpstudio.project.switchTab('definition_editor')">$definitions</a></dd>
+				<dd id="definitions_link"><a class="tablink" onclick="crpstudio.project.switchTab('definition_editor')">$definitions</a></dd>
 			#end
       <!-- Sub-navigation item: [queries] -->
 			#if($tab == "queries")
-				<dd id="queries_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('query_editor')">$queries</a></dd>
+				<dd id="queries_link" class="active"><a class="tablink" onclick="crpstudio.project.switchTab('query_editor')">$queries</a></dd>
 			#else
-				<dd id="queries_link"><a class="tablink" onclick="Crpstudio.project.switchTab('query_editor')">$queries</a></dd>
+				<dd id="queries_link"><a class="tablink" onclick="crpstudio.project.switchTab('query_editor')">$queries</a></dd>
 			#end
       <!-- Sub-navigation item: [constructor] -->
 			#if($tab == "constructor")
-				<dd id="constructor_link" class="active"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
+				<dd id="constructor_link" class="active"><a class="tablink" onclick="crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
 			#else
-				<dd id="constructor_link"><a class="tablink" onclick="Crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
+				<dd id="constructor_link"><a class="tablink" onclick="crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
 			#end
       <!-- On the navigation bar: [execution] -->
       <dd id="project_executor" class="execute">
-        <a href="#" onclick="Crpstudio.project.execute(true)" class="tablink">
+        <a href="#" onclick="crpstudio.project.execute(true)" class="tablink">
           <span>$labels.getString("project.execute")</span>
         </a>
       </dd>
       <dd id="project_executor_nocache" class="execute">
-        <a href="#" onclick="Crpstudio.project.execute(false)" class="tablink">
+        <a href="#" onclick="crpstudio.project.execute(false)" class="tablink">
           <span>$labels.getString("project.execute")</span> (no cache)
         </a>
       </dd>
       <!-- On the navigation bar: [SAVING changes] -->
       <dd id="project_saving" class="save">
-        <a href="#" onclick="Crpstudio.project.histSave(true)" class="tablink">
+        <a href="#" onclick="crpstudio.project.histSave(true)" class="tablink">
           <span>$labels.getString("project.save")</span>
         </a>
       </dd>
@@ -65,15 +65,15 @@
 			#end
       <!-- Sub-navigation item: [result] -->
 			#if($tab == "result")
-				<dd id="result_link" class="sub-sub-nav active">|| <a class="tablink" onclick="Crpstudio.project.switchTab('result_display')">$result</a></dd>
+				<dd id="result_link" class="sub-sub-nav active">|| <a class="tablink" onclick="crpstudio.project.switchTab('result_display')">$result</a></dd>
 			#else
-				<dd id="result_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('result_display')">$result</a></dd>
+				<dd id="result_link" class="sub-sub-nav hide"><a class="tablink" onclick="crpstudio.project.switchTab('result_display')">$result</a></dd>
 			#end
       <!-- Sub-navigation item: [document] -->
 			#if($tab =="document")
-				<dd id="document_link" class="sub-sub-nav active"><a class="tablink" onclick="Crpstudio.project.switchTab('document_display')">$document</a></dd>
+				<dd id="document_link" class="sub-sub-nav active"><a class="tablink" onclick="crpstudio.project.switchTab('document_display')">$document</a></dd>
 			#else
-				<dd id="document_link" class="sub-sub-nav hide"><a class="tablink" onclick="Crpstudio.project.switchTab('document_display')">$document</a></dd>
+				<dd id="document_link" class="sub-sub-nav hide"><a class="tablink" onclick="crpstudio.project.switchTab('document_display')">$document</a></dd>
 			#end
 			</dl>
 		</div>
@@ -188,7 +188,7 @@
 			
 		</div>
 <script  type="text/javascript">
-  window.onload = Crpstudio.project.switchTab("project_editor", "", true);
+  window.onload = crpstudio.project.switchTab("project_editor", "", true);
 </script>
 #parse("footer.vm")
 

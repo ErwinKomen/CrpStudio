@@ -4,7 +4,7 @@
 					<input type="text" class="biginput" placeholder="$labels.getString("simple.placeholder")" />
 				</div>
 				<div id="simple-buttons">
-					<button onclick="Crpstudio.project.execute()" class="search small"><span>$labels.getString("search")</span></button><button onclick="Crpstudio.project.reset()" class="reset small secondary"><span>$labels.getString("reset")</span></button>
+					<button onclick="crpstudio.project.execute()" class="search small"><span>$labels.getString("search")</span></button><button onclick="crpstudio.project.reset()" class="reset small secondary"><span>$labels.getString("reset")</span></button>
 				</div>
 			</div>
 		</div>

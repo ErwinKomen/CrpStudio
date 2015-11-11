@@ -25,7 +25,7 @@ var crpstudio = (function ($, crpstudio) {
        * 18/jun/2015  ERK Created
        */
       showDescr : function(element) {
-        Crpstudio.debug("showDescr("+element+")");
+        crpstudio.main.debug("showDescr("+element+")");
         if ($(element).parent().parent().hasClass("hidden")) {
           $(element).parent().parent().removeClass("hidden");
         } else {
@@ -48,12 +48,12 @@ var crpstudio = (function ($, crpstudio) {
           // Note: /crpstudio must check when the last download of this project was
           // Send this information to the /crpstudio
           var oArgs = { "itemname": sCorpusName,
-            "itemtype": "corpus", "userid": Crpstudio.currentUser };
+            "itemtype": "corpus", "userid": crpstudio.main.currentUser };
           // var params = "changes=" + JSON.stringify(oChanges);
-          // Crpstudio.getCrpStudioData("crpchg", params, Crpstudio.project.processCrpChg, "#project_description");      
+          // Crpstudio.getCrpStudioData("crpchg", params, crpstudio.project.processCrpChg, "#project_description");      
           var params = JSON.stringify(oArgs);
-          // var params = "itemname=" + sCorpusName + "itemtype=corpus&userid=" + Crpstudio.currentUser;
-          Crpstudio.getCrpStudioData("download", params, Crpstudio.project.processDownload, "#project_description");      
+          // var params = "itemname=" + sCorpusName + "itemtype=corpus&userid=" + crpstudio.main.currentUser;
+          crpstudio.main.getCrpStudioData("download", params, crpstudio.project.processDownload, "#project_description");      
         }
       },  
     /**
@@ -110,26 +110,3 @@ var crpstudio = (function ($, crpstudio) {
   
 }(jQuery, window.crpstudio || {}));
 
-
-Crpstudio.corpora = {
-  
-  /* --------------------------------------------------------------
-   * Name: showDescr
-   * Goal: show a fuller description of the corpus
-   * 
-   * @element - the id of the element that needs to be made unhidden
-   * History:
-   * 18/jun/2015  ERK Created
-   */
-  showDescr : function(element) {
-    Crpstudio.debug("showDescr("+element+")");
-    if ($(element).parent().parent().hasClass("hidden")) {
-      $(element).parent().parent().removeClass("hidden");
-    } else {
-			$(element).parent().parent().addClass("hidden");
-		}
-  },
-
-    
-  
-}

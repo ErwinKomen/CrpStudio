@@ -1516,7 +1516,7 @@ public abstract class BaseResponse {
    */
   public String getProjectItem(String sCrp, boolean bLoaded, String sLng, String sDir, String sDbase) {
     String sOneCrpName = sCrp  + ((bLoaded) ? " (loaded)" : "");
-    return "<li class='crp_"+sCrp+" crp-available'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
+    return "<li class='crp_"+sCrp+" crp-available'><a href=\"#\" onclick='crpstudio.project.setProject(this, \""+ 
                   sCrp +"\", \""+sLng+"\", \""+sDir+"\", \""+sDbase+"\")'>" + sOneCrpName + "</a></li>\n";
   }
   public String getProjectItem(String sCrp, String sUser, String sType) {
@@ -1542,7 +1542,7 @@ public abstract class BaseResponse {
         // This does not work: if (oCRP.has("dbase")) sDbase = oCRP.getString("dbase");
         if (sCrp.toLowerCase().equals(sOneCrpName)) {
           sOneCrpName = FileIO.getFileNameWithoutExtension(sCrp)  + ((bCrpLoaded) ? " (loaded)" : "");
-          return "<li class='crp_"+sCrp+" "+sType+"'><a href=\"#\" onclick='Crpstudio.project.setProject(this, \""+ 
+          return "<li class='crp_"+sCrp+" "+sType+"'><a href=\"#\" onclick='crpstudio.project.setProject(this, \""+ 
                   sCrp +"\", \""+sLng+"\", \""+sDir+"\", \""+sDbase+"\")'>" + sOneCrpName + "</a></li>\n";
         }
       }
@@ -1589,7 +1589,7 @@ public abstract class BaseResponse {
             case "option":    // Use <option> elements
               // Enter the combobox line
               sb.append("<option class=\"noprefix\" value=\"" + sDbase + 
-                      "\" onclick='Crpstudio.project.setDbase(\"" + 
+                      "\" onclick='crpstudio.project.setDbase(\"" + 
                       sDbase + "\", \"" + sLng + "\", \"" + sDir + "\", true)' >" +
                       sShow + "</option>\n");
               break;
@@ -1597,7 +1597,7 @@ public abstract class BaseResponse {
               // Enter the checkbox line
               String sId = "dbase_id_" + i;
               sb.append("<li><a id=\"" + sId + 
-                      "\" href=\"#\" onclick='Crpstudio.project.setDbase(\"" + 
+                      "\" href=\"#\" onclick='crpstudio.project.setDbase(\"" + 
                       sDbase + "\", \"" + sLng + "\", \"" + sDir + "\", true)' >" +
                       sShow + "</a></li>\n");
               break;
@@ -1712,7 +1712,7 @@ public abstract class BaseResponse {
         if (!sPrjType.equals("")) {
           // Enter the combobox line
           sb.append("<option value=\"" + sPrjType.toLowerCase() + "\"" + 
-                  " onclick='Crpstudio.project.setPrjType(\"" + sPrjType + "\")' >" +
+                  " onclick='crpstudio.project.setPrjType(\"" + sPrjType + "\")' >" +
                   sPrjType + "</option>\n");
         }
       }
@@ -1758,7 +1758,7 @@ public abstract class BaseResponse {
             String sValue = sLng + ":";
             // Enter the combobox line
             sb.append("<option class=\"noprefix\" value=\"" + sValue + 
-                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \"\")' >" +
+                    "\" onclick='crpstudio.project.setCorpus(\"" + sLng + "\", \"\")' >" +
                     sShow + "</option>\n");
           }
           // Walk all the parts
@@ -1774,7 +1774,7 @@ public abstract class BaseResponse {
             String sValue = sLng + ":" + sDir;
             // Enter the combobox line
             sb.append("<option class=\"noprefix\" value=\"" + sValue + 
-                    "\" onclick='Crpstudio.project.setCorpus(\"" + sLng + "\", \""+ sDir + "\")' >" +
+                    "\" onclick='crpstudio.project.setCorpus(\"" + sLng + "\", \""+ sDir + "\")' >" +
                     sShow + "</option>\n");
           }
         }      
