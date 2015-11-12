@@ -8,14 +8,15 @@
 /*jslint browser: true, indent: 2 */
 var crpstudio = (function ($, crpstudio) {
   "use strict";
+  crpstudio.currentUser = "-";          // Name of currently logged-in user
+  
+  // Define module 'main'
   crpstudio.main = (function ($, config){
     // Variables within the scope of [crpstudio.main]
-    var tab = null;   
-    var doDebug = true;             // Are we debugging right now? --> console output
-    var doDebugXhrResponse = true;  // log full XHR responses? (long)
-    var exportLimit = 50000;        // Max size for exporting ???
-    var currentUser = "-";          // Name of the currently logged-in user
-    var dbaseInput = false;         // Do we have a database as input?
+    var loc_tab = null;   
+    var loc_doDebug = true;             // Are we debugging right now? --> console output
+    var loc_doDebugXhrResponse = true;  // log full XHR responses? (long)
+    var loc_exportLimit = 50000;        // Max size for exporting ???
     
     // Define private methods
     var private_methods = {
@@ -49,7 +50,7 @@ var crpstudio = (function ($, crpstudio) {
        * jun/2015 ERK Copied from WhiteLab
        */
       debugXhrResponse : function(msg) {
-        if (doDebug && doDebugXhrResponse) {
+        if (loc_doDebug && loc_doDebugXhrResponse) {
           console.log(msg);
         }
       }
@@ -58,11 +59,19 @@ var crpstudio = (function ($, crpstudio) {
 
     // Define what we return publically
     return {
+      // Getters for local variables
+      getTab: function() { return loc_tab;},
+      
+      /**
+       * confirmExport -- Copied from Whitelab
+       * 
+       * @returns {void}
+       */
       confirmExport : function() {
         if (crpstudio.config.language === "en")
-          return confirm("Your query exceeds the maximum export size. Only the first "+exportLimit+" results will be exported.\n\nDo you want to continue?\n");
+          return confirm("Your query exceeds the maximum export size. Only the first "+loc_exportLimit+" results will be exported.\n\nDo you want to continue?\n");
         else
-          return confirm("Uw zoekopdracht overschrijdt de export limiet. Alleen de eerste "+exportLimit+" resultaten worden geëxporteerd.\n\nWilt u doorgaan?\n");
+          return confirm("Uw zoekopdracht overschrijdt de export limiet. Alleen de eerste "+loc_exportLimit+" resultaten worden geëxporteerd.\n\nWilt u doorgaan?\n");
       },
 
       /* --------------------------------------------------------------------------
@@ -97,7 +106,7 @@ var crpstudio = (function ($, crpstudio) {
        * jun/2015 ERK Copied from WhiteLab
        */
       debug : function(msg) {
-        if (doDebug) { console.log(msg); }
+        if (loc_doDebug) { console.log(msg); }
       },
 
 
@@ -268,7 +277,7 @@ var crpstudio = (function ($, crpstudio) {
        * 22/jun/2015 ERK Copied from WhiteLab
        */  
       switchTab : function(target) {
-        if (target !== tab) {
+        if (target !== loc_tab) {
           // Get the 'lang' parameter
           var sLang = "";
           if (crpstudio.config.language !== null) sLang = "?lang=" + crpstudio.config.language;
@@ -284,7 +293,7 @@ var crpstudio = (function ($, crpstudio) {
        * 23/jun/2015 ERK Created
        */  
       setUser : function(sUserName) {
-        crpstudio.main.currentUser = sUserName;
+        crpstudio.currentUser = sUserName;
         // $("#top_bar_current_user").text(sUserName);
       },
 
@@ -297,7 +306,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       logoff : function() {
         // Issue a request to /crpstudio to get the relevant help section
-        var params = "logoff?userid=" + currentUser;
+        var params = "logoff?userid=" + crpstudio.currentUser;
         if (crpstudio.config.language !== null) params += "&lang="+crpstudio.config.language;
         window.location = window.location.protocol+params;
       },
@@ -314,9 +323,9 @@ var crpstudio = (function ($, crpstudio) {
          */
         accept : function() {
           // Set the page
-          tab = "j_security_check";
+          loc_tab = "j_security_check";
           // Switch there
-          window.location = window.location.protocol+tab;
+          window.location = window.location.protocol+loc_tab;
         }
       },
 
@@ -328,10 +337,11 @@ var crpstudio = (function ($, crpstudio) {
        */  
       switchLanguage : function(lang) {
         crpstudio.config.language = "lang";
-        if (tab === "search" && crpstudio.project.tab !== "result" && crpstudio.project.tab !== "document") {
-          window.location = window.location.protocol+crpstudio.main.tab+"?lang="+crpstudio.config.language+"&tab="+crpstudio.project.tab;
+        var tabPrj = crpstudio.project.getTab();
+        if (loc_tab === "search" && tabPrj !== "result" && tabPrj !== "document") {
+          window.location = window.location.protocol+loc_tab+"?lang="+crpstudio.config.language+"&tab="+tabPrj;
         } else {
-          window.location = window.location.protocol+crpstudio.main.tab+"?lang="+crpstudio.config.language;
+          window.location = window.location.protocol+loc_tab+"?lang="+crpstudio.config.language;
         }
       },
 
@@ -424,7 +434,7 @@ var crpstudio = (function ($, crpstudio) {
         // Determine if we can fine-tune the help needed
         switch(sMainTab) {
           case "projects":
-            var sProjectTab = crpstudio.project.tab;
+            var sProjectTab = crpstudio.project.getTab();
             sHelpPart = "projects-" + sProjectTab;
             break;
           case "corpora":

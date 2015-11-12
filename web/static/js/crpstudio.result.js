@@ -102,7 +102,7 @@ var crpstudio = (function ($, crpstudio) {
         var iRequesting = (loc_numPerPage<0) ? loc_numResults : loc_numPerPage;
         // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
         var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
-          "userid": crpstudio.main.currentUser, "prj": crpstudio.project.getPrj(), 
+          "userid": crpstudio.currentUser, "prj": crpstudio.project.getPrj(), 
           "lng": crpstudio.project.getLng(), "dir": crpstudio.project.getDir(), 
           "type": sType, "start": iStart, 
           "count": iRequesting, "files": [ ]};
@@ -498,13 +498,13 @@ var crpstudio = (function ($, crpstudio) {
           // If there is no file, we need to set it to NULL
           if (sFile === "")  {
             oQuery = { "qc": iQC, "sub": sSub, "view": iView,
-              "userid": crpstudio.main.currentUser, "prj": crpstudio.project.getPrj(), 
+              "userid": crpstudio.currentUser, "prj": crpstudio.project.getPrj(), 
               "lng": crpstudio.project.getLng(), "dir": crpstudio.project.getDir(), 
               "type": sType, "start": iStart, 
               "count": iRequesting, "files": [ ]};
           } else {
             oQuery = { "qc": iQC, "sub": sSub, "view": iView,
-              "userid": crpstudio.main.currentUser, "prj": crpstudio.project.getPrj(), 
+              "userid": crpstudio.currentUser, "prj": crpstudio.project.getPrj(), 
               "lng": crpstudio.project.getLng(), "dir": crpstudio.project.getDir(), 
               "type": sType, "start": iStart, 
               "count": iRequesting, "files": [ sFile ]};

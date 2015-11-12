@@ -34,11 +34,11 @@ public class RemoveResponse extends BaseResponse {
       
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
-      if (!oQuery.has("userid")) { sendErrorResponse("RemoveResponse: missing @userid"); return;}
-      if (!oQuery.has("crp")) { sendErrorResponse("RemoveResponse: missing @crp"); return;}
-      if (!oQuery.has("itemmain")) { sendErrorResponse("RemoveResponse: missing @itemmain"); return;}
-      if (!oQuery.has("itemtype")) { sendErrorResponse("RemoveResponse: missing @itemtype"); return;}
-      if (!oQuery.has("itemid")) { sendErrorResponse("RemoveResponse: missing @itemid"); return;}
+      if (!oQuery.has("userid"))    { sendErrorResponse("RemoveResponse: missing @userid"); return;}
+      if (!oQuery.has("crp"))       { sendErrorResponse("RemoveResponse: missing @crp"); return;}
+      if (!oQuery.has("itemmain"))  { sendErrorResponse("RemoveResponse: missing @itemmain"); return;}
+      if (!oQuery.has("itemtype"))  { sendErrorResponse("RemoveResponse: missing @itemtype"); return;}
+      if (!oQuery.has("itemid"))    { sendErrorResponse("RemoveResponse: missing @itemid"); return;}
       
       // There are three parameters: project, userid, type
       sUserId = oQuery.getString("userid");
@@ -48,9 +48,9 @@ public class RemoveResponse extends BaseResponse {
       iItemId = oQuery.getInt("itemid");
       
       // Validate: generally necessary elements
-      if (sUserId.isEmpty()) { sendErrorResponse("RemoveResponse: must specify @userid"); return; }
-      if (sCrpName.isEmpty()) { sendErrorResponse("RemoveResponse: must specify @crp"); return; }
-      if (sItemType.isEmpty()) { sendErrorResponse("RemoveResponse: must specify @itemtype"); return; }
+      if (sUserId.isEmpty())    { sendErrorResponse("RemoveResponse: must specify @userid"); return; }
+      if (sCrpName.isEmpty())   { sendErrorResponse("RemoveResponse: must specify @crp"); return; }
+      if (sItemType.isEmpty())  { sendErrorResponse("RemoveResponse: must specify @itemtype"); return; }
 
       // Adapt the CRP name in all cases so that it does *not* have the .crpx ending
       if (sCrpName.endsWith(".crpx")) sCrpName = FileIO.getFileNameWithoutExtension(sCrpName);
@@ -66,6 +66,8 @@ public class RemoveResponse extends BaseResponse {
       switch (sItemType) {
         case "project":     // Remove a CRP
           // Remove the CRP from the local /crpstudio server
+          this.removeProject(sCrpName, sUserId);
+          /*
           File fPrjFile = crpContainer.getCrpFile(sCrpName, sUserId);
           if (fPrjFile != null && fPrjFile.exists()) fPrjFile.delete();
           // Remove the CRP from the local /crpstudio container 
@@ -81,6 +83,7 @@ public class RemoveResponse extends BaseResponse {
             }
           }
           servlet.setUserCrpList(arList);
+                  */
           // Set the action for /crpp
           sAction = "crpdel";
           break;

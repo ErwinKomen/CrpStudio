@@ -8,6 +8,7 @@ package nl.ru.crpstudio.response;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -1188,6 +1189,43 @@ public abstract class BaseResponse {
     } catch (Exception ex) {
       logger.DoError("setProjectItem: could not complete", ex);
       return -1;
+    }
+  }
+  
+  /**
+   * removeProject -- Remove the CRP called @sProjectName belonging to
+   *    user @sProjectUser. This involves several steps:
+   *    1) Removeal of CRP/User from the crpContainer
+   *    2) Deletion of the CRP file stored at /crpstudio
+   *    3) Renewal of the CRP userlist
+   * 
+   * @param sProjectName
+   * @param sProjectUser
+   * @return 
+   */
+  public boolean removeProject(String sProjectName, String sProjectUser) {
+    try {
+      // Remove the CRP from the local /crpstudio server
+      File fPrjFile = crpContainer.getCrpFile(sProjectName, sProjectUser);
+      if (fPrjFile != null && fPrjFile.exists()) fPrjFile.delete();
+      // Remove the CRP from the local /crpstudio container 
+      crpContainer.removeCrpInfo(sProjectName, sProjectUser);
+      // Remove the CRP from the list in crpUtil
+      JSONArray arList = servlet.getUserCrpList();
+      for (int i=arList.length()-1;i>=0;i--) {
+        JSONObject oOneItem = arList.getJSONObject(i);
+        String sThisCrp = oOneItem.getString("crp");
+        if (sThisCrp.equals(sProjectName) || sThisCrp.equals(sProjectName+".crpx")) {
+          // Remove it
+          arList.remove(i); break;
+        }
+      }
+      servlet.setUserCrpList(arList); 
+      // Return positively
+      return true;
+    } catch (Exception ex) {
+      logger.DoError("removeProject: could not complete", ex);
+      return false;
     }
   }
   

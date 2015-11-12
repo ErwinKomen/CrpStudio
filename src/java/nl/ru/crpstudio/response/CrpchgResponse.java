@@ -39,9 +39,11 @@ public class CrpchgResponse extends BaseResponse {
 	protected void completeRequest() {
     String sLoggedInUser;         // Currently logged in user
     String sCurrentUser;          // User named within the request
+    String sCrpNew = "";          // Name of the NEW crp
     JSONObject oQuery;            // Contents of the request
     boolean bIsList = false;
     boolean bNeedReload = false;  // Set if re-loading the list of CRPs is needed
+    boolean bNameChg = false;     // This involves a name change
     
     try {
       // Gather our own parameter(s)
@@ -94,6 +96,8 @@ public class CrpchgResponse extends BaseResponse {
           arCoded.put(oNew);
           // Check for reloading
           if (sKey.equals("Part") || sKey.equals("Language")) bNeedReload = true;
+          // Check for name change
+          if (sKey.equals("Name")) { bNameChg = true; sCrpNew = oThis.getString("value"); }
         }
         // Add the list parameter, but compress it 
         this.params.put("list", compressSafe(arCoded.toString()));
@@ -109,6 +113,8 @@ public class CrpchgResponse extends BaseResponse {
         if (oQuery.has("files")) this.params.put("files", oQuery.getJSONArray("files") );
         // Check for reloading
         if (sKeyName.equals("Part") || sKeyName.equals("Language")) bNeedReload = true;
+          // Check for name change
+          if (sKeyName.equals("Name")) { bNameChg = true; sCrpNew = sKeyValue;}
       }
       
 
@@ -143,6 +149,14 @@ public class CrpchgResponse extends BaseResponse {
       boolean bChanged = oContent.getBoolean("changed");
       // Only re-load the CRP if any changes were made
       if (bChanged) {
+        // Has the name been changed?
+        if (bNameChg) {
+          // Remove the current CRP from the container and delete it
+          this.removeProject(sCrpThis, sCurrentUser);
+          // Adapt the current CRP's name
+          sCrpThis = sCrpNew;
+        }
+        
         // Force to fetch the CRP again from the /crpp: copy from /crpp >> /crpstudio
         crpThis = crpContainer.getCrp(this, sCrpThis, sCurrentUser, true);
         if (crpThis == null) { 

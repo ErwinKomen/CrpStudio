@@ -53,7 +53,7 @@
       </dd>
       <!-- On the navigation bar: [SAVING changes] -->
       <dd id="project_saving" class="save">
-        <a href="#" onclick="crpstudio.project.histSave(true)" class="tablink">
+        <a href="#" onclick="crpstudio.project.doSave()" class="tablink">
           <span>$labels.getString("project.save")</span>
         </a>
       </dd>

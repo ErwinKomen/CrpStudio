@@ -48,11 +48,11 @@ var crpstudio = (function ($, crpstudio) {
           // Note: /crpstudio must check when the last download of this project was
           // Send this information to the /crpstudio
           var oArgs = { "itemname": sCorpusName,
-            "itemtype": "corpus", "userid": crpstudio.main.currentUser };
+            "itemtype": "corpus", "userid": crpstudio.currentUser };
           // var params = "changes=" + JSON.stringify(oChanges);
           // Crpstudio.getCrpStudioData("crpchg", params, crpstudio.project.processCrpChg, "#project_description");      
           var params = JSON.stringify(oArgs);
-          // var params = "itemname=" + sCorpusName + "itemtype=corpus&userid=" + crpstudio.main.currentUser;
+          // var params = "itemname=" + sCorpusName + "itemtype=corpus&userid=" + crpstudio.currentUser;
           crpstudio.main.getCrpStudioData("download", params, crpstudio.project.processDownload, "#project_description");      
         }
       },  
