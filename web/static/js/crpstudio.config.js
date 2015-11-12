@@ -15,6 +15,7 @@ var crpstudio = (function (crpstudio) {
     blsUrl:  null,              // Address of the Black Lab Server
     crppUrl: null,              // Address for Corpus Research Project Processor requests
     language: null,             // UI language currently used
+    defPrjType: "Folia-Xml",    // Default project type for new projects
     // Object defining the elements of Project, Query, Definition, DbFeat and Constructor
     // Perhaps also of Dbase??
     // Object defining the elements of Query, Definition, DbFeat and Constructor

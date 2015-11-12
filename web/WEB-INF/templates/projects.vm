@@ -146,6 +146,9 @@
         #set( $item_list = $projectlist )
         #parse("selector.vm")
 				#parse("projectmain.vm")
+        
+        #parse("prjcreate.vm")
+
 			</div>
 			<div id="input_editor" class="large-16 medium-16 small-16 content $input_active">
 				#parse("input.vm")

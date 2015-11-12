@@ -142,7 +142,14 @@ public class CrpchgResponse extends BaseResponse {
       JSONObject oStatus = oResp.getJSONObject("status");
       JSONObject oContent = oResp.getJSONObject("content");
       if (oStatus == null || oStatus.getString("code").equals("error")) {
-        sendErrorResponse("CrpchgResponse: " + oContent.getString("msg"));
+        String sMsg = "";
+        if (oContent.has("msg")) 
+          sMsg = oContent.getString("msg");
+        else if (oContent.has("message"))
+          sMsg = oContent.getString("message");
+        else
+          sMsg = "unknown error";
+        sendErrorResponse("CrpchgResponse: " + sMsg);
         return;
       }
       // Have any changes been made?

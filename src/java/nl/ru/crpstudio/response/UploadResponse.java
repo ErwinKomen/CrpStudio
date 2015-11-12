@@ -131,6 +131,11 @@ public class UploadResponse extends BaseResponse {
             oContent.put("itemline", "");
             oContent.put("itemname", sItemName);
             oContent.put("itemtype", sItemType);
+            // SPecific for project (see 'LoadResponse.java')
+            oContent.put("deflist", crpThis.getListDef());
+            oContent.put("qrylist", crpThis.getListQuery());
+            oContent.put("qclist",  crpThis.getListQC());
+            oContent.put("dbflist", crpThis.getListDbFeat());            
             break;
           case "definition":
             // Add the actual item

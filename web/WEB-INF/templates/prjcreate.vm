@@ -1,0 +1,41 @@
+  <!-- the part to the right of the side-bar: NEW project creation form -->
+  <div id="project_new_create" class="large-12 medium-12 small-12 columns hidden">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("project.new.intro")</legend>
+        <div id="project_new" class="large-16 medium-16 small-16 row">
+          <div id="project_new_top" class="large-16 medium-16 small-16 row">
+            <!-- Query NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("project.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns">
+                <input id="project_new_name" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="project_new_name_error" class="hidden">Name must be new and not have spaces</small>
+              </div>
+            </div>
+            <!-- Query's GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("project.general.goal")</label>
+              </div>
+              <div class="large-14 medium-13 small-12 columns">
+                <input id="project_new_goal" class="left general_input" type="text" placeholder="This project's goal is ...">
+              </div>
+            </div>
+            <!-- Query's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("project.general.comments")
+                <textarea id="project_new_comment" spellcheck="false" placeholder="Description of this project" rows="10"></textarea>
+              </label>
+            </div>   
+          </div>
+          <div id="project_new_buttons"  class="large-16 medium-16 small-16 row">
+            <a href="#" onclick="crpstudio.project.createItem('project','new');" class="button search small radius">$labels.getString("project.new.create")</a>
+            <a href="#" onclick="crpstudio.project.createItem('project','cancel');" class="button search small radius">$labels.getString("project.new.cancel")</a>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
