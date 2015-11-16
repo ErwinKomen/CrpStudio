@@ -70,15 +70,16 @@ var crpstudio = (function ($, crpstudio) {
        * @param {string} sCrp   - name of the CRP
        * @param {string} sKey   - field name (e.g. "Goal", "Text")
        * @param {string} sValue - new value of the field
+       * @param {bool}   bForce - this value must be created, even if it equals the old one
        * @returns {void}
        */
-      histAdd : function(sType, iId, sCrp, sKey, sValue) {
+      histAdd : function(sType, iId, sCrp, sKey, sValue, bForce) {
         // If this is a change in name, then check it immediately
         if (!private_methods.itemCheck(sType, iId, sKey, sValue)) return;
         // Check what the 'old' value was
         var sOld = private_methods.getItemValue(sType, iId, sCrp, sKey);
         // Validate: only real changes must continue
-        if (sValue === sOld) return;
+        if (sValue === sOld && (!bForce || bForce===undefined || bForce===false)) return;
         // Some changes cause perculation (e.g. query name change --> QC list)
         if (!private_methods.itemPerculate(sType, iId, sCrp, sKey, sValue, sOld)) return;
         // Possibly get the last item of history
@@ -167,8 +168,10 @@ var crpstudio = (function ($, crpstudio) {
             // Yes, this one needs an addHist treatment
             var sValue = oListItem[oFieldDesc.field];
             // Only add if we really have a value
-            if (sValue) 
-              private_methods.histAdd(sItemType, iItemId, sTargetPrj, oFieldDesc.field, sValue);
+            if (sValue) {
+              // Add the value by force
+              private_methods.histAdd(sItemType, iItemId, sTargetPrj, oFieldDesc.field, sValue, true);
+            }
           }
         }
 
@@ -222,7 +225,31 @@ var crpstudio = (function ($, crpstudio) {
           }
         }
         // Copy the original history array to a new one, combining type + key
-        // TODO: leave out the ones we've already had
+        // Leave out the ones we've already had, but preserve order
+        
+        for (var i=0;i<arHist.length;i++) {
+          // Access this element
+          var oItem = arHist[i];
+          // Calculate the correct key
+          var sKey = oItem.key;
+          if (oItem.type !== "project") sKey = oItem.type + "." + sKey;
+          // Find out whether this is already in the arSend array
+          var iHaveHad = -1;
+          for (var j=0;j<arSend.length;j++) {
+            var oOneSend = arSend[j];
+            // Note: I have excluded a check on CRP name -- is that okay??
+            if (oOneSend.key === sKey && oOneSend.id === oItem.id) {
+              // We've already had this one
+              iHaveHad = j; break;
+            }
+          }
+          var oPush = {key: sKey, id: oItem.id, value: oItem.value};
+          if (iHaveHad<0) 
+            arSend.push(oPush);
+          else
+            arSend[iHaveHad] = oPush;
+        }
+        /*
         for (var i=arHist.length-1;i>=0;i--) {
           // Access this element
           var oItem = arHist[i];
@@ -240,7 +267,8 @@ var crpstudio = (function ($, crpstudio) {
           if (!bHaveHad) {
             arHad.push(oHad);
             // Put the item in the send-array -- if it is really required
-            if (!oItem.saved && (oItem.crp === currentPrj || oItem.key === "Name")) {
+            // if (!oItem.saved && (oItem.crp === currentPrj || oItem.key === "Name")) {
+            if (!oItem.saved && (oItem.crp === targetCrp || oItem.key === "Name")) {
               // Create a new 'key' item
               var sKey = oItem.key;
               if (oItem.type !== "project") sKey = oItem.type + "." + sKey;
@@ -248,7 +276,7 @@ var crpstudio = (function ($, crpstudio) {
               arSend.push({key: sKey, id: oItem.id, value: oItem.value});
             }
           }
-        }
+        } */
         // Pass on this value to /crpstudio and to /crpp
         var oChanges = { "crp": targetCrp,
           "userid": crpstudio.currentUser, "list": arSend };
@@ -2937,7 +2965,7 @@ var crpstudio = (function ($, crpstudio) {
 
       /* ---------------------------------------------------------------------------
        * Name: createManual
-       * Goal: manually create a project, query, defintion and so forth
+       * Goal: manually create a project, query, definition and so forth
        * History:
        * 23/jun/2015  ERK Created
        */
@@ -3024,9 +3052,11 @@ var crpstudio = (function ($, crpstudio) {
               var oNew = {};
               switch (sItemType) {
                 case "project":
-                  oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
+                  // NOTE: for the project we have the field "Comments" with a trailing "s" (unlike for the others)
+                  oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comments = sItemComment;
                   oNew.Author = crpstudio.currentUser;
-                  oNew.PrjType = crpstudio.config.defPrjType;
+                  // The prjtype value needs to be lower-case
+                  oNew.PrjType = config.defPrjType.toLowerCase();
                   // Reset all lists
                   prj_deflist = null; prj_qrylist = null;
                   prj_qclist  = null; prj_dbflist = null;
@@ -3046,7 +3076,7 @@ var crpstudio = (function ($, crpstudio) {
               }
               // Create a new item
               var iItemId = private_methods.createListItem(sItemType, oNew);
-
+              
               // Hide the form
               $("#"+sDivPrf+"_new_create").addClass("hidden");
               $("#"+sDivPrf+"_general_editor").removeClass("hidden");

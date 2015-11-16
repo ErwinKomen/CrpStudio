@@ -462,6 +462,7 @@ public abstract class BaseResponse {
 			} finally {
 				osw.close();
 			}
+      this.servlet.log("Display template is finished: " + argT.getName());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -1211,7 +1212,7 @@ public abstract class BaseResponse {
       // Remove the CRP from the local /crpstudio container 
       crpContainer.removeCrpInfo(sProjectName, sProjectUser);
       // Remove the CRP from the list in crpUtil
-      JSONArray arList = servlet.getUserCrpList();
+      JSONArray arList = getProjectList(sProjectUser); // servlet.getUserCrpList();
       for (int i=arList.length()-1;i>=0;i--) {
         JSONObject oOneItem = arList.getJSONObject(i);
         String sThisCrp = oOneItem.getString("crp");

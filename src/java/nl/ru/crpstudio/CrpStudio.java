@@ -218,8 +218,10 @@ public class CrpStudio extends HttpServlet {
 
       // Prepare an appropriate response
       if(bOkay && responses.containsKey(indexName)) {
+        errHandle.debug("User ok. Turning to: " + indexName);
         // The request is within our limits, so return the appropriate response
         br = responses.get(indexName).duplicate();
+        errHandle.debug("Created response for: " + indexName);
       } else {
         // if there is no corresponding response object
         // take the "home" one as the default one
