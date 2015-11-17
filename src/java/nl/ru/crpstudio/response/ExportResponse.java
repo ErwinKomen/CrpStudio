@@ -29,7 +29,7 @@ public class ExportResponse extends BaseResponse {
       
       // There are three parameters: project, userid, type
       project = oQuery.getString("project");
-      String sView = oQuery.getString("view");
+      String sView = String.valueOf(oQuery.getInt("view"));
       String sTable = oQuery.getString("table");    // This is a stringified JSON object
 
       // Get the name of the project
@@ -44,7 +44,7 @@ public class ExportResponse extends BaseResponse {
       // String sView = this.request.getParameter("view");
       
       // Fetch the CSV information into a string
-			String result = this.jobToCSV(sView);
+			String result = this.jobToCSV(sView, sTable);
 			
       switch (servlet.getRequestMethod()) {
         case "GET":
@@ -96,13 +96,13 @@ public class ExportResponse extends BaseResponse {
    * @param sView - View number 1-4 or 5 (overview)
    * @return      - String containing the tab-separated table representation
    */
-	public String jobToCSV(String sView) {
+	public String jobToCSV(String sView, String sTable) {
 		StringBuilder result = new StringBuilder();
     JSONArray arTable;
     
     try {
       // Get the "table" parameter
-      String sTable = this.request.getParameter("table");
+      // String sTable = this.request.getParameter("table");
       if (sTable.isEmpty()) return "";
       // Start making table
       result.append("date:\t"+getCurrentTimeStamp()+"\n");

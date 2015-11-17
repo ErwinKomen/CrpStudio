@@ -991,7 +991,7 @@ public abstract class BaseResponse {
 	public void sendFileLocResponse(String contents, String fileName, String sView) {
     try {
       String sFileUrl = makeFileLocResponse(contents, fileName);
-      if (sFileUrl == "") {
+      if (sFileUrl.isEmpty()) {
         sendErrorResponse("FileLoc: Could not prepare file for download: " + fileName);
       } else {
         // Respond with the URL for this file in the reply
