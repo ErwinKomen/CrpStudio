@@ -71,17 +71,17 @@ var crpstudio = (function ($, crpstudio) {
        * @param {string} sKey   - field name (e.g. "Goal", "Text")
        * @param {string} sValue - new value of the field
        * @param {bool}   bForce - this value must be created, even if it equals the old one
-       * @returns {void}
+       * @returns {bool}
        */
       histAdd : function(sType, iId, sCrp, sKey, sValue, bForce) {
         // If this is a change in name, then check it immediately
-        if (!private_methods.itemCheck(sType, iId, sKey, sValue)) return;
+        if (!private_methods.itemCheck(sType, iId, sKey, sValue)) return false;
         // Check what the 'old' value was
         var sOld = private_methods.getItemValue(sType, iId, sCrp, sKey);
         // Validate: only real changes must continue
-        if (sValue === sOld && (!bForce || bForce===undefined || bForce===false)) return;
+        if (sValue === sOld && (!bForce || bForce===undefined || bForce===false)) return false;
         // Some changes cause perculation (e.g. query name change --> QC list)
-        if (!private_methods.itemPerculate(sType, iId, sCrp, sKey, sValue, sOld)) return;
+        if (!private_methods.itemPerculate(sType, iId, sCrp, sKey, sValue, sOld)) return false;
         // Possibly get the last item of history
         var iSize = lstHistory.length;
         var bAdded = false;
@@ -132,6 +132,8 @@ var crpstudio = (function ($, crpstudio) {
         private_methods.showSaveButton(true);
         // Indicate the project needs saving
         loc_dirty = true;
+        // Return positively
+        return true;
       },
 
       /**
@@ -356,7 +358,7 @@ var crpstudio = (function ($, crpstudio) {
         // Check if this is the listfield
         if (sListField === sKey) {
           // This is the list field, so check the value
-          if (sValue.contains(" ")) {
+          if (sValue.indexOf(" ") >= 0) {
             bOkay = false;
           } else {
             // Check if the name occurs already
@@ -369,7 +371,7 @@ var crpstudio = (function ($, crpstudio) {
                   // Get this item
                   var oItem = oList[i];
                   if (oItem["crp"] !== sCurCrp+".crpx") {
-                    if (oItem["crp"] === sValue+".crpx") { bOkay = false; break; }
+                    if (oItem["crp"] === sValue+".crpx" && oItem["CrpId"] !== iId) { bOkay = false; break; }
                   }
                 }
                 break;
@@ -2881,7 +2883,7 @@ var crpstudio = (function ($, crpstudio) {
        *    
        * @param {element} source  - the caller's <div> or <a> or so
        * @param {string}  sType   - the kind of element?
-       * @returns {undefined}
+       * @returns {void}
        */
       ctlTimer : function(source, sType) {
         // Clear any previously set timer
@@ -2930,8 +2932,9 @@ var crpstudio = (function ($, crpstudio) {
         }
 
         // Process the change by calling [histAdd]
-        private_methods.histAdd(oItem.type, iItemId, currentPrj,
-            oItem.key, sValue);
+        // But if things go wrong, do NOT continue!!
+        if (!private_methods.histAdd(oItem.type, iItemId, currentPrj,
+            oItem.key, sValue)) return;
 
         // Check if list needs to be re-drawn
         var oDescr = private_methods.getItemDescr(oItem.type);
