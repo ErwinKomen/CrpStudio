@@ -603,7 +603,7 @@ var crpstudio = (function ($, crpstudio) {
         // DEF: "DefId;Name;File;Goal;Comment;Created;Changed"
         // QC:  "QCid;Input;Query;Output;Result;Cmp;Mother;Goal;Comment"
         // DBF: "DbFeatId;Name;Pre;QCid;FtNum"
-        // CRP: "CrpId;Name;Language;Part;Author;PrjType;Goal;Created;Changed;DbaseInput;Comments"
+        // CRP: "CrpId;Name;Language;Part;Author;ProjectType;Goal;Created;Changed;DbaseInput;Comments"
         for (var i=0;i<oList.length;i++) {
           var oOneItem = oList[i];
           var sOneName = oOneItem[oItemDesc.listfield];

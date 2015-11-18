@@ -1750,7 +1750,7 @@ public abstract class BaseResponse {
         // Make sure empty lines are *not* allowed
         if (!sPrjType.equals("")) {
           // Enter the combobox line
-          sb.append("<option value=\"" + sPrjType.toLowerCase() + "\"" + 
+          sb.append("<option value=\"" + sPrjType + "\"" + 
                   " onclick='crpstudio.project.setPrjType(\"" + sPrjType + "\")' >" +
                   sPrjType + "</option>\n");
         }

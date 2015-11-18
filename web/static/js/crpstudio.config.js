@@ -24,7 +24,7 @@ var crpstudio = (function (crpstudio) {
         gen: "project_general", cur: "crp_current", divprf: "project", fields: [
             { field: "Name",        type: "txt", loc: "project_general_name"}, 
             { field: "Author",      type: "txt", loc: "project_general_author"}, 
-            { field: "PrjType",     type: "txt", loc: "project_general_prjtype"}, 
+            { field: "ProjectType", type: "txt", loc: "project_general_prjtype"}, 
             { field: "Comments",    type: "txt", loc: "project_general_comments"}, 
             { field: "Goal",        type: "txt", loc: "project_general_goal"}, 
             { field: "DbaseInput",  type: "txt", loc: "project_general_dbase"}, 
