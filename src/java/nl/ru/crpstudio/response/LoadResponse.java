@@ -29,33 +29,31 @@ public class LoadResponse extends BaseResponse {
       sUserId = oQuery.getString("userid");
 
       // Validate: all three must be there
-      if (project.isEmpty()) { sendErrorResponse("Name of project not specified"); return;}
       if (loadType.isEmpty()) { sendErrorResponse("Specify type of information needed"); return;}
       if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
       
-      // Either load the project from /crpp or fetch it from the internal storage
-      crpThis = crpContainer.getCrp(this, project, sUserId, false);
-      if (crpThis == null) { sendErrorResponse("Could not load CRP:\n" + 
-              logger.getErrList().toString()); return;}
-      // Get the CrpId of this project
-      int iCrpId = crpContainer.getCrpId(this, project, sUserId);
       // The actual reply depends on the @loadType
       switch(loadType) {
+        case "init":  // No project is specified, we just want to have the list of projects
+          oContent.put("crplist", this.makeListOfCrps(sUserId, null));
+          break;
         case "info":
+          // Project may be empty...
+          if (project.isEmpty()) { sendErrorResponse("Name of project not specified"); return;}
+      
+          // Either load the project from /crpp or fetch it from the internal storage
+          crpThis = crpContainer.getCrp(this, project, sUserId, false);
+          if (crpThis == null) { sendErrorResponse("Could not load CRP:\n" + 
+                  logger.getErrList().toString()); return;}
+          // Get the CrpId of this project
+          int iCrpId = crpContainer.getCrpId(this, project, sUserId);
           // Place the 'general CRP parameters in a JSONObject
-          oContent.put("name", crpThis.getName());
           oContent.put("CrpId", iCrpId);
-          oContent.put("author", crpThis.getAuthor());
-          oContent.put("prjtype", crpThis.getProjectType());
-          oContent.put("goal", crpThis.getGoal());
-          oContent.put("datecreated", crpThis.getDateCreated());
-          oContent.put("datechanged", crpThis.getDateChanged());
-          oContent.put("showsyntax", crpThis.getShowPsd());
           oContent.put("dbaseinput", crpThis.getDbaseInput());
-          oContent.put("comments", crpThis.getComments());
-          oContent.put("dbase", crpThis.getSource());
           oContent.put("language", crpThis.getLanguage());
           oContent.put("part", crpThis.getPart());
+          oContent.put("dbase", crpThis.getSource());
+          oContent.put("showsyntax", crpThis.getShowPsd());
           oContent.put("deflist", crpThis.getListDef());
           oContent.put("qrylist", crpThis.getListQuery());
           oContent.put("qclist", crpThis.getListQC());

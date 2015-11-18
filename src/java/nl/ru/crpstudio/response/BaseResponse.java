@@ -1100,11 +1100,18 @@ public abstract class BaseResponse {
    * @return 
    */
   public JSONArray makeListOfCrps(String sUser, CorpusResearchProject crpThis) {
+    String sProjectName;
+    String sFullName;
+    
     try {
       JSONArray arCrpList = getProjectList(sUser);
-      // Find the correct CRP
-      String sProjectName = crpThis.getName();
-      String sFullName = sProjectName + ".crpx";
+      if (crpThis == null) {
+        sFullName = "";
+      } else {
+        // Find the correct CRP
+        sProjectName = crpThis.getName();
+        sFullName = sProjectName + ".crpx";
+      }
       // Walk the list until we find the @sProjectName
       for (int i=0;i<arCrpList.length(); i++) {
         // Is this the one?
@@ -1122,7 +1129,7 @@ public abstract class BaseResponse {
         if (oOneItem.getString("crp").equals(sFullName)) {
           // We found it: put additional information from the CRP here          
           oOneItem.put("Author", crpThis.getAuthor());
-          oOneItem.put("PrjType", crpThis.getProjectType().toLowerCase());
+          oOneItem.put("ProjectType", crpThis.getProjectType().toLowerCase());
           oOneItem.put("Goal", crpThis.getGoal());
           oOneItem.put("Created", crpThis.getDateCreated());
           oOneItem.put("Changed", crpThis.getDateChanged());
@@ -1581,7 +1588,7 @@ public abstract class BaseResponse {
         // This does not work: if (oCRP.has("dbase")) sDbase = oCRP.getString("dbase");
         if (sCrp.toLowerCase().equals(sOneCrpName)) {
           sOneCrpName = FileIO.getFileNameWithoutExtension(sCrp)  + ((bCrpLoaded) ? " (loaded)" : "");
-          return "<li class='crp_"+sCrp+" "+sType+"'><a href=\"#\" onclick='crpstudio.project.setProject(this, \""+ 
+          return "<li class='crp_"+sCrp+" "+sType+" hidden'><a href=\"#\" onclick='crpstudio.project.setProject(this, \""+ 
                   sCrp +"\", \""+sLng+"\", \""+sDir+"\", \""+sDbase+"\")'>" + sOneCrpName + "</a></li>\n";
         }
       }
@@ -1750,7 +1757,7 @@ public abstract class BaseResponse {
         // Make sure empty lines are *not* allowed
         if (!sPrjType.equals("")) {
           // Enter the combobox line
-          sb.append("<option value=\"" + sPrjType + "\"" + 
+          sb.append("<option value=\"" + sPrjType.toLowerCase() + "\"" + 
                   " onclick='crpstudio.project.setPrjType(\"" + sPrjType + "\")' >" +
                   sPrjType + "</option>\n");
         }

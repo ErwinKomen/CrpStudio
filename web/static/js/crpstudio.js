@@ -110,49 +110,6 @@ var crpstudio = (function ($, crpstudio) {
       },
 
 
-      /* --------------------------------------------------------------------------
-       * Name: getBlacklabData
-       * Goal: Acquire data from the BlackLab Server
-       * History:
-       * jun/2015 ERK Copied from WhiteLab
-       */
-      getBlacklabData : function(type, params, callback, target) {
-        var xhr = private_methods.createRequest('GET', config.blsUrl + type);
-        if (!xhr) {
-          return;
-        }
-
-        if (params !== null && params.indexOf("outputformat=") === -1) {
-          params = params + "&outputformat=json";
-        } else if (params === null || params.length === 0) {
-          params = "outputformat=json";
-        }
-
-        debug(config.blsUrl + type + "?" + params);
-
-        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-
-        xhr.onload = function() {
-    //			if (/^[\],:{}\s]*$/.test(xhr.responseText.replace(/\\["\\\/bfnrtu]/g, '@').
-    //					replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-    //					replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-            private_methods.debugXhrResponse(xhr.responseText);
-            var resp = JSON.parse(xhr.responseText);
-            private_methods.debugXhrResponse("response:");
-            private_methods.debugXhrResponse(resp);
-            callback(resp,target);
-    //			} else {
-    //				debug("invalid JSON");
-    //			}
-        };
-
-        xhr.onerror = function() {
-          debug("Failed to proces request.");
-        };
-
-        xhr.send(params);
-      },
-
       /* ====================================================================================
          Name: getCrpStudioData
          Goal: Issue an AJAX request using jQuery

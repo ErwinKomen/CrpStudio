@@ -48,6 +48,7 @@
 					$( window ).resize(function() {
 						crpstudio.project.setSizes();
 					});
+          crpstudio.project.initCrpList();
 				#elseif($maintab == "about")
 					crpstudio.main.about.setSizes();
 					$( window ).resize(function() {

@@ -67,23 +67,6 @@ public class RemoveResponse extends BaseResponse {
         case "project":     // Remove a CRP
           // Remove the CRP from the local /crpstudio server
           this.removeProject(sCrpName, sUserId);
-          /*
-          File fPrjFile = crpContainer.getCrpFile(sCrpName, sUserId);
-          if (fPrjFile != null && fPrjFile.exists()) fPrjFile.delete();
-          // Remove the CRP from the local /crpstudio container 
-          crpContainer.removeCrpInfo(sCrpName, sUserId);
-          // Remove the CRP from the list in crpUtil
-          JSONArray arList = servlet.getUserCrpList();
-          for (int i=arList.length()-1;i>=0;i--) {
-            JSONObject oOneItem = arList.getJSONObject(i);
-            String sThisCrp = oOneItem.getString("crp");
-            if (sThisCrp.equals(sCrpName) || sThisCrp.equals(sCrpName+".crpx")) {
-              // Remove it
-              arList.remove(i); break;
-            }
-          }
-          servlet.setUserCrpList(arList);
-                  */
           // Set the action for /crpp
           sAction = "crpdel";
           break;
