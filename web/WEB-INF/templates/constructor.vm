@@ -28,7 +28,8 @@
                   </div>
                   <div class="large-10 medium-10 small-10 columns">
                     <select id="qc_general_query" class="general_input"  placeholder="select a query">
-                      <!-- the querylist is created on-the-fly -->
+                      <!-- the querylist is created in BaseResponse as a reaction to /crpstudio/load -->
+                      ${querysellist}
                     </select>
                   </div>
                 </div>
@@ -37,7 +38,7 @@
               <div class="large8 medium-8 small-8 columns">
                 <div class="row">
                   <div class="large-6 medium-6 small-6 columns">
-                    <label for="right-label" class="right inline">$labels.getString("constructor.general.input")</label>
+                    <label for="right-label" class="left inline">$labels.getString("constructor.general.input")</label>
                   </div>
                   <div class="large-10 medium-10 small-10 columns">
                     <select id="qc_general_input" class="general_input"  placeholder="input line">

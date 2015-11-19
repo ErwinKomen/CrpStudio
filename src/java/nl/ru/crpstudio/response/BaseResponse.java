@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -41,8 +42,10 @@ import nl.ru.crpstudio.crp.CrpContainer;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.ExploreSpecifier;
 import nl.ru.crpstudio.util.MetadataField;
+import nl.ru.crpstudio.util.QryTypeSpecifier;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TabSpecifier;
+import nl.ru.crpstudio.util.TagsetSpecifier;
 import nl.ru.crpstudio.util.TemplateManager;
 import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.crpx.project.CorpusResearchProject.ProjType;
@@ -1750,6 +1753,9 @@ public abstract class BaseResponse {
     StringBuilder sb = new StringBuilder(); // Put everything into a string builder
 
     try {
+      // Add a first line
+      sb.append("<option value=\"\">(Please make a selection)</option>");
+      // Walk through all project types
       ProjType[] arPrjType = ProjType.values();
       for (int i=0;i<arPrjType.length;i++) {
         // Get this project type
@@ -1770,6 +1776,66 @@ public abstract class BaseResponse {
     }
   }
   
+  /**
+   * getQryTypeList
+   *    Create an <option> list of possible query types that can be created
+   * 
+   * @return 
+   */
+  public String getQryTypeList() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+
+    try {
+      // Add a first line
+      sb.append("<option value=\"\">(Please make a selection)</option>");
+      // Get a list of query type definitions
+      LinkedList<QryTypeSpecifier> lstQryType = getQryTypeSpecsList();
+      // Walk the list
+      for (int i=0;i<lstQryType.size();i++) {
+        // Append information on this list
+        sb.append("<option value=\""+lstQryType.get(i).getName()+"\">"+lstQryType.get(i).getTitle()+"</option>");
+      }
+
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getQryTypeList: could not complete", ex);
+      return "error (getQryTypeList)";
+    }
+  }
+  
+  /**
+   * getQueryList
+   *    Return an <option> list of selectable query elements
+   * 
+   * @param prjThis
+   * @return 
+   */
+  public String getQueryList(CorpusResearchProject prjThis) {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+
+    try {
+      // Get all the queries for the current CRP
+      List<JSONObject> lstQry = prjThis.getListQuery();
+      // Add a first line
+      sb.append("<option value=\"\">(Please make a selection)</option>");
+      // Walk this list
+      for (int i=0;i<lstQry.size();i++) {
+        // Access this item in the list
+        JSONObject oThis = lstQry.get(i);
+        // Get the name of this query
+        String sQryName = oThis.getString("Name");
+        // Enter the combobox line
+        sb.append("<option value=\"" + sQryName + "\" >"+sQryName + "</option>\n");
+      }
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getQueryList: could not complete", ex);
+      return "error (getQueryList)";
+    }
+  }
+
   /**
    * getCorpusList -- Read the corpus information (which has been read
    *                    from file through CrpUtil) and transform it
@@ -1867,6 +1933,58 @@ public abstract class BaseResponse {
       tabs.add(tabThis);
     }
     // Return the result
+    return(tabs);
+  }
+  
+  /**
+   * getQryTypeSpecsList
+   *    Make a list of explorer side-nav-specification for the "projects" sub pages
+   * 
+   * @return 
+   */
+  public LinkedList<QryTypeSpecifier> getQryTypeSpecsList() {
+    LinkedList<QryTypeSpecifier> tabs = new LinkedList<>();
+    String[] arTitle = labels.getString("query.type.title").split(",");
+    String[] arName = labels.getString("query.type.name").split(",");
+    for (int i=0;i<arName.length;i++) {
+      QryTypeSpecifier tabThis = new QryTypeSpecifier(arTitle[i].trim(), arName[i].trim());
+      tabs.add(tabThis);
+    }
+    // Return the result
+    return(tabs);
+  }
+  
+  /**
+   * getQryTypeSpecsList
+   *    Make a list of explorer side-nav-specification for the "projects" sub pages
+   * 
+   * @return 
+   */
+  public LinkedList<TagsetSpecifier> getTagsetSpecsList() {
+    LinkedList<TagsetSpecifier> tabs = new LinkedList<>();
+    String[] arTitle = labels.getString("tagset.title").split(",");
+    // Look for all "tagset.def" keys...
+    Enumeration<String> enumeration = labels.getKeys();
+    while (enumeration.hasMoreElements()) {    
+      String sKeyName = enumeration.nextElement();
+      // Is this a tagset.def. key?
+      if (sKeyName.startsWith("tagset.def.")) {
+        // Get the name of the tagset
+        String arPart[] = sKeyName.split("[.]");
+        String sTagsetName = arPart[2].trim();
+        // Get the definition for this tagset
+        String[] arValue = labels.getString(sKeyName).split(",");
+        // Validate length of array: if the length does *not* match, simply skip 
+        if (arValue.length == arTitle.length) {
+          // Add the combination of tagset/name/value 
+          for (int i=0;i<arTitle.length;i++) {
+            TagsetSpecifier tabThis = new TagsetSpecifier(sTagsetName, arTitle[i].trim(), arValue[i].trim());
+            tabs.add(tabThis);
+          }
+        }
+      }
+    }
+        // Return the result
     return(tabs);
   }
   

@@ -36,6 +36,8 @@ public class LoadResponse extends BaseResponse {
       switch(loadType) {
         case "init":  // No project is specified, we just want to have the list of projects
           oContent.put("crplist", this.makeListOfCrps(sUserId, null));
+          // Get a list of tagsets
+          oContent.put("tagsetlist", this.getTagsetSpecsList());
           break;
         case "info":
           // Project may be empty...
@@ -59,6 +61,7 @@ public class LoadResponse extends BaseResponse {
           oContent.put("qclist", crpThis.getListQC());
           oContent.put("dbflist", crpThis.getListDbFeat());
           oContent.put("crplist", this.makeListOfCrps(sUserId, crpThis));
+          oContent.put("querysellist", this.getQueryList(crpThis));
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");

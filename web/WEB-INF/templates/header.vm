@@ -58,6 +58,7 @@
 		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.dbase.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.project.js"></script>
+		<script type="text/javascript" src="./static/js/crpstudio.xquery.js"></script>
 		<script type="text/javascript" src="./static/js/crpstudio.result.js"></script>
 		<script type="text/javascript" src="./static/js/intro.js"></script>
 		<script>

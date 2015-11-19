@@ -24,6 +24,17 @@
                 <input id="query_new_goal" class="left general_input" type="text" placeholder="This query's goal is ...">
               </div>
             </div>
+            <!-- Query TYPE: user may select one of them for the creation -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-6 medium-6 small-6 columns">
+                <label for="right-label" class="left inline">$labels.getString("project.general.prjtype")</label>
+              </div>
+              <div class="large-10 medium-10 small-10 columns">
+                <select id="query_new_qrytype" class="left general_input"  placeholder="start query...">
+                  ${qrytypelist}
+                </select>
+              </div>
+            </div>
             <!-- Query's COMMENT -->
             <div class="large-16 medium-16 small-16 row">
               <label>$labels.getString("query.general.comments")

@@ -12,48 +12,49 @@ var crpstudio = (function ($, crpstudio) {
   crpstudio.project = (function ($, config){
 
     // Variables within the scope of crpstudio.project
-    var loc_tab  =  "project";    // The main tab we are on (equals to "project_editor")
-    var loc_dbaseInput = false;   // Do we have a database as input?
-    var currentCorpus =  "";      // Currently selected corpus
-    var currentPrj =  "";         // The currently being executed project (the CRP name)  (used by crpstudio.result)
-    var currentLng =  "";         // the "lng" parameter of the current project (used by crpstudio.result)
-    var currentDir =  "";         // the "dir" parameter of the current project (used by crpstudio.result)
-    var currentDb =  "";          // The database that serves as current input
-    var currentDbLng =  "";       // Language according to current db
-    var currentDbDir =  "";       // Part of language for current db
-    var currentCrp =  -1;         // The CrpId of the currently selected CRP (project)
-    var currentQry =  -1;         // The QueryId of the currently selected query
-    var currentDef =  -1;         // The DefId of the currently selected Definition
-    var currentQc =  -1;          // The QCid of the currently selected QC
-    var currentDbf =  -1;         // The DbFeatId of the currently selected dbfeat
-    var currentDbId = -1;         // The DbId of the currently selected database
-    var strQstatus =  "";         // The JSON string passed on to R-server "status"
-    var divStatus =  "";          // The name of the div where the status is to be shown
-    var recentcrp =  "";          // Recently used CRP
-    var interval =  200;          // Number of milliseconds
-    var typingTimer =  null;      // Timer to make sure we react only X seconds after typing
-    var doneTypingIntv =  2000;   // Stop-typing interval =  2 seconds
-    var ctlCurrent =  null;       // Current control
-    var ctlCurrentId =  "";       // ID of current control
-    var lstHistory =  [];         // List of changes =  type; id; crp; key; value
-    var cmQuery =  null;          // 
-    var cmDef =  null;            // 
-    var prj_dbaseinput =  "";     // Field value of this project =  dbaseinput (True/False)
-    var prj_language =  "";       // Field value of this project =  language
-    var prj_deflist =  null;      // Field value of this project =  list of definitions
-    var prj_qrylist =  null;      // Field value of this project =  list of queries
-    var prj_qclist =  null;       // Field value of this project =  list of QC elements
-    var prj_dbflist =  null;      // Field value of this project =  list of database features
-    var prj_crplist =  null;      // List of currently available CRPs
-    var qry_current =  null;      // Currently loaded Query object
-    var def_current =  null;      // Currently loaded Definition object
-    var dbf_current =  null;      // Currently loaded DbFeat object
-    var qc_current =  null;       // Currently loaded QC object (constructor)
-    var loc_dirty =  false;       // Project needs saving or not
-    var qry_dirty =  false;       // Flag to indicate that the 'Text' area of Query has changed
-    var def_dirty =  false;       // Flag to indicate that the 'Text' area of Definition has changed
-    var bIsSelecting =  false;    // Flag to indicate that selection changes take place
-    var loc_bNew = false;         // New CRP created, but not yet saved
+    var loc_tab  =  "project",    // The main tab we are on (equals to "project_editor")
+        loc_dbaseInput = false,   // Do we have a database as input?
+        currentCorpus =  "",      // Currently selected corpus
+        currentPrj =  "",         // The currently being executed project (the CRP name)  (used by crpstudio.result)
+        currentLng =  "",         // the "lng" parameter of the current project (used by crpstudio.result)
+        currentDir =  "",         // the "dir" parameter of the current project (used by crpstudio.result)
+        currentDb =  "",          // The database that serves as current input
+        currentDbLng =  "",       // Language according to current db
+        currentDbDir =  "",       // Part of language for current db
+        currentCrp =  -1,         // The CrpId of the currently selected CRP (project)
+        currentQry =  -1,         // The QueryId of the currently selected query
+        currentDef =  -1,         // The DefId of the currently selected Definition
+        currentQc =  -1,          // The QCid of the currently selected QC
+        currentDbf =  -1,         // The DbFeatId of the currently selected dbfeat
+        currentDbId = -1,         // The DbId of the currently selected database
+        strQstatus =  "",         // The JSON string passed on to R-server "status"
+        divStatus =  "",          // The name of the div where the status is to be shown
+        recentcrp =  "",          // Recently used CRP
+        interval =  200,          // Number of milliseconds
+        typingTimer =  null,      // Timer to make sure we react only X seconds after typing
+        doneTypingIntv =  2000,   // Stop-typing interval =  2 seconds
+        ctlCurrent =  null,       // Current control
+        ctlCurrentId =  "",       // ID of current control
+        lstHistory =  [],         // List of changes =  type, id, crp, key, value
+        cmQuery =  null,          // 
+        cmDef =  null,            // 
+        prj_dbaseinput =  "",     // Field value of this project =  dbaseinput (True/False)
+        prj_language =  "",       // Field value of this project =  language
+        prj_deflist =  null,      // Field value of this project =  list of definitions
+        prj_qrylist =  null,      // Field value of this project =  list of queries
+        prj_qclist =  null,       // Field value of this project =  list of QC elements
+        prj_dbflist =  null,      // Field value of this project =  list of database features
+        prj_crplist =  null,      // List of currently available CRPs
+        qry_current =  null,      // Currently loaded Query object
+        def_current =  null,      // Currently loaded Definition object
+        dbf_current =  null,      // Currently loaded DbFeat object
+        qc_current =  null,       // Currently loaded QC object (constructor)
+        loc_qrytypelist = null,   // List of supported query types
+        loc_dirty =  false,       // Project needs saving or not
+        qry_dirty =  false,       // Flag to indicate that the 'Text' area of Query has changed
+        def_dirty =  false,       // Flag to indicate that the 'Text' area of Definition has changed
+        bIsSelecting =  false,    // Flag to indicate that selection changes take place
+        loc_bNew = false;         // New CRP created, but not yet saved
 
     // Define private methods
     var private_methods = {
@@ -215,7 +216,7 @@ var crpstudio = (function ($, crpstudio) {
         // Make sure we have the correct CRP name
         for (var i=0;i<arHist.length;i++) {
           var oItem = arHist[i];
-          if (oItem.key === "Name") {
+          if (oItem.type === "project" && oItem.key === "Name") {
             // Take the *oldest* crp name instead of the currentPrj
             targetCrp = oItem.old;
             break;
@@ -429,6 +430,30 @@ var crpstudio = (function ($, crpstudio) {
         var sId = iId.toString();
         // Perculation actions depend on the type of element
         switch (sItemType) {
+          case "constructor":
+            // Check if this is the @Query field
+            if (sKey === "Query") {
+              var sField = "Result";
+              // Change the value on the screen
+              var sLocation = private_methods.getItemFieldLoc(sItemType, sField);
+              $("#"+sLocation).val(sValue);
+              // Also change the @Result field of *this* object
+              var oList = prj_qclist;
+              for (var i=0;i<oList.length;i++) {
+                // Get this item
+                var oItem = oList[i];
+                // Check if this is the currently selected QC item
+                if (sId === oItem[sIdField]) {
+                  // Adapt this item
+                  oItem[sField] = sValue;
+                  // Put the item back into the list
+                  oList[i] = oItem;
+                  // Leave the loop
+                  break;
+                }
+              }
+            }
+            break;
           case "query":
             // Check if this is the listfield (i.e. @Name)
             if (sListField === sKey) {
@@ -688,60 +713,6 @@ var crpstudio = (function ($, crpstudio) {
             }
           }
         }
-        /*
-        // Action depends on item type
-        switch(sItemType) {
-          case "query":
-            // Walk all the elements of the list
-            for (var i=0;i<prj_qrylist.length;i++) {
-              var oOneItem = prj_qrylist[i];
-              var iId = parseInt(oOneItem[oDescr.id], 10);
-              // Check the id
-              if (iId === iIdValue) {
-                //Change the item's field value
-                prj_qrylist[i][sKey] = sValue;
-              }
-            }
-            break;
-          case "definition":
-            // Walk all the elements of the list
-            for (var i=0;i<prj_deflist.length;i++) {
-              var oOneItem = prj_deflist[i];
-              var iId = parseInt(oOneItem[oDescr.id], 10);
-              // Check the id
-              if (iId === iIdValue) {
-                //Change the item's field value
-                prj_deflist[i][sKey] = sValue;
-              }
-            }
-            break;
-          case "dbfeat":
-            // Walk all the elements of the list
-            for (var i=0;i<prj_dbflist.length;i++) {
-              var oOneItem = prj_dbflist[i];
-              var iId = parseInt(oOneItem[oDescr.id], 10);
-              // Check the id
-              if (iId === iIdValue) {
-                //Change the item's field value
-                prj_dbflist[i][sKey] = sValue;
-              }
-            }
-            break;
-          case "constructor":
-            // Walk all the elements of the list
-            for (var i=0;i<prj_qclist.length;i++) {
-              var oOneItem = prj_qclist[i];
-              var iId = parseInt(oOneItem[oDescr.id], 10);
-              // Check the id
-              if (iId === iIdValue) {
-                //Change the item's field value
-                prj_qclist[i][sKey] = sValue;
-              }
-            }
-            break;
-        }
-        */
-
       },
 
       /**
@@ -878,6 +849,40 @@ var crpstudio = (function ($, crpstudio) {
         private_methods.histAddItem(sListType, iItemId);
         // Return the new id
         return iItemId;
+      },
+      
+      /**
+       * makeQcInput
+       *    Fill the "#qc_general_input" combobox
+       * 
+       * @param {type} iQCid
+       * @returns {void}
+       */
+      makeQcInput : function(iQCid) {
+        // Clear current contents
+        $("#qc_general_input option").remove();
+        // Create a list
+        var arQcInput = [];
+        // Push the Source element
+        arQcInput.push("<option value=\"Source\">Source</option>");
+        // Visit all QcId members coming before *me*
+        for (var i=1;i<iQCid;i++) {
+          // Get the QC line with this id
+          var oItem = private_methods.getListObject("constructor", "QCid", i);
+          // Does this object exist?
+          if (oItem && oItem.length>0) {
+            // Add the output from this line to our options list
+            var sVal = i + "/out";
+            arQcInput.push("<option value=\""+sVal+"\">"+sVal+"</option>");
+            // Is a complement available?
+            if (oItem.Cmp && oItem.Cmp === "True") {
+              sVal = i + "/cmp";
+              arQcInput.push("<option value=\""+sVal+"\">"+sVal+"</option>");
+            }
+          }
+        }
+        // Put the created list at the right place
+        $("#qc_general_input").append(arQcInput.join("\n"));
       },
       
       /**
@@ -1021,94 +1026,6 @@ var crpstudio = (function ($, crpstudio) {
           // crpstudio.main.getCrpStudioData("exe", sExeRequest, crpstudio.project.processExeCrpStudio, "#result_status");
           crpstudio.main.getCrpStudioData("exe", params, crpstudio.project.processExeCrpStudio, "#result_status");
         }
-      },
-
-      /* ---------------------------------------------------------------------------
-       * Name: processExeCrpp
-       * Goal: callback function for the execution of a project
-       * History:
-       * 23/jun/2015  ERK Created
-       */
-      processExeCrpp : function(oResponse, target) {
-        // The initial response should contain one object: status
-        var status = oResponse.status;
-        // Initialisations
-        var jobId = "";
-        var sUserId = "";
-        var sStatusRequest = "";
-        // Part of the object is the code (which should be 'started')
-        var statusCode = status.code;
-        var statusMsg = (status.message) ? (": "+status.message) : "";
-        // Set the status
-        $(target).html(statusCode+statusMsg);
-        // Action depends on the status code
-        switch (statusCode.toLowerCase()) {
-          case "started":
-            // Get the jobid and the userid
-            jobId = status.jobid;
-            sUserId = status.userid;
-            // Create a status request object
-            var oStatusRequest = {
-              "jobid": jobId,
-              "userid": sUserId
-            };
-            sStatusRequest = JSON.stringify(oStatusRequest);
-            // Make the status available within this JavaScript module
-            strQstatus = sStatusRequest;
-            // Make sure the results are not visible yet
-            $("#results").addClass("hidden");
-            $("#results").removeClass("active");
-            // Hide querylines from viewing
-            $("#result_querylines").addClass("hidden");
-            // Now issue this request with an interval of 0.5 seconds
-            setTimeout(
-              function () {
-                crpstudio.main.postRequest("statusxq", sStatusRequest, crpstudio.project.processExeCrpp, target);
-              }, interval);
-            break;
-          case "working":
-            // Show the current status
-            crpstudio.project.doStatus(oResponse);
-            // Retrieve the status request object string
-            sStatusRequest = strQstatus ;
-            // Now issue the same request with an interval of 0.5 seconds
-            setTimeout(
-              function () {
-                crpstudio.main.postRequest("statusxq", sStatusRequest, crpstudio.project.processExeCrpp, target);
-              }, interval);
-            break;
-          case "completed":
-            // Signal completion
-            $(target).html("Fetching results");
-            // Show the final status
-            crpstudio.project.doStatus(oResponse);
-            // And more completeino
-            $(target).html("");
-            // Make sure the results are visible
-            $("#results").removeClass("hidden");
-            $("#results").addClass("active");
-            break;
-          case "error":
-            // Provite an error report
-            $(target).html("There was an error");
-            break;
-          default:
-            // Provite a status report showing that we are at a loss
-
-            break;
-        }
-     /*
-      * Returned status is like:
-      * {
-      "status": {
-        "code": "started",
-        "message": "{\"total\":705,\"ready\":2,\"start\":\"cmkempe.m4.psdx\",\"count\":10,\"finish\":\"cmthorn.mx4.psdx\"}",
-        "userid": "erwin",
-        "jobid": "158",
-        "checkAgainMs": 200
-      }
-    }
-      */
       },
 
       /* ---------------------------------------------------------------------------
@@ -1779,27 +1696,27 @@ var crpstudio = (function ($, crpstudio) {
           switch(sType) {
             case "query":
               if (prj_qrylist.length > 0) {
-                iItemId = (currentQry>=0) ? currentQry : 1;
+                iItemId = (currentQry>=0) ? currentQry : parseInt(prj_qrylist[0].QueryId,10);
               }
               break;
             case "definition":
               if (prj_deflist.length > 0) {
-                iItemId = (currentDef>=0) ? currentDef : 1;
+                iItemId = (currentDef>=0) ? currentDef : parseInt(prj_deflist[0].DefId,10);
               }
               break;
             case "dbfeat":
               if (prj_dbflist.length > 0) {
-                iItemId = (currentDbf>=0) ? currentDbf : 1;
+                iItemId = (currentDbf>=0) ? currentDbf : parseInt(prj_dbflist[0].DbFeatId,10);
               }
               break;
             case "constructor":
               if (prj_qclist.length > 0) {
-                iItemId = (currentQc>=0) ? currentQc : 1;
+                iItemId = (currentQc>=0) ? currentQc : parseInt(prj_qclist[0].QCid,10);
               }
               break;
             case "project":
               if (prj_crplist.length > 0) {
-                iItemId = (currentCrp>=0) ? currentCrp : 1;
+                iItemId = (currentCrp>=0) ? currentCrp : parseInt(prj_crplist[0].CrpId,10);
               }
               break;
             case "dbase":
@@ -1909,8 +1826,8 @@ var crpstudio = (function ($, crpstudio) {
             case "constructor":
               // Set the id of the currently selected constructor item
               currentQc = iItemId;
-              // Is this the first time we are visiting QC?
-
+              // Create and set the list under "#qc_general_input"
+              private_methods.makeQcInput(iItemId);
               // Make sure the visibility is okay
               crpstudio.project.setSizes();
               break;
@@ -2134,6 +2051,7 @@ var crpstudio = (function ($, crpstudio) {
           switch (sStatusCode) {
             case "completed":
               prj_crplist = oContent.crplist;
+              crpstudio.tagset = oContent.tagsetlist;
               // Show the recent ones
               crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
               // $("#project_list li .crp-recent").removeClass("hidden");
@@ -2183,6 +2101,9 @@ var crpstudio = (function ($, crpstudio) {
               private_methods.showlist("project");
               // Show the definition selector
               $("#project_general_editor").show();
+              // Fill the QueryList in the constructor editor
+              $("#qc_general_query option").remove();
+              $("#qc_general_query").append(oContent.querysellist);
               // Get the <a> element of the newly to be selected item
               var iCrpId = oContent.CrpId;
               var targetA = private_methods.getCrpItem("project", iCrpId);
@@ -2754,7 +2675,7 @@ var crpstudio = (function ($, crpstudio) {
         }
       },  
       
-    /**
+      /**
        * processDownload
        *    Actions after project has been prepared for downloading
        *    
@@ -2926,6 +2847,26 @@ var crpstudio = (function ($, crpstudio) {
         // New method
         ctlCurrent = $("#project_general_prjtype");
         crpstudio.project.ctlTimer($("#project_general_prjtype", "-"));
+      },
+      
+      /**
+       * setQcQuery
+       *    Set the indicated query for the currently selected QC line
+       *    in the constructor editor
+       * 
+       * @param {type} iQueryId
+       * @returns {undefined}
+       */
+      setQcQuery : function(iQueryId) {
+        // Validate: if no QC is selected, then exit this function
+        if (currentQc < 0) return;
+        // Access the current QC line in the editor
+        var oQcLine = prj_qclist[currentQc];
+        // Set the correct id here
+        oQcLine.QueryId = iQueryId;
+        // Put the object back into place
+        prj_qclist[currentQc] = oQcLine;
+        //
       },
 
       /**
@@ -3158,9 +3099,15 @@ var crpstudio = (function ($, crpstudio) {
                   loc_bNew = true;
                   break;
                 case "definition":
+                  oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
+                  var oThisCrp = private_methods.getListObject("project", "CrpId", currentCrp);
+                  oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, "definition");
+                  break;
                 case "query":
                   oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
-                  oNew.Text = "-";
+                  var oThisCrp = private_methods.getListObject("project", "CrpId", currentCrp);
+                  var sType = $("#query_new_qrytype").val();
+                  oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, sType);
                   break;
                 case "dbfeat":
                   break;
