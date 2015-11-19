@@ -22,15 +22,18 @@
             <div class="large-16 medium-16 small-16 row">
               <!-- Constructor QUERY -->
               <div class="large8 medium-8 small-8 columns left">
-                <div class="row">
-                  <div class="large-6 medium-6 small-6 columns">
-                    <label for="right-label" class="right inline">$labels.getString("constructor.general.query")</label>
+                <div class="row collapse">
+                  <div class="large-4 medium-4 small-4 columns">
+                    <label for="right-label" class="left inline">$labels.getString("constructor.general.query")</label>
                   </div>
-                  <div class="large-10 medium-10 small-10 columns">
+                  <div class="large-9 medium-9 small-9 columns">
                     <select id="qc_general_query" class="general_input"  placeholder="select a query">
                       <!-- the querylist is created in BaseResponse as a reaction to /crpstudio/load -->
                       ${querysellist}
                     </select>
+                  </div>
+                  <div class="large-3 medium-3 small-3 columns">
+                    <a href="#" class="button tiny postfix-radius">Query...</a>
                   </div>
                 </div>
               </div>
@@ -38,7 +41,7 @@
               <div class="large8 medium-8 small-8 columns">
                 <div class="row">
                   <div class="large-6 medium-6 small-6 columns">
-                    <label for="right-label" class="left inline">$labels.getString("constructor.general.input")</label>
+                    <label for="right-label" class="right inline">$labels.getString("constructor.general.input")</label>
                   </div>
                   <div class="large-10 medium-10 small-10 columns">
                     <select id="qc_general_input" class="general_input"  placeholder="input line">

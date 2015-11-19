@@ -870,7 +870,7 @@ var crpstudio = (function ($, crpstudio) {
           // Get the QC line with this id
           var oItem = private_methods.getListObject("constructor", "QCid", i);
           // Does this object exist?
-          if (oItem && oItem.length>0) {
+          if (oItem !== null && oItem.Query !== "") {
             // Add the output from this line to our options list
             var sVal = i + "/out";
             arQcInput.push("<option value=\""+sVal+"\">"+sVal+"</option>");
