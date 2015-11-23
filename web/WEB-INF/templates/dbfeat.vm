@@ -8,31 +8,51 @@
         </div>
         <div id="dbf_general" class="large-16 medium-16 small-16 row hidden">
           <div id="dbf_general_top" class="large-16 medium-16 small-16 row">
+            <!-- DbFeat QCNAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("dbfeat.general.qcname")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="dbf_general_qcname" disabled class="left general_input disabled" type="text" placeholder="name (no spaces)">
+              </div>
+            </div>
             <!-- DbFeat NAME -->
             <div class="large-16 medium-16 small-16 row">
               <div class="large-2 medium-3 small-4 columns">
                 <label for="right-label" class="left inline">$labels.getString("dbfeat.general.name")</label>
               </div>
-              <div class="large-9 medium-8 small-7 columns">
+              <div class="large-9 medium-8 small-7 columns left">
                 <input id="dbf_general_name" class="left general_input" type="text" placeholder="name (no spaces)">
                 <small id="dbf_general_name_error" class="hidden">Name must be new and not have spaces</small>
               </div>
             </div>
-            <!-- DbFeat GOAL -->
+            <!-- DbFeat PRE -->
             <div class="large-16 medium-16 small-16 row">
-              <div class="large-2 medium-3 small-4 columns">
-                <label for="right-label" class="left inline">$labels.getString("dbfeat.general.pre")</label>
-              </div>
-              <div class="large-14 medium-13 small-12 columns">
-                <input id="dbf_general_goal" class="left general_input" type="text" placeholder="This dbfeat's goal is ...">
+              <div class="large-5 medium-5 small-5 columns left">
+                <input type="checkbox" id="qc_general_cmp">
+                <label for="dbf_general_pre">$labels.getString("dbfeat.general.pre")</label>
               </div>
             </div>
-            <!-- DbFeat's COMMENT -->
+            <!-- DbFeat's FTNUM -->
+<!-- DIT IS NIET ECHT NODIG; JE MAG HET TOCH NIET INSTELLEN
             <div class="large-16 medium-16 small-16 row">
-              <label>$labels.getString("dbfeat.general.ftnum")
-                <textarea id="dbf_general_comment" spellcheck="false" placeholder="Description of this dbfeat" rows="3"></textarea>
-              </label>
-            </div>          
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("dbfeat.general.ftnum")</label>
+              </div>
+              <div class="large-4 medium-3 small-2 columns left">
+                <input id="dbf_general_ftnum" disabled class="left general_input" type="text" placeholder="order number">
+              </div>
+            </div>
+-->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-3 medium-3 small-3 columns left">
+                <a href="#" class="button tiny postfix-radius" onclick="crpstudio.project.dbfeatMove('up')">$labels.getString("dbfeat.general.up")</a>
+              </div>
+              <div class="large-3 medium-3 small-3 columns left">
+                <a href="#" class="button tiny postfix-radius" onclick="crpstudio.project.dbfeatMove('down')">$labels.getString("dbfeat.general.down")</a>
+              </div>
+            </div>
           </div>
         </div>
       </fieldset>

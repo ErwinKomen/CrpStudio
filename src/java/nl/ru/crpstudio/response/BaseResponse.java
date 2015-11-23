@@ -1592,7 +1592,7 @@ public abstract class BaseResponse {
         if (sCrp.toLowerCase().equals(sOneCrpName)) {
           sOneCrpName = FileIO.getFileNameWithoutExtension(sCrp)  + ((bCrpLoaded) ? " (loaded)" : "");
           return "<li class='crp_"+sCrp+" "+sType+" hidden'><a href=\"#\" onclick='crpstudio.project.setProject(this, \""+ 
-                  sCrp +"\", \""+sLng+"\", \""+sDir+"\", \""+sDbase+"\")'>" + sOneCrpName + "</a></li>\n";
+                  sOneCrpName +"\", \""+sLng+"\", \""+sDir+"\", \""+sDbase+"\")'>" + sOneCrpName + "</a></li>\n";
         }
       }
       // Getting here means we have nothing

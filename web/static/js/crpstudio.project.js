@@ -548,9 +548,10 @@ var crpstudio = (function ($, crpstudio) {
        *    Find the indicated list
        * 
        * @param {type} sListType
+       * @param {type} sSortField -- optional item
        * @returns {object}    the indicated array/list
        */
-      getList : function(sListType) {
+      getList : function(sListType, sSortField) {
         var oList = [];   // JSON type list of objects
         // Find the correct list
         switch(sListType) {
@@ -561,8 +562,34 @@ var crpstudio = (function ($, crpstudio) {
           case "dbfeat":      oList = prj_dbflist;break;
         }
         if (oList === null) oList = [];
-        // Return what we found
-        return oList;
+        // Check if sorting is needed
+        if (sSortField) {
+          var oSorted = [];
+          // Copy the array
+          for (var i=0;i<oList.length;i++) oSorted.push(oList[i]);
+          // Sort the array in-place, depending on the type
+          if (sSortField === "Name") {
+            oSorted.sort( function(a,b) {
+              var iCmp = 0;
+              if (a[sSortField] !== b[sSortField])
+                iCmp = (a[sSortField] > b[sSortField]) ? 1 : 0;
+              return iCmp;
+            });
+          } else {
+            oSorted.sort( function(a,b) {
+              var iA = parseInt(a[sSortField],10);
+              var iB = parseInt(b[sSortField],10);
+              var iCmp = iA - iB;
+              return iCmp;
+            });
+          }
+          
+          // Return the sorted list
+          return oSorted;
+        } else {
+          // Return what we found
+          return oList;
+        }
       },
       
       /**
@@ -607,10 +634,11 @@ var crpstudio = (function ($, crpstudio) {
         var sLoc = "";      // Location on html
         var arHtml = [];    // To gather the output
 
-        // Find the correct list
-        oList = private_methods.getList(sListType);
-        // Find the prefix
+        // Access a descriptor of this list type
         var oItemDesc = private_methods.getItemDescr(sListType);
+        // Find the correct list and get a *sorted* copy of it
+        oList = private_methods.getList(sListType, oItemDesc.sortfield);
+        // Find the prefix
         var sPrf = oItemDesc.prf;
         sLoc = "#" + sListType + "_list" + " ." + sPrf + "-available";
         // Calculate a list consisting of <li> items
@@ -621,35 +649,48 @@ var crpstudio = (function ($, crpstudio) {
         // CRP: "CrpId;Name;Language;Part;Author;ProjectType;Goal;Created;Changed;DbaseInput;Comments"
         for (var i=0;i<oList.length;i++) {
           var oOneItem = oList[i];
-          var sOneName = oOneItem[oItemDesc.listfield];
-          var sOneItem = "<li class='" + sPrf + "_" + sOneName + " " + 
-                  sPrf + "-available'><a href=\"#\" onclick=\"";
-          switch(sListType) {
-            case "project": 
-              if (parseInt(oOneItem.QueryId,10) === currentCrp) sOneItem = sOneItem.replace('available', 'available active');
-              sOneItem += "crpstudio.project.setProject(this, '"+oOneItem.Name+"', '"+ 
-                      oOneItem.Language +"', '"+oOneItem.Part+"')\">" + oOneItem.Name; break;
-            case "query": 
-              if (parseInt(oOneItem.QueryId,10) === currentQry) sOneItem = sOneItem.replace('available', 'available active');
-              sOneItem += "crpstudio.project.setCrpItem(this, 'query', "+ 
-                      oOneItem.QueryId +")\">" + oOneItem.Name; break;
-            case "definition": 
-              if (parseInt(oOneItem.DefId,10) === currentDef) sOneItem = sOneItem.replace('available', 'available active');
-              sOneItem += "crpstudio.project.setCrpItem(this, 'definition', "+ 
-                      oOneItem.DefId +")\">" + oOneItem.Name; break;
-            case "constructor": 
-              if (parseInt(oOneItem.QCid,10) === currentQc) sOneItem = sOneItem.replace('available', 'available active');
-              sOneItem += "crpstudio.project.setCrpItem(this, 'constructor', "+ 
-                      oOneItem.QCid +")\">" + oOneItem.QCid + " " +
-                      oOneItem.Input + " " + oOneItem.Result; break;
-            case "dbfeat": 
-              if (parseInt(oOneItem.DbFeatId,10) === currentDbf) sOneItem = sOneItem.replace('available', 'available active');
-              sOneItem += "crpstudio.project.setCrpItem(this, 'dbfeat', "+ 
-                      oOneItem.DbFeatId +")\">" + oOneItem.Name + 
-                      " " + oOneItem.FtNum; break;
+          var bShow = true;
+          // Check if this item should be shown
+          switch (sListType) {
+            case "dbfeat":
+              // Only show the items that have the currently selected QCid
+              if (parseInt(oOneItem.QCid,10) !== currentQc) bShow = false;
+              break;
           }
-          sOneItem += "</a></li>\n";
-          arHtml.push(sOneItem);
+          if (bShow) {
+            var sOneName = oOneItem[oItemDesc.listfield];
+            var sOneItem = "<li class='" + sPrf + "_" + sOneName + " " + 
+                    sPrf + "-available'><a href=\"#\" onclick=\"";
+            switch(sListType) {
+              case "project": 
+                if (parseInt(oOneItem.QueryId,10) === currentCrp) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.project.setProject(this, '"+oOneItem.Name+"', '"+ 
+                        oOneItem.Language +"', '"+oOneItem.Part+"')\">" + oOneItem.Name; break;
+              case "query": 
+                if (parseInt(oOneItem.QueryId,10) === currentQry) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.project.setCrpItem(this, 'query', "+ 
+                        oOneItem.QueryId +")\">" + oOneItem.Name; break;
+              case "definition": 
+                if (parseInt(oOneItem.DefId,10) === currentDef) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.project.setCrpItem(this, 'definition', "+ 
+                        oOneItem.DefId +")\">" + oOneItem.Name; break;
+              case "constructor": 
+                if (parseInt(oOneItem.QCid,10) === currentQc) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.project.setCrpItem(this, 'constructor', "+ 
+                        oOneItem.QCid +")\">" + 
+                        "<div class='list_13'>"+oOneItem.QCid + "</div>" +
+                        "<div class='list_23'>"+oOneItem.Input + "</div>" + 
+                        "<div class='list_33'>"+oOneItem.Result + "</div>"; break;
+              case "dbfeat": 
+                if (parseInt(oOneItem.DbFeatId,10) === currentDbf) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.project.setCrpItem(this, 'dbfeat', "+ 
+                        oOneItem.DbFeatId +")\">" + 
+                        "<div class='list_12'>"+oOneItem.FtNum + "</div>" + 
+                        "<div class='list_22'>"+oOneItem.Name + "</div>"; break;
+            }
+            sOneItem += "</a></li>\n";
+            arHtml.push(sOneItem);
+          }
         }
         // Adapt the QRY-AVAILABLE list
         $(sLoc).not(".divider").not(".heading").remove();
@@ -902,6 +943,48 @@ var crpstudio = (function ($, crpstudio) {
       }, 
       
       /**
+       * changeDbfQcName
+       *    Adapt the label in the dbfeat page to indicate the current QC line's name
+       * 
+       * @param {type} listHost
+       * @param {type} sQcName
+       * @returns {undefined}
+       */
+      changeDbfQcName : function(listHost, sQcName) {
+        // Also set the name in the [li.heading.dbf-available label]
+        var sLabelTxt = listHost.children('li.heading.dbf-available').children('label').text();
+        // Check presence of [
+        var iHook = sLabelTxt.indexOf("[");
+        // Strip off possible [
+        if (iHook >=0) sLabelTxt = sLabelTxt.substring(0, iHook-1).trim();
+        // Add name or not?
+        if (sQcName !== "") {
+          // Add the name here
+          sLabelTxt = sLabelTxt + " [" + sQcName + "]";
+        } 
+        listHost.children('li.heading.dbf-available').children('label').text(sLabelTxt);        
+      },
+      
+      /**
+       * getFirstDbf
+       *    Get the id of the first DbFeat within the current list, filtering on 
+       *    QCid equaling iQCid
+       * 
+       * @param {type} iQCid
+       * @returns {undefined}
+       */
+      getFirstDbf : function(iQCid) {
+        var oList = private_methods.getList("dbfeat", "FtNum");
+        for (var i=0;i<oList.length;i++) {
+          // Check if this has the correct QCid
+          var oItem = oList[i];
+          if (parseInt(oItem.QCid,10) === iQCid) return parseInt(oItem.DbFeatId, 10);
+        }
+        // Getting here means there is none
+        return -1;
+      },
+      
+      /**
        * initProject
        *    Initialise a project: clear Qry, Def, Dbf, Qc pointers
        * 
@@ -928,6 +1011,9 @@ var crpstudio = (function ($, crpstudio) {
         // Clear constructor
         $("#qc_general").addClass("hidden");
         $("#qc_description").html("<i>No constructor line selected</i>");
+        // Clear dbfeat
+        $("#dbf_general").addClass("hidden");
+        $("#dbf_description").html("<i>No dbfeat line selected</i>");
 
 
         // Do we have a lng (+ optional dir)?
@@ -1484,6 +1570,7 @@ var crpstudio = (function ($, crpstudio) {
           // Initially hide *all* SELECTORs
           $("#corpus-selector").hide(); $("#dbase-selector").hide();   $("#metadata").hide(); 
           $("#query_editor").hide(); $("#constructor_editor").hide(); $("#definition_editor").hide();
+          $("#dbfeat_editor").hide();
           private_methods.showExeButtons(false);
           // Remove textarea event handlers
           $("#query_general_top").unbind();
@@ -1706,7 +1793,10 @@ var crpstudio = (function ($, crpstudio) {
               break;
             case "dbfeat":
               if (prj_dbflist.length > 0) {
-                iItemId = (currentDbf>=0) ? currentDbf : parseInt(prj_dbflist[0].DbFeatId,10);
+                if (currentDbf>=0)
+                  iItemId = currentDbf;
+                else
+                  iItemId = private_methods.getFirstDbf(currentQc);
               }
               break;
             case "constructor":
@@ -1726,8 +1816,14 @@ var crpstudio = (function ($, crpstudio) {
           if (iItemId>=0) 
             target = private_methods.getCrpItem(sType, iItemId);
         }
+        // Get the prefix
+        var oItemDescr = private_methods.getItemDescr(sType);
+        var sPrf = oItemDescr.prf;
         // Validate
         if (iItemId && iItemId >= 0) {
+          // Make sure we are visible
+          $("#"+sPrf+"_general").removeClass("hidden");
+          $("#"+sPrf+"_description").html("");
           // Get the <li>
           // var listItem = $(target).parent();
           var listItem = $(target).closest("li");
@@ -1738,8 +1834,6 @@ var crpstudio = (function ($, crpstudio) {
           listHost.children('li').each(function() { $(this).removeClass("active"); });
           // Set the "active" class for the one the user has selected
           $(listItem).addClass("active");
-          // Find out what kind of item we have
-          var oItemDescr = private_methods.getItemDescr(sType);
           // Retrieve the item from the list
           var oItem = private_methods.getListObject(oItemDescr.name, oItemDescr.id, iItemId);
           // Validate
@@ -1750,19 +1844,30 @@ var crpstudio = (function ($, crpstudio) {
           // Indicate we are selecting
           var bSelState = bIsSelecting;
           bIsSelecting = true;
+          // Anything that needs to be done before we start filling in the values...
+          switch (sType) {
+            case "constructor":
+              // Create and set the list under "#qc_general_input"
+              private_methods.makeQcInput(iItemId);
+              break;
+          }
           // Make the current item object available globally
           // TODO: doesn't work:  crpstudio.project[oItemDescr.cur] = oItem;
           // Pass on all the item's values to the html component
           for (var i=0;i<oItemDescr.fields.length; i++) {
             var oOneF = oItemDescr.fields[i];
             // Only set non-empty field defs
-            if (oOneF.txt !== "") {
+            if (oOneF.loc !== "") {
               // Get the value of this field
               var sValue = oItem[oOneF.field];
               // Showing it depends on the type
               switch (oOneF.type) {
                 case "txt": // text fields
                   $("#" + oOneF.loc).val(sValue);
+                  break;
+                case "chk": // checkbox items
+                  var bValue = (sValue === "True");
+                  $("#" + oOneF.loc).prop("checked", bValue);
                   break;
                 case "cap": // Caption only
                   $("#" + oOneF.loc).html(sValue);
@@ -1820,14 +1925,24 @@ var crpstudio = (function ($, crpstudio) {
             case "dbfeat":
               // Set the id of the currently selected dbfeat
               currentDbf = iItemId;
+              // Set the name of the QC that is currently selected
+              var sQcName = "First select an item in the constructor";
+              if (currentQc >=0) {
+                sQcName = $("#qc_general_result").val();
+                $("#dbf_general_qcname").val(sQcName);
+              } else {
+                sQcName = "";
+              }
+              // Also set the name in the [li.heading.dbf-available label]
+              private_methods.changeDbfQcName(listHost, sQcName);
               // Make sure the visibility is okay
               crpstudio.project.setSizes();
               break;
             case "constructor":
               // Set the id of the currently selected constructor item
               currentQc = iItemId;
-              // Create and set the list under "#qc_general_input"
-              private_methods.makeQcInput(iItemId);
+              // Reset the dbf
+              currentDbf = -1;
               // Make sure the visibility is okay
               crpstudio.project.setSizes();
               break;
@@ -1842,6 +1957,19 @@ var crpstudio = (function ($, crpstudio) {
               break;
           }
 
+        } else {
+          // SOme actions depend upon the type
+          switch (sType) {
+            case "dbfeat":
+              // Get the specific listhost
+              var listHost = $("#dbfeat_list");
+              // Reset the name in the [li.heading.dbf-available label]
+              private_methods.changeDbfQcName(listHost, "");
+              break;
+          }
+          // Make sure we are visible
+          $("#"+sPrf+"_general").addClass("hidden");
+          $("#"+sPrf+"_description").html("<i>No line selected</i>");          
         }
         
         // We are no longer selecting

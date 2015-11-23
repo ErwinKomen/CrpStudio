@@ -24,6 +24,7 @@ $colTopBar:       #008cba;
 $colTopHover:     #007095;
 $colBack:         #222;
 $colFore:         #fff;
+$colDisabled:     lemonchiffon;
 
 /* Original color definitions
 $colButton:     #9b0122;
@@ -1753,6 +1754,41 @@ div.hitscroll {
   border-radius: 3px;
 }
 
+/* break up list-items in parts */
+.side-nav li a div.list_12 {
+	display: inline-block;
+  /* border-right: 1px solid black; */
+  border-right: 1px solid silver;
+  /* margin: 1px; */
+  width: 20%;
+}
+.side-nav li a div.list_22 {
+	display: inline-block;
+  /* border: 1px solid silver; */
+  /* margin: 1px; */
+  width: 80%;
+}
+.side-nav li a div.list_13 {
+	display: inline-block;
+  /* border-right: 1px solid black; */
+  border-right: 1px solid silver;
+  /* margin: 1px; */
+  width: 20%;
+}
+.side-nav li a div.list_23 {
+	display: inline-block;
+  border-right: 1px solid silver;
+  /* border-right: 1px solid black; */
+  /* margin: 1px; */
+  width: 40%;
+}
+.side-nav li a div.list_33 {
+	display: inline-block;
+  /* border: 1px solid silver; */
+  /* margin: 1px; */
+  width: 40%;
+}
+
 .top-bar-section li div.label {
   color:        lightblue;
   background:   #222222;
@@ -1815,6 +1851,10 @@ textarea, .CodeMirror {
   background-color: azure;
   font-family: Courier New; 
   font-size: 12px;
+}
+
+#search input.disabled {
+  background-color: $colDisabled !important;
 }
 
 .crpstudio_general_date {

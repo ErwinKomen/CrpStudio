@@ -129,7 +129,7 @@ public class CrpContainer {
     try {
       // Get a list of all projects for this user
       JSONArray arPrjList = br.getProjectList(sUserId);
-      String sCrpName = sProjectName + ".crpx";
+      String sCrpName = (sProjectName.endsWith(".crpx")) ? sProjectName : sProjectName + ".crpx";
       // Walk the list until we find the @sProjectName
       for (int i=0;i<arPrjList.length(); i++) {
         // Is this the one?

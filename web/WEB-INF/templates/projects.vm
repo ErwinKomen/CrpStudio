@@ -4,6 +4,7 @@
 		#set($definitions = $labels.getString("definitions"))
 		#set($queries = $labels.getString("queries"))
     #set($constructor = $labels.getString("project.qc"))
+    #set($dbfeat = $labels.getString("project.dbfeat"))
 		#set($result = $labels.getString("result"))
 		#set($document = $labels.getString("document"))
 		
@@ -39,6 +40,12 @@
 				<dd id="constructor_link" class="active"><a class="tablink" onclick="crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
 			#else
 				<dd id="constructor_link"><a class="tablink" onclick="crpstudio.project.switchTab('constructor_editor')">$constructor</a></dd>
+			#end
+      <!-- Sub-navigation item: [dbfeat] -->
+			#if($tab == "dbfeat")
+				<dd id="dbfeat_link" class="active"><a class="tablink" onclick="crpstudio.project.switchTab('dbfeat_editor')">$dbfeat</a></dd>
+			#else
+				<dd id="dbfeat_link"><a class="tablink" onclick="crpstudio.project.switchTab('dbfeat_editor')">$dbfeat</a></dd>
 			#end
       <!-- On the navigation bar: [execution] -->
       <dd id="project_executor" class="execute">

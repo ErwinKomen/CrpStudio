@@ -26,17 +26,19 @@ var crpstudio = (function (crpstudio) {
     // Perhaps also of Dbase??
     // Object defining the elements of Query, Definition, DbFeat and Constructor
     prj_access: [
-      {name: "project", id: "CrpId", listfield: "Name", descr: "project_description", prf: "crp",
+      {name: "project", id: "CrpId", listfield: "Name", sortfield: "Name", 
+        descr: "project_description", prf: "crp",
         gen: "project_general", cur: "crp_current", divprf: "project", fields: [
             { field: "Name",        type: "txt", loc: "project_general_name"}, 
             { field: "Author",      type: "txt", loc: "project_general_author"}, 
             { field: "ProjectType", type: "txt", loc: "project_general_prjtype"}, 
             { field: "Comments",    type: "txt", loc: "project_general_comments"}, 
             { field: "Goal",        type: "txt", loc: "project_general_goal"}, 
-            { field: "DbaseInput",  type: "txt", loc: "project_general_dbase"}, 
+            { field: "DbaseInput",  type: "chk", loc: "project_general_dbase"}, 
             { field: "Created",     type: "cap", loc: "project_general_datecreated"}, 
             { field: "Changed",     type: "cap", loc: "project_general_datechanged"}]},
-      {name: "query", id: "QueryId", listfield: "Name", descr: "query_description", prf: "qry",
+      {name: "query", id: "QueryId", listfield: "Name", sortfield: "Name", 
+        descr: "query_description", prf: "qry",
         gen: "query_general", cur: "qry_current", divprf: "query", fields: [
             { field: "Name",        type: "txt", loc: "query_general_name"}, 
             { field: "File",        type: "txt", loc: ""}, 
@@ -45,7 +47,8 @@ var crpstudio = (function (crpstudio) {
             { field: "Text",        type: "txt", loc: "query_general_text"}, 
             { field: "Created",     type: "cap", loc: "query_general_datecreated"}, 
             { field: "Changed",     type: "cap", loc: "query_general_datechanged"}]},
-      {name: "definition",id: "DefId", listfield: "Name", descr: "def_description",  prf: "def",
+      {name: "definition",id: "DefId", listfield: "Name", sortfield: "Name", 
+        descr: "def_description",  prf: "def",
         gen: "def_general", cur: "def_current", divprf: "def", fields: [
             { field: "Name",        type: "txt", loc: "def_general_name"}, 
             { field: "File",        type: "txt", loc: ""}, 
@@ -54,19 +57,22 @@ var crpstudio = (function (crpstudio) {
             { field: "Text",        type: "txt", loc: "def_general_text"}, 
             { field: "Created",     type: "cap", loc: "def_general_datecreated"}, 
             { field: "Changed",     type: "cap", loc: "def_general_datechanged"}]},
-      {name: "dbfeat", id: "DbFeatId", listfield: "Name", descr: "dbf_description",  prf: "dbf",
+      {name: "dbfeat", id: "DbFeatId", listfield: "Name", sortfield: "FtNum", 
+        descr: "dbf_description",  prf: "dbf",
         gen: "dbf_general", cur: "dbf_current", divprf: "dbf", fields: [
             { field: "Name",        type: "txt", loc: "dbf_general_name"}, 
-            { field: "Pre",         type: "txt", loc: "dbf_general_pre"}, 
+            { field: "Pre",         type: "chk", loc: "dbf_general_pre"}, 
             { field: "QCid",        type: "txt", loc: "dbf_general_qcid"}, 
             { field: "FtNum",       type: "txt", loc: "dbf_general_ftnum"}]},
-      {name: "constructor", id: "QCid", listfield: "Result", descr: "qc_description",  prf: "qc",
+      {name: "constructor", id: "QCid", listfield: "Result", sortfield: "QCid", 
+        descr: "qc_description",  prf: "qc",
         gen: "qc_general", cur: "qc_current", divprf: "qc", fields: [
             { field: "Input",       type: "txt", loc: "qc_general_input"}, 
             { field: "Query",       type: "txt", loc: "qc_general_query"}, 
             { field: "Output",      type: "txt", loc: "qc_general_output"}, 
+            { field: "OutFeat",     type: "txt", loc: ""}, 
             { field: "Result",      type: "txt", loc: "qc_general_result"}, 
-            { field: "Cmp",         type: "txt", loc: "qc_general_cmp"}, 
+            { field: "Cmp",         type: "chk", loc: "qc_general_cmp"}, 
             { field: "Mother",      type: "txt", loc: "qc_general_mother"}, 
             { field: "Goal",        type: "txt", loc: "qc_general_goal"}, 
             { field: "Comment",     type: "txt", loc: "qc_general_comment"}]}
