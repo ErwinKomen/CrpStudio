@@ -1434,7 +1434,8 @@ div.hitscroll {
 
 .side-nav li.active a:not(.button) {
   color: white;
-  background: #222222 !important; }
+  /* background: #222222 !important;    */
+  background: darkgreen !important; }
 
 /* Section headings of the side-nav */
 .side-nav li label {

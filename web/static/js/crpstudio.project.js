@@ -2504,7 +2504,7 @@ var crpstudio = (function ($, crpstudio) {
                   // Show the list, putting the focus on the new item id
                   crpstudio.project.itemListShow(sItemType, iItemId);
 
-                  break;
+                  break;  
                 case "definition": case "query":
                   // Get the id
                   var iItemId = oContent.itemid;
@@ -3263,6 +3263,34 @@ var crpstudio = (function ($, crpstudio) {
         if (bOkay) {
           $("#"+sDivPrf+"_new_create").addClass("hidden");
           $("#"+sDivPrf+"_general_editor").removeClass("hidden");
+        }
+      },
+      
+      /**
+       * jumpQcToQuery
+       *    Jump from the currently selected QC to the corresponding query
+       * 
+       * @param {type} target
+       * @returns {undefined}
+       */
+      jumpQcToQuery : function(target) {
+        // Get the current QC number
+        var iQCid = currentQc;
+        // Find out what the query is of the current QCid
+        var oListItem = private_methods.getListObject("constructor", "QCid", iQCid);
+        var sQryName = oListItem["Query"];
+        // Find out what the QueryId is for this query
+        var oList = private_methods.getList("query");
+        for (var i=0;i<oList.length;i++) {
+          var oItem = oList[i];
+          if (oItem["Name"] === sQryName) {
+            // Found the correct Query -- get its id
+            var iQueryId = parseInt(oItem["QueryId"], 10);
+            // Switch to the query tab
+            crpstudio.project.switchTab("query_editor", "", true);
+            // Select the correct query
+            crpstudio.project.itemListShow("query", iQueryId);
+          }
         }
       },
 

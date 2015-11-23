@@ -30,7 +30,7 @@
             <!-- DbFeat PRE -->
             <div class="large-16 medium-16 small-16 row">
               <div class="large-5 medium-5 small-5 columns left">
-                <input type="checkbox" id="qc_general_cmp">
+                <input type="checkbox" id="dbf_general_pre">
                 <label for="dbf_general_pre">$labels.getString("dbfeat.general.pre")</label>
               </div>
             </div>
