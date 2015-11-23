@@ -3288,7 +3288,7 @@ var crpstudio = (function ($, crpstudio) {
             var iQueryId = parseInt(oItem["QueryId"], 10);
             // Switch to the query tab
             crpstudio.project.switchTab("query_editor", "", true);
-            // Select the correct query
+            // Select the correct query 
             crpstudio.project.itemListShow("query", iQueryId);
           }
         }
