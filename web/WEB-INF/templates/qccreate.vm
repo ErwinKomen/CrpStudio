@@ -1,0 +1,71 @@
+  <!-- the part to the right of the side-bar: NEW constructor creation form -->
+  <div id="qc_new_create" class="large-12 medium-12 small-12 columns hidden">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("constructor.new.intro")</legend>
+        <div id="qc_new" class="large-16 medium-16 small-16 row">
+          <div id="qc_new_top" class="large-16 medium-16 small-16 row">
+            <!-- Use this QUERY: user may select one of the existing queries from the list -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-3 medium-4 small-5 columns">
+                <label for="right-label" class="left inline">$labels.getString("constructor.general.query")</label>
+              </div>
+              <div class="large-13 medium-12 small-11 columns left">
+                <select id="qc_new_query" class="left general_input"  placeholder="Select a query...">
+                  <!-- the querylist is created in BaseResponse as a reaction to /crpstudio/load -->
+                  ${querysellist}
+                </select>
+              </div>
+            </div>
+            <!-- Constructor INPUT: which line/cmp, line/out should be used as input for this result line -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-3 medium-4 small-5 columns">
+                <label for="right-label" class="left inline">$labels.getString("constructor.general.input")</label>
+              </div>
+              <div class="large-13 medium-12 small-11 columns left">
+                <select id="qc_new_input" class="general_input"  placeholder="input line">
+                  <!-- the inputlist is created on-the-fly -->
+                </select>
+              </div>
+            </div>
+            <!-- Constructor CMP checkbox -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-5 medium-5 small-5 large-offset-3 medium-offset-4 small-offset-5 columns left">
+                <input type="checkbox" id="qc_new_cmp">
+                <label for="qc_new_cmp">$labels.getString("constructor.general.cmp")</label>
+              </div>
+            </div>
+            <!-- Constructor line RESULT label -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-3 medium-4 small-5 columns">
+                <label for="right-label" class="left inline">$labels.getString("constructor.general.result")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="qc_new_result" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="qc_new_result_error" class="hidden">Result label must be new and not have spaces</small>
+              </div>
+            </div>
+            <!-- Constructor line's GOAL -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-3 medium-4 small-5 columns">
+                <label for="right-label" class="left inline">$labels.getString("constructor.general.goal")</label>
+              </div>
+              <div class="large-13 medium-12 small-11 columns left">
+                <input id="qc_new_goal" class="left general_input" type="text" placeholder="This QC's goal is ...">
+              </div>
+            </div>
+            <!-- Constructor line's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("constructor.general.comments")
+                <textarea id="qc_new_comment" spellcheck="false" placeholder="Description of this QC" rows="10"></textarea>
+              </label>
+            </div>   
+          </div>
+          <div id="qc_new_buttons"  class="large-16 medium-16 small-16 row">
+            <a href="#" onclick="crpstudio.project.createItem('constructor','new');" class="button search small radius">$labels.getString("constructor.new.create")</a>
+            <a href="#" onclick="crpstudio.project.createItem('constructor','cancel');" class="button search small radius">$labels.getString("constructor.new.cancel")</a>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

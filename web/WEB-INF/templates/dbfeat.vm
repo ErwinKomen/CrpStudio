@@ -34,17 +34,6 @@
                 <label for="dbf_general_pre">$labels.getString("dbfeat.general.pre")</label>
               </div>
             </div>
-            <!-- DbFeat's FTNUM -->
-<!-- DIT IS NIET ECHT NODIG; JE MAG HET TOCH NIET INSTELLEN
-            <div class="large-16 medium-16 small-16 row">
-              <div class="large-2 medium-3 small-4 columns">
-                <label for="right-label" class="left inline">$labels.getString("dbfeat.general.ftnum")</label>
-              </div>
-              <div class="large-4 medium-3 small-2 columns left">
-                <input id="dbf_general_ftnum" disabled class="left general_input" type="text" placeholder="order number">
-              </div>
-            </div>
--->
             <div class="large-16 medium-16 small-16 row">
               <div class="large-3 medium-3 small-3 columns left">
                 <a href="#" class="button tiny postfix-radius" onclick="crpstudio.project.dbfeatMove('up')">$labels.getString("dbfeat.general.up")</a>

@@ -182,6 +182,7 @@
         #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("dbfeat.vm")
+        #parse("dbfcreate.vm")
 			</div>
 			<div id="constructor_editor" class="large-16 medium-16 small-16 content $constructor_active">
         #set( $explorespec = $explorespecs.get(2) )
@@ -189,6 +190,7 @@
         #set( $item_rec  = "" )
         #parse("selector.vm")
 				#parse("constructor.vm")
+        #parse("qccreate.vm")
 			</div>
 			<div id="result_display" class="large-16 medium-16 small-16 content $result_active">
 				#parse("result.vm")

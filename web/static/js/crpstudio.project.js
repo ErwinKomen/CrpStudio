@@ -893,15 +893,88 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * getQcMaxId
+       *    Get the maximu QCid we have
+       * 
+       * @returns {undefined}
+       */
+      getQcMaxId : function() {
+        // Get the list of constructor items
+        var oList = private_methods.getList("constructor");
+        var iQcId = -1;
+        // Walk the list
+        for (var i=0;i< oList.length;i++) {
+          // Get this list item
+          var oItem = oList[i];
+          var iQcThis = parseInt(oItem["QCid"],10);
+          // Check the QCid in here
+          if (iQcThis > iQcId) iQcId = iQcThis;
+        }
+        // Return the result
+        return iQcId;
+      },
+      
+      /**
+       * getNextQuery
+       *    Get information on the next free query not yet in the pipeline
+       * 
+       * @returns {undefined}
+       */
+      getNextQuery : function() {
+        var oBack = {};
+        // Get the list of constructor items
+        var oList = private_methods.getList("constructor");
+        var iQcId = -1;
+        // Start a new list with query names
+        var oQryName = [];
+        // Make a list of all the query's we've already had
+        for (var i=0;i< oList.length;i++) {
+          // Get this list item and the name of the query
+          var oItem = oList[i];
+          var sName = oItem["Query"];
+          // Add the name to the list if it is not in there yet
+          if (oQryName.indexOf(sName) <0) oQryName.push(sName);
+        }
+        // Get a list of all the queries that are available - sorted by name
+        var oQlist = private_methods.getList("query", "Name");
+        // Pre-define the index of the query we will use
+        var iQuery = -1; var oQuery = {};
+        // Walk the list in search of one that is not yet in the oQryName list
+        for (var i=0;i< oQlist.length;i++) {
+          // Note this index
+          iQuery = i;
+          // Get this list item and the name of the query
+          var oItem = oQlist[i];
+          oQuery = oItem;
+          var sName = oItem["Name"];
+          // Is this query available in [oQryName]?
+          if (oQryName.indexOf(sName) <0) {
+            // We will use this query
+            break;
+          }
+        }
+        // Do we have an index?
+        if (iQuery >=0) {
+          // Create an object to return
+          oBack.Name = sName;
+          oBack.Goal = oQuery["Goal"];
+          oBack.Comment = oQuery["Comment"];
+        }
+        // Return the object
+        return oBack;
+      },
+      
+      /**
        * makeQcInput
        *    Fill the "#qc_general_input" combobox
        * 
-       * @param {type} iQCid
+       * @param {int}     iQCid
+       * @param {string}  sSection
        * @returns {void}
        */
-      makeQcInput : function(iQCid) {
+      makeQcInput : function(iQCid, sSection) {
         // Clear current contents
-        $("#qc_general_input option").remove();
+        $("#qc_"+sSection+"_input option").remove();
         // Create a list
         var arQcInput = [];
         // Push the Source element
@@ -923,7 +996,7 @@ var crpstudio = (function ($, crpstudio) {
           }
         }
         // Put the created list at the right place
-        $("#qc_general_input").append(arQcInput.join("\n"));
+        $("#qc_"+sSection+"_input").append(arQcInput.join("\n"));
       },
       
       /**
@@ -1848,7 +1921,7 @@ var crpstudio = (function ($, crpstudio) {
           switch (sType) {
             case "constructor":
               // Create and set the list under "#qc_general_input"
-              private_methods.makeQcInput(iItemId);
+              private_methods.makeQcInput(iItemId, "general");
               break;
           }
           // Make the current item object available globally
@@ -1969,7 +2042,8 @@ var crpstudio = (function ($, crpstudio) {
           }
           // Make sure we are visible
           $("#"+sPrf+"_general").addClass("hidden");
-          $("#"+sPrf+"_description").html("<i>Add features using [New]</i>");          
+          var sMsg = (config.language === "en") ? "Add features using [New]" : "Voeg features toe met [Nieuw]";
+          $("#"+sPrf+"_description").html("<i>"+sMsg+"</i>");          
         }
         
         // We are no longer selecting
@@ -2232,6 +2306,9 @@ var crpstudio = (function ($, crpstudio) {
               // Fill the QueryList in the constructor editor
               $("#qc_general_query option").remove();
               $("#qc_general_query").append(oContent.querysellist);
+              // Fill the QueryList in the new-constructor menu
+              $("#qc_new_query option").remove();
+              $("#qc_new_query").append(oContent.querysellist);
               // Get the <a> element of the newly to be selected item
               var iCrpId = oContent.CrpId;
               var targetA = private_methods.getCrpItem("project", iCrpId);
@@ -3129,27 +3206,58 @@ var crpstudio = (function ($, crpstudio) {
 
       /* ---------------------------------------------------------------------------
        * Name: createManual
-       * Goal: manually create a project, query, definition and so forth
+       * Goal: manually create a project, query, definition, qc, dbfeat and so forth
        * History:
        * 23/jun/2015  ERK Created
        */
       createManual : function(target, sItemType) {
         // Action depends on the kind of item
         switch (sItemType) {
-          case "project":
+          case "project":       // Completely new PROJECT (CRP)
             // Make sure the new query form becomes visible
             $("#project_general_editor").addClass("hidden");
             $("#project_new_create").removeClass("hidden");
             break;
-          case "query":
+          case "query":         // New QUERY
             // Make sure the new query form becomes visible
             $("#query_general_editor").addClass("hidden");
             $("#query_new_create").removeClass("hidden");
             break;
-          case "definition":
+          case "definition":    // New DEFINITION (file/set)
             // Make sure the new definition form becomes visible
             $("#def_general_editor").addClass("hidden");
             $("#def_new_create").removeClass("hidden");
+            break;
+          case "dbfeat":        // New DBFEAT = result database feature for a QC
+            // Make sure the new dbfeat form becomes visible
+            $("#dbf_general_editor").addClass("hidden");
+            $("#dbf_new_create").removeClass("hidden");
+            break;
+          case "constructor":   // New CONSTRUCTOR = Query Constructor Item
+            // Get the maximum QCid
+            var iQCmaxId = private_methods.getQcMaxId();
+            // Create and set the list under "#qc_general_input"
+            private_methods.makeQcInput(iQCmaxId+1, "new");
+            // Try to fill in values in the creation form:
+            // (1) Find the first query that is not yet available in the query pipeline
+            var oQryFree = private_methods.getNextQuery();
+            // Validate
+            if (oQryFree === null) {
+              // There is no query to point to
+              $("#qc_new_input").val("Source");
+            } else {
+              // Provide details from this query
+              $("#qc_new_query").val(oQryFree.Name);
+              $("#qc_new_result").val(oQryFree.Name);
+              $("#qc_new_goal").val(oQryFree.Goal);
+              $("#qc_new_comment").val(oQryFree.Comment);
+              // (2) Suggest where this should be inserted
+              var sQcInput = (iQCmaxId <0) ? "Source" : iQCmaxId + "/out";
+              $("#qc_new_input").val(sQcInput);
+            }
+            // Make sure the new constructor form becomes visible
+            $("#qc_general_editor").addClass("hidden");
+            $("#qc_new_create").removeClass("hidden");
             break;
         }
       },
@@ -3191,14 +3299,21 @@ var crpstudio = (function ($, crpstudio) {
         var bOkay = false;
         var oDescr = private_methods.getItemDescr(sItemType);
         var sDivPrf = oDescr.divprf;
+        // Determine the new name
+        var sNewName = "new_name";
+        switch(sItemType) {
+          case "constructor":
+            sNewName = "new_result";
+            break;
+        }
         // Reset any previous naming
-        $("#"+sDivPrf+"_new_name_error").removeClass("error");
-        $("#"+sDivPrf+"_new_name_error").addClass("hidden");
+        $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("error");
+        $("#"+sDivPrf+"_"+sNewName+"_error").addClass("hidden");
         // First look at the action
         switch(sAction) {
           case "new":
             // Check the information provided
-            var sItemName = $("#"+sDivPrf+"_new_name").val();
+            var sItemName = $("#"+sDivPrf+"_"+sNewName).val();
             var sItemGoal = $("#"+sDivPrf+"_new_goal").val();
             var sItemComment = $("#"+sDivPrf+"_new_comment").val();
 
@@ -3207,9 +3322,9 @@ var crpstudio = (function ($, crpstudio) {
               // Validate: check 
               if (!private_methods.itemNameCheck(sItemType, sItemName)) {
                 // Signal that the name is not correct
-                $("#"+sDivPrf+"_new_name_error").html("Duplicate: "+sItemName);
-                $("#"+sDivPrf+"_new_name_error").addClass("error");
-                $("#"+sDivPrf+"_new_name_error").removeClass("hidden");
+                $("#"+sDivPrf+"_"+sNewName+"_error").html("Duplicate: "+sItemName);
+                $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");
+                $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("hidden");
                 return;
               }
               // Determine how the new item will look like
@@ -3238,8 +3353,10 @@ var crpstudio = (function ($, crpstudio) {
                   oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, sType);
                   break;
                 case "dbfeat":
+                  oNew.Name = sItemName;
                   break;
                 case "constructor":
+                  oNew.Name = sItemName;
                   break;
               }
               // Create a new item
