@@ -48,10 +48,12 @@
             </div>          
           </div>
           <!-- XQUERY TEXT: The bottom contains the text of the definition itself -->
-          <div id="def_general_bottom" class="large-16 medium-16 small-16 row cm-s-default">
-            <label>$labels.getString("definition.general.text"):
-              <textarea id="def_general_text" spellcheck="false" placeholder="Text of this definition" rows="20"></textarea>
+          <div id="def_general_bottom" class="large-16 medium-16 small-16 row cm-s-default" onclick="crpstudio.project.toggleBottom('definition')">
+            <label><span>$labels.getString("definition.general.text"):</span>
+                   <span id="def_general_bottom_large" class="clickable">$labels.getString("definition.general.large")</span>
+                   <span id="def_general_bottom_small" class="clickable hidden">$labels.getString("definition.general.small")</span>
             </label>
+            <textarea id="def_general_text" spellcheck="false" placeholder="Text of this definition" rows="20"></textarea>
           </div>
         </div>
       </fieldset>

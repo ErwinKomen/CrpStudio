@@ -1920,3 +1920,9 @@ textarea, .CodeMirror {
 .button:focus{
   background-color: $colButtonFocus;
 }
+
+.clickable {
+  background-color: lightyellow;
+  font-style:italic; 
+  color: darkgray;
+}

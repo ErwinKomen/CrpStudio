@@ -1969,7 +1969,7 @@ var crpstudio = (function ($, crpstudio) {
           }
           // Make sure we are visible
           $("#"+sPrf+"_general").addClass("hidden");
-          $("#"+sPrf+"_description").html("<i>No line selected</i>");          
+          $("#"+sPrf+"_description").html("<i>Add features using [New]</i>");          
         }
         
         // We are no longer selecting
@@ -3329,6 +3329,39 @@ var crpstudio = (function ($, crpstudio) {
         } */
         
       },
+      
+      /**
+       * toggleBottom
+       *    Toggle the visibility of the query/definition top, in order to have full access to the bottom
+       *      where the actual query/definition is being shown
+       * 
+       * @param {type} sType
+       * @returns {undefined}
+       */
+      toggleBottom : function(sType) {
+        var sTopSection = "";
+        var sBottom = "";
+        switch(sType) {
+          case "query": sTopSection = "query_general_top"; sBottom = "query_general_bottom_"; break;
+          case "definition": sTopSection = "def_general_top"; sBottom = "def_general_bottom_"; break;
+        }
+        // Check current visibility
+        if ($("#"+sTopSection).hasClass("hidden")) {
+          // Currently the top section is hidden: show it
+          $("#"+sTopSection).removeClass("hidden");
+          // Show the correct <span>
+          $("#"+sBottom+"large").removeClass("hidden");
+          $("#"+sBottom+"small").addClass("hidden");
+        } else {
+          // The top section is being shown: hide it
+          $("#"+sTopSection).addClass("hidden");
+          // Show the correct <span>
+          $("#"+sBottom+"large").addClass("hidden");
+          $("#"+sBottom+"small").removeClass("hidden");
+        }
+        // Make sure sizes are reset
+        crpstudio.project.setSizes();
+      },
 
       /* ---------------------------------------------------------------------------
        * Name: setSizes
@@ -3352,14 +3385,16 @@ var crpstudio = (function ($, crpstudio) {
           var oQueryPos = $("#query_general_bottom").position();
           // Determine the best width and height
           var iHeight = $(window).innerHeight() - oQueryPos.top - 290;
-          var iWidth = $("#query_general_comment").width();
+          // var iWidth = $("#query_general_comment").width();
+          var iWidth = $("#query_general_bottom").width()-20;
           // Set the new width/height
           cmQuery.setSize(iWidth, iHeight);
         }  else if ($("#def_general").is(":visible") && cmDef) {
           var oDefPos = $("#def_general_bottom").position();
           // Determine the best width and height
           var iHeight = $(window).innerHeight() - oDefPos.top - 290;
-          var iWidth = $("#def_general_comment").width();
+          // var iWidth = $("#def_general_comment").width();
+          var iWidth = $("#def_general_bottom").width()-20;
           // Set the new width/height
           cmDef.setSize(iWidth, iHeight);
         }

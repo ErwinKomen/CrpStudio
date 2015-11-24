@@ -1599,4 +1599,9 @@ textarea, .CodeMirror {
 .button:focus {
   background-color: #007095; }
 
+.clickable {
+  background-color: lightyellow;
+  font-style: italic;
+  color: darkgray; }
+
 /*# sourceMappingURL=crpstudio.css.map */
