@@ -3354,9 +3354,14 @@ var crpstudio = (function ($, crpstudio) {
                   break;
                 case "dbfeat":
                   oNew.Name = sItemName;
+                  // Get "pre" from the checkbox value
+                  oNew.Pre = ( $("#dbf_new_pre").prop("checked") ) ? "True" : "False";
                   break;
                 case "constructor":
-                  oNew.Name = sItemName;
+                  oNew.Result = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
+                  oNew.Query = $("#qc_new_query").val();
+                  oNew.Input = $("#qc_new_input").val();
+                  oNew.Cmp = ( $("#qc_new_cmp").prop("checked") ) ? "True" : "False";
                   break;
               }
               // Create a new item
