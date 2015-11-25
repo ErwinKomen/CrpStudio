@@ -47,7 +47,7 @@ public class CrpUtil {
     try {
       File fUserFile = new File(sUserFile);
       if (fUserFile.exists()) 
-        oUsers = new JSONObject(FileUtil.readFile(sUserFile));
+        oUsers = new JSONObject((new FileUtil()).readFile(sUserFile));
       else
         oUsers = new JSONObject(sDefaultUsers);
     } catch (Exception ex) {

@@ -3352,7 +3352,7 @@ var crpstudio = (function ($, crpstudio) {
                 return;
               }
               // Determine how the new item will look like
-              var oNew = {};
+              var oNew = {}; var iFtNum = 0;
               switch (sItemType) {
                 case "project":
                   // NOTE: for the project we have the field "Comments" with a trailing "s" (unlike for the others)
@@ -3382,10 +3382,12 @@ var crpstudio = (function ($, crpstudio) {
                   oNew.Pre = ( $("#dbf_new_pre").prop("checked") ) ? "True" : "False";
                   // Determine the feature number
                   if (oNew.Pre === "True") {
-                    oNew.FtNum = private_methods.getMaxFtNum() + 1;
+                    iFtNum = private_methods.getMaxFtNum() + 1;
                   } else {
-                    oNew.FtNum = -1;
+                    iFtNum = -1;
                   }
+                  // Make sure FtNum is stored as string
+                  oNew.FtNum = iFtNum.toString();
                   // Set the QCid to the currently selected one -- expecting a string here
                   oNew.QCid = currentQc.toString();
                   break;
@@ -3394,6 +3396,8 @@ var crpstudio = (function ($, crpstudio) {
                   oNew.Query = $("#qc_new_query").val();
                   oNew.Input = $("#qc_new_input").val();
                   oNew.Cmp = ( $("#qc_new_cmp").prop("checked") ) ? "True" : "False";
+                  oNew.Output = (prj_qclist.length + 1) + "_" + oNew.Query;
+                  oNew.Mother = "False";
                   break;
               }
               // Create a new item

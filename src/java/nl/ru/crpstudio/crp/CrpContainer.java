@@ -433,24 +433,24 @@ class CrpInfo {
     try {
       // Validate
       if (!fCrpPath.exists()) return "";
-      BufferedReader rdCrp = FileUtil.openForReading(fCrpPath);
-      String sLine;
-      while ( ( sLine = rdCrp.readLine()) != null) {
-        // Check if this contains the <DateChanged> tag
-        int iPos = sLine.indexOf(sTagOpen);
-        if (iPos > 0) {
-          int iClose = sLine.indexOf(sTagClose);
-          if (iClose > 0) {
-            // Read the part in between
-            int iTagLen = sTagOpen.length();
-            sDateChanged = sLine.substring(iPos+ iTagLen, iClose - iPos - iTagLen);
-            // Get out of the loop
-            break;
+      try (BufferedReader rdCrp = FileUtil.openForReading(fCrpPath)) {
+        String sLine;
+        while ( ( sLine = rdCrp.readLine()) != null) {
+          // Check if this contains the <DateChanged> tag
+          int iPos = sLine.indexOf(sTagOpen);
+          if (iPos > 0) {
+            int iClose = sLine.indexOf(sTagClose);
+            if (iClose > 0) {
+              // Read the part in between
+              int iTagLen = sTagOpen.length();
+              sDateChanged = sLine.substring(iPos+ iTagLen, iClose);
+              // Get out of the loop
+              break;
+            }
           }
         }
+        // The handles are properly closed, since they only exist inside the try () section
       }
-      // Properly close the file
-      rdCrp.close();
      
       // Return what we found
       return sDateChanged;
@@ -473,7 +473,7 @@ class CrpInfo {
     try {
       this.params.clear();
       this.params.put("userid", userId);
-      this.params.put("name", prjName);
+      this.params.put("crp", prjName);
       this.params.put("info", "dateChanged");
       String sResp = this.br.getCrppResponse("crpinfo", "", this.params, null);
       if (sResp.isEmpty() || !sResp.startsWith("{")) return "";
@@ -529,7 +529,7 @@ class CrpInfo {
           // OLD: get the date of the actual file -- this may be misleading!
           // OLD:  String sLocalDate = dateToString(fProjectPath.lastModified());
           String sLocalDate = getCrpLocalDate(fProjectPath);
-          String sCrppDate = getCrpDate(crpThis.getName());
+          String sCrppDate = getCrpDate(this.prjName);
           // Compare the dates
           if (sCrppDate.compareTo(sLocalDate) > 0) bDoFetch = true;
         } else {
