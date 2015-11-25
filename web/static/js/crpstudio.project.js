@@ -571,8 +571,10 @@ var crpstudio = (function ($, crpstudio) {
           if (sSortField === "Name") {
             oSorted.sort( function(a,b) {
               var iCmp = 0;
-              if (a[sSortField] !== b[sSortField])
-                iCmp = (a[sSortField] > b[sSortField]) ? 1 : 0;
+              var sA = a[sSortField].toLowerCase();
+              var sB = b[sSortField].toLowerCase();
+              if (sA !== sB)
+                iCmp = (sA > sB) ? 1 : 0;
               return iCmp;
             });
           } else {
@@ -890,6 +892,28 @@ var crpstudio = (function ($, crpstudio) {
         private_methods.histAddItem(sListType, iItemId);
         // Return the new id
         return iItemId;
+      },
+      
+      /**
+       * getMaxFtNum
+       *    Get the maximum FtNum in the current list
+       * 
+       * @returns {undefined}
+       */
+      getMaxFtNum : function() {
+        // Get the correct list
+        var oList = private_methods.getList("dbfeat");
+        // Walk the list, searching for the maximum feature number
+        var iMaxFtNum = 0;
+        for (var i=0;i<oList.length;i++) {
+          // Get this item
+          var oItem = oList[i];
+          // Check feature number
+          var iFtNum = parseInt(oItem.FtNum, 10);
+          if (iFtNum > iMaxFtNum) iMaxFtNum = iFtNum;
+        }
+        // Return the max number
+        return iMaxFtNum;
       },
       
       /**
@@ -3356,6 +3380,14 @@ var crpstudio = (function ($, crpstudio) {
                   oNew.Name = sItemName;
                   // Get "pre" from the checkbox value
                   oNew.Pre = ( $("#dbf_new_pre").prop("checked") ) ? "True" : "False";
+                  // Determine the feature number
+                  if (oNew.Pre === "True") {
+                    oNew.FtNum = private_methods.getMaxFtNum() + 1;
+                  } else {
+                    oNew.FtNum = -1;
+                  }
+                  // Set the QCid to the currently selected one -- expecting a string here
+                  oNew.QCid = currentQc.toString();
                   break;
                 case "constructor":
                   oNew.Result = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;

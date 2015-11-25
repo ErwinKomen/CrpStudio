@@ -5,8 +5,11 @@
  */
 package nl.ru.crpstudio.crp;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,9 +24,11 @@ import nl.ru.crpx.dataobject.DataObject;
 import nl.ru.crpx.dataobject.DataObjectList;
 import nl.ru.crpx.dataobject.DataObjectMapElement;
 import nl.ru.crpx.project.CorpusResearchProject;
+import nl.ru.util.DateUtil;
 import nl.ru.util.FileUtil;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
+import static nl.ru.util.DateUtil.dateToString;
 
 /**
  * CrpContainer
@@ -414,6 +419,96 @@ class CrpInfo {
   }
   
   /**
+   * getCrpLocalDate
+   *    Get the "Changed" date string stored in the indicated CRP
+   * 
+   * @param fCrpPath
+   * @return 
+   */
+  public String getCrpLocalDate(File fCrpPath) {
+    String sDateChanged = "";
+    String sTagOpen = "<DateChanged>";
+    String sTagClose = "</DateChanged>";
+    
+    try {
+      // Validate
+      if (!fCrpPath.exists()) return "";
+      BufferedReader rdCrp = FileUtil.openForReading(fCrpPath);
+      String sLine;
+      while ( ( sLine = rdCrp.readLine()) != null) {
+        // Check if this contains the <DateChanged> tag
+        int iPos = sLine.indexOf(sTagOpen);
+        if (iPos > 0) {
+          int iClose = sLine.indexOf(sTagClose);
+          if (iClose > 0) {
+            // Read the part in between
+            int iTagLen = sTagOpen.length();
+            sDateChanged = sLine.substring(iPos+ iTagLen, iClose - iPos - iTagLen);
+            // Get out of the loop
+            break;
+          }
+        }
+      }
+      // Properly close the file
+      rdCrp.close();
+     
+      // Return what we found
+      return sDateChanged;
+    } catch (Exception ex) {
+      logger.DoError("There's a problem getting the local CRP's [Changed] date", ex, CrpInfo.class);
+      // Return failure
+      return "";
+    }
+  }
+  
+  /**
+   * getCrpDate
+   *    Get the date the indicated CRP was last changed at the server
+   * 
+   * @param sCrpName
+   * @return 
+   */
+  public String getCrpDate(String sCrpName) {
+    String sModified = "";
+    try {
+      this.params.clear();
+      this.params.put("userid", userId);
+      this.params.put("name", prjName);
+      this.params.put("info", "dateChanged");
+      String sResp = this.br.getCrppResponse("crpinfo", "", this.params, null);
+      if (sResp.isEmpty() || !sResp.startsWith("{")) return "";
+      // Convert the response to JSON
+      JSONObject oResp = new JSONObject(sResp);
+      // Validate
+      if (oResp.has("status") && oResp.has("content")) {
+        // Decypher the status
+        JSONObject oStat = oResp.getJSONObject("status");
+        JSONObject oContent = oResp.getJSONObject("content");
+        switch (oStat.getString("code")) {
+          case "completed":
+            // Get the modified date string
+            sModified = oContent.getString("dateChanged");
+            break;
+          case "error":
+            // Cannot receive a CRP if there was an error on a /crpp request
+            logger.DoError("Could not load project " + this.prjName +
+                    "There was a /crpp error: " + oContent.getString("message"));
+          default:
+            // Unknown state to work with
+            logger.DoError("Could not load project " + this.prjName+ 
+                    ". unknown status ["+oStat.getString("code")+"].");
+        }
+      }
+      // Return our findings
+      return sModified;
+    } catch (Exception ex) {
+      logger.DoError("There's a problem getting the CRP's date", ex, CrpInfo.class);
+      // Return failure
+      return "";
+    }
+  }
+  
+  /**
    * getCrp
    *    Perform the actual job of downloading the project
    * 
@@ -426,8 +521,25 @@ class CrpInfo {
       String sProjectPath = getCrpPath();
       // Is the project there?
       File fProjectPath = new File(sProjectPath);
-      if (!fProjectPath.exists() || bForce) {
+      // Do we need to fetch it?
+      boolean bDoFetch = bForce;
+      if (!bDoFetch) {
+        if (fProjectPath.exists()) {
+          // Collect the 'Changed' dates as stored inside the CRPs
+          // OLD: get the date of the actual file -- this may be misleading!
+          // OLD:  String sLocalDate = dateToString(fProjectPath.lastModified());
+          String sLocalDate = getCrpLocalDate(fProjectPath);
+          String sCrppDate = getCrpDate(crpThis.getName());
+          // Compare the dates
+          if (sCrppDate.compareTo(sLocalDate) > 0) bDoFetch = true;
+        } else {
+          // The file does not exist, so we will need to fetch it
+          bDoFetch = true;
+        }
+      }
+      if (bDoFetch) {
         // Fetch the project from /crpp
+        this.params.clear();
         this.params.put("userid", userId);
         this.params.put("name", prjName);
         String sResp = this.br.getCrppResponse("crpget", "", this.params, null);

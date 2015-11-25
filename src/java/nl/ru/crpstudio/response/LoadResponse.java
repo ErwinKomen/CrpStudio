@@ -19,18 +19,18 @@ public class LoadResponse extends BaseResponse {
     try {
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
-      if (!oQuery.has("userid")) { sendErrorResponse("LoadResponse: missing @userid"); return;}
-      if (!oQuery.has("project")) { sendErrorResponse("LoadResponse: missing @project"); return;}
-      if (!oQuery.has("type")) { sendErrorResponse("LoadResponse: missing @type"); return;}
+      if (!oQuery.has("userid"))  { sendErrorResponse("LoadResponse: missing @userid");   return;}
+      if (!oQuery.has("project")) { sendErrorResponse("LoadResponse: missing @project");  return;}
+      if (!oQuery.has("type"))    { sendErrorResponse("LoadResponse: missing @type");     return;}
       
       // There are three parameters: project, userid, type
-      project = oQuery.getString("project");
-      loadType = oQuery.getString("type");
-      sUserId = oQuery.getString("userid");
+      project   = oQuery.getString("project");
+      loadType  = oQuery.getString("type");
+      sUserId   = oQuery.getString("userid");
 
       // Validate: all three must be there
-      if (loadType.isEmpty()) { sendErrorResponse("Specify type of information needed"); return;}
-      if (sUserId.isEmpty()) { sendErrorResponse("The userid is not specified"); return; }
+      if (loadType.isEmpty()) { sendErrorResponse("Specify type of information needed");  return;}
+      if (sUserId.isEmpty())  { sendErrorResponse("The userid is not specified");         return; }
       
       // The actual reply depends on the @loadType
       switch(loadType) {
