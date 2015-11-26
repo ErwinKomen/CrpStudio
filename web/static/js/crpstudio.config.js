@@ -18,7 +18,7 @@ var crpstudio = (function (crpstudio) {
     defPrjType: "Folia-Xml",    // Default project type for new projects
     // Object that makes the link between a project type and the tags used in that type
     prj_tags: [
-      {prjtype: "folia-xml",   main: "FoLiA",     sent: "s",      const: "su",    word: "w",    pos: "pos"},
+      {prjtype: "folia-xml",   main: "FoLiA",     sent: "s",      const: "su",    word: "w",    pos: "class"},
       {prjtype: "alpino-xml",  main: "alpino_ds", sent: "node",   const: "node",  word: "node", pos: "postag"},
       {prjtype: "xquery-psdx", main: "TEI",       sent: "forest", const: "eTree", word: "eLeaf",pos: "Label"}
     ],
