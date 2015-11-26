@@ -30,10 +30,10 @@
               </div>
               <div class="large-16 medium-16 small-16 row">
                 <!-- Project AUTHOR -->
-                <div class="large8 medium-8 small-8 columns">
+                <div class="large-8 medium-8 small-8 columns left">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <label for="right-label" class="right inline">$labels.getString("project.general.author")</label>
+                      <label for="right-label" class="left inline">$labels.getString("project.general.author")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
                       <input id="project_general_author" class="general_input" type="text" placeholder="creator of this project">
@@ -41,10 +41,10 @@
                   </div>
                 </div>
                 <!-- Project PRJTYPE -->
-                <div class="large8 medium-8 small-8 columns">
+                <div class="large-8 medium-8 small-8 columns">
                   <div class="row">
                     <div class="large-6 medium-6 small-6 columns">
-                      <label for="right-label" class="right inline">$labels.getString("project.general.prjtype")</label>
+                      <label for="right-label" class="left inline">$labels.getString("project.general.prjtype")</label>
                     </div>
                     <div class="large-10 medium-10 small-10 columns">
                       <select id="project_general_prjtype" class="general_input"  placeholder="kind of project">

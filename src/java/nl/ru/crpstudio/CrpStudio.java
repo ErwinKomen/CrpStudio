@@ -152,23 +152,24 @@ public class CrpStudio extends HttpServlet {
       // Find our context root
       contextRoot = cfg.getServletContext().getContextPath();
 
-      responses.put("about", new InfoResponse());
-      responses.put("corpora", new CorporaResponse());
-      responses.put("crpchg", new CrpchgResponse());
-      responses.put("download", new DownloadResponse());
-      responses.put("error", new ErrorResponse());
-      responses.put("exe", new ExecuteResponse());
-      responses.put("export", new ExportResponse());
-      responses.put("help", new HelpResponse());
-      responses.put("home", new HomeResponse());
       responses.put("j_security_check", new LoginResponse());
-      responses.put("load", new LoadResponse());
-      responses.put("dbases", new DbasesResponse());
+      responses.put("about",    new InfoResponse());
+      responses.put("corpora",  new CorporaResponse());
+      responses.put("crpchg",   new CrpchgResponse());
+      responses.put("download", new DownloadResponse());
+      responses.put("error",    new ErrorResponse());
+      responses.put("exe",      new ExecuteResponse());
+      responses.put("export",   new ExportResponse());
+      responses.put("help",     new HelpResponse());
+      responses.put("home",     new HomeResponse());
+      responses.put("load",     new LoadResponse());
+      responses.put("dbases",   new DbasesResponse());
       responses.put("projects", new ProjectsResponse());
-      responses.put("remove", new RemoveResponse());
+      responses.put("remove",   new RemoveResponse());
+      responses.put("reset",    new ResetResponse());
       responses.put("statusxq", new StatusResponse());
-      responses.put("update", new UpdateResponse());
-      responses.put("upload", new UploadResponse());
+      responses.put("update",   new UpdateResponse());
+      responses.put("upload",   new UploadResponse());
     } catch (Exception ex) {
       errHandle.DoError("init (b): " + ex.getMessage());
     }

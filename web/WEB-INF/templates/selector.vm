@@ -91,7 +91,7 @@
             <label>$exp_strCurrent</label></li>
           <li class="$exp_cur hidden"><a id="${exp_name}-download" href="#" onclick="crpstudio.project.downloadFile(this, '$exp_name');">
             $exp_strDownload</a></li>
-          <li class="$exp_cur hidden"><a id="${exp_name}-remove" href="#" onclick="crpstudio.project.removeFile(this, '$exp_name');">
+          <li class="$exp_cur hidden"><a id="${exp_name}-remove" href="#" onclick="crpstudio.project.removeItem(this, '$exp_name');">
             $exp_strRemove</a></li>
 
           <!-- Most RECENTly used item (just 1, if any) -->

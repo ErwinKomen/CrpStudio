@@ -1407,13 +1407,7 @@ var crpstudio = (function ($, crpstudio) {
             // Calculate percentages
             var iPtcStarted = (iTotal === 0) ? 0 : (iCount * 100 / iTotal);
             var iPtcFinished = (iTotal === 0) ? 0 : (iReady * 100 / iTotal);
-            /*
-            // Show the status
-            var sMsg = "status="+iReady+"-"+iCount+" of "+iTotal;
-            crpstudio.main.debug(sMsg);
-            // Build html content
-            $(divStatus).text(sMsg);
-            */
+
             if (iCount > 0) {
               var divStarted = null;
               var divFinished = null;
@@ -1471,6 +1465,65 @@ var crpstudio = (function ($, crpstudio) {
         }
 
       },
+      
+      /**
+       * reset
+       *    Reset the execution of the currently running query
+       *    
+       * @param {type} target   - pointer to calling element
+       * @returns {undefined}
+       */
+      reset : function(target) {
+        // Retrieve the status request object string
+        var sResetRequest = strQstatus ;
+        // Indicate we are starting to stop the execution
+        $("#result_status").text("Attempting to stop...");
+        // Make use of the currently available status request object
+        crpstudio.main.getCrpStudioData("reset", sResetRequest, crpstudio.project.processReset, target);
+      },
+      
+      /**
+       * processReset
+       *    Process the reaction to the /crpstudio/reset request
+       * 
+       * @param {type} oResponse
+       * @param {type} target
+       * @returns {undefined}
+       */
+      processReset : function(oResponse, target) {
+        // The initial response should contain one object: status
+        var oStatus = oResponse.status;
+        // Part of the object is the code (which should be 'started')
+        var statusCode = oStatus.code;
+        var statusMsg = (oStatus.message) ? (": "+oStatus.message) : "";
+        // Set the status
+        $(target).html(statusCode);
+        // Try to get a content object
+        // var oContent = (oResponse.content) ? oResponse.content : {};
+        // Action depends on the status code
+        switch (statusCode.toLowerCase()) {
+          case "completed":
+            // Switch off the progress indicator
+            $("#result_progress").addClass("hidden");
+            // Indicate we are starting to stop the execution
+            $("#result_status").text("The execution has been aborted");
+            break;
+          case "error":
+            var oContent = oResponse.content;
+            var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+            var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+            // Indicate we are starting to stop the execution
+            $("#result_status").text("Attempt to stop returned error: "+ sErrorCode);
+            $(target).html("Error: " + sErrorMsg);
+            break;
+          default:
+            // Indicate we are starting to stop the execution
+            $("#result_status").text("No response");
+            $(target).html("Problem: no response");
+            break;
+        }
+      },
+      
 
        /* ---------------------------------------------------------------------------
        * Name: makeTablesView1
@@ -1662,6 +1715,8 @@ var crpstudio = (function ($, crpstudio) {
           $("#"+target).addClass("active");
           $("#subnav dd").removeClass("active");
           $("#"+target+"_link").addClass("active");
+          // Reset the status message in the target
+          $("#"+target+"_status").text("");
           // Make sure the global variable is set correctly
           loc_tab = target;
           // Initially hide *all* SELECTORs
@@ -2675,7 +2730,7 @@ var crpstudio = (function ($, crpstudio) {
       },
 
       /**
-       * removeFile
+       * removeItem
        *    Check which Item is currently selected (if any)
        *    Then remove that item:
        *    (1) from the server --> POST to /crpstudio
@@ -2685,7 +2740,7 @@ var crpstudio = (function ($, crpstudio) {
        * @param {string} sItemType  - Type of file to remove
        * @returns {void}            - no return
        */
-      removeFile : function(elDummy, sItemType) {
+      removeItem : function(elDummy, sItemType) {
         // Prepare variable
         var oArgs = null; var iItemId = -1; var lstItem = null; var sCrpName = "";
         var sItemMain = "";
@@ -2732,6 +2787,7 @@ var crpstudio = (function ($, crpstudio) {
             return;
         }
         if (sCrpName && sCrpName !== "") {
+          var iItemNext = -1;
           // Action depends on the type
           switch (sItemType) {
             case "project":
@@ -2768,17 +2824,33 @@ var crpstudio = (function ($, crpstudio) {
               // Make a call to histAdd, which signals the deletion
               private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
               // Delete the item from the list
-              var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+              iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
               // Show the list, putting the focus on the new item id
               crpstudio.project.itemListShow(sItemType, iItemNext);
 
               break;
-            case "dbfeat": case "constructor":
+            case "dbfeat": 
+              // Make a call to histAdd, which prepares the deletion in the actual CRP
+              private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
+              // Delete the item from the list
+              iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+              // Show the list, putting the focus on the new item id
+              crpstudio.project.itemListShow(sItemType, iItemNext);
+              break;
+            case "constructor":
               // TODO: check this out!!
               //       Possibly do as above
               //       But for constructor: more checking is needed??
-              // Make a call to histAdd
-              histAdd(sItemType, iItemId, sCrpName, "delete", "");
+              
+              // Check: is there another constructor relying on me?
+              
+              
+              // Make a call to histAdd, which prepares the deletion in the actual CRP
+              private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
+              // Delete the item from the list
+              iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+              // Show the list, putting the focus on the new item id
+              crpstudio.project.itemListShow(sItemType, iItemNext);
               break;
           }
         }

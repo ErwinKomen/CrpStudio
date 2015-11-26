@@ -42,9 +42,10 @@ public class ExecuteResponse extends BaseResponse {
       sUser = servlet.getUserId();
       // Collect the JSON from our caller
       oQuery = new JSONObject(request.getParameter("args"));
-      if (!oQuery.has("lng")) { sendErrorResponse("ExecuteResponse: missing @lng"); return;}
-      if (!oQuery.has("crp")) { sendErrorResponse("ExecuteResponse: missing @crp"); return;}
-      if (!oQuery.has("userid")) { sendErrorResponse("ExecuteResponse: missing @userid"); return;}
+      if (!oQuery.has("lng"))     { sendErrorResponse("ExecuteResponse: missing @lng"); return;}
+      if (!oQuery.has("crp"))     { sendErrorResponse("ExecuteResponse: missing @crp"); return;}
+      if (!oQuery.has("userid"))  { sendErrorResponse("ExecuteResponse: missing @userid"); return;}
+      
       this.params.put("userid", oQuery.getString("userid"));
       this.params.put("crp", oQuery.getString("crp"));
       // Keep the CRP name for later use

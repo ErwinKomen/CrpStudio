@@ -17,13 +17,19 @@
       <div id="result_progress" class="large-16 medium-16 small-16 row">
         <!-- Progress indication -->
         <div class="small-8 medium-8 large-8 columns">
-          <!-- Blue progress bar indicating which files are started -->
-          <div class="progress round"><span id="agent007" class="meter" style="width: 0%"></span></div>
-          <!-- Green progress bar indicating which files are finished -->
-          <div class="progress success round"><span id="agent008" class="meter" style="width: 0%"></span></div>
+          <!-- Progress bar: indicating which files are started -->
+          <div class="large-16 medium-16 small-16 row">
+            <div class="large-2 medium-2 small-2 columns left">$labels.getString("result.progress.start")</div>
+            <div class="progress round large-14 medium-14 small-14 columns left"><span id="agent007" class="meter" style="width: 0%"></span></div>
+          </div>
+          <!-- Progress bar: indicating which files are finished -->
+          <div class="large-16 medium-16 small-16 row">
+            <div class="large-2 medium-2 small-2 columns left">$labels.getString("result.progress.finish")</div>
+            <div class="progress success round large-14 medium-14 small-14 columns left"><span id="agent008" class="meter" style="width: 0%"></span></div>
+          </div>
         </div>
         <!-- Stop execution -->
-        <div id="project_execution_cancel" class="large-4 medium-4 small-4 columns">
+        <div id="project_execution_cancel" class="large-2 medium-2 small-2 columns left">
             <a href="#" onclick="crpstudio.project.reset()" class="button radius reset small secondary">
               <span>$labels.getString("project.cancel")</span>
             </a>
