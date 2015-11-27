@@ -98,6 +98,8 @@ var crpstudio = (function ($, crpstudio) {
                 lstHistory[iSize-1] = oThis;
                 bAdded = true;
               }
+              // Once we have reviewed the latest item fulfilling the conditions: leave!
+              break;
             } 
           }
         } 
@@ -489,33 +491,7 @@ var crpstudio = (function ($, crpstudio) {
           case "dbfeat":
             // If an item is deleted, FtNum needs re-numbering
             if (sKey === "delete") {
-              // Yes, need re-numbering: get the list sorted on FtNum
-              var oList = private_methods.getList("dbfeat", "FtNum");
-              var iFtNum = 0;
-              for (var i=0;i<oList.length;i++) {
-                // Get this item
-                var oItem = oList[i];
-                // Determine the DbFeatId of this item
-                var iDbFeatId = parseInt(oItem["DbFeatId"], 10);
-                // Filter on current QC number and:
-                // a) Pre needs to be 'true'
-                // b) Need to skip the item that is going to be deleted
-                if (oItem["QCid"] === currentQc.toString() && oItem["Pre"] === "True" &&
-                    iId !== iDbFeatId) {
-                  // Determine the FtNum to be 
-                  iFtNum += 1;
-                  var sFtNum = iFtNum.toString();
-                  if (oItem["FtNum"] !== sFtNum) {
-                    // Pass on the re-numbering to the history
-                    private_methods.histAdd("dbfeat",iDbFeatId, sCrp, "FtNum", iFtNum.toString());
-                    // re-number
-                    oItem["FtNum"] = iFtNum.toString();
-                    oList[i] = oItem;
-                  }
-                }
-              }
-              // Set the sorted list back
-              private_methods.setList("dbfeat", oList);
+              private_methods.dbfRenumber(iId);
             }
             break;
           default:
@@ -595,6 +571,44 @@ var crpstudio = (function ($, crpstudio) {
             oList[i] = oItem;
           }
         }
+      },
+      
+      /**
+       * dbfRenumber
+       *    Renumber the FtNum values of the dbfeat list of the current QC
+       * 
+       * @param {type} iSkipId  - Skip the indicated id from renumbering
+       * @returns {void}
+       */
+      dbfRenumber : function(iSkipId) {
+        // Yes, need re-numbering: get the list sorted on FtNum
+        var oList = private_methods.getList("dbfeat", "FtNum");
+        var iFtNum = 0;
+        for (var i=0;i<oList.length;i++) {
+          // Get this item
+          var oItem = oList[i];
+          // Determine the DbFeatId of this item
+          var iDbFeatId = parseInt(oItem["DbFeatId"], 10);
+          // Filter on current QC number and:
+          // a) Pre needs to be 'true'
+          // b) Need to skip the item that is going to be deleted
+          if (oItem["QCid"] === currentQc.toString() && oItem["Pre"] === "True" &&
+              iSkipId !== iDbFeatId) {
+            // Determine the FtNum to be 
+            iFtNum += 1;
+            var sFtNum = iFtNum.toString();
+            if (oItem["FtNum"] !== sFtNum) {
+              // Pass on the re-numbering to the history
+              private_methods.histAdd("dbfeat",iDbFeatId, currentPrj, "FtNum", iFtNum.toString());
+              // re-number
+              oItem["FtNum"] = iFtNum.toString();
+              oList[i] = oItem;
+            }
+          }
+        }
+        // Set the sorted list back
+        private_methods.setList("dbfeat", oList);
+        
       },
       
       /**
@@ -830,6 +844,34 @@ var crpstudio = (function ($, crpstudio) {
           var iId = parseInt(oOneItem[sIdField], 10);
           // Check the id
           if (iId === iValue) return oOneItem;
+        }
+        // Didn't get it
+        return null;
+      },
+
+      /**
+       * getListItem
+       *    Access the list for @sListName, and return the object identified
+       *    by <sField, sValue>
+       * 
+       * @param {string} sListType
+       * @param {string} oCondition - object with feature/value items
+       * @returns {object}
+       */
+      getListItem : function(sListType, oCondition) {
+        var oList = private_methods.getList(sListType);   // JSON type list of objects
+        // OLD: if (sListType === "project" || oList === null) return oList;
+        if (oList === null) return oList;
+        // Walk all the elements of the list
+        for (var i=0;i<oList.length;i++) {
+          var oOneItem = oList[i];
+          // Check all the conditions in oCondition
+          var bOkay = true;
+          for (var cond in oCondition) {
+            if (oOneItem[cond] !== oCondition[cond]) {bOkay = false; break;}
+          }
+          // Only if all conditions are matched do we return a 'winner'
+          if (bOkay) return oOneItem;
         }
         // Didn't get it
         return null;
@@ -2951,7 +2993,7 @@ var crpstudio = (function ($, crpstudio) {
               break;
             case "dbfeat": 
               // Make a call to histAdd, which prepares the deletion in the actual feature
-              // NOTE: histAdd also calls itemPropagate, which renumbers FtNum accordingly (but not the ids)
+              // NOTE: histAdd also calls itemPerculate(), which renumbers FtNum accordingly (but not the ids)
               private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
               // Delete the item from the list
               iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
@@ -3271,6 +3313,52 @@ var crpstudio = (function ($, crpstudio) {
               "DbaseInput", "False");
         }
       },
+      
+      /**
+       * dbfeatMove
+       *    Move the currently selected feature up or down
+       * 
+       * @param {type} sDirection
+       * @returns {undefined}
+       */
+      dbfeatMove : function(sDirection) {
+        // Get the currently selected values
+        var iQCid = currentQc;
+        var iDbFeatId = currentDbf;
+        // Get the object that is being selected
+        var oItem = private_methods.getListObject("dbfeat", "DbFeatId", iDbFeatId);
+        var iFtNum = parseInt(oItem["FtNum"],10);
+        // Validate: do not move negative numbers
+        if (iFtNum < 0) return;
+        // Get the max number for this QC
+        var iFtMax = private_methods.getMaxFtNum(iQCid);
+        // Determine what the new feature number will be
+        var iFtSwap = iFtNum;
+        switch (sDirection) {
+          case "up":    // Up means:    lower number
+            // Validate: cannot get feature number lower than 1
+            if (iFtNum<=1) return;
+            // Calculate the new number
+            iFtSwap = iFtNum -1;
+            break;
+          case "down":  // Down means:  larger number
+            if (iFtNum >= iFtMax) return;
+            // Calculate the new number
+            iFtSwap = iFtNum +1;
+            break;
+          default:
+            return;
+        }
+        // Get the list item with the new FtNum
+        var oCondition = {"FtNum": iFtSwap.toString(), "QCid": iQCid.toString()};
+        var oItemSwap = private_methods.getListItem("dbfeat", oCondition);
+        var iDbFeatSwapId = parseInt(oItemSwap["DbFeatId"],10);
+        // Issue two histAdd calls
+        private_methods.histAdd("dbfeat", iDbFeatId, currentPrj, "FtNum", iFtSwap.toString());
+        private_methods.histAdd("dbfeat", iDbFeatSwapId, currentPrj, "FtNum", iFtNum.toString());
+        // Make sure the list is being re-drawn
+        crpstudio.project.itemListShow("dbfeat", iDbFeatId);
+      },
 
       /**
        * setPrjType
@@ -3423,6 +3511,20 @@ var crpstudio = (function ($, crpstudio) {
             }
             break;
           case "dbase":
+            break;
+          case "dbfeat":
+            // Catch change in "Pre" feature, which requires re-numbering
+            switch (oItem.key) {
+              case "Pre":
+                // Give the current field a different number
+                var iNewValue = (sValue === "True") ? private_methods.getMaxFtNum(currentQc)+1 : -1;
+                private_methods.histAdd("dbfeat", iItemId, currentPrj, "FtNum", iNewValue.toString());
+                // Perform re-numbering of the dbfeat list
+                private_methods.dbfRenumber(-1);
+                // Show the list again
+                crpstudio.project.itemListShow("dbfeat", iItemId);
+                break;
+            }
             break;
         }
            
