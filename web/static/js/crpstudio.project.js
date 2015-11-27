@@ -76,7 +76,7 @@ var crpstudio = (function ($, crpstudio) {
         var sOld = private_methods.getItemValue(sType, iId, sCrp, sKey);
         // Validate: only real changes must continue
         if (sValue === sOld && (!bForce || bForce===undefined || bForce===false)) return false;
-        // Some changes cause perculation (e.g. query name change --> QC list)
+        // Some changes cause perculation (e.g. query name change --> QC list; dbfeat --> FtNum)
         if (!private_methods.itemPerculate(sType, iId, sCrp, sKey, sValue, sOld)) return false;
         // Possibly get the last item of history
         var iSize = lstHistory.length;
@@ -486,6 +486,38 @@ var crpstudio = (function ($, crpstudio) {
               }
             }
             break;
+          case "dbfeat":
+            // If an item is deleted, FtNum needs re-numbering
+            if (sKey === "delete") {
+              // Yes, need re-numbering: get the list sorted on FtNum
+              var oList = private_methods.getList("dbfeat", "FtNum");
+              var iFtNum = 0;
+              for (var i=0;i<oList.length;i++) {
+                // Get this item
+                var oItem = oList[i];
+                // Determine the DbFeatId of this item
+                var iDbFeatId = parseInt(oItem["DbFeatId"], 10);
+                // Filter on current QC number and:
+                // a) Pre needs to be 'true'
+                // b) Need to skip the item that is going to be deleted
+                if (oItem["QCid"] === currentQc.toString() && oItem["Pre"] === "True" &&
+                    iId !== iDbFeatId) {
+                  // Determine the FtNum to be 
+                  iFtNum += 1;
+                  var sFtNum = iFtNum.toString();
+                  if (oItem["FtNum"] !== sFtNum) {
+                    // Pass on the re-numbering to the history
+                    private_methods.histAdd("dbfeat",iDbFeatId, sCrp, "FtNum", iFtNum.toString());
+                    // re-number
+                    oItem["FtNum"] = iFtNum.toString();
+                    oList[i] = oItem;
+                  }
+                }
+              }
+              // Set the sorted list back
+              private_methods.setList("dbfeat", oList);
+            }
+            break;
           default:
             // No other actions are required
             break;
@@ -493,6 +525,76 @@ var crpstudio = (function ($, crpstudio) {
 
         // Getting here means we're okay
         return bOkay;
+      },
+      
+      /**
+       * qcDependant
+       *    Check if the QC with this @iItemId serves as input for another QC line
+       * 
+       * @param {type} iItemId
+       * @returns {undefined}
+       */
+      qcDependant : function(iItemId) {
+        // Get the list of QC items
+        var oList = private_methods.getList("constructor", "QCid");
+        // What are we looking for?
+        var sCheck = iItemId.toString() + "/";
+        // Walk the list
+        for (var i=0;i<oList.length;i++) {
+          // Get this item
+          var oItem = oList[i];
+          // Check if this item contains a troubling element
+          var sInput = oItem["Input"];
+          if (sInput.startsWith(sCheck))
+            return true;
+        }
+        // COming here means there should be no problem
+        return false;
+      },
+      
+      /**
+       * qcRenumber
+       *    Renumber the QCid values and the "Input" values starting from @iItemId
+       * 
+       * @param {type} iItemId
+       * @returns {undefined}
+       */
+      qcRenumber : function(iItemId) {
+        // Get the list of QC items
+        var oList = private_methods.getList("constructor", "QCid");
+        // Walk the list
+        for (var i=0;i<oList.length;i++) {
+          // Get this item
+          var oItem = oList[i];
+          // Get this QCid number
+          var iQCid = parseInt(oItem["QCid"], 10);
+          // Should this be re-numbered?
+          if (iQCid > iItemId) {
+            // Calculate the new id
+            var iItemNewId = iQCid-1;
+            // Re-numbering must take place for this item
+            oItem["QCid"] = iItemNewId.toString();
+            // Put the change in the history queue
+            private_methods.histAdd("constructor", iQCid, currentPrj, "id", oItem["QCid"], false);
+            // Get the input element
+            var sInput = oItem["Input"];
+            // Split into two parts
+            var arInput = sInput.split("/");
+            // Check the value of the first part
+            var iInput = parseInt(arInput[0], 10);
+            if (iInput > iItemId) {
+              // Adapt the input value
+              sInput = (iInput-1).toString + "/" + arInput[1];
+              // Put the change in the history queue
+              private_methods.histAdd("constructor", iItemNewId, currentPrj, "Input", sInput, false);
+              // sType, iId, sCrp, sKey, sValue, bForce
+              // Put item back
+              oItem["Input"] = sInput;
+            }
+            // Put the revised item back
+            oList[i] = oItem;
+          }
+        }
       },
       
       /**
@@ -509,8 +611,14 @@ var crpstudio = (function ($, crpstudio) {
         var oItemDesc = private_methods.getItemDescr(sListType);
         // Access the item from the correct list
         var oListItem = private_methods.getListObject(sListType, oItemDesc.id, iItemId);
-        // Get the value of the indicated field
-        return oListItem[sKey];
+        // if the key equals the id field, then get the id value
+        if (sKey === "id") {
+          // Return the value of the id, but as a string
+          return iItemId.toString();
+        } else {
+          // Get the value of the indicated field
+          return oListItem[sKey];
+        }
       },
       
       /**
@@ -750,8 +858,16 @@ var crpstudio = (function ($, crpstudio) {
             var iId = parseInt(oOneItem[oDescr.id], 10);
             // Check the id
             if (iId === iIdValue) {
-              //Change the item's field value
-              oList[i][sKey] = sValue;
+              switch(sKey) {
+                case "id":
+                  // Change the item's id value
+                  oList[i].id = parseInt(sValue, 10);
+                  break;
+                default:
+                  //Change the item's field value
+                  oList[i][sKey] = sValue;
+                  break;
+              }
               break;
             }
           }
@@ -898,9 +1014,10 @@ var crpstudio = (function ($, crpstudio) {
        * getMaxFtNum
        *    Get the maximum FtNum in the current list
        * 
+       * @param {type} iQCid  -- QCid value within which we need to look for the max number
        * @returns {undefined}
        */
-      getMaxFtNum : function() {
+      getMaxFtNum : function(iQCid) {
         // Get the correct list
         var oList = private_methods.getList("dbfeat");
         // Walk the list, searching for the maximum feature number
@@ -908,9 +1025,12 @@ var crpstudio = (function ($, crpstudio) {
         for (var i=0;i<oList.length;i++) {
           // Get this item
           var oItem = oList[i];
-          // Check feature number
-          var iFtNum = parseInt(oItem.FtNum, 10);
-          if (iFtNum > iMaxFtNum) iMaxFtNum = iFtNum;
+          // Check if this has the correct QCid
+          if (oItem["QCid"] === iQCid.toString()) {
+            // Check feature number
+            var iFtNum = parseInt(oItem.FtNum, 10);
+            if (iFtNum > iMaxFtNum) iMaxFtNum = iFtNum;
+          }
         }
         // Return the max number
         return iMaxFtNum;
@@ -2830,7 +2950,8 @@ var crpstudio = (function ($, crpstudio) {
 
               break;
             case "dbfeat": 
-              // Make a call to histAdd, which prepares the deletion in the actual CRP
+              // Make a call to histAdd, which prepares the deletion in the actual feature
+              // NOTE: histAdd also calls itemPropagate, which renumbers FtNum accordingly (but not the ids)
               private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
               // Delete the item from the list
               iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
@@ -2843,12 +2964,26 @@ var crpstudio = (function ($, crpstudio) {
               //       But for constructor: more checking is needed??
               
               // Check: is there another constructor relying on me?
+              if (private_methods.qcDependant(iItemId)) {
+                // Another line is dependant upon [iItemId], so we cannot remove it
+                // Warn the user
+                var sMsg = (crpstudio.config.language === "en") ? 
+                  "First remove constructor lines that take this line as input" : 
+                  "Verwijder eerst de regels uit de constructor die deze regel als invoer hebben";
+                alert(sMsg);
+                // Exit this function
+                return;
+              }
               
               
               // Make a call to histAdd, which prepares the deletion in the actual CRP
               private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
               // Delete the item from the list
               iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+              
+              // Perform re-numbering on the items coming on or after iItemNext
+              private_methods.qcRenumber(iItemId);
+              
               // Show the list, putting the focus on the new item id
               crpstudio.project.itemListShow(sItemType, iItemNext);
               break;
@@ -3452,9 +3587,9 @@ var crpstudio = (function ($, crpstudio) {
                   oNew.Name = sItemName;
                   // Get "pre" from the checkbox value
                   oNew.Pre = ( $("#dbf_new_pre").prop("checked") ) ? "True" : "False";
-                  // Determine the feature number
+                  // Determine the feature number -- relative to the currently selected QC
                   if (oNew.Pre === "True") {
-                    iFtNum = private_methods.getMaxFtNum() + 1;
+                    iFtNum = private_methods.getMaxFtNum(currentQc) + 1;
                   } else {
                     iFtNum = -1;
                   }
