@@ -728,7 +728,11 @@ var crpstudio = (function ($, crpstudio) {
         // Find the correct list
         switch(sListType) {
           case "project":     prj_crplist = oList; break;
-          case "query":       prj_qrylist = oList;break;
+          case "query":       
+            prj_qrylist = oList;
+            // Re-do the list on the Constructor editor
+            
+            break;
           case "definition":  prj_deflist = oList;break;
           case "constructor": prj_qclist = oList; break;
           case "dbfeat":      prj_dbflist = oList;break;
@@ -1026,7 +1030,7 @@ var crpstudio = (function ($, crpstudio) {
           oNew[propt] = oStart[propt];
         }
         // Get the field on which we need to sort
-        var sSortField = oDescr.listfield;
+        var sSortField = oDescr.sortfield;
         var sSortName = oNew[sSortField].toLowerCase();
         var bAdded = false;
         // Find out where to put the new item
@@ -1148,6 +1152,32 @@ var crpstudio = (function ($, crpstudio) {
         }
         // Return the object
         return oBack;
+      },
+      
+      /**
+       * getQueryOptionList
+       *    Create an <option> list from the query list 
+       *    Make sure the query list is sorted
+       * 
+       * @returns {undefined}
+       */
+      setQueryOptionList : function() {
+        // Get the list
+        var oList = private_methods.getList("query", "Name");
+        // Clear current contents
+        $("#qc_general_query option").remove();
+        var arQry = [];
+        // Push the first element
+        arQry.push("<option value=\"\">(Please make a selection)</option>");
+        // Walk the whole list
+        for (var i=0;i<oList.length;i++) {
+          // Get the name of this query
+          var oItem = oList[i];
+          var sName = oItem.Name;
+          arQry.push("<option value=\""+sName+"\">"+sName+"</option>");
+        }
+        // Put the created list at the right place
+        $("#qc_general_query").append(arQry.join("\n"));
       },
       
       /**
@@ -3784,6 +3814,8 @@ var crpstudio = (function ($, crpstudio) {
                     oQC.Mother = "False";
                     // (3) Create this new item
                     iItemId = private_methods.createListItem("constructor", oQC);
+                    // (4) Make the new query list
+                    private_methods.setQueryOptionList();
                   }
                   break;
               }
