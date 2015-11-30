@@ -1244,6 +1244,40 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * makeNewQCobj
+       *    Create a new object with values to construct a new QC
+       * 
+       * @returns {undefined}
+       */
+      makeNewQCobj : function() {
+        var oQC = {};
+        // Get the maximum QCid
+        var iQCmaxId = private_methods.getQcMaxId();
+        // Create and set the list under "#qc_general_input"
+        private_methods.makeQcInput(iQCmaxId+1, "new");
+        // Try to fill in values in the creation form:
+        // (1) Find the first query that is not yet available in the query pipeline
+        var oQryFree = private_methods.getNextQuery();
+        // Validate
+        if (oQryFree === null) {
+          // There is no query to point to -- at least take over the source
+          oQC.Input = "Source";
+          oQC.Query = ""; oQC.Result = ""; oQC.Goal = ""; oQC.Comment = "";
+        } else {
+          // Provide details from this query
+          oQC.Query = oQryFree.Name;
+          oQC.Result = oQryFree.Name;
+          oQC.Goal = oQryFree.Goal;
+          oQC.Comment = oQryFree.Comment;
+          // (2) Suggest where this should be inserted
+          var sQcInput = (iQCmaxId <0) ? "Source" : iQCmaxId + "/out";
+          oQC.Input = sQcInput;
+        }
+        // Return the result
+        return oQC;
+      },
+      
+      /**
        * initProject
        *    Initialise a project: clear Qry, Def, Dbf, Qc pointers
        * 
@@ -3277,8 +3311,7 @@ var crpstudio = (function ($, crpstudio) {
         // Make sure CHANGES are only passed on as /crpchg where this is intended
         if (bChange) {
           // Process the change by calling [histAdd]
-          private_methods.histAdd("project", -1, currentPrj,
-              "Source", sDbName);
+          private_methods.histAdd("project", -1, currentPrj, "Source", sDbName);
 
     /*
           // Pass on this value to /crpstudio and to /crpp
@@ -3552,6 +3585,8 @@ var crpstudio = (function ($, crpstudio) {
             $("#project_new_create").removeClass("hidden");
             break;
           case "query":         // New QUERY
+            // Set some property value
+            $("#query_new_qc").prop("checked", true);
             // Make sure the new query form becomes visible
             $("#query_general_editor").addClass("hidden");
             $("#query_new_create").removeClass("hidden");
@@ -3567,6 +3602,19 @@ var crpstudio = (function ($, crpstudio) {
             $("#dbf_new_create").removeClass("hidden");
             break;
           case "constructor":   // New CONSTRUCTOR = Query Constructor Item
+            // Create a new QC object
+            var oQC = private_methods.makeNewQCobj();
+            // Put the values of the object to the right places
+            // input query result goal comment
+            $("#qc_new_input").val(oQC.Input);
+            $("#qc_new_query").val(oQC.Query);
+            $("#qc_new_result").val(oQC.Result);
+            $("#qc_new_goal").val(oQC.Goal);
+            $("#qc_new_comment").val(oQC.Comment);
+            
+            
+            
+            /*
             // Get the maximum QCid
             var iQCmaxId = private_methods.getQcMaxId();
             // Create and set the list under "#qc_general_input"
@@ -3588,6 +3636,8 @@ var crpstudio = (function ($, crpstudio) {
               var sQcInput = (iQCmaxId <0) ? "Source" : iQCmaxId + "/out";
               $("#qc_new_input").val(sQcInput);
             }
+            */
+           
             // Make sure the new constructor form becomes visible
             $("#qc_general_editor").addClass("hidden");
             $("#qc_new_create").removeClass("hidden");
@@ -3718,6 +3768,25 @@ var crpstudio = (function ($, crpstudio) {
 
               // Make sure the list is re-drawn
               crpstudio.project.itemListShow(sItemType, iItemId);
+              
+              // There may be post-processing (follow-up actions)
+              switch (sItemType) {
+                case "query":
+                  // Check if query should be put into the constructor straight away
+                  var bAddQC = $("#query_new_qc").prop("checked");
+                  if (bAddQC) {
+                    // Yes, add the query into the pipeline
+                    // (1) Create a new object based on what we have
+                    //     This makes members: input, query, result, goal, comment
+                    var oQC = private_methods.makeNewQCobj();
+                    // (2) set standard values for Cmp, Output and Mother
+                    oQC.Cmp = "False"; oQC.Output = (prj_qclist.length + 1) + "_" + oQC.Query;
+                    oQC.Mother = "False";
+                    // (3) Create this new item
+                    iItemId = private_methods.createListItem("constructor", oQC);
+                  }
+                  break;
+              }
 
             }
             break;
