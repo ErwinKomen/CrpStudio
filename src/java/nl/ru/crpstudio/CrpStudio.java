@@ -73,6 +73,7 @@ public class CrpStudio extends HttpServlet {
 	private LinkedList<FieldDescriptor> searchFields = null;
   private List<String> lngIndices = null;
   private JSONArray objCorpora = null;
+  private JSONArray objMetavar = null;
 	private String contextRoot;
   private TemplateManager templateMan;
   private CrpUtil crpUtil;
@@ -103,6 +104,7 @@ public class CrpStudio extends HttpServlet {
   public CrpUtil getCrpUtil() {return crpUtil;}
   public ErrHandle getErrHandle() {return errHandle;}
   public JSONArray getCorpora() { return objCorpora;}
+  public JSONArray getMetavars() { return objMetavar;}
   public String getRequestMethod() { return sRequestMethod;}
   public CrpContainer getCrpContainer() { return crpContainer; }
   public JSONArray getUpdateContent() { return arUpdateContent; }
@@ -295,6 +297,7 @@ public class CrpStudio extends HttpServlet {
         String sCorpora = oContent.getString("corpora");
         JSONObject oCorpora = new JSONObject(sCorpora);
         objCorpora = oCorpora.getJSONArray("corpora");
+        objMetavar = oCorpora.getJSONArray("metavar");
       }
       // Return to the caller negatively
       return false;

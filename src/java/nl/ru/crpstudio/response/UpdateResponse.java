@@ -52,21 +52,23 @@ public class UpdateResponse extends BaseResponse {
       sUser = servlet.getUserId();
       // Collect the JSON from our caller
       oQuery = new JSONObject(request.getParameter("args"));
-      if (!oQuery.has("lng")) { sendErrorResponse("UpdateResponse: missing @lng"); return;}
-      if (!oQuery.has("prj")) { sendErrorResponse("UpdateResponse: missing @prj"); return;}
-      if (!oQuery.has("userid")) { sendErrorResponse("UpdateResponse: missing @userid"); return;}
-      if (!oQuery.has("qc")) { sendErrorResponse("UpdateResponse: missing @qc"); return;}
-      if (!oQuery.has("start")) { sendErrorResponse("UpdateResponse: missing @start"); return;}
-      if (!oQuery.has("count")) { sendErrorResponse("UpdateResponse: missing @count"); return;}
-      if (!oQuery.has("type")) { sendErrorResponse("UpdateResponse: missing @type"); return;}
-      if (!oQuery.has("view")) { sendErrorResponse("UpdateResponse: missing @view"); return;}
+      if (!oQuery.has("lng"))     { sendErrorResponse("UpdateResponse: missing @lng");    return;}
+      if (!oQuery.has("prj"))     { sendErrorResponse("UpdateResponse: missing @prj");    return;}
+      if (!oQuery.has("userid"))  { sendErrorResponse("UpdateResponse: missing @userid"); return;}
+      if (!oQuery.has("qc"))      { sendErrorResponse("UpdateResponse: missing @qc");     return;}
+      if (!oQuery.has("start"))   { sendErrorResponse("UpdateResponse: missing @start");  return;}
+      if (!oQuery.has("count"))   { sendErrorResponse("UpdateResponse: missing @count");  return;}
+      if (!oQuery.has("type"))    { sendErrorResponse("UpdateResponse: missing @type");   return;}
+      if (!oQuery.has("view"))    { sendErrorResponse("UpdateResponse: missing @view");   return;}
       // Determine the type of results we need to have
       int iView = oQuery.getInt("view");
       switch(iView) {
         case 1: // per hit
         case 2: // per document: 
+          break;
         case 3: // per group: files belonging to one of the named file-groups (e.g: O23)
         case 4: // per division: files belonging to one of the named group-divisions (e.g: ME)
+          if (!oQuery.has("div")) { sendErrorResponse("UpdateResponse: missing @div for view 3-4");return;}
           break;
         default:
           // This particular view is not known
@@ -87,16 +89,17 @@ public class UpdateResponse extends BaseResponse {
       //      dir:    Directory under the "lng" where the corpus we want to consult resides
       //      sub:    Name of the sub category for which we want results
       //      files:  JSON array of file names to be included
+      //      div:    Name of the group-division to be used (for view=3, view=4)
       // =============================================================================
       // Obligatory parameters:
       JSONObject oMyQuery = new JSONObject();
-      oMyQuery.put("lng", oQuery.getString("lng"));      // Specify the language
-      oMyQuery.put("crp", oQuery.getString("prj"));      // Specify the CRP name
-      oMyQuery.put("userid", oQuery.getString("userid"));// Name of the user
+      oMyQuery.put("lng", oQuery.getString("lng"));       // Specify the language
+      oMyQuery.put("crp", oQuery.getString("prj"));       // Specify the CRP name
+      oMyQuery.put("userid", oQuery.getString("userid")); // Name of the user
       oMyQuery.put("qc", oQuery.getInt("qc"));            // Query constructor line
-      oMyQuery.put("start", oQuery.getInt("start"));     // Starting number of results
-      oMyQuery.put("count", oQuery.getInt("count"));     // Number of results to be returned
-      oMyQuery.put("type", oQuery.getString("type"));    // The type of information we need per hit
+      oMyQuery.put("start", oQuery.getInt("start"));      // Starting number of results
+      oMyQuery.put("count", oQuery.getInt("count"));      // Number of results to be returned
+      oMyQuery.put("type", oQuery.getString("type"));     // The type of information we need per hit
       // =============================================================================
       // Optional: sub category specification
       if (oQuery.has("sub")) { oMyQuery.put("sub", oQuery.getString("sub")); }
@@ -104,6 +107,8 @@ public class UpdateResponse extends BaseResponse {
       if (oQuery.has("dir")) { oMyQuery.put("dir", oQuery.getString("dir")); }     
       // Specification of files
       if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
+      // Specification of grouping division
+      if (oQuery.has("div")) { oMyQuery.put("div", oQuery.getJSONArray("div")); } 
       
       // Put my query into the request
       this.params.put("query", oMyQuery);
