@@ -1422,10 +1422,13 @@ public abstract class BaseResponse {
    * @return -- JSON array of items
    */
   public JSONArray getDbaseList(String sUser) {
+    JSONArray arDbNewList = servlet.getUserDbList();
+    JSONArray arDbList = null;
+    
     try {
       // Check if we already have the dblist for this user
-      JSONArray arDbList = servlet.getUserDbList();
-      if (arDbList == null) {
+      if (arDbNewList == null) {
+        arDbNewList = new JSONArray();
         // Prepare the parameters for this request
         this.params.clear();
         this.params.put("userid", sUser);
@@ -1437,11 +1440,19 @@ public abstract class BaseResponse {
             !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
         // Get the list
         arDbList = oResp.getJSONArray("content");
+        // Transform the list
+        for (int i=0;i<arDbList.length();i++) {
+          JSONObject oDbItem = arDbList.getJSONObject(i);
+          oDbItem.put("DbaseId", i+1);
+          oDbItem.put("Name", oDbItem.getString("dbase"));
+          // Add to new list
+          arDbNewList.put(oDbItem);
+        }
         // Save it for future use
-        servlet.setUserDbList(arDbList);
+        servlet.setUserDbList(arDbNewList);
       }
       // Get the list of CRPs
-      return arDbList;
+      return arDbNewList;
 
     } catch (Exception ex) {
       logger.DoError("getDbaseList: could not complete", ex);
@@ -1919,7 +1930,203 @@ public abstract class BaseResponse {
       return "error (getCorpusList)";
     }
   }
+  /**
+   * getCorpusInfo -- Read the corpus information (which has been read
+   *                    from file through CrpUtil) and transform it
+   *                    into an HTML table
+   * @return -- HTML string containing a table with corpus information
+   */
+  public String getCorpusInfo() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+    try {
+      // Get the array of users
+      JSONArray arCorpora = servlet.getCorpora();
+      // Check if anything is defined
+      if (arCorpora.length() == 0) {
+        
+      } else {
+        // Provide necessary starting div
+        sb.append("<div class=\"large-16 medium-16 small-16\">\n"+
+                "<div id=\"perhit\" class=\"result-pane tab-pane active lightbg haspadding\">\n"+
+                "<div class=\"gradient\"></div>\n");
+        // Start a table
+        sb.append("<table>\n");
+        // Headings of the table
+        sb.append("<thead>\n" +
+          "<tr class=\"tbl_head\">\n" +
+            "<th class=\"tbl_conc_left\">" + labels.getString("corpora.index")+"</th>\n"+
+            "<th class=\"tbl_conc_hit\">" + labels.getString("corpora.eth")+"</th>\n"+
+            "<th class=\"tbl_conc_right\">" + labels.getString("corpora.name")+"</th>\n"+
+            "<th class=\"tbl_lemma\">" + labels.getString("corpora.dir")+"</th>\n"+
+            "<th class=\"tbl_pos\">" + labels.getString("corpora.lng")+"</th>\n"+
+          "</tr></thead>\n");
+        // start table body
+        sb.append("<tbody>\n");
+        // Check if this user may log in
+        for (int i = 0 ; i < arCorpora.length(); i++) {
+          // Get this object
+          JSONObject oCorpus = arCorpora.getJSONObject(i);
+          // Read the languages from here
+          String sLng = oCorpus.getString("lng");
+          String sLngName = oCorpus.getString("name");
+          String sLngEth = oCorpus.getString("eth");
+          // Read the information from the different parts
+          JSONArray arPart = oCorpus.getJSONArray("parts");
+          for (int j = 0; j< arPart.length(); j++) {
+            // Get this part as an object
+            JSONObject oPart = arPart.getJSONObject(j);
+            // Get the specification of this part
+            String sName = oPart.getString("name");
+            String sDir = oPart.getString("dir");
+            String sDescr = oPart.getString("descr");
+            String sUrl = oPart.getString("url");
+            // Create a line for the table
+            String sLinkId = "crp_" + (i+1) + "_" + (j+1);
+            sb.append("<tr class=\"concordance\" onclick=\"crpstudio.corpora.showDescr('#" + sLinkId + "');\">\n"+
+                    "<td>" + sLng + "</td>"+
+                    "<td>" + sLngEth + "</td>"+
+                    "<td>" + sName + "</td>"+
+                    "<td>" + sDir + "</td>"+
+                    "<td>" + sLngName + "</td></tr>\n");
+            // Check if downloading is possible for this one
+            String sDownLoad = "";
+            if (oPart.has("psdx")) 
+              sDownLoad += "<br>download: <a href='#' onclick=\"crpstudio.corpora.download('"+
+                      oPart.getString("psdx")+"')\">psdx (in .tar.gz)</a>";
+            if (oPart.has("folia")) 
+              sDownLoad += "<br>download: <a href='#' onclick=\"crpstudio.corpora.download('"+
+                      oPart.getString("folia")+"')\">folia (in .tar.gz)</a>";
+            sb.append("<tr  class=\"citationrow hidden\">"+
+                    "<td colspan='5'><div class=\"collapse inline-concordance\" id=\"" + sLinkId +"\">" + 
+                    sDescr + "<br>see: <a href='" + sUrl + "'>"+ sUrl + "</a>"+ sDownLoad +
+                    "</div></td></tr>\n");
+          }
+        }      
+        // Finish table
+        sb.append("</tbody></table>\n");
+        // Finish div
+        sb.append("</div></div>\n");
+      }
+      // Return the string we made
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getCorpusInfo: could not complete", ex);
+      return "error (getCorpusInfo)";
+    }
+  }
   
+  /**
+   * makeMetaVarList
+   *    Convert the list of meta-variables into a list with id's
+   * 
+   * @return 
+   */
+  public boolean makeMetaVarList() {
+    int iMtvId = 0;    // Unique identifier per metavar section
+    
+    try {
+      // Get the array of corpora
+      JSONArray arStart = servlet.getMetavarStart();
+      JSONArray arBack = new JSONArray();
+      // Validate
+      if (arStart == null) return false;
+      // Walk the list
+      for (int i = 0 ; i < arStart.length(); i++) { 
+        // Get this object
+        JSONObject oStart = arStart.getJSONObject(i);  
+        String sMtvName = oStart.getString("name");
+        // Create new id
+        iMtvId += 1; int iVarId = 0;
+        // Get and walk the variables 
+        JSONArray arVar = oStart.getJSONArray("variables");
+        for (int j=0;j<arVar.length();j++) {
+          JSONObject oVar = arVar.getJSONObject(j);
+          // Add all needed information
+          iVarId += 1;
+          oVar.put("MtvId", iMtvId);
+          oVar.put("VarId", iVarId);
+          oVar.put("mtvName", sMtvName);
+          // Put the result into an array
+          arBack.put(oVar);
+        }
+        // Put the resulting array back
+        servlet.setMetavars(arBack);
+      }
+      // Return success
+      return true;
+    } catch (Exception ex) {
+      logger.DoError("makeMetaVarList: could not complete", ex);
+      return false;
+    }
+  }
+  
+  /**
+   * makeCorpusParts
+   *    If the list of corpora (servlet.getCorpora) has not been 
+   *      transformed into a list of corpus-parts, then do this now
+   * 
+   * @return 
+   */
+  public boolean makeCorpusParts() {
+    int iCorpusId = 0;    // Unique identifier per corpus-part
+    
+    try {
+      // Get the array of corpora
+      JSONArray arCorpora = servlet.getCorpora();
+      // Validate
+      if (arCorpora == null) return false;
+      // Get the corpus parts
+      JSONArray arCorpusParts = servlet.getCorpusParts();
+      // Check if it has been made already
+      if (arCorpusParts == null) {
+        // Create a new array
+        arCorpusParts = new JSONArray();
+        // Walk the list of corpora
+        for (int i = 0 ; i < arCorpora.length(); i++) {
+          // Get this object
+          JSONObject oCorpus = arCorpora.getJSONObject(i);
+          // Read the languages from here
+          String sLng = oCorpus.getString("lng");
+          String sLngName = oCorpus.getString("name");
+          String sLngEth = oCorpus.getString("eth");
+          // Read the information from the different parts
+          JSONArray arPart = oCorpus.getJSONArray("parts");
+          for (int j = 0; j< arPart.length(); j++) {
+            // Get this part as an object
+            JSONObject oPart = arPart.getJSONObject(j);
+            // Get the specification of this part
+            String sName = oPart.getString("name");
+            String sDir = oPart.getString("dir");
+            String sDescr = oPart.getString("descr");
+            String sUrl = oPart.getString("url");
+            // Create an object with all the information of this corpus-part
+            JSONObject oCorpusPart = new JSONObject();
+            iCorpusId +=1;
+            oCorpusPart.put("CorpusId", iCorpusId);
+            oCorpusPart.put("lng", sLng);
+            oCorpusPart.put("lngName", sLngName);
+            oCorpusPart.put("lngEth", sLngEth);
+            oCorpusPart.put("part", sName);
+            oCorpusPart.put("dir", sDir);
+            oCorpusPart.put("descr", sDescr);
+            oCorpusPart.put("url", sUrl);
+            String sMetaVar = "";
+            if (oPart.has("metavar")) sMetaVar = oPart.getString("metavar");
+            oCorpusPart.put("metavar", sMetaVar);
+            // Add this to the corpus-parts list
+            arCorpusParts.put(oCorpusPart);
+          }
+        }
+        // Set the corpus parts array we made
+        servlet.setCorpusParts(arCorpusParts);
+      }
+      // Return success
+      return true;
+    } catch (Exception ex) {
+      logger.DoError("makeCorpusParts: could not complete", ex);
+      return false;
+    }
+  }
 
   /**
    * getTabSpecsList

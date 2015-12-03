@@ -11,45 +11,86 @@ var crpstudio = (function ($, crpstudio) {
   crpstudio.dbase = (function ($, config) {
     // Local variables within crpstudio.project
     var loc_tab = "project",    // The main tab we are on (equals to "project_editor")
-    loc_currentDb= "",          // The currently being executed project (the CRP name)
-    loc_currentLng= "",         // the "lng" parameter of the current project
-    loc_currentDir= "",         // the "dir" parameter of the current project
-    loc_divStatus= "",          // The name of the div where the status is to be shown
-    loc_recentDb= "",           // Recently used dbase
-    loc_interval= 200,          // Number of milliseconds
-    loc_typingTimer= null,      // Timer to make sure we react only X seconds after typing
-    loc_doneTypingIntv= 2000,   // Stop-typing interval= 2 seconds
+        bIsSelecting =  false,  // Flag to indicate that selection changes take place
+        currentDbs= -1,         // The id of the currently being executed database
+        loc_currentDbase = "",  // Name of current database
+        loc_recentDbase = "",   // Name of recent dbase
     loc_ctlCurrent= null;       // Current control
-    // Methods that are local to [crpstudio.project]
+    
+    // Methods that are local to [crpstudio.dbase]
     var private_methods = {
       
     };
     // Methods that are exported by [crpstudio.project] for others
     return {
+      // Getters for some 'global' variables used by crpstudio.result
+      getDbs: function() { return currentDbs;},
+
       /* ---------------------------------------------------------------------------
        * Name: switchtab
        * Goal: switch the tab within the [Databases] page
        * History:
        * 29/sep/2015  ERK Created
        */
-      switchTab : function(target, sRecentDb) {
+      switchTab : function(target, sRecentDb, bForce) {
         crpstudio.main.debug("switching to dbase tab "+target+" from "+loc_tab);
-        if (target !== loc_tab) {
+        if (target !== loc_tab || bForce) {
           $("#search .content").removeClass("active");
           $("#"+target).addClass("active");
           $("#subnav dd").removeClass("active");
           $("#"+target+"_link").addClass("active");
+          // Reset the status message in the target
+          $("#"+target+"_status").text("");
+          // Make sure the global variable is set correctly
+          loc_tab = target;
+          // Initially hide *all* SELECTORs
+          $("#dbase_explore").hide(); $("#dbase_editor").hide();
+          
+          // Remove textarea event handlers
+          /*
+          $("#query_general_top").unbind();
+          $("#def_general_top").unbind();
+          */
+          
+          // Capture the current selecting state
+          var bSelState = bIsSelecting;
+
           // Action depends on target 
           switch (target) {
-            case "dbase_editor":
-              break;
             case "dbase_explore":
-              // Do we have a 'recent' db?
-              if (sRecentDb && sRecentDb !== "") {
-                // Show the recent ones
-                $("#project_list li .crp-recent").show();
-                loc_recentDb = sRecentDb;
-              } 
+              // Selecting...
+              bIsSelecting = true;
+              // Fill the list of editor information
+              crpstudio.list.showlist("dbase", currentDbs);
+              
+              // Show the editor selector
+              $("#dbase_explore").show();
+              // Show the contents of the explorer
+              $("#dbase_general_explore").removeClass("hidden");
+              $("#dbase_general_editor").addClass("hidden");
+              // Call setCrpItem() which should check if a 'default' item needs to be shown
+              crpstudio.list.setCrpItem(null, "dbase", -1);    
+              
+              // NOTE: do *NOT* add change events
+              
+              break;
+            case "dbase_editor":
+              // Selecting...
+              bIsSelecting = true;
+              // Fill the list of editor information
+              crpstudio.list.showlist("dbase", currentDbs);
+              
+              // Show the editor selector
+              $("#dbase_editor").show();
+              // Show the contents of the editor
+              $("#dbase_general_explore").addClass("hidden");
+              $("#dbase_general_editor").removeClass("hidden");
+              // Call setCrpItem() which should check if a 'default' item needs to be shown
+              crpstudio.list.setCrpItem(null, "dbase", -1);          
+
+              // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
+              crpstudio.dbase.addChangeEvents("dbase_general");
+
               break;
             default:
               break;
@@ -62,6 +103,58 @@ var crpstudio = (function ($, crpstudio) {
           loc_tab = target;
         }
       },
+      
+      /**
+       * setDbsItemBefore 
+       *    Actions in first part of crpstudio.list.setCrpItem()
+       * 
+       * @param {type} sType
+       * @param {type} iItemId
+       * @returns {undefined}
+       */
+      setDbsItemBefore : function(sType, iItemId) {
+        switch (sType) {
+          case "dbase":
+            break;
+        }        
+        // Indicate we are selecting
+        var bSelState = bIsSelecting;
+        bIsSelecting = true;
+        return bSelState;
+      },
+      
+      /**
+       * setDbsItemAfter
+       *    Actions in second part of crpstudio.list.setCrpItem()
+       * 
+       * @param {string}  sType
+       * @param {int}     iItemId
+       * @param {bool}    bSelState
+       * @param {object}  oArgs
+       * @returns {undefined}
+       */
+      setDbsItemAfter : function(sType, iItemId, bSelState, oArgs) {
+        if (iItemId && iItemId >=0) {
+
+          // type-specific actions *AFTER* a corpus change has taken place
+          switch (sType) {
+            case "dbase":
+              // Set the id of the currently selected query
+              currentDbs = iItemId;
+              break;
+          }
+        } else {
+          // SOme actions depend upon the type
+          switch (sType) {
+            case "dbase":
+              break;
+          }
+          
+        }
+        // We are no longer selecting
+        bIsSelecting = bSelState;
+      },      
+      
       /* ---------------------------------------------------------------------------
        * Name: setDbase
        * Goal: the user chooses a database, so act on this
@@ -76,11 +169,11 @@ var crpstudio = (function ($, crpstudio) {
         $("#dbase_download").addClass("hidden");
         // Look at all the <li> children of <ul>
         var listHost = listItem.parent();
-        listHost.children('li').each(function() { $(this).removeClass("active")});
+        listHost.children('li').each(function() { $(this).removeClass("active");});
         // Set the "active" class for the one the user has selected
         $(listItem).addClass("active");
         // Make sure the active class is selected
-        loc_currentDb = sDbName;
+        loc_currentDbase = sDbName;
         // Also set the name of the currently selected project in a div
         $("#dbase_current").text(sDbName);
         // And set the name of the project in the top-bar div
@@ -98,8 +191,9 @@ var crpstudio = (function ($, crpstudio) {
           "type": "info", "userid": crpstudio.currentUser };
         var params = JSON.stringify(oArgs);
 
-        Crpstudio.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
+        crpstudio.maingetCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
       },
+      
       /**
        * processLoad
        *    What to do when a database has been loaded
@@ -133,17 +227,17 @@ var crpstudio = (function ($, crpstudio) {
               $("#dbase_general_datecreated").html(sDateCreated);
               $("#dbase_general_comments").val(sComments);
 
-              // Add event handlers on all INPUT elements under "project_general"
+              // Add event handlers on all INPUT elements under "dbase_general"
               $("#dbase_general input").on("change keydown paste input", 
                 function() {crpstudio.dbase.ctlTimer(this);});
 
-              // Add event handlers on all TEXTAREA elements under "project_general"
+              // Add event handlers on all TEXTAREA elements under "dbase_general"
               $("#dbase_general textarea").on("change keydown paste input", 
-                function() {crpstudio.project.ctlTimer(this);});
+                function() {crpstudio.dbase.ctlTimer(this);});
 
-              // Add event handlers on all SELECT elements under "project_general"
+              // Add event handlers on all SELECT elements under "dbase_general"
               $("#dbase_general select").on("change keydown paste input", 
-                function() {crpstudio.project.ctlTimer(this);});
+                function() {crpstudio.dbase.ctlTimer(this);});
 
               // Make the General area visible again
               $("#dbase_general").removeClass("hidden");
@@ -163,6 +257,7 @@ var crpstudio = (function ($, crpstudio) {
           $("#dbase_status").html("ERROR - Failed to load the .xml database from the server.");
         }    
       },  
+      
       /**
        * uploadDbFile
        *    Ask user to upload a .xml database file
@@ -178,7 +273,7 @@ var crpstudio = (function ($, crpstudio) {
         // TODO: convert to .tar.gz
         // 
         // Use the standard readXmlFile function
-        Crpstudio.readXmlFile(oFile, function(e) {
+        crpstudio.main.readXmlFile(oFile, function(e) {
           // Get the text of the uploaded CRP into a variable
           var text = encodeURIComponent(e.target.result);
           // Signal what we are doing
@@ -191,9 +286,10 @@ var crpstudio = (function ($, crpstudio) {
             "db": text, "userid": crpstudio.currentUser };
           var params = JSON.stringify(oArgs);
 
-          Crpstudio.getCrpStudioData("upload-db", params, crpstudio.dbase.processUpLoad, "#dbase_description");
+          crpstudio.main.getCrpStudioData("upload-db", params, crpstudio.dbase.processUpLoad, "#dbase_description");
         });
       },
+      
       /**
        * processUpLoad
        *    What to do when a project has been loaded
@@ -257,6 +353,7 @@ var crpstudio = (function ($, crpstudio) {
           $("#dbase_status").html("ERROR - Failed to upload the result database to the server.");
         }    
       },  
+      
       /**
        * removeDbFile
        *    Check which Db is currently selected (if any)
@@ -271,7 +368,7 @@ var crpstudio = (function ($, crpstudio) {
         // Make sure download info is hidden
         $("#dbase_download").addClass("hidden");
         // Find out which one is currently selected
-        var sDbName = loc_currentDb;
+        var sDbName = loc_currentDbase;
         if (sDbName && sDbName !== "") {
           // Note: /crpstudio must check when the last download of this project was
           // Send this information to the /crpstudio
@@ -281,9 +378,10 @@ var crpstudio = (function ($, crpstudio) {
             "userid": crpstudio.currentUser };
           var params = JSON.stringify(oArgs);      
 
-          Crpstudio.getCrpStudioData("remove-db", params, crpstudio.dbase.processRemove, "#dbase_description");      
+          crpstudio.main.getCrpStudioData("remove-db", params, crpstudio.dbase.processRemove, "#dbase_description");      
         }
       },
+      
       /**
        * processRemove
        *    Brushing up after project has been deleted
@@ -325,6 +423,7 @@ var crpstudio = (function ($, crpstudio) {
           $("#dbase_status").html("ERROR - Failed to remove the result database from the server.");
         }    
       },   
+      
       /**
        * downloadDbFile
        *    Check which Db is currently selected (if any)
@@ -336,7 +435,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       downloadDbFile : function(elDummy) {
         // Find out which one is currently selected
-        var sDbName = loc_currentDb;
+        var sDbName = loc_currentDbase;
         if (sDbName && sDbName !== "") {
           // Note: /crpstudio must check when the last download of this project was
           // Send this information to the /crpstudio
@@ -346,9 +445,10 @@ var crpstudio = (function ($, crpstudio) {
             "userid": crpstudio.currentUser };
           var params = JSON.stringify(oArgs);
 
-          Crpstudio.getCrpStudioData("download-db", params, crpstudio.dbase.processDownload, "#dbase_description");      
+          crpstudio.main.getCrpStudioData("download-db", params, crpstudio.dbase.processDownload, "#dbase_description");      
         }
       },  
+      
       /**
        * processDownload
        *    Actions after project has been prepared for downloading
@@ -395,6 +495,7 @@ var crpstudio = (function ($, crpstudio) {
           $("#dbase_status").html("ERROR - Failed to download results database.");
         }    
       },
+      
       /**
        * ctlChange
        *    Process changes in the <input>, which is 'source'
@@ -420,13 +521,42 @@ var crpstudio = (function ($, crpstudio) {
           default: return;
         }
         // Pass on this value to /crpstudio and to /crpp
-        var oArgs = { "dbase": loc_currentDb,
+        var oArgs = { "dbase": loc_currentDbase,
           "userid": crpstudio.currentUser, 
           "key": sKey, "value": sValue };
         // var params = "changes=" + JSON.stringify(oChanges);
         var params = JSON.stringify(oArgs);
-        Crpstudio.getCrpStudioData("dbchg", params, crpstudio.dbase.processDbChg, "#dbase_description");      
+        crpstudio.main.getCrpStudioData("dbchg", params, crpstudio.dbase.processDbChg, "#dbase_description");      
       },  
+
+      /**
+       * addChangeEvents
+       *    Add pointers to ctlTimer()
+       *    Do this for all [input], [textarea] and [select] elements
+       *       that are under DOM element with id [sItemId]
+       * 
+       * @param {type} sItemId
+       * @returns {undefined}
+       */
+      addChangeEvents : function(sItemId) {
+        var sId = "#" + sItemId;
+        // Add event handlers on all INPUT elements under "dbase_general"
+        $(sId + " input").on("change paste input", 
+          function() {crpstudio.dbase.ctlTimer(this, "input");});
+        // Checkbox: bind on the click event
+        $(sId + " input:checkbox").on("click", 
+          function() {crpstudio.dbase.ctlTimer(this, "input");});
+        // Note: do not set the .on("blur") event, because that is not really necessary
+
+        // Add event handlers on all TEXTAREA elements under "dbase_general"
+        $(sId + " textarea").on("change paste input", 
+          function() {crpstudio.dbase.ctlTimer(this, "textarea");});
+
+        // Add event handlers on all SELECT elements under "dbase_general"
+        $(sId + " select").on("change paste input", 
+          function() {crpstudio.dbase.ctlTimer(this, "select");});
+
+      }, 
 
       /**
        * ctlTimer
@@ -445,23 +575,41 @@ var crpstudio = (function ($, crpstudio) {
         loc_typingTimer = setTimeout(crpstudio.project.ctlChanged, 
           loc_doneTypingIntv);
       },
-      /* ---------------------------------------------------------------------------
-       * Name: setSizes
-       * Goal: set the size of the id="project" window
-       * History:
-       * 22/jun/2015  ERK Created
+
+      /**
+       * setSizes -- Function called upon creation of the page
+       * 
+       * @returns {undefined}
        */
       setSizes : function() {
-        // Calculate sh
-        var sh = ($(window).innerHeight() - 135) / 2 - 130;
-        // Set the minimal height
-        var minHeight = 30;
-        // Make sure we have a minimal height
-        if (sh < minHeight) { sh = minHeight; }
-        // Set the top-margin, so that what we show is really LOW
-        // DISABLED!!!
-        // $("#project").css("margin-top",sh+"px");
-        crpstudio.main.setNavigationSize();
+        // Issue a request to /crpstudio to get the list of corpora and of metavar parameters
+        var oArgs = { "userid": crpstudio.currentUser, "type": "dbases" };
+        var params = JSON.stringify(oArgs);
+        crpstudio.main.getCrpStudioData("load", params, crpstudio.dbase.processDbaseInit, "");        
+      },
+      
+      /**
+       * processDbaseInit
+       *    Process fetching dbase tab initialisation information
+       * 
+       * @param {type} response
+       * @param {type} target
+       * @returns {undefined}
+       */
+      processDbaseInit : function(response, target) {
+        if (response !== null) {
+          // The response is a standard object containing "status" (code) and "content" (code, message)
+          var oStatus = response.status;
+          var sStatusCode = oStatus.code;
+          var oContent = response.content;
+          switch (sStatusCode) {
+            case "completed":
+              crpstudio.dbs_edtlist = oContent.dbaselist;
+              // Show the recent ones
+              // crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
+              break;
+          }
+        }
       }
         
     }

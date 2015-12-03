@@ -1,3 +1,75 @@
+  <!-- the part to the right of the side-bar: GENERAL contents of this corpus -->
+  <div id="corpus_general_editor" class="large-12 medium-12 small-12 columns">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("general")</legend>
+        <div id="corpus_description" class="large-16 medium-16 small-16 row">
+          <i>(no corpus selected)</i>
+        </div>
+        <div id="corpus_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="corpus_general_top" class="large-16 medium-16 small-16 row">
+            <!-- Corpus main PART -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("corpus.general.part")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="corpus_general_part" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="corpus_general_part_error" class="hidden">Corpus name must be new and not have spaces</small>
+              </div>
+            </div>
+            <!-- Corpus section DIR -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("corpus.general.dir")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="corpus_general_dir" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="corpus_general_dir_error" class="hidden">Corpus name must be new and not have spaces</small>
+              </div>
+            </div>
+            <!-- Corpus LANGUAGE -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("corpus.general.lngname")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <select id="corpus_general_lngname" class="general_input"  placeholder="select a language">
+                  <!-- the languagelist is derived from crp-info.json -->
+                </select>
+              </div>
+            </div>
+            <!-- Corpus URL for more information -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("corpus.general.url")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="corpus_general_url" class="left general_input" type="text" placeholder="url">
+              </div>
+            </div>
+            <!-- Corpus METAVAR -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("corpus.general.metavar")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <select id="corpus_general_metavar" class="general_input"  placeholder="select a variable set">
+                  <!-- the metavar list is derived from crp-info.json -->
+                </select>
+              </div>
+            </div>
+            <!-- Corpus's DESCRIPTION -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("corpus.general.descr")
+                <textarea id="corpus_general_comment" spellcheck="false" placeholder="Description of this corpus" rows="10"></textarea>
+              </label>
+            </div>          
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
 		<div class="large-8 large-offset-4 medium-10 medium-offset-3 small-12 small-offset-2">
 			<div>
         <!-- look in "crpedit.vm" -->

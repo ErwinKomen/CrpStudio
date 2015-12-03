@@ -73,7 +73,9 @@ public class CrpStudio extends HttpServlet {
 	private LinkedList<FieldDescriptor> searchFields = null;
   private List<String> lngIndices = null;
   private JSONArray objCorpora = null;
-  private JSONArray objMetavar = null;
+  private JSONArray objCorpusParts = null;
+  private JSONArray objMetavarStart = null;   // Initial list
+  private JSONArray objMetavar = null;        // List containing id's
 	private String contextRoot;
   private TemplateManager templateMan;
   private CrpUtil crpUtil;
@@ -104,7 +106,11 @@ public class CrpStudio extends HttpServlet {
   public CrpUtil getCrpUtil() {return crpUtil;}
   public ErrHandle getErrHandle() {return errHandle;}
   public JSONArray getCorpora() { return objCorpora;}
+  public JSONArray getCorpusParts() { return objCorpusParts;}
+  public void setCorpusParts(JSONArray aTable) { objCorpusParts = aTable;}
   public JSONArray getMetavars() { return objMetavar;}
+  public void setMetavars(JSONArray aTable) {objMetavar = aTable;}
+  public JSONArray getMetavarStart() { return objMetavarStart;}
   public String getRequestMethod() { return sRequestMethod;}
   public CrpContainer getCrpContainer() { return crpContainer; }
   public JSONArray getUpdateContent() { return arUpdateContent; }
@@ -297,7 +303,7 @@ public class CrpStudio extends HttpServlet {
         String sCorpora = oContent.getString("corpora");
         JSONObject oCorpora = new JSONObject(sCorpora);
         objCorpora = oCorpora.getJSONArray("corpora");
-        objMetavar = oCorpora.getJSONArray("metavar");
+        objMetavarStart = oCorpora.getJSONArray("metavar");
       }
       // Return to the caller negatively
       return false;
@@ -331,7 +337,6 @@ public class CrpStudio extends HttpServlet {
 		}
 		return null;
 	}
-
   
   /**
    * getCurrentMemUsage -- find out what the current memory usage is

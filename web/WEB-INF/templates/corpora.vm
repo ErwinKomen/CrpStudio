@@ -39,7 +39,7 @@
 			#elseif($tabcrp == "grouping")
 				#set($grouping_active = "active")
       #end
-		
+      <div id="corpus_status"></div>
 			<div id="corpus_explore" class="large-16 medium-16 small-16 content $explore_active">
 				#parse("crpmain.vm")
 			</div>

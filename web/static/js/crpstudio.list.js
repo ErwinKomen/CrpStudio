@@ -31,7 +31,7 @@ var crpstudio = (function ($, crpstudio) {
           case "project":     crpstudio.prj_crplist = oList; break;
           case "query":       
             crpstudio.prj_qrylist = oList;
-            // Re-do the list on the Constructor editor
+            // TODO: Re-do the list on the Constructor editor
             
             break;
           case "definition":  crpstudio.prj_deflist = oList;break;
@@ -39,6 +39,7 @@ var crpstudio = (function ($, crpstudio) {
           case "dbfeat":      crpstudio.prj_dbflist = oList;break;
           case "corpus":      crpstudio.crp_edtlist = oList; break;
           case "grouping":    crpstudio.crp_grplist = oList; break;
+          case "metavar":     crpstudio.crp_mvrlist = oList; break;
           case "dbase":       crpstudio.dbs_edtlist = oList; break;
         }
       },
@@ -49,9 +50,10 @@ var crpstudio = (function ($, crpstudio) {
        * 
        * @param {type} sListType
        * @param {type} sSortField -- optional item
+       * @param {type} sSortType  -- optional item
        * @returns {object}    the indicated array/list
        */
-      getList : function(sListType, sSortField) {
+      getList : function(sListType, sSortField, sSortType) {
         var oList = [];   // JSON type list of objects
         // Find the correct list
         switch(sListType) {
@@ -62,6 +64,7 @@ var crpstudio = (function ($, crpstudio) {
           case "dbfeat":      oList = crpstudio.prj_dbflist;break;
           case "corpus":      oList = crpstudio.crp_edtlist; break;
           case "grouping":    oList = crpstudio.crp_grplist; break;
+          case "metavar":     oList = crpstudio.crp_mvrlist; break;
           case "dbase":       oList = crpstudio.dbs_edtlist; break;
         }
         if (oList === null) oList = [];
@@ -71,7 +74,7 @@ var crpstudio = (function ($, crpstudio) {
           // Copy the array
           for (var i=0;i<oList.length;i++) oSorted.push(oList[i]);
           // Sort the array in-place, depending on the type
-          if (sSortField === "Name") {
+          if (sSortField === "Name" || (sSortType && sSortType === "txt")) {
             oSorted.sort( function(a,b) {
               var iCmp = 0;
               var sA = a[sSortField].toLowerCase();
@@ -97,6 +100,34 @@ var crpstudio = (function ($, crpstudio) {
         }
       },
       
+      /**
+       * getListItem
+       *    Access the list for @sListName, and return the object identified
+       *    by <sField, sValue>
+       * 
+       * @param {string} sListType
+       * @param {string} oCondition - object with feature/value items
+       * @returns {object}
+       */
+      getListItem : function(sListType, oCondition) {
+        var oList = crpstudio.list.getList(sListType);   // JSON type list of objects
+        // OLD: if (sListType === "project" || oList === null) return oList;
+        if (oList === null) return oList;
+        // Walk all the elements of the list
+        for (var i=0;i<oList.length;i++) {
+          var oOneItem = oList[i];
+          // Check all the conditions in oCondition
+          var bOkay = true;
+          for (var cond in oCondition) {
+            if (oOneItem[cond] !== oCondition[cond]) {bOkay = false; break;}
+          }
+          // Only if all conditions are matched do we return a 'winner'
+          if (bOkay) return oOneItem;
+        }
+        // Didn't get it
+        return null;
+      },
+
       /**
        * getItemDescr
        *    Get the correct item from "prj_access", which describes the details
@@ -170,7 +201,7 @@ var crpstudio = (function ($, crpstudio) {
         // Access a descriptor of this list type
         var oItemDesc = crpstudio.list.getItemDescr(sListType);
         // Find the correct list and get a *sorted* copy of it
-        oList = crpstudio.list.getList(sListType, oItemDesc.sortfield);
+        oList = crpstudio.list.getList(sListType, oItemDesc.sortfield, oItemDesc.sorttype);
         // Find the prefix
         var sPrf = oItemDesc.prf;
         sLoc = "#" + sListType + "_list" + " ." + sPrf + "-available";
@@ -180,7 +211,7 @@ var crpstudio = (function ($, crpstudio) {
         // QC:  "QCid;Input;Query;Output;Result;Cmp;Mother;Goal;Comment"
         // DBF: "DbFeatId;Name;Pre;QCid;FtNum"
         // CRP: "CrpId;Name;Language;Part;Author;ProjectType;Goal;Created;Changed;DbaseInput;Comments"
-        // CPS: "CorpusId;Name"
+        // COR: "CorpusId;lng;lngName;lngEth;part;descr;url;metavar"
         // GRP: "GrpId;Name"
         // MTV: "MtvId;Name"
         // DBS: "DbaseId;Name"
@@ -224,6 +255,21 @@ var crpstudio = (function ($, crpstudio) {
                         oOneItem.DbFeatId +")\">" + 
                         "<div class='list_12'>"+oOneItem.FtNum + "</div>" + 
                         "<div class='list_22'>"+oOneItem.Name + "</div>"; break;
+              case "corpus": 
+                if (parseInt(oOneItem.DbFeatId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.list.setCrpItem(this, 'corpus', "+ 
+                        oOneItem.CorpusId +")\">" + 
+                        "<div class='list_12'>"+oOneItem.lng + "</div>" + 
+                        "<div class='list_22'>"+oOneItem.part + "</div>"; break;
+                 // COR: "CorpusId;lng;lngName;lngEth;part;descr;url;metavar"
+              case "grouping": 
+                if (parseInt(oOneItem.DefId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.list.setCrpItem(this, 'grouping', "+ 
+                        oOneItem.MtvId +")\">" + oOneItem.Name; break;
+              case "dbase": 
+                if (parseInt(oOneItem.DefId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.list.setCrpItem(this, 'dbase', "+ 
+                        oOneItem.DbaseId +")\">" + oOneItem.Name; break;
             }
             sOneItem += "</a></li>\n";
             arHtml.push(sOneItem);
@@ -279,8 +325,6 @@ var crpstudio = (function ($, crpstudio) {
        * @param {item} target           - pointer to <a> element
        * @param {string} sType          - the kind of item
        * @param {int} iItemId           - numerical id of the item
-       * @param {function} fn_before    - function to call back in first part
-       * @param {function} fn_after     - function to call back in second part
        * @returns {undefined}   - none
        * @history
        *  8/oct/2015  ERK Created
@@ -322,6 +366,24 @@ var crpstudio = (function ($, crpstudio) {
               }
               break;
             case "dbase":
+              if (crpstudio.dbs_edtlist.length > 0) {
+                iItemId = (crpstudio.dbase.getDbs()>=0) ? crpstudio.dbase.getDbs() : parseInt(crpstudio.dbs_edtlist[0].DbaseId,10);
+              }
+              break;
+            case "corpus":
+              if (crpstudio.crp_edtlist.length > 0) {
+                iItemId = (crpstudio.corpora.getCor()>=0) ? crpstudio.corpora.getCor() : parseInt(crpstudio.crp_edtlist[0].CorpusId,10);
+              }
+              break;
+            case "metavar":
+              if (crpstudio.crp_mvrlist.length > 0) {
+                iItemId = (crpstudio.corpora.getMtv()>=0) ? crpstudio.corpora.getMtv() : parseInt(crpstudio.crp_mvrlist[0].MtvId,10);
+              }
+              break;
+            case "grouping":
+              if (crpstudio.crp_grplist.length > 0) {
+                iItemId = (crpstudio.corpora.getGrp()>=0) ? crpstudio.corpora.getGrp() : parseInt(crpstudio.crp_grplist[0].GrpId,10);
+              }
               break;
           }
           // Calculate the target <a> item...
@@ -418,8 +480,7 @@ var crpstudio = (function ($, crpstudio) {
           fn_after(sType, iItemId, bSelLocal, oArgs);
         }
         
-      },
-      
+      },      
       
       /**
        * itemListShow 
@@ -428,8 +489,6 @@ var crpstudio = (function ($, crpstudio) {
        * 
        * @param {string} sItemType
        * @param {int} iItemId
-       * @param {function} fn_before
-       * @param {function} fn_after
        * @returns {void}
        */
       itemListShow : function(sItemType, iItemId) {

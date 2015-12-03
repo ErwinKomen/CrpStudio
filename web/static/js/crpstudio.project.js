@@ -640,33 +640,6 @@ var crpstudio = (function ($, crpstudio) {
         }
       },
 
-      /**
-       * getListItem
-       *    Access the list for @sListName, and return the object identified
-       *    by <sField, sValue>
-       * 
-       * @param {string} sListType
-       * @param {string} oCondition - object with feature/value items
-       * @returns {object}
-       */
-      getListItem : function(sListType, oCondition) {
-        var oList = crpstudio.list.getList(sListType);   // JSON type list of objects
-        // OLD: if (sListType === "project" || oList === null) return oList;
-        if (oList === null) return oList;
-        // Walk all the elements of the list
-        for (var i=0;i<oList.length;i++) {
-          var oOneItem = oList[i];
-          // Check all the conditions in oCondition
-          var bOkay = true;
-          for (var cond in oCondition) {
-            if (oOneItem[cond] !== oCondition[cond]) {bOkay = false; break;}
-          }
-          // Only if all conditions are matched do we return a 'winner'
-          if (bOkay) return oOneItem;
-        }
-        // Didn't get it
-        return null;
-      },
 
       /**
        * setOneItem
@@ -3062,7 +3035,7 @@ var crpstudio = (function ($, crpstudio) {
         }
         // Get the list item with the new FtNum
         var oCondition = {"FtNum": iFtSwap.toString(), "QCid": iQCid.toString()};
-        var oItemSwap = private_methods.getListItem("dbfeat", oCondition);
+        var oItemSwap = crpstudio.list.getListItem("dbfeat", oCondition);
         var iDbFeatSwapId = parseInt(oItemSwap["DbFeatId"],10);
         // Issue two histAdd calls
         private_methods.histAdd("dbfeat", iDbFeatId, currentPrj, "FtNum", iFtSwap.toString());

@@ -39,13 +39,17 @@ public class LoadResponse extends BaseResponse {
           break;
         case "corpora":
           // Get the table with corpora information -- see crp-info.json
-          oContent.put("corpuslist", servlet.getCorpora());
+          if (!this.makeCorpusParts()) { sendErrorResponse("LoadResponse: could not makeCorpusParts()");  return;}
+          oContent.put("corpuslist", servlet.getCorpusParts());
           // Get the list of groupings
           oContent.put("groupinglist", this.getGroupings(sUserId));
           // Get the table containing corpus-dependant metavar definitions -- see crp-info.json
+          if (!this.makeMetaVarList()) { sendErrorResponse("LoadResponse: could not makeMetaVarList()");  return;}
           oContent.put("metavarlist", servlet.getMetavars());
           break;
         case "dbases":
+          // TODO: Pass on a list of databases and information about them
+          oContent.put("dbaselist", this.getDbaseList(sUserId));
           break;
         case "info":
           // Validate "project" parameter
