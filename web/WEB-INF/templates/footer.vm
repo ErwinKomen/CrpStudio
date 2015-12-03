@@ -38,7 +38,7 @@
 						crpstudio.corpora.setSizes();
 					});
 				#elseif($maintab == "dbases")
-					Crpstudio.dbase.setSizes();
+					crpstudio.dbase.setSizes();
 					$( window ).resize(function() {
 						Crpstudio.dbase.setSizes();
 					});

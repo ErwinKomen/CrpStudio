@@ -40,11 +40,6 @@ var crpstudio = (function ($, crpstudio) {
         cmDef =  null,            // 
         prj_dbaseinput =  "",     // Field value of this project =  dbaseinput (True/False)
         prj_language =  "",       // Field value of this project =  language
-        prj_deflist =  null,      // Field value of this project =  list of definitions
-        prj_qrylist =  null,      // Field value of this project =  list of queries
-        prj_qclist =  null,       // Field value of this project =  list of QC elements
-        prj_dbflist =  null,      // Field value of this project =  list of database features
-        prj_crplist =  null,      // List of currently available CRPs
         qry_current =  null,      // Currently loaded Query object
         def_current =  null,      // Currently loaded Definition object
         dbf_current =  null,      // Currently loaded DbFeat object
@@ -146,9 +141,9 @@ var crpstudio = (function ($, crpstudio) {
         // Validate: the @id must be 1 or higher
         if (!sItemType || !iItemId || iItemId <1) return;
         // Access the information object for this type
-        var oItemDesc = private_methods.getItemDescr(sItemType);
+        var oItemDesc = crpstudio.list.getItemDescr(sItemType);
         // Access the item from the correct list
-        var oListItem = private_methods.getListObject(sItemType, oItemDesc.id, iItemId);
+        var oListItem = crpstudio.list.getListObject(sItemType, oItemDesc.id, iItemId);
         // Determine the target project name
         var sTargetPrj = currentPrj;
         switch(sItemType) {
@@ -288,26 +283,6 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
-       * getItemDescr
-       *    Get the correct item from "prj_access", which describes the details
-       *    of the project's item
-       * 
-       * @param {type} sListType
-       * @returns {object}
-       */
-      getItemDescr : function(sListType) {
-        var oItem = null;
-        // Find the correct item
-        for (var i=0;i<config.prj_access.length;i++) {
-          oItem = config.prj_access[i];
-          // Check if this is the item
-          if (oItem.name === sListType) return oItem;
-        }
-        // Didn't find it
-        return null;
-      },
-
-      /**
        * itemCheck
        *    Check if item of type @sItemType kan have a @sKey with @sValue
        *    
@@ -320,7 +295,7 @@ var crpstudio = (function ($, crpstudio) {
       itemCheck : function(sItemType, iId, sKey, sValue) {
         var bOkay = true;
         // Find out which name needs to be checked
-        var oDescr = private_methods.getItemDescr(sItemType);
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
         var sListField = oDescr.listfield;
         var sIdField = oDescr.id;
         var sId = iId.toString();
@@ -333,7 +308,7 @@ var crpstudio = (function ($, crpstudio) {
             // Check if the name occurs already
             switch (sItemType) {
               case "project":
-                var oList = prj_crplist;
+                var oList = crpstudio.prj_crplist;
                 var sCurCrp = currentPrj;
                 // Walk the list
                 for (var i=0;i<oList.length;i++) {
@@ -345,7 +320,7 @@ var crpstudio = (function ($, crpstudio) {
                 }
                 break;
               default:
-                var oList = private_methods.getList(sItemType);
+                var oList = crpstudio.list.getList(sItemType);
                 // Walk the list
                 for (var i=0;i<oList.length;i++) {
                   // Get this item
@@ -394,11 +369,11 @@ var crpstudio = (function ($, crpstudio) {
        */
       itemNameCheck : function(sItemType, sItemName) {
         // Get the list
-        var oList = private_methods.getList(sItemType);
+        var oList = crpstudio.list.getList(sItemType);
         // If the list is emtpy, we are okay
         if (oList === null) return true;
         // Find out which name need to be checked
-        var oDescr = private_methods.getItemDescr(sItemType);
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
         var sListField = oDescr.listfield;
         // Walk the list
         for (var i=0;i<oList.length;i++) {
@@ -425,7 +400,7 @@ var crpstudio = (function ($, crpstudio) {
       itemPerculate : function(sItemType, iId, sCrp, sKey, sValue, sOldValue) {
         var bOkay = true;
         // Find out which item is changing
-        var oDescr = private_methods.getItemDescr(sItemType);
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
         var sListField = oDescr.listfield;
         // Not used now, but keep for future perculation tasks
         var sIdField = oDescr.id;
@@ -440,7 +415,7 @@ var crpstudio = (function ($, crpstudio) {
               var sLocation = private_methods.getItemFieldLoc(sItemType, sField);
               $("#"+sLocation).val(sValue);
               // Also change the @Result field of *this* object
-              var oList = prj_qclist;
+              var oList = crpstudio.prj_qclist;
               for (var i=0;i<oList.length;i++) {
                 // Get this item
                 var oItem = oList[i];
@@ -460,7 +435,7 @@ var crpstudio = (function ($, crpstudio) {
             // Check if this is the listfield (i.e. @Name)
             if (sListField === sKey) {
               // Also change the @Query field in the QC list -- where appropriate
-              var oList = prj_qclist;
+              var oList = crpstudio.prj_qclist;
               for (var i=0;i<oList.length;i++) {
                 var bChanged = false;
                 // Get this item
@@ -512,7 +487,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       qcDependant : function(iItemId) {
         // Get the list of QC items
-        var oList = private_methods.getList("constructor", "QCid");
+        var oList = crpstudio.list.getList("constructor", "QCid");
         // What are we looking for?
         var sCheck = iItemId.toString() + "/";
         // Walk the list
@@ -537,7 +512,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       qcRenumber : function(iItemId) {
         // Get the list of QC items
-        var oList = private_methods.getList("constructor", "QCid");
+        var oList = crpstudio.list.getList("constructor", "QCid");
         // Walk the list
         for (var i=0;i<oList.length;i++) {
           // Get this item
@@ -582,7 +557,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       dbfRenumber : function(iSkipId) {
         // Yes, need re-numbering: get the list sorted on FtNum
-        var oList = private_methods.getList("dbfeat", "FtNum");
+        var oList = crpstudio.list.getList("dbfeat", "FtNum");
         var iFtNum = 0;
         for (var i=0;i<oList.length;i++) {
           // Get this item
@@ -607,7 +582,7 @@ var crpstudio = (function ($, crpstudio) {
           }
         }
         // Set the sorted list back
-        private_methods.setList("dbfeat", oList);
+        crpstudio.list.setList("dbfeat", oList);
         
       },
       
@@ -622,9 +597,9 @@ var crpstudio = (function ($, crpstudio) {
        */
       getItemValue : function(sListType, iItemId, sCrp, sKey) {
         // Access the information object for this type
-        var oItemDesc = private_methods.getItemDescr(sListType);
+        var oItemDesc = crpstudio.list.getItemDescr(sListType);
         // Access the item from the correct list
-        var oListItem = private_methods.getListObject(sListType, oItemDesc.id, iItemId);
+        var oListItem = crpstudio.list.getListObject(sListType, oItemDesc.id, iItemId);
         // if the key equals the id field, then get the id value
         if (sKey === "id") {
           // Return the value of the id, but as a string
@@ -666,194 +641,6 @@ var crpstudio = (function ($, crpstudio) {
       },
 
       /**
-       * getList
-       *    Find the indicated list
-       * 
-       * @param {type} sListType
-       * @param {type} sSortField -- optional item
-       * @returns {object}    the indicated array/list
-       */
-      getList : function(sListType, sSortField) {
-        var oList = [];   // JSON type list of objects
-        // Find the correct list
-        switch(sListType) {
-          case "project":     oList = prj_crplist; break;
-          case "query":       oList = prj_qrylist;break;
-          case "definition":  oList = prj_deflist;break;
-          case "constructor": oList = prj_qclist;break;
-          case "dbfeat":      oList = prj_dbflist;break;
-        }
-        if (oList === null) oList = [];
-        // Check if sorting is needed
-        if (sSortField) {
-          var oSorted = [];
-          // Copy the array
-          for (var i=0;i<oList.length;i++) oSorted.push(oList[i]);
-          // Sort the array in-place, depending on the type
-          if (sSortField === "Name") {
-            oSorted.sort( function(a,b) {
-              var iCmp = 0;
-              var sA = a[sSortField].toLowerCase();
-              var sB = b[sSortField].toLowerCase();
-              if (sA !== sB)
-                iCmp = (sA > sB) ? 1 : 0;
-              return iCmp;
-            });
-          } else {
-            oSorted.sort( function(a,b) {
-              var iA = parseInt(a[sSortField],10);
-              var iB = parseInt(b[sSortField],10);
-              var iCmp = iA - iB;
-              return iCmp;
-            });
-          }
-          
-          // Return the sorted list
-          return oSorted;
-        } else {
-          // Return what we found
-          return oList;
-        }
-      },
-      
-      /**
-       * setList
-       *    Set the value of the indicated list
-       * 
-       * @param {type} sListType
-       * @param {type} oList
-       * @returns {void}
-       */
-      setList : function(sListType, oList) {
-        // Find the correct list
-        switch(sListType) {
-          case "project":     prj_crplist = oList; break;
-          case "query":       
-            prj_qrylist = oList;
-            // Re-do the list on the Constructor editor
-            
-            break;
-          case "definition":  prj_deflist = oList;break;
-          case "constructor": prj_qclist = oList; break;
-          case "dbfeat":      prj_dbflist = oList;break;
-        }
-      },
-
-      /**
-       * showlist -- create a set of <li> items to occur in the "available"
-       *             section of one of four different types:
-       *             "query", "definition", "constructor" or "dbfeat"
-       * 
-       * Notes: this function should *not* be used for the projectlist
-       *        nor for the databaselist. Those lists are created by /crpstudio
-       *        and sent here upon request            
-       *        
-       * Experimental: Type "project" has been added to see if we can use it for the project list after all
-       *             
-       * @param {string} sListType
-       * @returns {void} 
-       * @history
-       *  6/oct/2015  ERK Created
-       *  15/oct/2015 ERK 
-       */
-      showlist : function(sListType) {
-        var oList = null;   // JSON type list of objects
-        var sPrf = "";      // Prefix
-        var sLoc = "";      // Location on html
-        var arHtml = [];    // To gather the output
-
-        // Access a descriptor of this list type
-        var oItemDesc = private_methods.getItemDescr(sListType);
-        // Find the correct list and get a *sorted* copy of it
-        oList = private_methods.getList(sListType, oItemDesc.sortfield);
-        // Find the prefix
-        var sPrf = oItemDesc.prf;
-        sLoc = "#" + sListType + "_list" + " ." + sPrf + "-available";
-        // Calculate a list consisting of <li> items
-        // QRY: "QueryId;Name;File;Goal;Comment;Created;Changed"
-        // DEF: "DefId;Name;File;Goal;Comment;Created;Changed"
-        // QC:  "QCid;Input;Query;Output;Result;Cmp;Mother;Goal;Comment"
-        // DBF: "DbFeatId;Name;Pre;QCid;FtNum"
-        // CRP: "CrpId;Name;Language;Part;Author;ProjectType;Goal;Created;Changed;DbaseInput;Comments"
-        for (var i=0;i<oList.length;i++) {
-          var oOneItem = oList[i];
-          var bShow = true;
-          // Check if this item should be shown
-          switch (sListType) {
-            case "dbfeat":
-              // Only show the items that have the currently selected QCid
-              if (parseInt(oOneItem.QCid,10) !== currentQc) bShow = false;
-              break;
-          }
-          if (bShow) {
-            var sOneName = oOneItem[oItemDesc.listfield];
-            var sOneItem = "<li class='" + sPrf + "_" + sOneName + " " + 
-                    sPrf + "-available'><a href=\"#\" onclick=\"";
-            switch(sListType) {
-              case "project": 
-                if (parseInt(oOneItem.QueryId,10) === currentCrp) sOneItem = sOneItem.replace('available', 'available active');
-                sOneItem += "crpstudio.project.setProject(this, '"+oOneItem.Name+"', '"+ 
-                        oOneItem.Language +"', '"+oOneItem.Part+"')\">" + oOneItem.Name; break;
-              case "query": 
-                if (parseInt(oOneItem.QueryId,10) === currentQry) sOneItem = sOneItem.replace('available', 'available active');
-                sOneItem += "crpstudio.project.setCrpItem(this, 'query', "+ 
-                        oOneItem.QueryId +")\">" + oOneItem.Name; break;
-              case "definition": 
-                if (parseInt(oOneItem.DefId,10) === currentDef) sOneItem = sOneItem.replace('available', 'available active');
-                sOneItem += "crpstudio.project.setCrpItem(this, 'definition', "+ 
-                        oOneItem.DefId +")\">" + oOneItem.Name; break;
-              case "constructor": 
-                if (parseInt(oOneItem.QCid,10) === currentQc) sOneItem = sOneItem.replace('available', 'available active');
-                sOneItem += "crpstudio.project.setCrpItem(this, 'constructor', "+ 
-                        oOneItem.QCid +")\">" + 
-                        "<div class='list_13'>"+oOneItem.QCid + "</div>" +
-                        "<div class='list_23'>"+oOneItem.Input + "</div>" + 
-                        "<div class='list_33'>"+oOneItem.Result + "</div>"; break;
-              case "dbfeat": 
-                if (parseInt(oOneItem.DbFeatId,10) === currentDbf) sOneItem = sOneItem.replace('available', 'available active');
-                sOneItem += "crpstudio.project.setCrpItem(this, 'dbfeat', "+ 
-                        oOneItem.DbFeatId +")\">" + 
-                        "<div class='list_12'>"+oOneItem.FtNum + "</div>" + 
-                        "<div class='list_22'>"+oOneItem.Name + "</div>"; break;
-            }
-            sOneItem += "</a></li>\n";
-            arHtml.push(sOneItem);
-          }
-        }
-        // Adapt the QRY-AVAILABLE list
-        $(sLoc).not(".divider").not(".heading").remove();
-        $(sLoc).last().after(arHtml.join("\n"));
-        
-        // Reset the status, which is at the bottom-end of this list
-        $("#" + sListType + "_status").html("");
-      },
-
-      /**
-       * getListObject
-       *    Access the list for @sListName, and return the object identified
-       *    by <sIdField, iValue>
-       * 
-       * @param {string} sListType
-       * @param {string} sIdField
-       * @param {int} iValue
-       * @returns {object}
-       */
-      getListObject : function(sListType, sIdField, iValue) {
-        var oList = private_methods.getList(sListType);   // JSON type list of objects
-        // OLD: if (sListType === "project" || oList === null) return oList;
-        if (oList === null) return oList;
-        // Walk all the elements of the list
-        for (var i=0;i<oList.length;i++) {
-          var oOneItem = oList[i];
-          var iId = parseInt(oOneItem[sIdField], 10);
-          // Check the id
-          if (iId === iValue) return oOneItem;
-        }
-        // Didn't get it
-        return null;
-      },
-
-      /**
        * getListItem
        *    Access the list for @sListName, and return the object identified
        *    by <sField, sValue>
@@ -863,7 +650,7 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {object}
        */
       getListItem : function(sListType, oCondition) {
-        var oList = private_methods.getList(sListType);   // JSON type list of objects
+        var oList = crpstudio.list.getList(sListType);   // JSON type list of objects
         // OLD: if (sListType === "project" || oList === null) return oList;
         if (oList === null) return oList;
         // Walk all the elements of the list
@@ -893,9 +680,9 @@ var crpstudio = (function ($, crpstudio) {
        */
       setOneItem : function(sItemType, sKey, iIdValue, sValue) {
         // Get a descriptor object
-        var oDescr = private_methods.getItemDescr(sItemType);
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
         // Get the correct list
-        var oList = private_methods.getList(sItemType);
+        var oList = crpstudio.list.getList(sItemType);
         // Do we have a list??
         if (oList !== null) {
           // Walk all the elements of the list
@@ -918,40 +705,6 @@ var crpstudio = (function ($, crpstudio) {
             }
           }
         }
-      },
-
-      /**
-       * getCrpItem
-       *    Look in the list of CrpItems (def/query/dbfeat/qc) for the one
-       *    having the @id field iItemId, and return the <a> element where it is
-       *    
-       * @param {type} sListType
-       * @param {type} iItemId
-       * @returns {undefined}
-       */
-      getCrpItem : function(sListType, iItemId) {
-        // Access the information object for this type
-        var oItemDesc = private_methods.getItemDescr(sListType);
-        // Get the NAME of this element
-        var oListItem = private_methods.getListObject(sListType, oItemDesc.id, iItemId);
-        // Construct the unique class name identifying our target
-        var sClass = oItemDesc.prf + "_" + oListItem[oItemDesc.listfield];
-        // Get the location identifier for this element: Intersection --> no space after "available"
-        var sLoc = "#" + sListType + "_list" + " ." + oItemDesc.prf  + "-available";
-        var oFirst = null;
-        // Ga alle elementen handmatig af
-        $(sLoc).each(function() {
-          if (oFirst === null) oFirst = $(this).children(":last").get(0);
-          // Check if it has the correct class
-          if ($(this).hasClass(sClass)) {
-            // Find this element's last child, which is the <a> element
-            var oTarget = $(this).children(":last").get(0);
-            // Return this
-            return oFirst = oTarget;
-          }
-        });
-        // Return the result of the search function
-        return oFirst;
       },
 
       /**
@@ -988,7 +741,7 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       getItemFieldLoc : function(sListType, sFieldName) {
-        var oItem = private_methods.getItemDescr(sListType);
+        var oItem = crpstudio.list.getItemDescr(sListType);
         // Get the fields object
         var oFields = oItem.fields;
         // Walk all the fields
@@ -1012,9 +765,9 @@ var crpstudio = (function ($, crpstudio) {
        */
       createListItem : function(sListType, oStart) {
         // Get a descriptor object
-        var oDescr = private_methods.getItemDescr(sListType);
+        var oDescr = crpstudio.list.getItemDescr(sListType);
         // Find the correct list
-        var oList = private_methods.getList(sListType);
+        var oList = crpstudio.list.getList(sListType);
         var iItemId = private_methods.getNewId(oList, oDescr.id);
         // Start preparing a new object
         var oNew = {}; oNew[oDescr.id] = iItemId.toString();
@@ -1049,7 +802,7 @@ var crpstudio = (function ($, crpstudio) {
           oList.push(oNew);
         }
         // And adapt the indicated list
-        private_methods.setList(sListType, oList);
+        crpstudio.list.setList(sListType, oList);
         // Indicate in the history that this new object must be created
         private_methods.histAddItem(sListType, iItemId);
         // Return the new id
@@ -1065,7 +818,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       getMaxFtNum : function(iQCid) {
         // Get the correct list
-        var oList = private_methods.getList("dbfeat");
+        var oList = crpstudio.list.getList("dbfeat");
         // Walk the list, searching for the maximum feature number
         var iMaxFtNum = 0;
         for (var i=0;i<oList.length;i++) {
@@ -1090,7 +843,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       getQcMaxId : function() {
         // Get the list of constructor items
-        var oList = private_methods.getList("constructor");
+        var oList = crpstudio.list.getList("constructor");
         var iQcId = -1;
         // Walk the list
         for (var i=0;i< oList.length;i++) {
@@ -1113,7 +866,7 @@ var crpstudio = (function ($, crpstudio) {
       getNextQuery : function() {
         var oBack = {};
         // Get the list of constructor items
-        var oList = private_methods.getList("constructor");
+        var oList = crpstudio.list.getList("constructor");
         var iQcId = -1;
         // Start a new list with query names
         var oQryName = [];
@@ -1126,7 +879,7 @@ var crpstudio = (function ($, crpstudio) {
           if (oQryName.indexOf(sName) <0) oQryName.push(sName);
         }
         // Get a list of all the queries that are available - sorted by name
-        var oQlist = private_methods.getList("query", "Name");
+        var oQlist = crpstudio.list.getList("query", "Name");
         // Pre-define the index of the query we will use
         var iQuery = -1; var oQuery = {};
         // Walk the list in search of one that is not yet in the oQryName list
@@ -1163,7 +916,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       setQueryOptionList : function() {
         // Get the list
-        var oList = private_methods.getList("query", "Name");
+        var oList = crpstudio.list.getList("query", "Name");
         // Clear current contents
         $("#qc_general_query option").remove();
         var arQry = [];
@@ -1198,7 +951,7 @@ var crpstudio = (function ($, crpstudio) {
         // Visit all QcId members coming before *me*
         for (var i=1;i<iQCid;i++) {
           // Get the QC line with this id
-          var oItem = private_methods.getListObject("constructor", "QCid", i);
+          var oItem = crpstudio.list.getListObject("constructor", "QCid", i);
           // Does this object exist?
           if (oItem !== null && oItem.Query !== "") {
             // Add the output from this line to our options list
@@ -1255,25 +1008,6 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
-       * getFirstDbf
-       *    Get the id of the first DbFeat within the current list, filtering on 
-       *    QCid equaling iQCid
-       * 
-       * @param {type} iQCid
-       * @returns {undefined}
-       */
-      getFirstDbf : function(iQCid) {
-        var oList = private_methods.getList("dbfeat", "FtNum");
-        for (var i=0;i<oList.length;i++) {
-          // Check if this has the correct QCid
-          var oItem = oList[i];
-          if (parseInt(oItem.QCid,10) === iQCid) return parseInt(oItem.DbFeatId, 10);
-        }
-        // Getting here means there is none
-        return -1;
-      },
-      
-      /**
        * makeNewQCobj
        *    Create a new object with values to construct a new QC
        * 
@@ -1323,8 +1057,8 @@ var crpstudio = (function ($, crpstudio) {
         currentDbf = -1;
         currentQc = -1;
         // Reset all lists
-        prj_deflist = []; prj_qrylist = [];
-        prj_qclist  = []; prj_dbflist = [];
+        crpstudio.prj_deflist = []; crpstudio.prj_qrylist = [];
+        crpstudio.prj_qclist  = []; crpstudio.prj_dbflist = [];
         // Clear definition
         $("#def_general").addClass("hidden");
         $("#def_description").html("<i>No definition selected</i>");
@@ -1370,9 +1104,33 @@ var crpstudio = (function ($, crpstudio) {
       getPrj: function() { return currentPrj;},
       getLng: function() { return currentLng;},
       getDir: function() { return currentDir;},
-      getDb: function() { return currentDb;},
+      getDb:  function() { return currentDb;},
+      getCrp: function() { return currentCrp;},
+      getQry: function() { return currentQry;},
+      getQc:  function() { return currentQc;},
+      getDef: function() { return currentDef;},
+      getDbf: function() { return currentDbf;},
       getTab: function() { return loc_tab;},
 
+      /**
+       * getFirstDbf
+       *    Get the id of the first DbFeat within the current list, filtering on 
+       *    QCid equaling iQCid
+       * 
+       * @param {type} iQCid
+       * @returns {undefined}
+       */
+      getFirstDbf : function(iQCid) {
+        var oList = crpstudio.list.getList("dbfeat", "FtNum");
+        for (var i=0;i<oList.length;i++) {
+          // Check if this has the correct QCid
+          var oItem = oList[i];
+          if (parseInt(oItem.QCid,10) === iQCid) return parseInt(oItem.DbFeatId, 10);
+        }
+        // Getting here means there is none
+        return -1;
+      },
+      
       /* ---------------------------------------------------------------------------
        * Name: execute
        * Goal: execute the currently set project
@@ -2049,11 +1807,13 @@ var crpstudio = (function ($, crpstudio) {
               // Prevent undesired change triggers
               bIsSelecting = true;
               // Fill the definitions list
-              private_methods.showlist("definition");
+              // crpstudio.list.showlist("definition");
+              crpstudio.list.showlist("definition", currentDef);
               // Show the definition selector
               $("#definition_editor").show();
               // Call setCrpItem() which should check if a 'default' item needs to be shown
-              crpstudio.project.setCrpItem(null, "definition");    
+              // crpstudio.project.setCrpItem(null, "definition");   
+              crpstudio.list.setCrpItem(null, "definition", -1);   
               // Switch on event handling in def_general_top to trigger resizing of the Xquery editor
               crpstudio.project.addXqueryResizeEvents("def_general_top");
               // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
@@ -2067,11 +1827,13 @@ var crpstudio = (function ($, crpstudio) {
               // Prevent undesired change triggers
               bIsSelecting = true;
               // Fill the query list
-              private_methods.showlist("query");
+              // crpstudio.list.showlist("query");
+              crpstudio.list.showlist("query", currentQry);
               // Show the query selector
               $("#query_editor").show();
               // Call setCrpItem() which should check if a 'default' item needs to be shown
-              crpstudio.project.setCrpItem(null, "query");          
+              // crpstudio.project.setCrpItem(null, "query");          
+              crpstudio.list.setCrpItem(null, "query", -1);   
               // Switch on event handling in def_general_top to trigger resizing of the Xquery editor
               crpstudio.project.addXqueryResizeEvents("query_general_top");
               // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
@@ -2085,11 +1847,13 @@ var crpstudio = (function ($, crpstudio) {
               // Prevent undesired change triggers
               bIsSelecting = true;
               // Fill the constructor list
-              private_methods.showlist("constructor");
+              // crpstudio.list.showlist("constructor");
+              crpstudio.list.showlist("constructor", currentQc);
               // Show the constructor selector
               $("#constructor_editor").show();
               // Call setCrpItem() which should check if a 'default' item needs to be shown
-              crpstudio.project.setCrpItem(null, "constructor");          
+              // crpstudio.project.setCrpItem(null, "constructor");          
+              crpstudio.list.setCrpItem(null, "constructor", -1);   
               // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
               crpstudio.project.addChangeEvents("qc_general");
               // The Save button must be shown if the 'dirty' flag is set
@@ -2101,11 +1865,13 @@ var crpstudio = (function ($, crpstudio) {
               // Prevent undesired change triggers
               bIsSelecting = true;
               // Fill the constructor list
-              private_methods.showlist("dbfeat");
+              // crpstudio.list.showlist("dbfeat");
+              crpstudio.list.showlist("dbfeat", currentDbf, currentQc);
               // Show the constructor selector
               $("#dbfeat_editor").show();
               // Call setCrpItem() which should check if a 'default' item needs to be shown
-              crpstudio.project.setCrpItem(null, "dbfeat");          
+              // crpstudio.project.setCrpItem(null, "dbfeat");          
+              crpstudio.list.setCrpItem(null, "dbfeat", -1);   
               // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
               crpstudio.project.addChangeEvents("dbf_general");
               // The Save button must be shown if the 'dirty' flag is set
@@ -2138,132 +1904,42 @@ var crpstudio = (function ($, crpstudio) {
 
         }
       },
-
+      
       /**
-       * setCrpItem
-       *    User selects the indicated item of a CRP, 
-       *    and we need to show the contents of that item
-       *    
-       * @param {type} target   - pointer to <a> element
-       * @param {type} sType    - the kind of item
-       * @param {type} iItemId  - numerical id of the item
-       * @returns {undefined}   - none
-       * @history
-       *  8/oct/2015  ERK Created
-       *  15/oct/2015 ERK When there is no iItemId, check if a default needs to be shown
+       * setCrpItemBefore 
+       *    Actions in first part of crpstudio.list.setCrpItem()
+       * 
+       * @param {type} sType
+       * @param {type} iItemId
+       * @returns {undefined}
        */
-      setCrpItem : function(target, sType, iItemId) {
-        // Do we need to grab a default item?
-        if (!iItemId) {
-          // Default id
-          iItemId = -1;
-          // No itemid is defined, so check if there *is* anything that could be selected
-          switch(sType) {
-            case "query":
-              if (prj_qrylist.length > 0) {
-                iItemId = (currentQry>=0) ? currentQry : parseInt(prj_qrylist[0].QueryId,10);
-              }
-              break;
-            case "definition":
-              if (prj_deflist.length > 0) {
-                iItemId = (currentDef>=0) ? currentDef : parseInt(prj_deflist[0].DefId,10);
-              }
-              break;
-            case "dbfeat":
-              if (prj_dbflist.length > 0) {
-                if (currentDbf>=0)
-                  iItemId = currentDbf;
-                else
-                  iItemId = private_methods.getFirstDbf(currentQc);
-              }
-              break;
-            case "constructor":
-              if (prj_qclist.length > 0) {
-                iItemId = (currentQc>=0) ? currentQc : parseInt(prj_qclist[0].QCid,10);
-              }
-              break;
-            case "project":
-              if (prj_crplist.length > 0) {
-                iItemId = (currentCrp>=0) ? currentCrp : parseInt(prj_crplist[0].CrpId,10);
-              }
-              break;
-            case "dbase":
-              break;
-          }
-          // Calculate the target <a> item...
-          if (iItemId>=0) 
-            target = private_methods.getCrpItem(sType, iItemId);
-        }
-        // Get the prefix
-        var oItemDescr = private_methods.getItemDescr(sType);
-        var sPrf = oItemDescr.prf;
-        // Validate
-        if (iItemId && iItemId >= 0) {
-          // Make sure we are visible
-          $("#"+sPrf+"_general").removeClass("hidden");
-          $("#"+sPrf+"_description").html("");
-          // Get the <li>
-          // var listItem = $(target).parent();
-          var listItem = $(target).closest("li");
-          // Look at all the <li> children of <ul>
-          // var listHost = listItem.parent();
-          // Get the <ul> above it
-          var listHost = $(target).closest('ul');
-          listHost.children('li').each(function() { $(this).removeClass("active"); });
-          // Set the "active" class for the one the user has selected
-          $(listItem).addClass("active");
-          // Retrieve the item from the list
-          var oItem = private_methods.getListObject(oItemDescr.name, oItemDescr.id, iItemId);
-          // Validate
-          if (oItem === null) return;
-          $("#" + oItemDescr.descr).html("<i>Loading...</i>");
-          // Make the General area INvisible
-          $("#" + oItemDescr.gen).addClass("hidden");
-          // Indicate we are selecting
-          var bSelState = bIsSelecting;
-          bIsSelecting = true;
-          // Anything that needs to be done before we start filling in the values...
-          switch (sType) {
-            case "constructor":
-              // Create and set the list under "#qc_general_input"
-              private_methods.makeQcInput(iItemId, "general");
-              break;
-          }
-          // Make the current item object available globally
-          // TODO: doesn't work:  crpstudio.project[oItemDescr.cur] = oItem;
-          // Pass on all the item's values to the html component
-          for (var i=0;i<oItemDescr.fields.length; i++) {
-            var oOneF = oItemDescr.fields[i];
-            // Only set non-empty field defs
-            if (oOneF.loc !== "") {
-              // Get the value of this field
-              var sValue = oItem[oOneF.field];
-              // Showing it depends on the type
-              switch (oOneF.type) {
-                case "txt": // text fields
-                  $("#" + oOneF.loc).val(sValue);
-                  break;
-                case "chk": // checkbox items
-                  var bValue = (sValue === "True");
-                  $("#" + oOneF.loc).prop("checked", bValue);
-                  break;
-                case "cap": // Caption only
-                  $("#" + oOneF.loc).html(sValue);
-                  break;
-              }
-            }
-          }
-          // We stop loading
-          $("#" + oItemDescr.descr).html("");
-          // Show the General area of the item again
-          $("#" + oItemDescr.gen).removeClass("hidden");
+      setCrpItemBefore : function(sType, iItemId) {
+        switch (sType) {
+          case "constructor":
+            // Create and set the list under "#qc_general_input"
+            private_methods.makeQcInput(iItemId, "general");
+            break;
+        }        
+        // Indicate we are selecting
+        var bSelState = bIsSelecting;
+        bIsSelecting = true;
+        return bSelState;
+      },
+      
+      /**
+       * setCrpItemAfter
+       *    Actions in second part of crpstudio.list.setCrpItem()
+       * 
+       * @param {string}  sType
+       * @param {int}     iItemId
+       * @param {bool}    bSelState
+       * @param {object}  oArgs
+       * @returns {undefined}
+       */
+      setCrpItemAfter : function(sType, iItemId, bSelState, oArgs) {
+        if (iItemId && iItemId >=0) {
 
-          // QRY: "QueryId;Name;File;Goal;Comment;Created;Changed"
-          // DEF: "DefId;Name;File;Goal;Comment;Created;Changed"
-          // QC:  "QCid;Input;Query;Output;Result;Cmp;Mother;Goal;Comment"
-          // DBF: "DbFeatId;Name;Pre;QCid;FtNum"
-
-
+          // type-specific actions
           switch (sType) {
             case "query":
               // Set the id of the currently selected query
@@ -2312,7 +1988,7 @@ var crpstudio = (function ($, crpstudio) {
                 sQcName = "";
               }
               // Also set the name in the [li.heading.dbf-available label]
-              private_methods.changeDbfQcName(listHost, sQcName);
+              private_methods.changeDbfQcName(oArgs.listHost, sQcName);
               // Make sure the visibility is okay
               crpstudio.project.setSizes();
               break;
@@ -2327,14 +2003,13 @@ var crpstudio = (function ($, crpstudio) {
             case "dbase": 
               break;
             case "project":
-              // Set the id of the currently selected definition
+              // Set the id of the currently selected CRP and set its name
               currentCrp = iItemId;
-              currentPrj = oItem[oItemDescr.listfield];
+              currentPrj = oArgs.prj;
               // Make sure the visibility is okay
               crpstudio.project.setSizes();
               break;
           }
-
         } else {
           // SOme actions depend upon the type
           switch (sType) {
@@ -2343,43 +2018,15 @@ var crpstudio = (function ($, crpstudio) {
               var listHost = $("#dbfeat_list");
               // Reset the name in the [li.heading.dbf-available label]
               private_methods.changeDbfQcName(listHost, "");
+              // Make sure we are visible
+              $("#dbf_general").addClass("hidden");
+              var sMsg = (config.language === "en") ? "Add features using [New]" : "Voeg features toe met [Nieuw]";
+              $("#dbf_description").html("<i>"+sMsg+"</i>");          
               break;
           }
-          // Make sure we are visible
-          $("#"+sPrf+"_general").addClass("hidden");
-          var sMsg = (config.language === "en") ? "Add features using [New]" : "Voeg features toe met [Nieuw]";
-          $("#"+sPrf+"_description").html("<i>"+sMsg+"</i>");          
+          
         }
-        
         // We are no longer selecting
-        bIsSelecting = bSelState;
-      },
-
-      /**
-       * itemListShow 
-       *    Re-draw the list of type @sItemType
-       *    Put the focus on item @iItemId
-       * 
-       * @param {string} sItemType
-       * @param {int} iItemId
-       * @returns {void}
-       */
-      itemListShow : function(sItemType, iItemId) {
-        // Make sure the list is re-drawn
-        // Fill the query/definition list, but switch off 'selecting'
-        var bSelState = bIsSelecting;
-        bIsSelecting = true;
-        private_methods.showlist(sItemType);
-        // Check value of id
-        if (iItemId >=0) {
-          // Get the <a> element of the newly to be selected item
-          var targetA = private_methods.getCrpItem(sItemType, iItemId);
-          // Call setCrpItem() which will put focus on the indicated item
-          crpstudio.project.setCrpItem(targetA, sItemType, iItemId);
-          // Indicate all went well
-          // bOkay = true;
-        }
-        // Put selstate back
         bIsSelecting = bSelState;
       },
 
@@ -2460,9 +2107,9 @@ var crpstudio = (function ($, crpstudio) {
         // Validate
         if (iItemId <1 || !sItemType || sItemType==="") return -1;
         // Get the correct list
-        var oList = private_methods.getList(sItemType);
+        var oList = crpstudio.list.getList(sItemType);
         // Access the information object for this type
-        var oItemDesc = private_methods.getItemDescr(sItemType);    
+        var oItemDesc = crpstudio.list.getItemDescr(sItemType);    
         // Find out what the correct Id-field is
         var sIdField = oItemDesc.id;
         // Walk the list until we get the correct element
@@ -2472,7 +2119,7 @@ var crpstudio = (function ($, crpstudio) {
           if (parseInt(oThis[sIdField],10) === iItemId) {
             // This is the item that needs to be deleted
             oList.splice(i,1);
-            private_methods.setList(sItemType, oList);
+            crpstudio.list.setList(sItemType, oList);
             // Check what the next item is that should be selected
             if (oList.length>= i+1) {
               // Return the next item in the list
@@ -2557,7 +2204,7 @@ var crpstudio = (function ($, crpstudio) {
           var oContent = response.content;
           switch (sStatusCode) {
             case "completed":
-              prj_crplist = oContent.crplist;
+              crpstudio.prj_crplist = oContent.crplist;
               crpstudio.tagset = oContent.tagsetlist;
               // Show the recent ones
               crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
@@ -2593,11 +2240,11 @@ var crpstudio = (function ($, crpstudio) {
               var sDbase = oContent.dbase; 
               var bShowSyntax = oContent.showsyntax;
               // Take out all lists
-              prj_deflist = oContent.deflist;
-              prj_qrylist = oContent.qrylist;
-              prj_qclist = oContent.qclist;
-              prj_dbflist = oContent.dbflist;
-              prj_crplist = oContent.crplist;
+              crpstudio.prj_deflist = oContent.deflist;
+              crpstudio.prj_qrylist = oContent.qrylist;
+              crpstudio.prj_qclist = oContent.qclist;
+              crpstudio.prj_dbflist = oContent.dbflist;
+              crpstudio.prj_crplist = oContent.crplist;
               if (sLanguage !== "")
                 crpstudio.project.setCorpus(sLanguage, sPart);
 
@@ -2605,7 +2252,8 @@ var crpstudio = (function ($, crpstudio) {
               var bSelState = bIsSelecting;
               bIsSelecting = true;
               // Fill the definitions list
-              private_methods.showlist("project");
+              // crpstudio.list.showlist("project");
+              crpstudio.list.showlist("project", currentCrp);
               // Show the definition selector
               $("#project_general_editor").show();
               // Fill the QueryList in the constructor editor
@@ -2616,9 +2264,9 @@ var crpstudio = (function ($, crpstudio) {
               $("#qc_new_query").append(oContent.querysellist);
               // Get the <a> element of the newly to be selected item
               var iCrpId = oContent.CrpId;
-              var targetA = private_methods.getCrpItem("project", iCrpId);
+              var targetA = crpstudio.list.getCrpItem("project", iCrpId);
               // Call setCrpItem() which should check if a 'default' item needs to be shown
-              crpstudio.project.setCrpItem(targetA, "project", iCrpId);
+              crpstudio.list.setCrpItem(targetA, "project", iCrpId);
               // Add event handlers on all INPUT elements under "project_general" to get changes sent to the CRP on the server
               crpstudio.project.addChangeEvents("project_general");
               // The Save button must be shown if the 'dirty' flag is set
@@ -2867,9 +2515,9 @@ var crpstudio = (function ($, crpstudio) {
               // This is dependent on the item type
               var sAbbr = "";
               switch (sItemType) {
-                case "project":     sAbbr = "crp"; prj_crplist = oContent.itemlist; break;
-                case "definition":  sAbbr = "def"; prj_deflist = oContent.itemlist; break;
-                case "query":       sAbbr = "qry"; prj_qrylist = oContent.itemlist; break;
+                case "project":     sAbbr = "crp"; crpstudio.prj_crplist = oContent.itemlist; break;
+                case "definition":  sAbbr = "def"; crpstudio.prj_deflist = oContent.itemlist; break;
+                case "query":       sAbbr = "qry"; crpstudio.prj_qrylist = oContent.itemlist; break;
               }
               // Item-type-independent stuff
               var sItemName = oContent.itemname;
@@ -2879,19 +2527,19 @@ var crpstudio = (function ($, crpstudio) {
                   // Get the id
                   var iItemId = oContent.itemid;
                   // Get all changed lists
-                  prj_deflist = oContent.deflist;
-                  prj_qrylist = oContent.qrylist;
-                  prj_qclist  = oContent.qclist;
-                  prj_dbflist = oContent.dbflist;
+                  crpstudio.prj_deflist = oContent.deflist;
+                  crpstudio.prj_qrylist = oContent.qrylist;
+                  crpstudio.prj_qclist  = oContent.qclist;
+                  crpstudio.prj_dbflist = oContent.dbflist;
                   // Show the list, putting the focus on the new item id
-                  crpstudio.project.itemListShow(sItemType, iItemId);
+                  crpstudio.list.itemListShow(sItemType, iItemId);
 
                   break;  
                 case "definition": case "query":
                   // Get the id
                   var iItemId = oContent.itemid;
                   // Show the list, putting the focus on the new item id
-                  crpstudio.project.itemListShow(sItemType, iItemId);
+                  crpstudio.list.itemListShow(sItemType, iItemId);
 
                   // Add the uploaded query/definition to the History List
                   private_methods.histAddItem(sItemType, iItemId);
@@ -3022,7 +2670,7 @@ var crpstudio = (function ($, crpstudio) {
                 // Delete the item from the list
                 var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
                 // Show the list, putting the focus on nowhere
-                crpstudio.project.itemListShow(sItemType, -1);
+                crpstudio.list.itemListShow(sItemType, -1);
 
                 // Reset the name of the current project
                 currentPrj = "";
@@ -3052,7 +2700,7 @@ var crpstudio = (function ($, crpstudio) {
               // Delete the item from the list
               iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
               // Show the list, putting the focus on the new item id
-              crpstudio.project.itemListShow(sItemType, iItemNext);
+              crpstudio.list.itemListShow(sItemType, iItemNext);
 
               break;
             case "dbfeat": 
@@ -3062,7 +2710,7 @@ var crpstudio = (function ($, crpstudio) {
               // Delete the item from the list
               iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
               // Show the list, putting the focus on the new item id
-              crpstudio.project.itemListShow(sItemType, iItemNext);
+              crpstudio.list.itemListShow(sItemType, iItemNext);
               break;
             case "constructor":
               // TODO: check this out!!
@@ -3091,7 +2739,7 @@ var crpstudio = (function ($, crpstudio) {
               private_methods.qcRenumber(iItemId);
               
               // Show the list, putting the focus on the new item id
-              crpstudio.project.itemListShow(sItemType, iItemNext);
+              crpstudio.list.itemListShow(sItemType, iItemNext);
               break;
           }
         }
@@ -3131,7 +2779,7 @@ var crpstudio = (function ($, crpstudio) {
                     // Delete the item from the list
                     var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
                     // Show the list, putting the focus on nowhere
-                    crpstudio.project.itemListShow(sItemType, -1);
+                    crpstudio.list.itemListShow(sItemType, -1);
 
                     // Reset the name of the current project
                     currentPrj = "";
@@ -3171,7 +2819,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       downloadFile : function(elDummy, sFileType) {
         // Access the information object for this type
-        var oItemDesc = private_methods.getItemDescr(sFileType);
+        var oItemDesc = crpstudio.list.getItemDescr(sFileType);
         var sItemName = "";   // Project, corpus or database name
         var sItemPart = "";   // Part of project, corpus
         var oListItem = null;
@@ -3187,14 +2835,14 @@ var crpstudio = (function ($, crpstudio) {
             break;
           case "definition":  // download definitions in Xquery
             // Access the current element from the list
-            oListItem = private_methods.getListObject(sFileType, oItemDesc.id, currentDef);
+            oListItem = crpstudio.list.getListObject(sFileType, oItemDesc.id, currentDef);
             sItemPart = oListItem[oItemDesc.listfield];
             // Find out which one is currently selected
             sItemName = currentPrj;
             break;
           case "query":       // download definitions in Xquery
             // Access the current element from the list
-            oListItem = private_methods.getListObject(sFileType, oItemDesc.id, currentQry);
+            oListItem = crpstudio.list.getListObject(sFileType, oItemDesc.id, currentQry);
             sItemPart = oListItem[oItemDesc.listfield];
             // Find out which one is currently selected
             sItemName = currentPrj;
@@ -3389,7 +3037,7 @@ var crpstudio = (function ($, crpstudio) {
         var iQCid = currentQc;
         var iDbFeatId = currentDbf;
         // Get the object that is being selected
-        var oItem = private_methods.getListObject("dbfeat", "DbFeatId", iDbFeatId);
+        var oItem = crpstudio.list.getListObject("dbfeat", "DbFeatId", iDbFeatId);
         var iFtNum = parseInt(oItem["FtNum"],10);
         // Validate: do not move negative numbers
         if (iFtNum < 0) return;
@@ -3420,7 +3068,7 @@ var crpstudio = (function ($, crpstudio) {
         private_methods.histAdd("dbfeat", iDbFeatId, currentPrj, "FtNum", iFtSwap.toString());
         private_methods.histAdd("dbfeat", iDbFeatSwapId, currentPrj, "FtNum", iFtNum.toString());
         // Make sure the list is being re-drawn
-        crpstudio.project.itemListShow("dbfeat", iDbFeatId);
+        crpstudio.list.itemListShow("dbfeat", iDbFeatId);
       },
 
       /**
@@ -3448,11 +3096,11 @@ var crpstudio = (function ($, crpstudio) {
         // Validate: if no QC is selected, then exit this function
         if (currentQc < 0) return;
         // Access the current QC line in the editor
-        var oQcLine = prj_qclist[currentQc];
+        var oQcLine = crpstudio.prj_qclist[currentQc];
         // Set the correct id here
         oQcLine.QueryId = iQueryId;
         // Put the object back into place
-        prj_qclist[currentQc] = oQcLine;
+        crpstudio.prj_qclist[currentQc] = oQcLine;
         //
       },
 
@@ -3557,10 +3205,10 @@ var crpstudio = (function ($, crpstudio) {
             oItem.key, sValue)) return;
 
         // Check if list needs to be re-drawn
-        var oDescr = private_methods.getItemDescr(oItem.type);
+        var oDescr = crpstudio.list.getItemDescr(oItem.type);
         if (oItem.key === oDescr.listfield) {
           // Make sure the list is re-drawn
-          crpstudio.project.itemListShow(oItem.type, iItemId);
+          crpstudio.list.itemListShow(oItem.type, iItemId);
         }
         // Special follow-up matters after some items have changed
         switch (oItem.type) {
@@ -3585,7 +3233,7 @@ var crpstudio = (function ($, crpstudio) {
                 // Perform re-numbering of the dbfeat list
                 private_methods.dbfRenumber(-1);
                 // Show the list again
-                crpstudio.project.itemListShow("dbfeat", iItemId);
+                crpstudio.list.itemListShow("dbfeat", iItemId);
                 break;
             }
             break;
@@ -3710,7 +3358,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       createItem : function(sItemType, sAction) {
         var bOkay = false;
-        var oDescr = private_methods.getItemDescr(sItemType);
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
         var sDivPrf = oDescr.divprf;
         // Determine the new name
         var sNewName = "new_name";
@@ -3756,12 +3404,12 @@ var crpstudio = (function ($, crpstudio) {
                   break;
                 case "definition":
                   oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
-                  var oThisCrp = private_methods.getListObject("project", "CrpId", currentCrp);
+                  var oThisCrp = crpstudio.list.getListObject("project", "CrpId", currentCrp);
                   oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, "definition");
                   break;
                 case "query":
                   oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
-                  var oThisCrp = private_methods.getListObject("project", "CrpId", currentCrp);
+                  var oThisCrp = crpstudio.list.getListObject("project", "CrpId", currentCrp);
                   var sType = $("#query_new_qrytype").val();
                   oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, sType);
                   break;
@@ -3785,7 +3433,7 @@ var crpstudio = (function ($, crpstudio) {
                   oNew.Query = $("#qc_new_query").val();
                   oNew.Input = $("#qc_new_input").val();
                   oNew.Cmp = ( $("#qc_new_cmp").prop("checked") ) ? "True" : "False";
-                  oNew.Output = (prj_qclist.length + 1) + "_" + oNew.Query;
+                  oNew.Output = (crpstudio.prj_qclist.length + 1) + "_" + oNew.Query;
                   oNew.Mother = "False";
                   break;
               }
@@ -3797,7 +3445,7 @@ var crpstudio = (function ($, crpstudio) {
               $("#"+sDivPrf+"_general_editor").removeClass("hidden");
 
               // Make sure the list is re-drawn
-              crpstudio.project.itemListShow(sItemType, iItemId);
+              crpstudio.list.itemListShow(sItemType, iItemId);
               
               // There may be post-processing (follow-up actions)
               switch (sItemType) {
@@ -3810,7 +3458,7 @@ var crpstudio = (function ($, crpstudio) {
                     //     This makes members: input, query, result, goal, comment
                     var oQC = private_methods.makeNewQCobj();
                     // (2) set standard values for Cmp, Output and Mother
-                    oQC.Cmp = "False"; oQC.Output = (prj_qclist.length + 1) + "_" + oQC.Query;
+                    oQC.Cmp = "False"; oQC.Output = (crpstudio.prj_qclist.length + 1) + "_" + oQC.Query;
                     oQC.Mother = "False";
                     // (3) Create this new item
                     iItemId = private_methods.createListItem("constructor", oQC);
@@ -3845,10 +3493,10 @@ var crpstudio = (function ($, crpstudio) {
         // Get the current QC number
         var iQCid = currentQc;
         // Find out what the query is of the current QCid
-        var oListItem = private_methods.getListObject("constructor", "QCid", iQCid);
+        var oListItem = crpstudio.list.getListObject("constructor", "QCid", iQCid);
         var sQryName = oListItem["Query"];
         // Find out what the QueryId is for this query
-        var oList = private_methods.getList("query");
+        var oList = crpstudio.list.getList("query");
         for (var i=0;i<oList.length;i++) {
           var oItem = oList[i];
           if (oItem["Name"] === sQryName) {
@@ -3857,7 +3505,7 @@ var crpstudio = (function ($, crpstudio) {
             // Switch to the query tab
             crpstudio.project.switchTab("query_editor", "", true);
             // Select the correct query 
-            crpstudio.project.itemListShow("query", iQueryId);
+            crpstudio.list.itemListShow("query", iQueryId);
           }
         }
       },

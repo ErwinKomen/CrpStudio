@@ -20,15 +20,13 @@ public class LoadResponse extends BaseResponse {
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("userid"))  { sendErrorResponse("LoadResponse: missing @userid");   return;}
-      if (!oQuery.has("project")) { sendErrorResponse("LoadResponse: missing @project");  return;}
       if (!oQuery.has("type"))    { sendErrorResponse("LoadResponse: missing @type");     return;}
       
       // There are three parameters: project, userid, type
-      project   = oQuery.getString("project");
       loadType  = oQuery.getString("type");
       sUserId   = oQuery.getString("userid");
 
-      // Validate: all three must be there
+      // Validate: all two must be there
       if (loadType.isEmpty()) { sendErrorResponse("Specify type of information needed");  return;}
       if (sUserId.isEmpty())  { sendErrorResponse("The userid is not specified");         return; }
       
@@ -39,7 +37,20 @@ public class LoadResponse extends BaseResponse {
           // Get a list of tagsets
           oContent.put("tagsetlist", this.getTagsetSpecsList());
           break;
+        case "corpora":
+          // Get the table with corpora information -- see crp-info.json
+          oContent.put("corpuslist", servlet.getCorpora());
+          // Get the list of groupings
+          oContent.put("groupinglist", this.getGroupings(sUserId));
+          // Get the table containing corpus-dependant metavar definitions -- see crp-info.json
+          oContent.put("metavarlist", servlet.getMetavars());
+          break;
+        case "dbases":
+          break;
         case "info":
+          // Validate "project" parameter
+          if (!oQuery.has("project")) { sendErrorResponse("LoadResponse: missing @project");  return;}
+          project   = oQuery.getString("project");
           // Project may be empty...
           if (project.isEmpty()) { sendErrorResponse("Name of project not specified"); return;}
       

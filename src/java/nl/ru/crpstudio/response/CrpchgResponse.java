@@ -14,7 +14,6 @@ import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 import static nl.ru.util.StringUtil.compressSafe;
-import static nl.ru.util.StringUtil.decompressSafe;
 import nl.ru.util.json.JSONArray;
 import nl.ru.util.json.JSONObject;
 

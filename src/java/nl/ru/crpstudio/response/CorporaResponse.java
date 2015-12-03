@@ -20,6 +20,10 @@ public class CorporaResponse extends BaseResponse {
       this.getContext().put("username", servlet.getUserId());
       // Indicate which main tab the user has chosen
       this.getContext().put("maintab", "corpora");
+      // Set the initial tab for the databases: overview (=explore)
+      String tab = this.getParameter("tabcrp", "overview");
+      this.getContext().put("tabcrp", tab);
+      // Now produce the "corpora" tab 
       this.displayHtmlTemplate(this.templateMan.getTemplate("corpora"));
     } catch (Exception ex) {
       logger.DoError("CorporaResponse: could not complete", ex);

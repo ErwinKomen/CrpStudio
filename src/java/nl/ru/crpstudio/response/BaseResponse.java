@@ -1059,6 +1059,27 @@ public abstract class BaseResponse {
   }
   
   /**
+   * getGroupings
+   *    Get a list of 'groupings' (=divisions) for the indicated @sUser
+   * 
+   * @param sUser
+   * @return 
+   */
+  public JSONArray getGroupings(String sUser) {
+    JSONArray arGrpList = null;
+    
+    try {
+      
+      
+      // Get the list of Groupings
+      return arGrpList;
+    } catch (Exception ex) {
+      logger.DoError("getGroupings: could not complete", ex);
+      return null;
+    }
+  }
+  
+  /**
    * getProjectList -- 
    *    Issue a request to the CRPP to get an overview of the projects
    *    that user @sUser has access to
@@ -1835,7 +1856,7 @@ public abstract class BaseResponse {
       return "error (getQueryList)";
     }
   }
-
+  
   /**
    * getCorpusList -- Read the corpus information (which has been read
    *                    from file through CrpUtil) and transform it

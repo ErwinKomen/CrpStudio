@@ -9,6 +9,15 @@
 var crpstudio = (function ($, crpstudio) {
   "use strict";
   crpstudio.currentUser = "-";          // Name of currently logged-in user
+  crpstudio.prj_deflist =  null,      // Field value of this project =  list of definitions
+  crpstudio.prj_qrylist =  null,      // Field value of this project =  list of queries
+  crpstudio.prj_qclist =  null,       // Field value of this project =  list of QC elements
+  crpstudio.prj_dbflist =  null,      // Field value of this project =  list of database features
+  crpstudio.prj_crplist =  null,      // List of currently available CRPs
+  crpstudio.crp_edtlist = null,       // List of corpora for editing
+  crpstudio.crp_grplist = null,       // List of grouping definitions
+  crpstudio.crp_mvrlist = null,       // List of metavar definitions2
+  crpstudio.dbs_edtlist = null;       // List of databases for editing
   
   // Define module 'main'
   crpstudio.main = (function ($, config){

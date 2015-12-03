@@ -1,0 +1,20 @@
+<!--   THIS IS OLD AND EXTINCT -->
+
+#parse("header.vm")
+  <!-- do we have a list of corpora or is it empty? -->
+  #if($corpora)
+		<div class="large-14 medium-14 small-14 large-offset-1 medium-offset-1 small-offset-1">
+    <!-- <div id="${maintab}-meta" class="content content-meta large-16 medium-16 small-16"> -->
+      <p>$labels.getString("corpora.header")</p>
+			<div><h4>$labels.getString("corpora"):</h4></div>
+			<div id="results" class="large-16 medium-16 small-16">
+        <p>${corporatable}</p>
+			</div>
+    </div>
+  #else
+    <div id="nocorpora">
+      No corpora are available.
+    </div>
+  #end
+
+#parse("footer.vm")

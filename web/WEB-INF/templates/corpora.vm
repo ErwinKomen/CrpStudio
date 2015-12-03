@@ -1,18 +1,60 @@
 #parse("header.vm")
-  <!-- do we have a list of corpora or is it empty? -->
-  #if($corpora)
-		<div class="large-14 medium-14 small-14 large-offset-1 medium-offset-1 small-offset-1">
-    <!-- <div id="${maintab}-meta" class="content content-meta large-16 medium-16 small-16"> -->
-      <p>$labels.getString("corpora.header")</p>
-			<div><h4>$labels.getString("corpora"):</h4></div>
-			<div id="results" class="large-16 medium-16 small-16">
-        <p>${corporatable}</p>
+		#set($explore = $labels.getString("corpora.explore"))
+		#set($edit = $labels.getString("corpora.edit"))
+		#set($grouping = $labels.getString("corpora.grouping"))
+		
+		<div class="row" id="subnav">
+      <!-- List of sub-navigation 'buttons' -->
+			<dl id="search-nav" class="sub-nav" data-tab>
+      <!-- Sub-navigation item: [overview] -->
+			#if($tabcrp == "overview")
+				<dd id="explore_link" class="active"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_explore')">$explore</a></dd>
+			#else
+				<dd id="explore_link"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_explore')">$explore</a></dd>
+			#end
+      <!-- Sub-navigation item: [edit] -->
+			#if($tabcrp == "edit")
+				<dd id="edit_link" class="active"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_editor')">$edit</a></dd>
+			#else
+				<dd id="edit_link"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_editor')">$edit</a></dd>
+			#end
+      <!-- Sub-navigation item: [grouping] -->
+			#if($tabcrp == "grouping")
+				<dd id="grouping_link" class="active"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_grouping')">$grouping</a></dd>
+			#else
+				<dd id="grouping_link"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_grouping')">$grouping</a></dd>
+			#end
+			</dl>
+		</div>
+		
+		<div class="row tabs-content" id="search">
+			#set($explore_active = "")
+      #set($edit_active = "")
+      #set($grouping_active = "")
+      <!-- Determine the meta and corpus list selection from the main tab -->
+			#if($tabcrp == "overview")
+				#set($explore_active = "active")
+			#elseif($tabcrp == "edit")
+				#set($edit_active = "active")
+			#elseif($tabcrp == "grouping")
+				#set($grouping_active = "active")
+      #end
+		
+			<div id="corpus_explore" class="large-16 medium-16 small-16 content $explore_active">
+				#parse("crpmain.vm")
 			</div>
-    </div>
-  #else
-    <div id="nocorpora">
-      No corpora are available.
-    </div>
-  #end
-
+			<div id="corpus_editor" class="large-16 medium-16 small-16 content $edit_active">
+        #set( $explorespec = $explorespecs.get(6) )
+        #set( $item_list = "" )
+        #parse("selector.vm")
+				#parse("crpedit.vm")
+			</div>
+			<div id="corpus_grouping" class="large-16 medium-16 small-16 content $grouping_active">
+        #set( $explorespec = $explorespecs.get(7) )
+        #set( $item_list = "" )
+        #parse("selector.vm")
+				#parse("crpgroup.vm")
+			</div>
+			
+		</div>
 #parse("footer.vm")
