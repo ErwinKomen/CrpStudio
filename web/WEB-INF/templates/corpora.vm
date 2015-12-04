@@ -2,6 +2,7 @@
 		#set($explore = $labels.getString("corpora.explore"))
 		#set($edit = $labels.getString("corpora.edit"))
 		#set($grouping = $labels.getString("corpora.grouping"))
+		#set($metavar = $labels.getString("corpora.metavar"))
 		
 		<div class="row" id="subnav">
       <!-- List of sub-navigation 'buttons' -->
@@ -24,6 +25,12 @@
 			#else
 				<dd id="grouping_link"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_grouping')">$grouping</a></dd>
 			#end
+      <!-- Sub-navigation item: [metavar] -->
+			#if($tabcrp == "metavar")
+				<dd id="metavar_link" class="active"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_metavar')">$metavar</a></dd>
+			#else
+				<dd id="metavar_link"><a class="tablink" onclick="crpstudio.corpora.switchTab('corpus_metavar')">$metavar</a></dd>
+			#end
 			</dl>
 		</div>
 		
@@ -38,6 +45,8 @@
 				#set($edit_active = "active")
 			#elseif($tabcrp == "grouping")
 				#set($grouping_active = "active")
+			#elseif($tabcrp == "metavar")
+				#set($metavar_active = "active")
       #end
       <div id="corpus_status"></div>
 			<div id="corpus_explore" class="large-16 medium-16 small-16 content $explore_active">
@@ -54,6 +63,12 @@
         #set( $item_list = "" )
         #parse("selector.vm")
 				#parse("crpgroup.vm")
+			</div>
+			<div id="corpus_metavar" class="large-16 medium-16 small-16 content $metavar_active">
+        #set( $explorespec = $explorespecs.get(8) )
+        #set( $item_list = "" )
+        #parse("selector.vm")
+				#parse("crpmetavar.vm")
 			</div>
 			
 		</div>

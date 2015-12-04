@@ -1756,14 +1756,14 @@ div.hitscroll {
 }
 
 /* break up list-items in parts */
-.side-nav li a div.list_12 {
+.side-nav li a div.list_12, span.list_12 {
 	display: inline-block;
   /* border-right: 1px solid black; */
   border-right: 1px solid silver;
   /* margin: 1px; */
   width: 20%;
 }
-.side-nav li a div.list_22 {
+.side-nav li a div.list_22, span.list_22 {
 	display: inline-block;
   /* border: 1px solid silver; */
   /* margin: 1px; */

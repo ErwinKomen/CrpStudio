@@ -16,6 +16,8 @@ var crpstudio = (function ($, crpstudio) {
         currentGrp = -1,          // The GrpId of the currently selected grouping
         loc_metaVar = "",         // Name of the metavar selection belonging to the selected corpus
         loc_dirty =  false,       // Corpus information needs saving or not
+        arLng = [],               // Array of language objects: {lng: x, name: y}
+        arMtvName = [],           // Array of metavar names
         loc_tab = "overview";     // Currently selected tab name
         //
     // Methods that are local to [crpstudio.project]
@@ -71,6 +73,10 @@ var crpstudio = (function ($, crpstudio) {
               // Fill the list of editor information
               crpstudio.list.showlist("corpus", currentCor);
               
+              // Fill two comboboxes
+              crpstudio.corpora.fillCombo("general", "lng", arLng);
+              crpstudio.corpora.fillCombo("general", "metavar", arMtvName);
+              
               // Show the editor selector
               $("#corpus_editor").show();
               // Call setCrpItem() which should check if a 'default' item needs to be shown
@@ -108,12 +114,50 @@ var crpstudio = (function ($, crpstudio) {
               // We are open for changes again
               bIsSelecting = bSelState;
               break;
+            case "corpus_metavar": case "crpmetavar":
+              // Selecting...
+              bIsSelecting = true;
               
-
+              // Show the editor selector
+              $("#corpus_metavar").show();
+              // Call setCrpItem() which should check if a 'default' item needs to be shown
+              // crpstudio.project.setCrpItem(null, "query");          
+              
+              // Switch on event handling in def_general_top to trigger resizing of the Xquery editor
+              // 
+              // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
+              // crpstudio.project.addChangeEvents("query_general");
+              
+              // The Save button must be shown if the 'dirty' flag is set
+              // private_methods.showSaveButton(loc_dirty);
+              
+              
+              // We are open for changes again
+              bIsSelecting = bSelState;
+              break;
           }
 
         }
-      },      
+      },   
+      
+      /**
+       * jumpMtvToGroupings
+       *    Jump from the currently selected metavar to the groupings for this metavar
+       * 
+       * @param {type} target
+       * @returns {undefined}
+       */
+      jumpMtvToGroupings : function(target) {
+        // Get the name of the currently selected metavar SET
+        var sMtv = $("#corpus_general_metavar").val();
+        // Find out what the MtvId is belonging to this value
+        var oItem = crpstudio.list.getListItem("metavar", {"mtvName": sMtv});
+        var iMtvId = -1;
+        if (oItem !== null) iMtvId = oItem.MtvId;
+        // Use this id to filter the groupings to those that use this metavar set
+        currentMtv = iMtvId;
+        crpstudio.corpora.switchTab("corpus_grouping");
+      },
       
       /**
        * addChangeEvents
@@ -290,6 +334,46 @@ var crpstudio = (function ($, crpstudio) {
         // We are no longer selecting
         bIsSelecting = bSelState;
       },
+      
+      /**
+       * fillCombo
+       *    Fill a combobox
+       * 
+       * @param {string}  sSection   - May be "general" or "new"
+       * @param {string}  sFieldName - name of the field
+       * @param {array}   arElement  - array of strings or of objects
+       * @returns {void}
+       */
+      fillCombo : function(sSection, sFieldName, arElement) {
+        // var sFieldName = "lngname";
+        // var arElement = arLng;
+        // Clear current contents
+        $("#corpus_"+sSection+"_"+sFieldName+" option").remove();
+        // Create a list
+        var arHtml = [];
+        // First element requests user to make a choice
+        var sMsg = (crpstudio.config.language === "nl") ? "(Maak een keuze)" : "(Please make a choice)";
+        arHtml.push("<option value=\"-\">"+sMsg+"</option>");
+        // Visit all members of the list
+        for (var i=0;i<arElement.length;i++) {
+          // Get this element
+          var oItem = arElement[i];
+          // Does this object exist?
+          if (oItem !== null) {
+            // Value adding depends on size: 1 or 2 elements
+            if (oItem.length) {
+              arHtml.push("<option value=\""+oItem+"\">"+oItem+"</option>");
+            } else {
+              var arMem = Object.keys(oItem);
+              arHtml.push("<option value=\""+oItem[arMem[0]]+"\">"+oItem[arMem[1]]+"</option>");
+            }
+          }
+        }
+        // Put the created list at the right place
+        $("#corpus_"+sSection+"_"+sFieldName).append(arHtml.join("\n"));
+      },
+      
+      
 
       /**
        * setSizes -- Function called upon creation of the page
@@ -322,6 +406,33 @@ var crpstudio = (function ($, crpstudio) {
               crpstudio.crp_edtlist = oContent.corpuslist;
               crpstudio.crp_grplist = oContent.groupinglist;
               crpstudio.crp_mvrlist = oContent.metavarlist;
+              // Create a new array of language objects
+              arLng = []; var oList = oContent.corpuslist;
+              var arChk = [];
+              for (var i=0;i<oList.length;i++) {
+                // Check if name is in chk
+                if (arChk.indexOf(oList[i].lng) <0) {
+                  // Add language to check array
+                  arChk.push(oList[i].lng);
+                  // Create a language object
+                  var oLng = { lng: oList[i].lng, name: oList[i].lngName };
+                  // Add language object ot array
+                  arLng.push(oLng);
+                }
+              }
+              // Create a new array of metavar set names
+              arMtvName = [];
+              oList = oContent.metavarlist;
+              for (var i=0;i<oList.length;i++) {
+                // Check if name is in array
+                if (arMtvName.indexOf(oList[i].mtvName) <0) {
+                  // Add metavar to array
+                  arMtvName.push(oList[i].mtvName);
+                }
+              }
+              // Set the global list
+              crpstudio.list.setList("metavar", arMtvName);
+              
               // Show the recent ones
               // crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
               break;

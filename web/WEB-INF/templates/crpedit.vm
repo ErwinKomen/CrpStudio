@@ -25,7 +25,7 @@
               </div>
               <div class="large-9 medium-8 small-7 columns left">
                 <input id="corpus_general_dir" class="left general_input" type="text" placeholder="name (no spaces)">
-                <small id="corpus_general_dir_error" class="hidden">Corpus name must be new and not have spaces</small>
+                <small id="corpus_general_dir_error" class="hidden">Section name must be new and not have spaces</small>
               </div>
             </div>
             <!-- Corpus LANGUAGE -->
@@ -34,9 +34,23 @@
                 <label for="right-label" class="left inline">$labels.getString("corpus.general.lngname")</label>
               </div>
               <div class="large-9 medium-8 small-7 columns left">
-                <select id="corpus_general_lngname" class="general_input"  placeholder="select a language">
+                <select id="corpus_general_lng" class="general_input"  placeholder="select a language">
                   <!-- the languagelist is derived from crp-info.json -->
                 </select>
+              </div>
+            </div>
+            <!-- Corpus METAVAR -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("corpus.general.metavar")</label>
+              </div>
+              <div class="large-7 medium-6 small-5 columns left">
+                <select id="corpus_general_metavar" class="general_input"  placeholder="select a variable set">
+                  <!-- the metavar list is derived from crp-info.json -->
+                </select>
+              </div>
+              <div class="large-3 medium-3 small-3 columns">
+                <a href="#" class="button tiny postfix-radius" onclick="crpstudio.corpora.jumpMtvToGroupings(this)">$labels.getString("corpus.general.togrp")...</a>
               </div>
             </div>
             <!-- Corpus URL for more information -->
@@ -48,21 +62,10 @@
                 <input id="corpus_general_url" class="left general_input" type="text" placeholder="url">
               </div>
             </div>
-            <!-- Corpus METAVAR -->
-            <div class="large-16 medium-16 small-16 row">
-              <div class="large-2 medium-3 small-4 columns">
-                <label for="right-label" class="left inline">$labels.getString("corpus.general.metavar")</label>
-              </div>
-              <div class="large-9 medium-8 small-7 columns left">
-                <select id="corpus_general_metavar" class="general_input"  placeholder="select a variable set">
-                  <!-- the metavar list is derived from crp-info.json -->
-                </select>
-              </div>
-            </div>
             <!-- Corpus's DESCRIPTION -->
             <div class="large-16 medium-16 small-16 row">
               <label>$labels.getString("corpus.general.descr")
-                <textarea id="corpus_general_comment" spellcheck="false" placeholder="Description of this corpus" rows="10"></textarea>
+                <textarea id="corpus_general_descr" spellcheck="false" placeholder="Description of this corpus" rows="10"></textarea>
               </label>
             </div>          
           </div>
@@ -70,9 +73,3 @@
       </fieldset>
     </form>
   </div>
-		<div class="large-8 large-offset-4 medium-10 medium-offset-3 small-12 small-offset-2">
-			<div>
-        <!-- look in "crpedit.vm" -->
-        Sorry, this feature is not yet implemented
-			</div>
-		</div>
