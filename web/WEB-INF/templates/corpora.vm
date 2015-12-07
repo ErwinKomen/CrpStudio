@@ -1,8 +1,8 @@
 #parse("header.vm")
-		#set($explore = $labels.getString("corpora.explore"))
-		#set($edit = $labels.getString("corpora.edit"))
+		#set($explore  = $labels.getString("corpora.explore"))
+		#set($edit     = $labels.getString("corpora.edit"))
 		#set($grouping = $labels.getString("corpora.grouping"))
-		#set($metavar = $labels.getString("corpora.metavar"))
+		#set($metavar  = $labels.getString("corpora.metavar"))
 		
 		<div class="row" id="subnav">
       <!-- List of sub-navigation 'buttons' -->
@@ -62,7 +62,7 @@
         #set( $explorespec = $explorespecs.get(7) )
         #set( $item_list = "" )
         #parse("selector.vm")
-				#parse("crpgroup.vm")
+				#parse("crpgrouping.vm")
 			</div>
 			<div id="corpus_metavar" class="large-16 medium-16 small-16 content $metavar_active">
         #set( $explorespec = $explorespecs.get(8) )

@@ -1,6 +1,36 @@
-		<div class="large-8 large-offset-4 medium-10 medium-offset-3 small-12 small-offset-2">
-			<div>
-        <!-- look in "crpgroup.vm" -->
-        Sorry, this feature is not yet implemented
-			</div>
-		</div>
+  <!-- the part to the right of the side-bar: GENERAL contents of this group -->
+  <div id="group_general_editor" class="large-12 medium-12 small-12 columns">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("general")</legend>
+        <div id="group_description" class="large-16 medium-16 small-16 row">
+          <i>(no corpus selected)</i>
+        </div>
+        <div id="group_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="group_general_top" class="large-16 medium-16 small-16 row">
+            <!-- Group main NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("group.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="group_general_part" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="group_general_part_error" class="hidden">Group name must be new and not have spaces</small>
+              </div>
+            </div>
+
+            <!--
+            Table to construct the logics of one group, consisting of metavar combinations
+            -->
+
+            <!-- Group's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("group.general.comment")
+                <textarea id="group_general_descr" spellcheck="false" placeholder="Description of this group" rows="10"></textarea>
+              </label>
+            </div>          
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
