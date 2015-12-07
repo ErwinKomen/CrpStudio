@@ -489,15 +489,24 @@ var crpstudio = (function ($, crpstudio) {
        * 
        * @param {string} sItemType
        * @param {int} iItemId
+       * @param {object} oNew
        * @returns {void}
        */
-      itemListShow : function(sItemType, iItemId) {
+      itemListShow : function(sItemType, iItemId, oNew) {
         // Make sure the list is re-drawn
         // Fill the query/definition list, but switch off 'selecting'
         var bSelState = bIsSelecting;
         bIsSelecting = true;
         // private_methods.showlist(sItemType);
-        crpstudio.list.showlist(sItemType, iItemId);
+        // Action depends on type
+        switch (sItemType) {
+          case "dbfeat":
+            crpstudio.list.showlist(sItemType, iItemId, parseInt(oNew.QCid, 10));
+            break;
+          default:
+            crpstudio.list.showlist(sItemType, iItemId);
+            break;
+        }
         // Check value of id
         if (iItemId >=0) {
           // Get the <a> element of the newly to be selected item

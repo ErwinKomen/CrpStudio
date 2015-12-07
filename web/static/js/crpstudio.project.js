@@ -3418,7 +3418,7 @@ var crpstudio = (function ($, crpstudio) {
               $("#"+sDivPrf+"_general_editor").removeClass("hidden");
 
               // Make sure the list is re-drawn
-              crpstudio.list.itemListShow(sItemType, iItemId);
+              crpstudio.list.itemListShow(sItemType, iItemId, oNew);
               
               // There may be post-processing (follow-up actions)
               switch (sItemType) {
