@@ -37,3 +37,37 @@
       </fieldset>
     </form>
   </div>
+
+  <!-- the part to the right of the side-bar: NEW grouping creation form -->
+  <div id="grouping_new_create" class="large-12 medium-12 small-12 columns">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("general")</legend>
+        <div id="grouping_new" class="large-16 medium-16 small-16 row hidden">
+          <div id="grouping_new_top" class="large-16 medium-16 small-16 row">
+            <!-- Grouping main NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("grouping.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="grouping_new_name" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="grouping_new_name_error" class="hidden">Grouping name must be new and not have spaces</small>
+              </div>
+            </div>
+
+            <!-- Grouping's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("grouping.general.comment")
+                <textarea id="grouping_new_comment" spellcheck="false" placeholder="Description of this grouping" rows="10"></textarea>
+              </label>
+            </div>          
+          </div>
+          <div id="grouping_new_buttons"  class="large-16 medium-16 small-16 row">
+            <a href="#" onclick="crpstudio.corpora.createItem('grouping','new');" class="button search small radius">$labels.getString("grouping.new.create")</a>
+            <a href="#" onclick="crpstudio.corpora.createItem('grouping','cancel');" class="button search small radius">$labels.getString("grouping.new.cancel")</a>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

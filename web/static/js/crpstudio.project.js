@@ -260,28 +260,7 @@ var crpstudio = (function ($, crpstudio) {
         crpstudio.main.getCrpStudioData("crpchg", params, crpstudio.project.processCrpChg, "#project_description");      
       },
 
-      /**
-       * getNewId 
-       *    Create a new id for list @oList, using field @sIdField
-       * 
-       * @param {type} oList
-       * @param {type} sIdField
-       * @returns {undefined}
-       */
-      getNewId : function(oList, sIdField) {
-        var iItemId = 0;
-        // Validate
-        if (oList === null) return 0;
-        // Walk through all members, looking for the maximum
-        for (var i=0;i<oList.length;i++) {
-          var oItem = oList[i];
-          var iThisId = parseInt(oItem[sIdField],10);
-          if (iThisId > iItemId) iItemId = iThisId;
-        }
-        // Return the result
-        return iItemId+1;
-      },
-      
+
       /**
        * itemCheck
        *    Check if item of type @sItemType kan have a @sKey with @sValue
@@ -736,12 +715,13 @@ var crpstudio = (function ($, crpstudio) {
        * @param {type} oStart
        * @returns {int}           new item's id (numerical)
        */
+      /*
       createListItem : function(sListType, oStart) {
         // Get a descriptor object
         var oDescr = crpstudio.list.getItemDescr(sListType);
         // Find the correct list
         var oList = crpstudio.list.getList(sListType);
-        var iItemId = private_methods.getNewId(oList, oDescr.id);
+        var iItemId = crpstudio.list.getNewId(oList, oDescr.id);
         // Start preparing a new object
         var oNew = {}; oNew[oDescr.id] = iItemId.toString();
         // Get the fields array
@@ -780,7 +760,7 @@ var crpstudio = (function ($, crpstudio) {
         private_methods.histAddItem(sListType, iItemId);
         // Return the new id
         return iItemId;
-      },
+      },*/
       
       /**
        * getMaxFtNum
@@ -3411,7 +3391,7 @@ var crpstudio = (function ($, crpstudio) {
                   break;
               }
               // Create a new item
-              var iItemId = private_methods.createListItem(sItemType, oNew);
+              var iItemId = crpstudio.list.createListItem(sItemType, oNew, private_methods.histAddItem);
               
               // Hide the form
               $("#"+sDivPrf+"_new_create").addClass("hidden");
@@ -3434,7 +3414,7 @@ var crpstudio = (function ($, crpstudio) {
                     oQC.Cmp = "False"; oQC.Output = (crpstudio.prj_qclist.length + 1) + "_" + oQC.Query;
                     oQC.Mother = "False";
                     // (3) Create this new item
-                    iItemId = private_methods.createListItem("constructor", oQC);
+                    iItemId = crpstudio.list.createListItem("constructor", oQC, private_methods.histAddItem);
                     // (4) Make the new query list
                     private_methods.setQueryOptionList();
                   }

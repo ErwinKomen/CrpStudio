@@ -67,7 +67,7 @@ var crpstudio = (function ($, crpstudio) {
           case "metavar":     oList = crpstudio.crp_mvrlist; break;
           case "dbase":       oList = crpstudio.dbs_edtlist; break;
         }
-        if (oList === null) oList = [];
+        if (!oList || oList === null) oList = [];
         // Check if sorting is needed
         if (sSortField) {
           var oSorted = [];
@@ -174,6 +174,88 @@ var crpstudio = (function ($, crpstudio) {
       },      
 
       /**
+       * getNewId 
+       *    Create a new id for list @oList, using field @sIdField
+       * 
+       * @param {type} oList
+       * @param {type} sIdField
+       * @returns {undefined}
+       */
+      getNewId : function(oList, sIdField) {
+        var iItemId = 0;
+        // Validate
+        if (oList === null) return 0;
+        // Walk through all members, looking for the maximum
+        for (var i=0;i<oList.length;i++) {
+          var oItem = oList[i];
+          var iThisId = parseInt(oItem[sIdField],10);
+          if (iThisId > iItemId) iItemId = iThisId;
+        }
+        // Return the result
+        return iItemId+1;
+      },
+      
+      /**
+       * createListItem 
+       *    Create a new item for the list of type @sListType
+       * 
+       * @param {string} sListType
+       * @param {object} oStart
+       * @param {function} fn_after
+       * @returns {int}           new item's id (numerical)
+       */
+      createListItem : function(sListType, oStart, fn_after) {
+        // Get a descriptor object
+        var oDescr = crpstudio.list.getItemDescr(sListType);
+        // Find the correct list
+        var oList = crpstudio.list.getList(sListType);
+        var iItemId = crpstudio.list.getNewId(oList, oDescr.id);
+        // Start preparing a new object
+        var oNew = {}; oNew[oDescr.id] = iItemId.toString();
+        // Get the fields array
+        var arField = oDescr.fields;
+        // Walk all the fields
+        for (var i=0;i<arField.length;i++) {
+          // Add this field to the object
+          var oOneField = arField[i].field; oNew[oOneField] = "";
+        }
+        // Adapt the fields provided by [oStart]
+        for (var propt in oStart) {
+          oNew[propt] = oStart[propt];
+        }
+        // Get the field on which we need to sort
+        var sSortField = oDescr.sortfield;
+        var sSortName = oNew[sSortField].toLowerCase();
+        var bAdded = false;
+        // Find out where to put the new item
+        for (var i=0;i<oList.length;i++) {
+          var oThis = oList[i];
+          // Should we insert before this item?
+          if (oThis[sSortField].toLowerCase() > sSortName) {
+            // We must insert here
+            oList.splice(i,0,oNew);
+            bAdded = true;
+            break;
+          }
+        }
+        if (!bAdded) {
+          // Add the new item to the correct list
+          oList.push(oNew);
+        }
+        // And adapt the indicated list
+        crpstudio.list.setList(sListType, oList);
+        
+        // Check if a call to a history-add function is needed
+        if (fn_after) {
+          // Indicate in the history that this new object must be created
+          fn_after(sListType, iItemId);          
+        }
+        
+        // Return the new id
+        return iItemId;
+      },
+            
+      /**
        * showlist -- create a set of <li> items to occur in the "available"
        *             section of one of four different types:
        *             "query", "definition", "constructor" or "dbfeat"
@@ -256,18 +338,26 @@ var crpstudio = (function ($, crpstudio) {
                         "<div class='list_12'>"+oOneItem.FtNum + "</div>" + 
                         "<div class='list_22'>"+oOneItem.Name + "</div>"; break;
               case "corpus": 
-                if (parseInt(oOneItem.DbFeatId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                if (parseInt(oOneItem.CorpusId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
                 sOneItem += "crpstudio.list.setCrpItem(this, 'corpus', "+ 
                         oOneItem.CorpusId +")\">" + 
                         "<div class='list_12'>"+oOneItem.lng + "</div>" + 
                         "<div class='list_22'>"+oOneItem.part + "</div>"; break;
                  // COR: "CorpusId;lng;lngName;lngEth;part;descr;url;metavar"
               case "grouping": 
-                if (parseInt(oOneItem.DefId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                if (parseInt(oOneItem.GrpId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
                 sOneItem += "crpstudio.list.setCrpItem(this, 'grouping', "+ 
+                        oOneItem.GrpId +")\">" + oOneItem.Name; break;
+              case "group": 
+                if (parseInt(oOneItem.GroId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.list.setCrpItem(this, 'group', "+ 
+                        oOneItem.GroId +")\">" + oOneItem.Name; break;
+              case "metavar": 
+                if (parseInt(oOneItem.MtvId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                sOneItem += "crpstudio.list.setCrpItem(this, 'metavar', "+ 
                         oOneItem.MtvId +")\">" + oOneItem.Name; break;
               case "dbase": 
-                if (parseInt(oOneItem.DefId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
+                if (parseInt(oOneItem.DbaseId,10) === iCurrentId) sOneItem = sOneItem.replace('available', 'available active');
                 sOneItem += "crpstudio.list.setCrpItem(this, 'dbase', "+ 
                         oOneItem.DbaseId +")\">" + oOneItem.Name; break;
             }

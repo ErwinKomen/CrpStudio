@@ -99,13 +99,21 @@ var crpstudio = (function ($, crpstudio) {
               
               // Show the editor selector
               $("#corpus_grouping").show();
+              
+              // Fill the list with available groupings for this corpus
+              // (Select 'currentGrp' if this is already set)
+              crpstudio.list.showlist("grouping", currentGrp, currentCor);
+              
+              // Show the editor selector
+              $("#grouping_editor").show();
               // Call setCrpItem() which should check if a 'default' item needs to be shown
-              // crpstudio.project.setCrpItem(null, "query");          
+              crpstudio.list.setCrpItem(null, "grouping", -1);          
+              
               
               // Switch on event handling in def_general_top to trigger resizing of the Xquery editor
               // 
               // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
-              // crpstudio.project.addChangeEvents("query_general");
+              crpstudio.corpora.addChangeEvents("grouping_general");
               
               // The Save button must be shown if the 'dirty' flag is set
               // private_methods.showSaveButton(loc_dirty);
@@ -205,6 +213,84 @@ var crpstudio = (function ($, crpstudio) {
         }
       },
       
+     /**
+       * createItem
+       *    Create a new qry/def/dbf/ and so on
+       * 
+       * @param {type} sItemType
+       * @param {type} sAction
+       * @returns {undefined}
+       */
+      createItem : function(sItemType, sAction) {
+        var bOkay = false;
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
+        var sDivPrf = oDescr.divprf;
+        // Determine the new name
+        var sNewName = "new_name";
+        // Reset any previous naming
+        $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("error");
+        $("#"+sDivPrf+"_"+sNewName+"_error").addClass("hidden");
+        // First look at the action
+        switch(sAction) {
+          case "new":
+            // Check the information provided
+            var sItemName = $("#"+sDivPrf+"_"+sNewName).val();
+            var sItemGoal = $("#"+sDivPrf+"_new_goal").val();
+            var sItemComment = $("#"+sDivPrf+"_new_comment").val();
+
+            // Only the item NAME is obligatory + check the NAME item
+            if (sItemName !=="") {
+              // Validate: check 
+              if (!private_methods.itemNameCheck(sItemType, sItemName)) {
+                // Signal that the name is not correct
+                $("#"+sDivPrf+"_"+sNewName+"_error").html("Duplicate: "+sItemName);
+                $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");
+                $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("hidden");
+                return;
+              }
+              // Determine how the new item will look like
+              var oNew = {};
+              switch (sItemType) {
+                case "grouping":
+                  oNew.Name = sItemName; oNew.Comment = sItemComment;
+                  break;
+                case "group":
+                  oNew.Name = sItemName; oNew.Comment = sItemComment;
+                  break;
+                case "metavar":
+                  break;
+              }
+              // Create a new item
+              var iItemId = crpstudio.list.createListItem(sItemType, oNew, null);
+              
+              // Hide the form
+              $("#"+sDivPrf+"_new_create").addClass("hidden");
+              $("#"+sDivPrf+"_general_editor").removeClass("hidden");
+
+              // Make sure the list is re-drawn
+              crpstudio.list.itemListShow(sItemType, iItemId, oNew);
+              
+              // There may be post-processing (follow-up actions)
+              switch (sItemType) {
+                case "grouping":
+                  break;
+              }
+
+            }
+            break;
+          case "cancel":
+            // Return to the current item
+            bOkay = true;
+            break;
+        }
+        // Hide the form if all is well
+        if (bOkay) {
+          $("#"+sDivPrf+"_new_create").addClass("hidden");
+          $("#"+sDivPrf+"_general_editor").removeClass("hidden");
+        }
+      },
+      
+
       /**
        * downloadCorpus
        *    Download the indicated project
