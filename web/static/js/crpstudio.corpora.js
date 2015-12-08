@@ -196,6 +196,33 @@ var crpstudio = (function ($, crpstudio) {
 
       }, 
 
+      /* ---------------------------------------------------------------------------
+       * Name: createManual
+       * Goal: manually create a grouping, group, metavar and so forth
+       * History:
+       * 8/dec/2015  ERK Created
+       */
+      createManual : function(target, sItemType) {
+        // Action depends on the kind of item
+        switch (sItemType) {
+          case "grouping":        // New GROUPING
+            // Make sure the new query form becomes visible
+            $("#grouping_general_editor").addClass("hidden");
+            $("#grouping_new_create").removeClass("hidden");
+            break;
+          case "group":           // New GROUP
+            // Make sure the new definition form becomes visible
+            $("#group_general_editor").addClass("hidden");
+            $("#group_new_create").removeClass("hidden");
+            break;
+          case "metavar":         // New METAVAR
+            // Make sure the new dbfeat form becomes visible
+            $("#metavar_general_editor").addClass("hidden");
+            $("#metavar_new_create").removeClass("hidden");
+            break;
+        }
+      },
+      
       /* --------------------------------------------------------------
        * Name: showDescr
        * Goal: show a fuller description of the corpus

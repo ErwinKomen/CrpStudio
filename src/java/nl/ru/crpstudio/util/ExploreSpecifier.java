@@ -16,20 +16,21 @@ package nl.ru.crpstudio.util;
  */
 public class ExploreSpecifier {
   // Local variables
-  private String loc_sTitle = ""; // Title (e.g: "Queries")
-  private String loc_sName = "";  // Full name (e.g: "query")
-  private String loc_sAbbr = "";  // Abbreviation (e.g: "qry")
+  private String loc_sTitle = "";   // Title (e.g: "Queries")
+  private String loc_sName = "";    // Full name (e.g: "query")
+  private String loc_sAbbr = "";    // Abbreviation (e.g: "qry")
+  private String loc_sSection = ""; // Section (project/corpora)
   // Initialisation of the class
-  public ExploreSpecifier(String sTitle, String sName, String sAbbr) {
+  public ExploreSpecifier(String sTitle, String sName, String sAbbr, String sSection) {
     this.loc_sTitle = sTitle;
     this.loc_sAbbr = sAbbr;
     this.loc_sName = sName;
+    this.loc_sSection = sSection;
   }
   // Getters
   public String getAbbr() { return this.loc_sAbbr; }
-  public String getName() { 
-    return this.loc_sName; }
-  public String getTitle() { 
-    return this.loc_sTitle; }
+  public String getName() { return this.loc_sName; }
+  public String getTitle() { return this.loc_sTitle; }
+  public String getSection() { return this.loc_sSection; }
   public String getLbName(String sKey) { return this.loc_sName + "." + sKey; }
 }

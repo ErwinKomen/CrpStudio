@@ -39,7 +39,7 @@
   </div>
 
   <!-- the part to the right of the side-bar: NEW grouping creation form -->
-  <div id="grouping_new_create" class="large-12 medium-12 small-12 columns">
+  <div id="grouping_new_create" class="large-12 medium-12 small-12 columns hidden">
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>

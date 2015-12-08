@@ -2156,8 +2156,9 @@ public abstract class BaseResponse {
     String[] arTitle = labels.getString("explore.tab.title").split(",");
     String[] arName = labels.getString("explore.tab.names").split(",");
     String[] arAbbr = labels.getString("explore.tab.abbr").split(",");
+    String[] arSection = labels.getString("explore.tab.section").split(",");
     for (int i=0;i<arName.length;i++) {
-      ExploreSpecifier tabThis = new ExploreSpecifier(arTitle[i].trim(), arName[i].trim(), arAbbr[i].trim());
+      ExploreSpecifier tabThis = new ExploreSpecifier(arTitle[i].trim(), arName[i].trim(), arAbbr[i].trim(), arSection[i].trim());
       tabs.add(tabThis);
     }
     // Return the result
