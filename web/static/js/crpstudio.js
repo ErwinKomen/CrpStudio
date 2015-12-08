@@ -16,6 +16,7 @@ var crpstudio = (function ($, crpstudio) {
   crpstudio.prj_crplist =  null,      // List of currently available CRPs
   crpstudio.crp_edtlist = null,       // List of corpora for editing
   crpstudio.crp_grplist = null,       // List of grouping definitions
+  crpstudio.crp_grolist = null,       // List of all groups
   crpstudio.crp_mvrlist = null,       // List of metavar definitions2
   crpstudio.dbs_edtlist = null;       // List of databases for editing
   

@@ -64,6 +64,7 @@ var crpstudio = (function ($, crpstudio) {
           case "dbfeat":      oList = crpstudio.prj_dbflist;break;
           case "corpus":      oList = crpstudio.crp_edtlist; break;
           case "grouping":    oList = crpstudio.crp_grplist; break;
+          case "group":       oList = crpstudio.crp_grolist; break;
           case "metavar":     oList = crpstudio.crp_mvrlist; break;
           case "dbase":       oList = crpstudio.dbs_edtlist; break;
         }
@@ -254,6 +255,32 @@ var crpstudio = (function ($, crpstudio) {
         // Return the new id
         return iItemId;
       },
+      
+      /**
+       * itemNameCheck
+       *    Check if name @sItemName already exists for @sItemType
+       *    
+       * @param {type} sItemType
+       * @param {type} sItemName
+       * @returns {boolean}       - true if the item is okay (it *not* a duplicate)
+       */
+      itemNameCheck : function(sItemType, sItemName) {
+        // Get the list
+        var oList = crpstudio.list.getList(sItemType);
+        // If the list is emtpy, we are okay
+        if (oList === null) return true;
+        // Find out which name need to be checked
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
+        var sListField = oDescr.listfield;
+        // Walk the list
+        for (var i=0;i<oList.length;i++) {
+          // Get this item
+          var oItem = oList[i];
+          if (oItem[sListField] === sItemName) return false;
+        }
+        // Getting here means we're okay
+        return true;
+      },
             
       /**
        * showlist -- create a set of <li> items to occur in the "available"
@@ -394,11 +421,11 @@ var crpstudio = (function ($, crpstudio) {
         var oFirst = null;
         // Ga alle elementen handmatig af
         $(sLoc).each(function() {
-          if (oFirst === null) oFirst = $(this).children(":last").get(0);
+          if (oFirst === null) oFirst = $(this).children("a").last().get(0); // $(this).siblings(":last").get(0);
           // Check if it has the correct class
           if ($(this).hasClass(sClass)) {
             // Find this element's last child, which is the <a> element
-            var oTarget = $(this).children(":last").get(0);
+            var oTarget = $(this).children("a").last().get(0); // $(this).children(":last").get(0);
             // Return this
             return oFirst = oTarget;
           }
@@ -492,6 +519,10 @@ var crpstudio = (function ($, crpstudio) {
           // Make sure we are visible
           $("#"+sPrf+"_general").removeClass("hidden");
           $("#"+sPrf+"_description").html("");
+          // Activate the target
+          var listHost = crpstudio.list.itemListActivate(target);
+          
+          /*
           // Get the <li>
           // var listItem = $(target).parent();
           var listItem = $(target).closest("li");
@@ -502,6 +533,7 @@ var crpstudio = (function ($, crpstudio) {
           listHost.children('li').each(function() { $(this).removeClass("active"); });
           // Set the "active" class for the one the user has selected
           $(listItem).addClass("active");
+                            */
           // Retrieve the item from the list
           var oItem = crpstudio.list.getListObject(oItemDescr.name, oItemDescr.id, iItemId);
           // Validate
@@ -570,7 +602,27 @@ var crpstudio = (function ($, crpstudio) {
           fn_after(sType, iItemId, bSelLocal, oArgs);
         }
         
-      },      
+      },    
+      
+      /**
+       * itemListActivate
+       *    Put the 'target' <a> section as active
+       *    Return the <ul> listhost
+       * 
+       * @param {type} target
+       * @returns {element}   - the <ul> listhost
+       */
+      itemListActivate : function(target) {
+        // Get the <li>
+        var listItem = $(target).closest("li");
+        // Get the <ul> above it
+        var listHost = $(target).closest('ul');
+        listHost.children('li').each(function() { $(this).removeClass("active"); });
+        // Set the "active" class for the one the user has selected
+        $(listItem).addClass("active");
+        // Return the listhost
+        return listHost;
+      },
       
       /**
        * itemListShow 

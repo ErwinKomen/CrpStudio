@@ -339,32 +339,6 @@ var crpstudio = (function ($, crpstudio) {
       },
 
       /**
-       * itemNameCheck
-       *    Check if name @sItemName already exists for @sItemType
-       *    
-       * @param {type} sItemType
-       * @param {type} sItemName
-       * @returns {boolean}       - true if the item is okay (it *not* a duplicate)
-       */
-      itemNameCheck : function(sItemType, sItemName) {
-        // Get the list
-        var oList = crpstudio.list.getList(sItemType);
-        // If the list is emtpy, we are okay
-        if (oList === null) return true;
-        // Find out which name need to be checked
-        var oDescr = crpstudio.list.getItemDescr(sItemType);
-        var sListField = oDescr.listfield;
-        // Walk the list
-        for (var i=0;i<oList.length;i++) {
-          // Get this item
-          var oItem = oList[i];
-          if (oItem[sListField] === sItemName) return false;
-        }
-        // Getting here means we're okay
-        return true;
-      },
-
-      /**
        * itemPerculate
        *    Perculate change in type @sItemType of @sKey with @sValue
        *    
@@ -1647,13 +1621,17 @@ var crpstudio = (function ($, crpstudio) {
       switchTab : function(target, sRecentCrp, bForce) {
         crpstudio.main.debug("switching to search tab "+target+" from "+loc_tab);
         if (target !== loc_tab || bForce) {
+          var sTarget = target;
+          switch(target) {
+            case "query_editor": sTarget = "queries"; break;
+          }
           // Bookkeeping
           $("#search .content").removeClass("active");
-          $("#"+target).addClass("active");
+          $("#"+sTarget).addClass("active");
           $("#subnav dd").removeClass("active");
-          $("#"+target+"_link").addClass("active");
+          $("#"+sTarget+"_link").addClass("active");
           // Reset the status message in the target
-          $("#"+target+"_status").text("");
+          $("#"+sTarget+"_status").text("");
           // Make sure the global variable is set correctly
           loc_tab = target;
           // Initially hide *all* SELECTORs
@@ -3334,7 +3312,7 @@ var crpstudio = (function ($, crpstudio) {
             // Only the item NAME is obligatory + check the NAME item
             if (sItemName !=="") {
               // Validate: check 
-              if (!private_methods.itemNameCheck(sItemType, sItemName)) {
+              if (!crpstudio.list.itemNameCheck(sItemType, sItemName)) {
                 // Signal that the name is not correct
                 $("#"+sDivPrf+"_"+sNewName+"_error").html("Duplicate: "+sItemName);
                 $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");

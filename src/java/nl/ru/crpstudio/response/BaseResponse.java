@@ -1069,12 +1069,39 @@ public abstract class BaseResponse {
     JSONArray arGrpList = null;
     
     try {
-      
+      arGrpList = new JSONArray();
       
       // Get the list of Groupings
       return arGrpList;
     } catch (Exception ex) {
       logger.DoError("getGroupings: could not complete", ex);
+      return null;
+    }
+  }
+
+  /**
+   * getComparisons
+   *    Get a list of 'comparisons'
+   * 
+   * @return 
+   */
+  public JSONArray getComparisons() {
+    JSONArray arCmpList = null;
+    String[] arSymbol = labels.getString("group.cmp.symbol").split(",");
+    String[] arName = labels.getString("group.cmp.name").split(",");
+    
+    try {
+      arCmpList = new JSONArray();
+      for (int i=0;i<arSymbol.length;i++) {
+        JSONObject oOne = new JSONObject();
+        oOne.put("symbol", arSymbol[i]);
+        oOne.put("name", arName[i]);
+        arCmpList.put(oOne);
+      }
+      // Return the list of Comparisons
+      return arCmpList;
+    } catch (Exception ex) {
+      logger.DoError("getComparisons: could not complete", ex);
       return null;
     }
   }
@@ -2048,6 +2075,8 @@ public abstract class BaseResponse {
           oVar.put("mtvName", sMtvName);
           // Put the result into an array
           arBack.put(oVar);
+          // NOTE: each item now has the following members:
+          //       MtvId, VarId, mtvName, name, descr, loc, value
         }
         // Put the resulting array back
         servlet.setMetavars(arBack);

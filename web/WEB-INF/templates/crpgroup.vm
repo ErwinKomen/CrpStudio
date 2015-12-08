@@ -34,3 +34,71 @@
       </fieldset>
     </form>
   </div>
+
+  <!-- the part to the right of the side-bar: NEW group creation form -->
+  <div id="group_new_create" class="large-12 medium-12 small-12 columns hidden">
+    <form>
+      <fieldset>
+        <legend>$labels.getString("general")</legend>
+        <div id="group_new" class="large-16 medium-16 small-16 row">
+          <div id="group_new_top" class="large-16 medium-16 small-16 row">
+            <!-- Group main NAME -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("group.general.name")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="group_new_name" class="left general_input" type="text" placeholder="name (no spaces)">
+                <small id="group_new_name_error" class="hidden">Group name must be new and not have spaces</small>
+              </div>
+            </div>
+
+            <!--
+            Table to construct the logics of the new group, consisting of metavar combinations
+            -->
+            <!-- Group's CONSTRUCTOR -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-4 medium-4 small-4 columns">
+                <label>$labels.getString("group.general.variable")</label>
+                <select id="group_new_variable" class="general_input"  placeholder="select a variable">
+                </select>
+              </div>
+              <div class="large-4 medium-4 small-4 columns">
+                <label>$labels.getString("group.general.comparison")</label>
+                <select id="group_new_comparison" class="general_input"  placeholder="select a variable">
+                </select>
+              </div>
+              <div class="large-4 medium-4 small-4 columns">
+                <label>$labels.getString("group.general.value")</label>
+                <input id="group_new_value" class="left general_input" type="text" placeholder="value">
+              </div>
+              <div class="large-4 medium-4 small-4 columns">
+                <a href="#" onclick="crpstudio.corpora.createItem('group','line');" class="button search tiny radius">$labels.getString("group.new.line")</a>
+              </div>
+            </div>
+            <!-- Group's RESULT table -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("group.general.constructor")</label>
+              <table>
+                <thead><th>$labels.getString("group.general.variable")</th>
+                       <th>$labels.getString("group.general.comparison")</th>
+                       <th>$labels.getString("group.general.value")</th></thead>
+                <tbody id="group_new_table">
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Group's COMMENT -->
+            <div class="large-16 medium-16 small-16 row">
+              <label>$labels.getString("group.general.comment")</label>
+              <textarea id="group_new_comment" spellcheck="false" placeholder="Description of this group" rows="4"></textarea>
+            </div>          
+          </div>
+          <div id="group_new_buttons"  class="large-16 medium-16 small-16 row">
+            <a href="#" onclick="crpstudio.corpora.createItem('group','new');" class="button search small radius">$labels.getString("group.new.create")</a>
+            <a href="#" onclick="crpstudio.corpora.createItem('group','cancel');" class="button search small radius">$labels.getString("group.new.cancel")</a>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>

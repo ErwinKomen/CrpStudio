@@ -46,6 +46,8 @@ public class LoadResponse extends BaseResponse {
           // Get the table containing corpus-dependant metavar definitions -- see crp-info.json
           if (!this.makeMetaVarList()) { sendErrorResponse("LoadResponse: could not makeMetaVarList()");  return;}
           oContent.put("metavarlist", servlet.getMetavars());
+          // Get the list of comparisons (JSON array with JSON objects)
+          oContent.put("comparisonlist", this.getComparisons());
           break;
         case "dbases":
           // TODO: Pass on a list of databases and information about them

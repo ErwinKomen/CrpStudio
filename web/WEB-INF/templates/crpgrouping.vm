@@ -1,13 +1,22 @@
-  <!-- the part to the right of the side-bar: GENERAL contents of this corpus -->
+  <!-- the part to the right of the side-bar: GENERAL contents of this grouping -->
   <div id="grouping_general_editor" class="large-12 medium-12 small-12 columns">
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>
         <div id="grouping_description" class="large-16 medium-16 small-16 row">
-          <i>(no corpus selected)</i>
+          <i>(no grouping selected)</i>
         </div>
         <div id="grouping_general" class="large-16 medium-16 small-16 row hidden">
           <div id="grouping_general_top" class="large-16 medium-16 small-16 row">
+            <!-- Grouping METAVARSET -->
+            <div class="large-16 medium-16 small-16 row">
+              <div class="large-2 medium-3 small-4 columns">
+                <label for="right-label" class="left inline">$labels.getString("corpus.general.metavar")</label>
+              </div>
+              <div class="large-9 medium-8 small-7 columns left">
+                <input id="grouping_general_varset" class="left general_input disabled" type="text" placeholder="variable set (select corpus)">
+              </div>
+            </div>
             <!-- Grouping main NAME -->
             <div class="large-16 medium-16 small-16 row">
               <div class="large-2 medium-3 small-4 columns">
@@ -19,7 +28,7 @@
               </div>
             </div>
 
-            <div id="corpus_group" class="large-16 medium-16 small-16 content active">
+            <div id="corpus_group" class="large-16 medium-16 small-16 row">
               #set( $explorespec = $explorespecs.get(9) )
               #set( $item_list = "" )
               #parse("selector.vm")
@@ -28,9 +37,8 @@
 
             <!-- Grouping's COMMENT -->
             <div class="large-16 medium-16 small-16 row">
-              <label>$labels.getString("grouping.general.comment")
-                <textarea id="grouping_general_descr" spellcheck="false" placeholder="Description of this grouping" rows="10"></textarea>
-              </label>
+              <label>$labels.getString("grouping.general.comment")</label>
+              <textarea id="grouping_general_descr" spellcheck="false" placeholder="Description of this grouping" rows="10"></textarea>
             </div>          
           </div>
         </div>
@@ -43,7 +51,7 @@
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>
-        <div id="grouping_new" class="large-16 medium-16 small-16 row hidden">
+        <div id="grouping_new" class="large-16 medium-16 small-16 row">
           <div id="grouping_new_top" class="large-16 medium-16 small-16 row">
             <!-- Grouping main NAME -->
             <div class="large-16 medium-16 small-16 row">

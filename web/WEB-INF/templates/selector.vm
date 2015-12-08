@@ -1,6 +1,7 @@
-#set ($exp_abbr = $explorespec.getAbbr() )
-#set ($exp_name = $explorespec.getName() )
-#set ($exp_title = $explorespec.getTitle() )
+#set ($exp_abbr     = $explorespec.getAbbr() )
+#set ($exp_name     = $explorespec.getName() )
+#set ($exp_title    = $explorespec.getTitle() )
+#set ($exp_section  = $explorespec.getSection() )
 #set ($exp_new   = $exp_abbr + "-new" )
 #set ($exp_cur   = $exp_abbr + "-current" )
 #set ($exp_rec   = $exp_abbr + "-recent" )
@@ -68,36 +69,36 @@
         <ul id="${exp_name}_list" class="side-nav">
           <!-- Actions to CREATE/ADD/LOAD an item -->
           #if ($exp_strNew  && $exp_strNew != "")
-            <li class="heading $exp_new" onclick="crpstudio.project.sideToggle(this, '$exp_new')"><label>$exp_strNew</label></li>
+            <li class="heading $exp_new" onclick="crpstudio.${exp_section}.sideToggle(this, '$exp_new')"><label>$exp_strNew</label></li>
             #if ($exp_strUpload && $exp_strUpload != "")
               <li class="$exp_new hidden">
                 <a id="${exp_name}-upload" onclick="$('#${exp_name}-upload-input').click();">$exp_strUpload</a>
-                <input id="${exp_name}-upload-input" class="uploadfile" type="file" onchange="crpstudio.project.uploadFile(this, '$exp_name');">
+                <input id="${exp_name}-upload-input" class="uploadfile" type="file" onchange="crpstudio.${exp_section}.uploadFile(this, '$exp_name');">
               </li>
             #end
             #if ($exp_strManual && $exp_strManual != "")
-              <li class="$exp_new hidden"><a id="${exp_name}-createM" href="#" onclick="crpstudio.project.createManual(this, '$exp_name');">
+              <li class="$exp_new hidden"><a id="${exp_name}-createM" href="#" onclick="crpstudio.${exp_section}.createManual(this, '$exp_name');">
                 $exp_strManual</a></li>
             #end
             #if ($exp_strWizard && $exp_strWizard != "")
-              <li class="$exp_new hidden"><a id="${exp_name}-createW" href="#" onclick="crpstudio.project.createWizard(this, '$exp_name');">
+              <li class="$exp_new hidden"><a id="${exp_name}-createW" href="#" onclick="crpstudio.${exp_section}.createWizard(this, '$exp_name');">
                 $exp_strWizard</a></li>
             #end
             <li class="divider $exp_cur"></li>
           #end
 
           <!-- Actions on CURRENTLY loaded item -->
-          <li class="heading $exp_cur" onclick="crpstudio.project.sideToggle(this, '$exp_cur')">
+          <li class="heading $exp_cur" onclick="crpstudio.${exp_section}.sideToggle(this, '$exp_cur')">
             <label>$exp_strCurrent</label></li>
-          <li class="$exp_cur hidden"><a id="${exp_name}-download" href="#" onclick="crpstudio.project.downloadFile(this, '$exp_name');">
+          <li class="$exp_cur hidden"><a id="${exp_name}-download" href="#" onclick="crpstudio.${exp_section}.downloadFile(this, '$exp_name');">
             $exp_strDownload</a></li>
-          <li class="$exp_cur hidden"><a id="${exp_name}-remove" href="#" onclick="crpstudio.project.removeItem(this, '$exp_name');">
+          <li class="$exp_cur hidden"><a id="${exp_name}-remove" href="#" onclick="crpstudio.${exp_section}.removeItem(this, '$exp_name');">
             $exp_strRemove</a></li>
 
           <!-- Most RECENTly used item (just 1, if any) -->
           #if ($exp_strRecent && $exp_strRecent != "")
             <li class="divider $exp_rec"></li>
-            <li class="heading $exp_rec" onclick="crpstudio.project.sideToggle(this, '$exp_rec')">
+            <li class="heading $exp_rec" onclick="crpstudio.${exp_section}.sideToggle(this, '$exp_rec')">
               <label>$exp_strRecent</label></li>
             #if ( $item_rec && $item_rec != "" )
               ${item_rec}
@@ -107,7 +108,7 @@
 
           <!-- List of AVAILABLE Items -->
           <li class="divider $exp_avb"></li>
-          <li class="heading $exp_avb" onclick="crpstudio.project.sideToggle(this, '$exp_avb')">
+          <li class="heading $exp_avb" onclick="crpstudio.${exp_section}.sideToggle(this, '$exp_avb')">
             <label>$exp_strAvailable </label></li>
             #if ( $item_list && $item_list != "" )
               ${item_list}

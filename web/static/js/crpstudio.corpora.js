@@ -14,10 +14,13 @@ var crpstudio = (function ($, crpstudio) {
         currentCor = -1,          // The CorId of the currently selected corpus
         currentMtv = -1,          // The MtvId of the currently selected metavar
         currentGrp = -1,          // The GrpId of the currently selected grouping
+        currentGro = -1,          // The GroId of the currently selected group
         loc_metaVar = "",         // Name of the metavar selection belonging to the selected corpus
         loc_dirty =  false,       // Corpus information needs saving or not
         arLng = [],               // Array of language objects: {lng: x, name: y}
-        arMtvName = [],           // Array of metavar names
+        arMtvName = [],           // Array of metavar set names
+        arMtvVar = [],            // Array of metavar variables for the currently selected metavar 'set'
+        arCmpObject = [],         // Array of comparison symbols and names
         loc_tab = "overview";     // Currently selected tab name
         //
     // Methods that are local to [crpstudio.project]
@@ -38,19 +41,24 @@ var crpstudio = (function ($, crpstudio) {
        * 02/dec/2015  ERK Created
        */
       switchTab : function(target, bForce) {
-        crpstudio.main.debug("switching to search tab "+target+" from "+loc_tab);
+        crpstudio.main.debug("switching to corpora tab "+target+" from "+loc_tab);
         if (target !== loc_tab || bForce) {
+          var sTarget = target;
+          switch(target) {
+            case "query_editor": sTarget = "queries"; break;
+          }
           // Bookkeeping
           $("#search .content").removeClass("active");
-          $("#"+target).addClass("active");
+          $("#"+sTarget).addClass("active");
           $("#subnav dd").removeClass("active");
-          $("#"+target+"_link").addClass("active");
+          $("#"+sTarget+"_link").addClass("active");
           // Reset the status message in the target
-          $("#"+target+"_status").text("");
+          $("#"+sTarget+"_status").text("");
           // Make sure the global variable is set correctly
           loc_tab = target;
           // Initially hide *all* SELECTORs
-          $("#corpus_explore").hide(); $("#corpus_editor").hide(); $("#corpus_grouping").hide();
+          $("#corpus_explore").hide(); $("#corpus_editor").hide(); 
+          $("#corpus_grouping").hide(); $("#corpus_metavar").hide();
           
           // Remove textarea event handlers
           /*
@@ -63,19 +71,19 @@ var crpstudio = (function ($, crpstudio) {
 
           // Action depends on target 
           switch (target) {
-            case "corpus_explore": case "crpexplore":
+            case "corpus_explore": case "explore":
               // Show the explorer
               $("#corpus_explore").show();
               break;
-            case "corpus_editor": case "crpeditor":
+            case "corpus_editor": case "editor":
               // Selecting...
               bIsSelecting = true;
               // Fill the list of editor information
               crpstudio.list.showlist("corpus", currentCor);
               
               // Fill two comboboxes
-              crpstudio.corpora.fillCombo("general", "lng", arLng);
-              crpstudio.corpora.fillCombo("general", "metavar", arMtvName);
+              crpstudio.corpora.fillCombo("corpus_general_lng", arLng);
+              crpstudio.corpora.fillCombo("corpus_general_metavar", arMtvName);
               
               // Show the editor selector
               $("#corpus_editor").show();
@@ -93,9 +101,29 @@ var crpstudio = (function ($, crpstudio) {
               // We are open for changes again
               bIsSelecting = bSelState;
               break;
-            case "corpus_grouping": case "crpgrouping":
+            case "corpus_grouping": case "grouping":
               // Selecting...
               bIsSelecting = true;
+              
+              // Get the variable set that has been selected
+              if (currentMtv < 0 && arMtvName.length>0) currentMtv = 0;
+              if (currentMtv>=0) {
+                var oItem = crpstudio.list.getListItem("metavar", {"MtvId" : currentMtv});
+                var sVarset = oItem.mtvName;
+                $("#grouping_general_varset").val(sVarset);
+                // Filter the list of variable names for this metavar set
+                var arVarName = [];
+                var oList = crpstudio.list.getList("metavar");
+                for (var i=0;i<oList.length;i++) {
+                  var oMtv = oList[i];
+                  if (oMtv["MtvId"] === currentMtv) {
+                    // Add this variable
+                    arVarName.push(oMtv["name"]);
+                  }
+                }
+                // Fill the combobox with this list
+                crpstudio.corpora.fillCombo("group_new_variable", arVarName);
+              }
               
               // Show the editor selector
               $("#corpus_grouping").show();
@@ -122,7 +150,7 @@ var crpstudio = (function ($, crpstudio) {
               // We are open for changes again
               bIsSelecting = bSelState;
               break;
-            case "corpus_metavar": case "crpmetavar":
+            case "corpus_metavar": case "metavar":
               // Selecting...
               bIsSelecting = true;
               
@@ -156,15 +184,39 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       jumpMtvToGroupings : function(target) {
+        // Set the current metavar set
+        currentMtv = crpstudio.corpora.getSelectedMtvId();
+        crpstudio.corpora.switchTab("grouping");
+      },
+      
+      /**
+       * getSelectedMtvId
+       *    Retrieve the MtvId of the currently selected metavar set
+       * 
+       * @returns {unresolved}
+       */
+      getSelectedMtvId : function() {
         // Get the name of the currently selected metavar SET
         var sMtv = $("#corpus_general_metavar").val();
         // Find out what the MtvId is belonging to this value
         var oItem = crpstudio.list.getListItem("metavar", {"mtvName": sMtv});
         var iMtvId = -1;
         if (oItem !== null) iMtvId = oItem.MtvId;
-        // Use this id to filter the groupings to those that use this metavar set
-        currentMtv = iMtvId;
-        crpstudio.corpora.switchTab("corpus_grouping");
+        return iMtvId;
+      },
+      
+      /**
+       * sideToggle
+       *    Toggle the visibility of the <li> items with the indicated class name
+       *    
+       * @param {type} target
+       * @param {type} sSection
+       * @returns {undefined}
+       */
+      sideToggle : function(target, sSection) {
+        // Main action: toggle the indicated section
+        $(target).parent().children("."+sSection+":not(.heading):not(.divider)").toggleClass("hidden");
+ 
       },
       
       /**
@@ -221,6 +273,10 @@ var crpstudio = (function ($, crpstudio) {
             $("#metavar_new_create").removeClass("hidden");
             break;
         }
+        // Activate the target
+        var listHost = crpstudio.list.itemListActivate(target);
+        // Follow-up material can use the <ul> listHost
+        // ...
       },
       
       /* --------------------------------------------------------------
@@ -257,18 +313,18 @@ var crpstudio = (function ($, crpstudio) {
         // Reset any previous naming
         $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("error");
         $("#"+sDivPrf+"_"+sNewName+"_error").addClass("hidden");
+        // Check the information provided
+        var sItemName = $("#"+sDivPrf+"_"+sNewName).val();
+        var sItemGoal = $("#"+sDivPrf+"_new_goal").val();
+        var sItemComment = $("#"+sDivPrf+"_new_comment").val();
         // First look at the action
         switch(sAction) {
           case "new":
-            // Check the information provided
-            var sItemName = $("#"+sDivPrf+"_"+sNewName).val();
-            var sItemGoal = $("#"+sDivPrf+"_new_goal").val();
-            var sItemComment = $("#"+sDivPrf+"_new_comment").val();
 
             // Only the item NAME is obligatory + check the NAME item
             if (sItemName !=="") {
               // Validate: check 
-              if (!private_methods.itemNameCheck(sItemType, sItemName)) {
+              if (!crpstudio.list.itemNameCheck(sItemType, sItemName)) {
                 // Signal that the name is not correct
                 $("#"+sDivPrf+"_"+sNewName+"_error").html("Duplicate: "+sItemName);
                 $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");
@@ -304,6 +360,37 @@ var crpstudio = (function ($, crpstudio) {
               }
 
             }
+            break;
+          case "line":
+            // Add a new line to the group-constructor
+            var oList = crpstudio.list.getList("group");
+            var oNew = {};
+            oNew.MtvId = currentMtv; oNew.name = sItemName; oNew.comment = sItemComment;
+            oNew.var = $("#group_new_variable").val();
+            oNew.comp = $("#group_new_comparison").val();
+            oNew.value = $("#group_new_value").val();
+            var iItemId = crpstudio.list.createListItem("group", oNew, null);
+            // Set the current pointer to this group
+            currentGro = iItemId;
+            
+            // Show all the items with the current MtvId and the current "name" in the table
+            var arHtml = []; oList = crpstudio.list.getList("group");
+            for (var i=0;i<oList.length;i++) {
+              var oItem = oList[i];
+              // Check if this element should be shown
+              if (oItem.MtvId === currentMtv && oItem.name === sItemName) {
+                // Element must be shown in table
+                arHtml.push("<tr><td>"+oItem["var"]+"</td><td>"+oItem["comp"]+"</td><td>"+oItem["value"]+"</td></tr>");
+              }
+            }
+            // Add item to table
+            $("#group_new_table tr").remove();
+            $("#group_new_table").append(arHtml.join("\n"));
+            
+            // TODO: code uitwerken
+            
+            // Do *not* hide the form!!
+            bOkay = false;
             break;
           case "cancel":
             // Return to the current item
@@ -428,7 +515,7 @@ var crpstudio = (function ($, crpstudio) {
               // Set the id of the currently selected query
               currentCor = iItemId;
               // Get the name of the metavar selection
-              var oItem = crpstudio.list.getCrpItem("corpus", iItemId);
+              var oItem = crpstudio.list.getListObject("corpus", "CorpusId", iItemId); // crpstudio.list.getCrpItem("corpus", iItemId);
               loc_metaVar = oItem["metavar"];
               // Find the MtvId this selects
               var oCondition = {"mtvName": loc_metaVar};
@@ -452,16 +539,15 @@ var crpstudio = (function ($, crpstudio) {
        * fillCombo
        *    Fill a combobox
        * 
-       * @param {string}  sSection   - May be "general" or "new"
-       * @param {string}  sFieldName - name of the field
+       * @param {string}  target     - Name of target Id
        * @param {array}   arElement  - array of strings or of objects
        * @returns {void}
        */
-      fillCombo : function(sSection, sFieldName, arElement) {
+      fillCombo : function(target, arElement) {
         // var sFieldName = "lngname";
         // var arElement = arLng;
         // Clear current contents
-        $("#corpus_"+sSection+"_"+sFieldName+" option").remove();
+        $("#"+target+" option").remove();
         // Create a list
         var arHtml = [];
         // First element requests user to make a choice
@@ -483,7 +569,7 @@ var crpstudio = (function ($, crpstudio) {
           }
         }
         // Put the created list at the right place
-        $("#corpus_"+sSection+"_"+sFieldName).append(arHtml.join("\n"));
+        $("#"+target).append(arHtml.join("\n"));
       },
       
       
@@ -544,7 +630,13 @@ var crpstudio = (function ($, crpstudio) {
                 }
               }
               // Set the global list
-              crpstudio.list.setList("metavar", arMtvName);
+              // crpstudio.list.setList("metavar", arMtvName);
+              crpstudio.list.setList("metavar", oContent.metavarlist);
+              
+              // Set the list of comparisons
+              arCmpObject = oContent.comparisonlist;
+              // Fill the list of comparison operators
+              crpstudio.corpora.fillCombo("group_new_comparison", arCmpObject);
               
               // Show the recent ones
               // crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
