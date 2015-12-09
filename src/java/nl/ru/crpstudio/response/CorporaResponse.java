@@ -6,9 +6,6 @@
  */
 package nl.ru.crpstudio.response;
 
-import nl.ru.util.json.JSONArray;
-import nl.ru.util.json.JSONObject;
-
 public class CorporaResponse extends BaseResponse {
 
 	@Override

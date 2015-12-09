@@ -802,11 +802,114 @@ public abstract class BaseResponse {
 		return builder.toString();
 	}
 
+  /**
+   * getCorpusMetaInfo
+   *    Get all necessary metadata information related to 
+   *    the corpora stored in crp-info.json
+   * 
+   * @return        JSONObject with information parts
+   */
+  protected JSONArray getCorpusMetaInfo() {
+		SortedSet<String> filters = new TreeSet<>();
+		Map<String,String> options = new HashMap<>();
+    JSONArray arBack = new JSONArray();
+    
+    try {
+      // Get the total array
+      JSONArray arAll = servlet.getMetavarStart();
+      // Find the section for this corpus
+      for (int i=0;i<arAll.length();i++) {
+        // Get this entry
+        JSONObject oMetaSet = arAll.getJSONObject(i);
+        // Get the name of this corpus
+        String sMetaSet = oMetaSet.getString("name");
+        // Start preparing this object
+        JSONObject oBack = new JSONObject();
+        oBack.put("metavarset", sMetaSet);
+        // Get the array of variables
+        JSONArray arVar = oMetaSet.getJSONArray("variables");
+        // Walk all the variables
+        for (int j=0;j<arVar.length();j++) {
+          // Get this object
+          JSONObject oVar = arVar.getJSONObject(j);
+          // Get the name and description
+          String sFieldName = oVar.getString("name");
+          String sFieldDescr = oVar.getString("descr");
+          // Tend to filter
+          filters.add(sFieldName);
+          // Generate option HTML
+          String option = "<option value=\"field:"+sFieldName+"\">"+sFieldDescr+"</option>";
+          options.put(sFieldName, option);
+        }
+
+        // Start creating the metaRule
+        String rule = "<div class=\"rule row large-16 medium-16 small-16\">"
+          + "<div class=\"large-4 medium-4 small-4 columns\">"
+          + "<select class=\"metaLabel\">"
+          + "<option value=\"\" disabled=\"true\" selected=\"true\"></option>";
+
+        Iterator<String> it = filters.iterator();
+        while (it.hasNext()) {
+          rule = rule + options.get(it.next());
+        }
+
+        rule = rule + "</select>"
+          + "</div>"
+          + "<div class=\"large-3 medium-3 small-3 columns\">"
+          + "<select class=\"metaOperator\">"
+          + "<option value=\"is\" selected=\"true\">"+this.labels.getString("meta.is")+"</option>"
+          + "<option value=\"not\">"+this.labels.getString("meta.not")+"</option>"
+          + "<option value=\"match\">"+this.labels.getString("meta.match")+"</option>"
+          + "<option value=\"nmatch\">"+this.labels.getString("meta.nmatch")+"</option>"
+          + "<option value=\"lt\">"+this.labels.getString("meta.lt")+"</option>"
+          + "<option value=\"lte\">"+this.labels.getString("meta.lte")+"</option>"
+          + "<option value=\"gt\">"+this.labels.getString("meta.gt")+"</option>"
+          + "<option value=\"gte\">"+this.labels.getString("meta.gte")+"</option>"
+          + "</select>"
+          + "</div>"
+          + "<div class=\"large-7 medium-7 small-7 columns\">"
+          + "<input class=\"metaInput\" type=\"text\">"
+          + "</div>"
+          + "<div class=\"large-2 medium-2 small-2 columns\">"
+          + "<a class=\"meta-min\" onclick=\"crpstudio.input.removeRule(this)\">"
+          + "<img src=\"./static/img/minus.png\">"
+          + "</a>"
+          + "<a class=\"meta-plus\" onclick=\"crpstudio.input.addRule()\">"
+          + "<img src=\"./static/img/plus.png\">"
+          + "</a>"
+          + "</div>"
+          + "</div>";
+
+        // Add the metaRule and the filters
+        oBack.put("metaRule", rule);
+        oBack.put("filters", filters);
+          
+        // Add this line in the array
+        arBack.put(oBack);
+      }
+      
+      // Return the result
+      return arBack;
+    } catch (Exception ex) {
+      logger.DoError("BaseResponse.getCorpusMetaInfo error", ex);
+      return arBack;
+    }
+  }
+  
+  /**
+   * loadMetaDataComponents
+   *    Create a blueprint for the input selection that is dependent upon meta data 
+   *    The input selection also depends on the corpus.
+   *    Solution: 
+   *    - use one set per corpus
+   *    - pass on *all* sets to the requester
+   * 
+   */
 	protected void loadMetaDataComponents() {
-		Map<String,String> options = new HashMap<String,String>();
-		Map<String,String> selectFields = new HashMap<String,String>();
-		SortedSet<String> filters = new TreeSet<String>();
-		Map<String,String> filterIds = new HashMap<String,String>();
+		Map<String,String> options = new HashMap<>();
+		Map<String,String> selectFields = new HashMap<>();
+		SortedSet<String> filters = new TreeSet<>();
+		Map<String,String> filterIds = new HashMap<>();
 			
 		for (MetadataField dataField : this.servlet.getMetadataFields()) {
 			
@@ -869,11 +972,11 @@ public abstract class BaseResponse {
 			+ "<input class=\"metaInput\" type=\"text\">"
 			+ "</div>"
 			+ "<div class=\"large-2 medium-2 small-2 columns\">"
-			+ "<a class=\"meta-min\" onclick=\"Crpstudio.meta.removeRule(this)\">"
-			+ "<img src=\"/img/minus.png\">"
+			+ "<a class=\"meta-min\" onclick=\"crpstudio.input.removeRule(this)\">"
+			+ "<img src=\"./static/img/minus.png\">"
 			+ "</a>"
-			+ "<a class=\"meta-plus\" onclick=\"Crpstudio.meta.addRule()\">"
-			+ "<img src=\"/img/plus.png\">"
+			+ "<a class=\"meta-plus\" onclick=\"crpstudio.input.addRule()\">"
+			+ "<img src=\"./static/img/plus.png\">"
 			+ "</a>"
 			+ "</div>"
 			+ "</div>";

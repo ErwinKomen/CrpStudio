@@ -1610,7 +1610,7 @@ var crpstudio = (function ($, crpstudio) {
         // Join and return the result
         return html.join("\n");
       },
-
+      
       /* ---------------------------------------------------------------------------
        * Name: switchtab
        * Goal: switch the tab within the [Search] page
@@ -1712,6 +1712,8 @@ var crpstudio = (function ($, crpstudio) {
               } else {
                 // Show the corpus selector
                 $("#corpus-selector").show();
+                // Show the metadata selector
+                $("#metadata").show();
                 // Start by deselecting everything
                 $("#input_lng option:selected").attr("selected", false);
                 // Do we have a 'current' corpus?
@@ -2135,8 +2137,10 @@ var crpstudio = (function ($, crpstudio) {
           var oContent = response.content;
           switch (sStatusCode) {
             case "completed":
-              crpstudio.prj_crplist = oContent.crplist;
-              crpstudio.tagset = oContent.tagsetlist;
+              crpstudio.prj_crplist = oContent.crplist;   // See crpstudio.js
+              crpstudio.tagset = oContent.tagsetlist;     // See crpstudio.xquery.js
+              crpstudio.metaInfo = oContent.metalist;     // See crpstudio.js
+              crpstudio.corpusInfo = oContent.corpuslist; // See crpstudio.js
               // Show the recent ones
               crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
               // $("#project_list li .crp-recent").removeClass("hidden");
@@ -2866,6 +2870,9 @@ var crpstudio = (function ($, crpstudio) {
           // NOTE: these are used by crpstudio.result
           currentDir = sDirName;
           currentLng = sCorpusName;
+          
+          // Make sure the correct input-meta-selector is loaded
+          crpstudio.input.setMetaInfo(sCorpusName, sDirName);
 
           // Hide the corpus selector if we are in project mode
           switch (loc_tab) {

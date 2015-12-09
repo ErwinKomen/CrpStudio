@@ -11,6 +11,7 @@ import nl.ru.util.json.JSONObject;
 public class LoadResponse extends BaseResponse {
 	private String project;   // Name of the project to be loaded
   private String loadType;  // Type of information to be loaded
+  private String corpus;    // name of the corpus we are looking at
 
 	@Override
 	protected void completeRequest() {
@@ -36,6 +37,11 @@ public class LoadResponse extends BaseResponse {
           oContent.put("crplist", this.makeListOfCrps(sUserId, null));
           // Get a list of tagsets
           oContent.put("tagsetlist", this.getTagsetSpecsList());
+          // Get a list of metadata information
+          oContent.put("metalist", this.getCorpusMetaInfo());
+          // Get the table with corpora information -- see crp-info.json
+          if (!this.makeCorpusParts()) { sendErrorResponse("LoadResponse: could not makeCorpusParts()");  return;}
+          oContent.put("corpuslist", servlet.getCorpusParts());
           break;
         case "corpora":
           // Get the table with corpora information -- see crp-info.json

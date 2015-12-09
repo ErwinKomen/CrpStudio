@@ -2,8 +2,29 @@
 #set($input = $labels.getString("input.selection"))
 <dl id="meta-accordion" class="accordion large-16 medium-16 small-16" data-accordion>
   <dd class="accordion-navigation large-16 medium-16 small-16">
-    <a href="#${maintab}-meta" class="large-16 medium-16 small-16 meta-top-plus" onclick="Crpstudio.input.switchState(this);">
+    <a href="#${maintab}-meta" class="large-16 medium-16 small-16 meta-top-plus" onclick="crpstudio.input.switchState(this);">
       <img class="img-plus" src="${src}"><h6>$input</h6>
     </a>
+    <div id="${maintab}-meta" class="content content-meta large-16 medium-16 small-16">
+
+      <div class="meta-header large-16 medium-16 small-16">
+        <p>$labels.getString("meta.header")</p>
+      </div>
+      <div id="project_meta_rule" class="row rules large-offset-1 medium-offset-1 small-offset-1">
+        <!-- dynamically load here: metaRule -->
+      </div>
+
+      <div id="input_general_save" class="large-16 medium-16 small-16 row hidden">
+        <div class="large-2 medium-2 small-2 columns">
+          <a href="#" onclick="crpstudio.input.showMetaInfo();" class="button search tiny radius">$labels.getString("input.general.show")</a>
+        </div>
+      </div>
+
+      <div class="large-16 medium-16 small-16 row">
+        <label>$labels.getString("input.general.oview")</label>
+        <textarea id="input_general_oview" class="disabled" spellcheck="false" placeholder="Overview of meta rules" rows="10"></textarea>
+      </div>
+
+    </div>
   </dd>
 </dl>

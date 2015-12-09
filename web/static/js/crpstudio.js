@@ -8,7 +8,9 @@
 /*jslint browser: true, indent: 2 */
 var crpstudio = (function ($, crpstudio) {
   "use strict";
-  crpstudio.currentUser = "-";          // Name of currently logged-in user
+  crpstudio.currentUser = "-",        // Name of currently logged-in user
+  crpstudio.metaInfo = null,          // JSONArray of meta information per corpus
+  crpstudio.corpusInfo = null,        // JSONArray of corpus information
   crpstudio.prj_deflist =  null,      // Field value of this project =  list of definitions
   crpstudio.prj_qrylist =  null,      // Field value of this project =  list of queries
   crpstudio.prj_qclist =  null,       // Field value of this project =  list of QC elements
@@ -69,8 +71,9 @@ var crpstudio = (function ($, crpstudio) {
 
     // Define what we return publically
     return {
-      // Getters for local variables
-      getTab: function() { return loc_tab;},
+      // Getters/setters for local variables
+      getTab : function() { return loc_tab;},
+      setTab : function(sName) { loc_tab = sName;},
       
       /**
        * confirmExport -- Copied from Whitelab
@@ -239,7 +242,7 @@ var crpstudio = (function ($, crpstudio) {
 
       /* --------------------------------------------------------------------------
        * Name: switchTab
-       * Goal: Open a different tab
+       * Goal: Open a tab -- provided it is different
        * History:
        * 22/jun/2015 ERK Copied from WhiteLab
        */  
@@ -248,6 +251,8 @@ var crpstudio = (function ($, crpstudio) {
           // Get the 'lang' parameter
           var sLang = "";
           if (crpstudio.config.language !== null) sLang = "?lang=" + crpstudio.config.language;
+          // Set the parameter
+          loc_tab = target;
           // Switch to the 'target' page using the lang parameter
           window.location = window.location.protocol+target+sLang;
         }

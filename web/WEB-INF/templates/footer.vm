@@ -26,7 +26,8 @@
         #if($username)
           crpstudio.main.setUser("${username}");
         #end
-				crpstudio.main.tab = "$maintab";
+				crpstudio.main.tab = "$maintab";    // Old
+        crpstudio.main.setTab("$maintab");  // New
 				#if($maintab == "home")
 					crpstudio.main.home.setSizes();
 					$( window ).resize(function() {
