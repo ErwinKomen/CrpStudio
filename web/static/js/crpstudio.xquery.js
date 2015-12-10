@@ -238,7 +238,7 @@ var crpstudio = (function ($, crpstudio) {
         
         // Return the value of the calculated condition 
         // (first attempt...)
-        arCode.push("  return $cond");
+        arCode.push("  return ru:backfilter($cond)");
         
         // Add closing tag
         arCode.push("</metaFilter>");
