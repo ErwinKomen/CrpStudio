@@ -18,7 +18,22 @@ var crpstudio = (function ($, crpstudio) {
     
     // Define private methods
     var private_methods = {
-      
+      /**
+       * fillRule
+       *    Put the data of the @oRule into the last element
+       *    One rule: variable, operator, value
+       * 
+       * @param {type} oRule
+       * @returns {undefined}
+       */
+      fillRule : function(oRule) {
+        // Get to the last "rule" element
+        var elLastRule = $("#project_meta_rule").find(".rule").last();
+        // Set the values of 'metaLabel', 'metaOperator' and 'metaInput'
+        $(elLastRule).find(".metaLabel").val("field:"+oRule.variable);
+        $(elLastRule).find(".metaOperator").val(oRule.operator);
+        $(elLastRule).find(".metaInput").val(oRule.value);
+      }
     };
     
     // Define the methods we return publically
@@ -30,28 +45,16 @@ var crpstudio = (function ($, crpstudio) {
       
       /**
        * setMetaInfo
-       *    Load the correct metainformation section
+       *    Load the correct meta information section
        *    
        * @param {string} sCorpusName
        * @param {string} sCorpusDir
+       * @param {string} sInputRules  - Stringified JSON array with rules
        * @returns {void}
        */
-      setMetaInfo : function(sCorpusName, sCorpusDir) {
+      setMetaInfo : function(sCorpusName, sCorpusDir, sInputRules) {
         // Find out which metavarset belongs to this corpus
-        var sMetavarset = "";
-        var arCorpusList = crpstudio.corpusInfo;
-        for (var i=0;i<arCorpusList.length;i++) {
-          // Access this item
-          var oCorpus = arCorpusList[i];
-          // Is this the one?
-          if (oCorpus.lng === sCorpusName) {
-            if (sCorpusDir || oCorpus.dir === sCorpusDir) {
-              // Got it!
-              sMetavarset = oCorpus.metavar; 
-              break;
-            }
-          }          
-        }
+        var sMetavarset = crpstudio.project.getMetavarName(sCorpusName, sCorpusDir);
         // Double check results
         if (sMetavarset === "") {
           $("#project_meta_rule").html("<option>(Cannot find set of fields)</options>");
@@ -73,6 +76,16 @@ var crpstudio = (function ($, crpstudio) {
             break;
           }
         }
+        
+        if (sInputRules !== undefined && sInputRules !== "") {
+          // Possibly show the meta-rules that are there already??
+          crpstudio.input.setMetaRules(sInputRules);
+          crpstudio.input.showMetaInfo(false);
+          crpstudio.input.setState(true);
+        } else {
+          crpstudio.input.setState(false);
+        }
+        
         // Add functions to monitor changes
         crpstudio.input.addChangeEvents("meta-accordion");
       },
@@ -124,21 +137,58 @@ var crpstudio = (function ($, crpstudio) {
       /**
        * showMetaInfo -- show the input restrictions
        * 
+       * @param {boolean} bSetCorpus
        * @returns {void}
        */
-      showMetaInfo : function() {
-        // Get the new text
-        var sInfo = crpstudio.input.parseQuery();
+      showMetaInfo : function(bSetCorpus) {
+        // Get the new text + make a call to crpstudio.project.setCorpus(...)
+        var oInfo = crpstudio.input.parseQuery();
+        
+        if (bSetCorpus) {
+          // Store the input restriction rules for the currently selected CRP
+          var oRules = {}; 
+          oRules.rules = JSON.stringify(oInfo.rules); 
+          oRules.xqinput = crpstudio.xquery.createRuleQ(oInfo.rules);
+          crpstudio.project.setCorpus("", "", oRules);
+        }
+        
         // Put the text in place
-        $("#input_general_oview").text(sInfo);
+        $("#input_general_oview").text(oInfo.text);
         // Hide the SAVE button
         $("#input_general_save").addClass("hidden");
-        // Add the current metadata selection information to the current Project/User combination
-        
-        // TODO
-        
         // Show that changes have been processed
         loc_bDirty = false;
+      },
+      
+      /**
+       * setMetaRules
+       *    Set the meta input selection rules according to @sInputRules
+       * 
+       * @param {type} sInputRules
+       * @returns {undefined}
+       */
+      setMetaRules : function(sInputRules) {
+        // TODO: transform [sInputRules] into a JSON array of rules, and implement these
+        if (sInputRules !== "" && sInputRules.startsWith("[")) {
+          // Transform the rules into an array
+          var arRules = JSON.parse(sInputRules);
+          // Any substance?
+          if (arRules.length>0) {
+            // Reset the rules
+            crpstudio.input.reset();
+            // Add the first rule
+            var oFirst = arRules[0];
+            private_methods.fillRule(oFirst);
+            // Continue to add the other rules
+            for (var i=1;i<arRules.length;i++) {
+              // Get this rule
+              var oRule = arRules[i];
+              // TODO: implement this rule
+              private_methods.fillRule(oRule);
+            }
+          }
+        }
+        
       },
       
       /**
@@ -174,29 +224,53 @@ var crpstudio = (function ($, crpstudio) {
         $("#"+crpstudio.main.getTab()+"-meta .rules").html("");
         // There must at least be one line
         crpstudio.input.addRule();
+        
+        /* NOTE: we do not use the 'group' or 'within' sections
         // Put everything in the correct place
         $("#"+crpstudio.main.getTab()+"-meta #group-check").prop("checked",false);
         $("#"+crpstudio.main.getTab()+"-meta #group-select").val("hits");
         $("#"+crpstudio.main.getTab()+"-meta #group_by-select").val("");
         $("#"+crpstudio.main.getTab()+"-meta #search-within").val("");
+        */
       },
 
       /**
        * parseQuery
        * 
        * 
-       * @returns {string}  filterquery
+       * @returns {object}  filterquery
        */
       parseQuery : function() {
-        var filters = new Array();
+        var filters = new Array();  // Array of filter expressions
+        var arRules = new Array();  // JSON array of rules
+        var oBack = {};             // What we return
+        
+        // Perform a function for each of the rules supplied by the user
         $("#"+crpstudio.main.getTab()+"-meta .rule").each(function( index ) {
+          
+          // Get the name of the input @variable
           var label = $(this).find(".metaLabel").val();
-          var input = $(this).find(".metaInput").val().replace(/&/g,"%26");
+          
+          // Get the input @value
+          var input = $(this).find(".metaInput").val()
+          
+          /*  Replace the '&' symbol for transmission over the internet by GET
+          input = input.replace(/&/g,"%26");
+          */
+         
+          // Get the operator definition
           var op = $(this).find(".metaOperator").val();
-          if (op === 'not') {
-            input = "-"+input;
-          }
+          
+          /*
+          if (op === 'not') { input = "-"+input; }
+          */
           if (label && input && input.length > 0) {
+            // Take out the "field:" name
+            label = label.replace(/field\:/g,"");
+            // Add this rule
+            var oRule = {variable: label, operator: op, value: input};
+            arRules.push(oRule);
+
             var f = "";
             switch (op) {
               case "is":      f = label + " = \"" + input + "\"";  break;
@@ -209,7 +283,7 @@ var crpstudio = (function ($, crpstudio) {
               case "gte":     f = label + " >= \"" + input + "\""; break;
             }
             // Take out the "field:" name
-            f = f.replace(/field\:/g,"");
+            // f = f.replace(/field\:/g,"");
             // Add filter into array
             filters.push("(" + f + ")");
           }
@@ -217,33 +291,10 @@ var crpstudio = (function ($, crpstudio) {
         // Combine all the individual parts with logical 'and'
         var filterQuery = filters.join("\n and ");
         
-        /*
-        // Whitelab: grouping (we do this differently)
-        if (crpstudio.main.getTab() === "search") {
-          var v = $("#"+crpstudio.main.getTab()+"-meta #group-select").val();
-          if (v === "hits") {
-            crpstudio.search.view = 1;
-          } else {
-            crpstudio.search.view = 2;
-          }
-
-          if ($("#"+crpstudio.main.getTab()+"-meta #group-check").prop("checked") == true && Crpstudio.search.group_by.length > 0) {
-            crpstudio.search.group_by = $("#"+crpstudio.main.getTab()+"-meta #group_by-select").val();
-            if (v === "hits") {
-              crpstudio.search.view = 8;
-            } else {
-              crpstudio.search.view = 16;
-            }
-          }
-          crpstudio.search.within = $("#"+crpstudio.main.getTab()+"-meta #search-within").val();
-          if (crpstudio.search.within == null || crpstudio.search.within.length == 0) {
-            crpstudio.search.within = "document";
-          }
-          $("#"+crpstudio.main.getTab()+"-meta #search-within").val("");
-        } */
-        
-        // Return the combined filterquery
-        return filterQuery;
+        // Return the filerquery and the array 
+        oBack.text = filterQuery;
+        oBack.rules = arRules;
+        return oBack;
       },
 
       /**
@@ -286,6 +337,24 @@ var crpstudio = (function ($, crpstudio) {
           $(item).find("img").attr("src","./static/img/plus.png");
         else
           $(item).find("img").attr("src","./static/img/minus.png");
+      },
+      
+      /**
+       * setState -- set the status to 'plus' or to 'minus'
+       * 
+       * @param {type} bValue
+       * @returns {undefined}
+       */
+      setState : function(bValue) {
+        // set the 'active' class or remove it
+        if (bValue) {
+          $("#meta-accordion").find(".content-meta").addClass("active");
+          $("#meta-accordion").find("img").attr("src","./static/img/minus.png");
+        } else {
+          $("#meta-accordion").find(".content-meta").removeClass("active");
+          $("#meta-accordion").find("img").attr("src","./static/img/plus.png");
+        }
+        // 
       }
 
     };

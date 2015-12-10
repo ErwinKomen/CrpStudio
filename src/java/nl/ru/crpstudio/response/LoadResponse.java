@@ -39,6 +39,8 @@ public class LoadResponse extends BaseResponse {
           oContent.put("tagsetlist", this.getTagsetSpecsList());
           // Get a list of metadata information
           oContent.put("metalist", this.getCorpusMetaInfo());
+          // Get the list in the "metavar" section of crp-info.json
+          oContent.put("metavarstart", servlet.getMetavarStart());
           // Get the table with corpora information -- see crp-info.json
           if (!this.makeCorpusParts()) { sendErrorResponse("LoadResponse: could not makeCorpusParts()");  return;}
           oContent.put("corpuslist", servlet.getCorpusParts());
@@ -77,6 +79,8 @@ public class LoadResponse extends BaseResponse {
           oContent.put("dbaseinput", crpThis.getDbaseInput());
           oContent.put("language", crpThis.getLanguage());
           oContent.put("part", crpThis.getPart());
+          oContent.put("rules", crpThis.getRules());
+          oContent.put("xqinput", crpThis.getXqInput());
           oContent.put("dbase", crpThis.getSource());
           oContent.put("showsyntax", crpThis.getShowPsd());
           oContent.put("deflist", crpThis.getListDef());

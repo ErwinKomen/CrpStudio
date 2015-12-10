@@ -16,7 +16,7 @@
 
       <div id="input_general_save" class="large-16 medium-16 small-16 row hidden">
         <div class="large-2 medium-2 small-2 columns">
-          <a href="#" onclick="crpstudio.input.showMetaInfo();" class="button search tiny radius">$labels.getString("input.general.show")</a>
+          <a href="#" onclick="crpstudio.input.showMetaInfo(true);" class="button search tiny radius">$labels.getString("input.general.show")</a>
         </div>
       </div>
 

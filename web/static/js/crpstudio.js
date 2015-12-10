@@ -10,6 +10,7 @@ var crpstudio = (function ($, crpstudio) {
   "use strict";
   crpstudio.currentUser = "-",        // Name of currently logged-in user
   crpstudio.metaInfo = null,          // JSONArray of meta information per corpus
+  crpstudio.metaStart = null,         // JSONArray containing the "metavar" section of the crp-info.json
   crpstudio.corpusInfo = null,        // JSONArray of corpus information
   crpstudio.prj_deflist =  null,      // Field value of this project =  list of definitions
   crpstudio.prj_qrylist =  null,      // Field value of this project =  list of queries

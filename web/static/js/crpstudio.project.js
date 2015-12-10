@@ -1626,7 +1626,7 @@ var crpstudio = (function ($, crpstudio) {
             case "query_editor": sTarget = "queries"; break;
           }
           // Bookkeeping
-          $("#search .content").removeClass("active");
+          $("#search .content").not(".content-meta").removeClass("active");
           $("#"+sTarget).addClass("active");
           $("#subnav dd").removeClass("active");
           $("#"+sTarget+"_link").addClass("active");
@@ -2140,6 +2140,7 @@ var crpstudio = (function ($, crpstudio) {
               crpstudio.prj_crplist = oContent.crplist;   // See crpstudio.js
               crpstudio.tagset = oContent.tagsetlist;     // See crpstudio.xquery.js
               crpstudio.metaInfo = oContent.metalist;     // See crpstudio.js
+              crpstudio.metaStart = oContent.metavarstart;// See crpstudio.js
               crpstudio.corpusInfo = oContent.corpuslist; // See crpstudio.js
               // Show the recent ones
               crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
@@ -2149,6 +2150,73 @@ var crpstudio = (function ($, crpstudio) {
         }
       },
 
+      /**
+       * getMetavarName
+       *    Get the name of the metavar section corresponding with corpus/part
+       * 
+       * @param {type} sCorpusName
+       * @param {type} sCorpusDir
+       * @returns {undefined}
+       */
+      getMetavarName : function(sCorpusName, sCorpusDir) {
+        // Check which crp/dir to take
+        if (sCorpusName !== undefined && sCorpusName === "") {
+          // take the current corpus name and dir
+          sCorpusName = currentLng; sCorpusDir = currentDir;
+        }
+        // Find out which metavarset belongs to this corpus
+        var sName = "";
+        var arCorpusList = crpstudio.corpusInfo;
+        for (var i=0;i<arCorpusList.length;i++) {
+          // Access this item
+          var oCorpus = arCorpusList[i];
+          // Is this the one?
+          if (oCorpus.lng === sCorpusName) {
+            if (sCorpusDir || oCorpus.dir === sCorpusDir) {
+              // Got it!
+              sName = oCorpus.metavar; 
+              break;
+            }
+          }          
+        }
+        // Return the name we found
+        return sName;
+      },
+
+      /**
+       * getMetaList
+       *    Get a section from the "metavar" part of crp-info.json
+       *    as determined by the corpus/dir combination
+       * 
+       * @param {string} sCorpusName
+       * @param {string} sCorpusDir
+       * @param {string} sType        - either 'tagset' or 'variables'
+       * @returns {JSON array}
+       */
+      getMetaList : function(sCorpusName, sCorpusDir, sType) {
+        // Get the name of the metavar section
+        var sMetavar = crpstudio.project.getMetavarName(sCorpusName, sCorpusDir);
+        // Find this in the "metavar" section of corpusInfo
+        var arMetaList = crpstudio.metaStart;
+        var arBack = [];
+        for (var i=0;i<arMetaList.length;i++) {
+          // Access this item
+          var oMeta = arMetaList[i];
+          // Is this the one?
+          if (oMeta.name === sMetavar) {
+            // What we return depends on the type
+            switch (sType) {
+              case "tagset": arBack = oMeta.tagset; break;
+              case "variables": arBack = oMeta.variables; break;
+            }
+            // Make sure we leave nicely
+            break;
+          }          
+        }
+        // Return the name we found
+        return arBack;
+      },
+      
       /**
        * processLoad
        *    What to do when a project has been loaded
@@ -2174,6 +2242,7 @@ var crpstudio = (function ($, crpstudio) {
               var sPart = oContent.part; 
               var sDbase = oContent.dbase; 
               var bShowSyntax = oContent.showsyntax;
+              var oRules = {}; oRules.rules = oContent.rules; oRules.xqinput = oContent.xqinput;
               // Take out all lists
               crpstudio.prj_deflist = oContent.deflist;
               crpstudio.prj_qrylist = oContent.qrylist;
@@ -2181,7 +2250,7 @@ var crpstudio = (function ($, crpstudio) {
               crpstudio.prj_dbflist = oContent.dbflist;
               crpstudio.prj_crplist = oContent.crplist;
               if (sLanguage !== "")
-                crpstudio.project.setCorpus(sLanguage, sPart);
+                crpstudio.project.setCorpus(sLanguage, sPart, oRules);
 
               // Prevent undesired change triggers
               var bSelState = bIsSelecting;
@@ -2855,24 +2924,54 @@ var crpstudio = (function ($, crpstudio) {
        *    Set the corpus language (sCorpusName) and the part of the language 
        *    that serves as input (sDirName)
        * 
-       * @param {type} sCorpusName
-       * @param {type} sDirName
+       * @param {string} sCorpusName
+       * @param {string} sDirName
+       * @param {object} oRules
        * @returns {undefined}
        */
-      setCorpus : function(sCorpusName, sDirName) {
+      setCorpus : function(sCorpusName, sDirName, oRules) {
+        var sInputRules = "";
+        var sXqInput = "";
+        if (oRules) {
+          sInputRules = oRules.rules;
+          sXqInput = oRules.xqinput;
+        }
+        // Check if rules are defined
+        var bHasRules = (sInputRules !== "");
+        // Perhaps only the corpus-name is given?
         if (sDirName === undefined && sCorpusName !== undefined && sCorpusName === "") {
           // Reset the corpus name and dir name in the top section
           $("#top_bar_current_corpus").text("-");
+        } else if (sCorpusName !== undefined && sDirName  !== undefined && 
+                   sCorpusName === "" && sDirName === "" && bHasRules) {
+          // Input rules are supplied for the currently selected corpus
+          //   But no *new* corpus name or dir name are supplied
+          
+          // (1) Set the corpus name and dir name in the top section - extended with ++
+          $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+"++");
+          
+          /*
+          // Make sure the correct input-meta-selector is loaded
+          // crpstudio.input.setMetaInfo(sCorpusName, sDirName, sInputRules);
+          // crpstudio.input.showMetaInfo(sInputRules);
+          */
+         
+          // Determine key, value and id
+          var iId = currentCrp;
+          // New: pass on the change to histAdd
+          private_methods.histAdd("project", iId, currentPrj, "Rules", sInputRules);
+          private_methods.histAdd("project", iId, currentPrj, "xqInput", sXqInput);
         } else {
           // Set the corpus name and dir name in the top section
-          $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
+          var sSignal = (bHasRules) ? "++" : "";
+          $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+sSignal);
           // Set these values also in our own variables
           // NOTE: these are used by crpstudio.result
           currentDir = sDirName;
           currentLng = sCorpusName;
           
           // Make sure the correct input-meta-selector is loaded
-          crpstudio.input.setMetaInfo(sCorpusName, sDirName);
+          crpstudio.input.setMetaInfo(sCorpusName, sDirName, sInputRules);
 
           // Hide the corpus selector if we are in project mode
           switch (loc_tab) {
@@ -2888,18 +2987,8 @@ var crpstudio = (function ($, crpstudio) {
               // New: pass on the change to histAdd
               private_methods.histAdd("project", iId, currentPrj, "Language", sCorpusName);
               private_methods.histAdd("project", iId, currentPrj, "Part", sDirName);
-
-              /*
-              // Pass on this value to /crpstudio and to /crpp
-              var sKey = "corpus";
-              var sValue = sCorpusName + ":" + sDirName;
-              var oArgs = { "crp": currentPrj,
-                "userid": crpstudio.currentUser, 
-                "key": sKey, "value": sValue };
-              // var params = "changes=" + JSON.stringify(oChanges);
-              var params = JSON.stringify(oArgs);
-              crpstudio.main.getCrpStudioData("crpchg", params, crpstudio.project.processCrpChg, "#project_description");  
-                */
+              private_methods.histAdd("project", iId, currentPrj, "Rules", sInputRules);
+              private_methods.histAdd("project", iId, currentPrj, "xqInput", sXqInput);
               break;
             default:
               // No particular action right now

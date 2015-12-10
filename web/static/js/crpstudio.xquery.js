@@ -44,6 +44,7 @@ var crpstudio = (function ($, crpstudio) {
        * getTagsetName
        *    Get the name of the tagset to be used for the combination of the current
        *      language/part
+       * ======= THIS FUNCTION IS OBSOLETE ============
        * 
        * @returns {undefined}
        */
@@ -82,13 +83,13 @@ var crpstudio = (function ($, crpstudio) {
       },
 
       /**
-       * getClassTag
+       * getTagDefOld
        *    Get the language/part dependant tag for the indicated @sType
-       * 
+       * ======= THIS FUNCTION IS OBSOLETE ============
        * @param {type} sTagName
        * @returns {undefined}
        */
-      getClassTag : function(sTagName) {
+      getTagDefOld : function(sTagName) {
         // Determine the tagset
         var sTagset = private_methods.getTagsetName();
         // Make sure the tagset object is specified
@@ -103,11 +104,149 @@ var crpstudio = (function ($, crpstudio) {
         }
         // No success
         return "";
+      },
+      
+      /**
+       * getTagDef
+       *    Get the language/part dependant tag for the indicated @sType
+       * 
+       * @param {string} sTagName
+       * @returns {object}
+       */
+      getTagDef : function(sTagName) {
+        // Get the 'tagset' section from the "metavar" part from [crp-info.json]
+        var arTagset = crpstudio.project.getMetaList("", "", "tagset");
+        // Make sure the tagset object is specified
+        if (!arTagset.length === 0) return "";
+        // Get the value for this combination of tagset/tagname
+        for (var i=0;i<crpstudio.tagset.length;i++) {
+          // Get this item
+          var oTagSpec = crpstudio.tagset[i];
+          if (oTagSpec.title === sTagName) {
+            // Create a tag-definition object
+            var oTagDef = {};
+            oTagDef.class = oTagSpec.def;
+            if (oTagSpec.hasOwnProperty("fs"))
+              oTagDef.fs = oTagSpec.fs;
+            else
+              oTagDef.fs = null;
+            return oTagDef;
+          }
+        }
+        // No success
+        return {};
+      },
+      
+     /**
+       * getVarDef
+       *    Get the type/loc/value part of variable @sVarName from the "metavar"
+       *    section of crp-info.json
+       * 
+       * @param {string} sVarName
+       * @returns {object}
+       */
+      getVarDef : function(sVarName) {
+        // Get the 'tagset' section from the "metavar" part from [crp-info.json]
+        var arVarset = crpstudio.project.getMetaList("", "", "variables");
+        // Make sure the tagset object is specified
+        if (!arVarset.length === 0) return "";
+        // Get the value for this combination of tagset/tagname
+        for (var i=0;i<crpstudio.tagset.length;i++) {
+          // Get this item
+          var oVarSpec = crpstudio.tagset[i];
+          if (oVarSpec.title === sVarName) {
+            // Create a tag-definition object
+            var oVarDef = {};
+            oVarDef.type  = oVarSpec.type;
+            oVarDef.loc   = oVarSpec.loc;
+            oVarDef.value = oVarSpec.value;
+            return oVarDef;
+          }
+        }
+        // No success
+        return {};
       }
+      
     };
     
     // Define what we return publically
     return {
+      /**
+       * createRuleQ
+       *    Create Xquery code to check if all the rules passed on in @arRules are met
+       *    
+       *    This is called from [crpstudio.input.js] in order to convert
+       *      the array of rules generated there (by the user) into 
+       *      a piece of Xquery that can be passed as "xqInput" setting
+       *      to the current Corpus Research Project
+       *      
+       *    Each rule in @arRules has components:
+       *      variable  - name of the variable as defined in the "variables" lists of "metavar" of crp-info.json
+       *      operator  - one of: is, not, match, nmatch, lt, lte, gt, gte
+       *      value     - a *string* representation of all values (including numbers)
+       * 
+       * @param {array} arRules
+       * @returns {string}
+       */
+      createRuleQ : function(arRules) {
+        var arCode = [];
+        
+        // Start with the starting tag
+        arCode.push("<metaFilter>");
+        // Get the header and mdi variables
+        arCode.push(" let $hdr := ru:header()");
+        arCode.push(" let $mdi := ru:mdi()");
+        // Get all variables defined for this section in "metavar"
+        // (NOTE: they are only actually calculeted if they are needed)
+        var arVarset = crpstudio.project.getMetaList("", "", "variables");
+        for (var i=0;i<arVarset.length;i++) {
+          var oVardef = arVarset[i];
+          var sEntry = (oVardef.loc==="header") ? "$hdr" : "$mdi";
+          var sValue = oVardef.value.replace("descendant", sEntry+"/descendant");
+          arCode.push("  let $"+oVardef.name+" := "+sValue);
+        }
+        
+        // Walk all the rules, combining them into one boolean statement
+        arCode.push("  let $cond := (");
+        if (arRules.length === 0) {
+          arCode.push("     false()");
+        } else {
+          for (var i=0;i<arRules.length;i++) {
+            // Check if "and" needs to be supplied
+            var sAnd = (i===0) ? "" : " and ";
+            // Get this rule
+            var oRule = arRules[i]; var sVar = oRule.variable; var sValue = oRule.value;
+            // Calculate the rule, depending on the operator
+            var sRule = "true()"; // Dummy value, just in case
+            switch(oRule.operator) {
+              case "is":      sRule = sVar+" = \""+sValue+"\""; break;
+              case "not":     sRule = sVar+"!= \""+sValue+"\""; break;
+              case "match":   sRule = "ru:matches("+sVar+", \""+sValue+"\")"; break;
+              case "nmatch":  sRule = "not(ru:matches("+sVar+", \""+sValue+"\"))"; break;
+              case "lt":      sRule = sVar+" < \""+sValue+"\""; break;
+              case "lte":     sRule = sVar+"<= \""+sValue+"\""; break;
+              case "gt":      sRule = sVar+" > \""+sValue+"\""; break;
+              case "gte":     sRule = sVar+">= \""+sValue+"\""; break;
+            }
+            // Add the rule to the code
+            arCode.push("     "+sAnd+"("+sRule+")");
+          }
+        }
+        
+        // Finish the rules
+        arCode.push("       )");
+        
+        // Return the value of the calculated condition 
+        // (first attempt...)
+        arCode.push("  return $cond");
+        
+        // Add closing tag
+        arCode.push("</metaFilter>");
+        // Return what we have made
+        var sBack = arCode.join("\n");
+        return sBack;
+      },
+      
       /**
        * createQuery
        *    Construct an Xquery based on the @sPrjType, @bDbase and @sType
@@ -126,16 +265,16 @@ var crpstudio = (function ($, crpstudio) {
         var arCode = [];
         var sSubcat = "";
         var sMsg = "";
-        var oTag = {clsAny: private_methods.getClassTag("clsAny"),
-                    clsMain: private_methods.getClassTag("clsMain"),
-                    clsSub: private_methods.getClassTag("clsSub"),
-                    clsInf: private_methods.getClassTag("clsInf"),
-                    npSbj: private_methods.getClassTag("npSbj"),
-                    npObj: private_methods.getClassTag("npObj"),
-                    npAny: private_methods.getClassTag("npAny"),
-                    ppAny: private_methods.getClassTag("ppAny"),
-                    vbAny: private_methods.getClassTag("vbAny"),
-                    vbFin: private_methods.getClassTag("vbFin")};
+        var oTag = {clsAny: private_methods.getTagDef("clsAny"),
+                    clsMain: private_methods.getTagDef("clsMain"),
+                    clsSub: private_methods.getTagDef("clsSub"),
+                    clsInf: private_methods.getTagDef("clsInf"),
+                    npSbj: private_methods.getTagDef("npSbj"),
+                    npObj: private_methods.getTagDef("npObj"),
+                    npAny: private_methods.getTagDef("npAny"),
+                    ppAny: private_methods.getTagDef("ppAny"),
+                    vbAny: private_methods.getTagDef("vbAny"),
+                    vbFin: private_methods.getTagDef("vbFin")};
         // Get a descriptor object
         var oDescr = private_methods.getDescr(sPrjType);
         // Validate
@@ -170,13 +309,13 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push(" for $search in //"+oDescr.const);
               break;
             case "clsMain":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
               break;
             case "clsMainSbj":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
               arCode.push(" ");
               arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj+"')]");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
               arCode.push("  ");
               arCode.push("  (: subject must exist :)");
               arCode.push("  where (");
@@ -184,13 +323,13 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  )");
               break;
             case "clsMainSbjObj":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
               arCode.push(" ");
               arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj+"')]");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
               arCode.push(" ");
               arCode.push("  (: Retrieve possible direct/indirect object :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj+"')]");
+              arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')]");
               arCode.push("  ");
               arCode.push("  (: subject and object must exist :)");
               arCode.push("  where (");
@@ -199,13 +338,13 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  )");
               break;
             case "clsSub":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
               break;
             case "clsSubSbj":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
               arCode.push(" ");
               arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj+"')]");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
               arCode.push("  ");
               arCode.push("  (: subject must exist :)");
               arCode.push("  where (");
@@ -213,13 +352,13 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  )");
               break;
             case "clsSubSbjObj":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
               arCode.push(" ");
               arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj+"')]");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
               arCode.push(" ");
               arCode.push("  (: Retrieve possible direct/indirect object :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj+"')]");
+              arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')]");
               arCode.push("  ");
               arCode.push("  (: subject and object must exist :)");
               arCode.push("  where (");
@@ -228,10 +367,10 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  )");
               break;
             case "npAll":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npAny+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npAny.class+"')]");
               break;
             case "ppAll":
-              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.ppAny+"')]");
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.ppAny.class+"')]");
               break;
             default:
               arCode.push(" for $search in //"+oDescr.const);
