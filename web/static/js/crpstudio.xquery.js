@@ -215,7 +215,7 @@ var crpstudio = (function ($, crpstudio) {
             // Check if "and" needs to be supplied
             var sAnd = (i===0) ? "" : " and ";
             // Get this rule
-            var oRule = arRules[i]; var sVar = oRule.variable; var sValue = oRule.value;
+            var oRule = arRules[i]; var sVar = "$"+oRule.variable; var sValue = oRule.value;
             // Calculate the rule, depending on the operator
             var sRule = "true()"; // Dummy value, just in case
             switch(oRule.operator) {
