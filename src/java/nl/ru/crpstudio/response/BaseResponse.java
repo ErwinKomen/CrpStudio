@@ -263,7 +263,7 @@ public abstract class BaseResponse {
       // Take over the parameters
       this.params = params;
       // Are there any parameters?
-      if (this.params.size() >0) {
+      if (this.params != null && this.params.size() >0) {
         // Transform the parameters into a JSON object
         JSONObject oParams = new JSONObject();
         for (String sParam : params.keySet()) {
@@ -1164,15 +1164,29 @@ public abstract class BaseResponse {
   /**
    * getGroupings
    *    Get a list of 'groupings' (=divisions) for the indicated @sUser
-   * 
+   *    These should be available in the /etc/project/{username} section
    * @param sUser
    * @return 
    */
   public JSONArray getGroupings(String sUser) {
-    JSONArray arGrpList = null;
+    JSONArray arGrpList;
     
     try {
+      // Start out with a new empty array
       arGrpList = new JSONArray();
+      
+      // Check if the user has a file defined
+      File fGrpInfo = new File ("/etc/project/"+sUser+"/grp-info.json");
+      if (fGrpInfo.exists()) {
+        // Read the file into a string
+        String sGrouping = (new FileUtil()).readFile(fGrpInfo);
+        // Make sure this is a JSON object
+        if (sGrouping.startsWith("{")) {
+          JSONObject oGroupings = new JSONObject(sGrouping);
+          arGrpList = oGroupings.getJSONArray("groupings");
+        }
+      }
+      
       
       // Get the list of Groupings
       return arGrpList;

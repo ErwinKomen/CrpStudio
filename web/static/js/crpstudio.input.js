@@ -183,6 +183,8 @@ var crpstudio = (function ($, crpstudio) {
             for (var i=1;i<arRules.length;i++) {
               // Get this rule
               var oRule = arRules[i];
+              // Add a new rule to the list
+              crpstudio.input.addRule();
               // TODO: implement this rule
               private_methods.fillRule(oRule);
             }

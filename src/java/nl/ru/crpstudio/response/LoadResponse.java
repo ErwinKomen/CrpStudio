@@ -8,6 +8,18 @@ package nl.ru.crpstudio.response;
 
 import nl.ru.util.json.JSONObject;
 
+/**
+ * LoadResponse
+ *    Not only for loading a project (CRP), but this has several functions, 
+ *    depending on the "type" parameter:
+ * 
+ *    info    - Loading a CRP and getting all relevant information about it
+ *    corpora - Retrieve information about the available corpora and groupings
+ *    init    - 
+ *    dbases  - List of currently available databases
+ * 
+ * @author Erwin R. Komen
+ */
 public class LoadResponse extends BaseResponse {
 	private String project;   // Name of the project to be loaded
   private String loadType;  // Type of information to be loaded
@@ -41,6 +53,8 @@ public class LoadResponse extends BaseResponse {
           oContent.put("metalist", this.getCorpusMetaInfo());
           // Get the list in the "metavar" section of crp-info.json
           oContent.put("metavarstart", servlet.getMetavarStart());
+          // Get the groupings defined by the user
+          oContent.put("groupinglist", this.getGroupings(sUserId));
           // Get the table with corpora information -- see crp-info.json
           if (!this.makeCorpusParts()) { sendErrorResponse("LoadResponse: could not makeCorpusParts()");  return;}
           oContent.put("corpuslist", servlet.getCorpusParts());
@@ -49,7 +63,7 @@ public class LoadResponse extends BaseResponse {
           // Get the table with corpora information -- see crp-info.json
           if (!this.makeCorpusParts()) { sendErrorResponse("LoadResponse: could not makeCorpusParts()");  return;}
           oContent.put("corpuslist", servlet.getCorpusParts());
-          // Get the list of groupings
+          // Get the list of groupings defined for this particular user
           oContent.put("groupinglist", this.getGroupings(sUserId));
           // Get the table containing corpus-dependant metavar definitions -- see crp-info.json
           if (!this.makeMetaVarList()) { sendErrorResponse("LoadResponse: could not makeMetaVarList()");  return;}

@@ -198,7 +198,7 @@ var crpstudio = (function ($, crpstudio) {
         arCode.push("  let $hdr := ru:header()");
         arCode.push("  let $mdi := ru:mdi()");
         // Get all variables defined for this section in "metavar"
-        // (NOTE: they are only actually calculeted if they are needed)
+        // (NOTE: they are only actually calculated in Xquery if they are needed)
         var arVarset = crpstudio.project.getMetaList("", "", "variables");
         for (var i=0;i<arVarset.length;i++) {
           var oVardef = arVarset[i];

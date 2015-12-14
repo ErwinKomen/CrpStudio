@@ -2172,7 +2172,7 @@ var crpstudio = (function ($, crpstudio) {
           var oCorpus = arCorpusList[i];
           // Is this the one?
           if (oCorpus.lng === sCorpusName) {
-            if (sCorpusDir || oCorpus.dir === sCorpusDir) {
+            if (sCorpusDir === undefined || sCorpusDir === "" || oCorpus.dir === sCorpusDir) {
               // Got it!
               sName = oCorpus.metavar; 
               break;

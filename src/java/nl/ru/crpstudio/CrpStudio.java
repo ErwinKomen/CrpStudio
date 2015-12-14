@@ -278,13 +278,17 @@ public class CrpStudio extends HttpServlet {
    * @author E.R.Komen
    */
   private boolean loadIndices(String sLocale) {
+    BaseResponse br = new InfoResponse();
+    
     try {
       // Initialisations
       lngIndices = new ArrayList<>();
       // Load the labels for this locale
   		ResourceBundle labels = ResourceBundle.getBundle("CrpstudioBundle", new Locale(sLocale));
-      // Contact the CRPP server
-      String resp = getWebServiceResponse(labels.getString("crppUrlInternal"));
+      // Contact the CRPP server's /serverinfo request
+      // String resp = br.getCrppResponse("serverinfo", "", null, null);
+
+      String resp = getWebServiceResponse(labels.getString("crppUrlInternal") + "/serverinfo");
       // Try and interpret this string as JSON
       if (!resp.isEmpty()) {
         JSONObject oResp = new JSONObject(resp);
