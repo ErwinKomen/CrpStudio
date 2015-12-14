@@ -193,9 +193,10 @@ var crpstudio = (function ($, crpstudio) {
         
         // Start with the starting tag
         arCode.push("<metaFilter>");
+        arCode.push("{");
         // Get the header and mdi variables
-        arCode.push(" let $hdr := ru:header()");
-        arCode.push(" let $mdi := ru:mdi()");
+        arCode.push("  let $hdr := ru:header()");
+        arCode.push("  let $mdi := ru:mdi()");
         // Get all variables defined for this section in "metavar"
         // (NOTE: they are only actually calculeted if they are needed)
         var arVarset = crpstudio.project.getMetaList("", "", "variables");
@@ -241,6 +242,7 @@ var crpstudio = (function ($, crpstudio) {
         arCode.push("  return ru:backfilter($cond)");
         
         // Add closing tag
+        arCode.push("}");
         arCode.push("</metaFilter>");
         // Return what we have made
         var sBack = arCode.join("\n");
