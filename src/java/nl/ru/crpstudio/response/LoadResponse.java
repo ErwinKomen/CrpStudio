@@ -49,10 +49,10 @@ public class LoadResponse extends BaseResponse {
           oContent.put("crplist", this.makeListOfCrps(sUserId, null));
           // Get a list of tagsets
           oContent.put("tagsetlist", this.getTagsetSpecsList());
-          // Get a list of metadata information
-          oContent.put("metalist", this.getCorpusMetaInfo());
           // Get the list in the "metavar" section of crp-info.json
           oContent.put("metavarstart", servlet.getMetavarStart());
+          // Get a list of metadata information
+          oContent.put("metalist", this.getCorpusMetaInfo());
           // Get the groupings defined by the user
           oContent.put("groupinglist", this.getGroupings(sUserId));
           // Get the table with corpora information -- see crp-info.json
