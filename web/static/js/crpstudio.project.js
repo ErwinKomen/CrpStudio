@@ -1094,7 +1094,7 @@ var crpstudio = (function ($, crpstudio) {
           for (var i=1;i<=4;i++) { $("#results_export_"+i).addClass("hidden"); }
           // switch to the result tab
           crpstudio.project.switchTab("result_display");
-          $("#result_status").text("");
+          $("#result_status").text("Contacting the server...");
           // Make sure the execute buttons are hidden again
           private_methods.showExeButtons(false);
          // Set the location of the status div
@@ -1149,7 +1149,7 @@ var crpstudio = (function ($, crpstudio) {
         var sStatusRequest = "";
         // Part of the object is the code (which should be 'started')
         var statusCode = oStatus.code;
-        var statusMsg = (oStatus.message) ? (": "+oStatus.message) : "";
+        var statusMsg = (oStatus.message) ? ("error: "+oStatus.message) : "";
         // Set the status
         $(target).html(statusCode);
         // Try to get a content object
@@ -1259,8 +1259,10 @@ var crpstudio = (function ($, crpstudio) {
                   }
                 }
               }
-              if (!sReport || sReport === null || sReport.length === 0)
+              if (!sReport || sReport === null || sReport.length === 0) {
+                if (statusMsg === "") statusMsg = "(unknown error)";
                 sReport.push(statusMsg);
+              }
               // Show the report
               $(target).html(sReport.join("\n"));
             } else {
@@ -1343,8 +1345,9 @@ var crpstudio = (function ($, crpstudio) {
             crpstudio.result.makeOviewTable(oContent.table);
             // Keep track of the status
             $("#result_status").html("Constructing per-doc results...");
-            // Create a large table for view=2
-            html = crpstudio.project.makeTablesView2(oContent.table);
+            // Create a large table for view=2 --> THIS IS TOO LARGE...
+            var bIncludeZero = false; // Don't include files without results
+            html = crpstudio.project.makeTablesView2(oContent.table, bIncludeZero);
             // Position this table in the div for view=2 (per-document view)
             $("#result_table_2").html(html);
 
@@ -1520,95 +1523,121 @@ var crpstudio = (function ($, crpstudio) {
         return html.join("\n");
       },
 
-      /* ---------------------------------------------------------------------------
-       * Name: makeTablesView2
-       * Goal: Make a large table of the results per document
+      /**
+       * makeTablesView2
+       *    Make a large table of the results per document
        * 
-       * History:
+       * @param {type} arTable      - 
+       * @param {type} bIncludeZero - true if documents with zero content must be included
+       * @returns {String}          - HTML content for table
+       * @history
        * 29/jun/2015  ERK Created
        */
-      makeTablesView2: function(arTable) {
+      makeTablesView2: function(arTable, bIncludeZero) {
         var html = [];
         // this is for view #2
         var iView = 2;
-        // Interpret and show the resulting table
-        // The 'table' is an array of QC elements
-        for (var i=0; i< arTable.length; i++) {
-          // Get this QC element
-          var oQC = arTable[i];
-          // Get the QC elements
-          var arSubs = oQC.subcats;
-          var iQC = oQC.qc;
-          var arHits = oQC.hits;  // Array with 'hit' elements
-          // Each QC result must be in its own div
-          html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc hidden\">");
-          // Insert a heading for this QC item
-          // html.push("<h5>QC "+iQC + "</h5>");
-          // Set up a table for the sub-categories
-          html.push("<table><thead><th>text</th><th>TOTAL</th>");
-          for (var j=0;j<arSubs.length; j++) {
-            html.push("<th>" + arSubs[j] + "</th>");
-          }
-          // Finish the header with sub-categories
-          html.push("</thead>");
-          // Start the table body
-          html.push("<tbody>");
-          var sAnyRowArg = "class=\"concordance\" onclick=\"crpstudio.result.showFileHits";
-          // Walk all the hits for this QC
-          for (var j=0; j<arHits.length; j++) {
-            var sFile = arHits[j].file;
-            var iCount = arHits[j].count;
-            var iStart = 1;
-            var sId = "fh_qc"+iQC+"_f"+j; 
-            var arSubCounts = arHits[j].subs;
-            var sRowArgs = sAnyRowArg + 
-                    "("+iStart+","+iCount+",'"+sFile+"',"+iQC+",'','#"+sId+"');\"";
-            html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
-            html.push("<td>"+iCount+"</td>");
-            for (var k=0;k<arSubCounts.length; k++ ) {
-              html.push("<td>"+arSubCounts[k]+"</td>");
+        try {
+          // Interpret and show the resulting table
+          // The 'table' is an array of QC elements
+          for (var i=0; i< arTable.length; i++) {
+            // Get this QC element
+            var oQC = arTable[i];
+            // Get the QC elements
+            var arSubs = oQC.subcats;
+            var iQC = oQC.qc;
+            var arHits = oQC.hits;  // Array with 'hit' elements
+            // Each QC result must be in its own div
+            html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc hidden\">");
+            // Insert a heading for this QC item
+            // html.push("<h5>QC "+iQC + "</h5>");
+            // Set up a table for the sub-categories
+            html.push("<table><thead><th>text</th><th>TOTAL</th>");
+            for (var j=0;j<arSubs.length; j++) {
+              html.push("<th>" + arSubs[j] + "</th>");
             }
-            html.push("</tr>");
-            // Determine the @id for this result
-            var iCols = 2+arSubCounts.length;
-            // Make a row where the citation will be placed
-            html.push("<tr class=\"citationrow hidden\"><td colspan="+iCols+">"+
-                    "<div class=\"collapse inline-concordance\" id=\""+sId+
-                    "\">Loading...</div></td></tr>");
-          }
-          // Finish the table
-          html.push("</tbody></table>");
-          // Finish the div
-          html.push("</div>");
-          // Make tables for all the sub categories under this iQC
-          for (var j=0;j<arSubs.length; j++) {
-            html.push("<div id=\"result_"+iView+"_qcsub_"+iQC+"_"+j+"\" class=\"result-qc-sub hidden\">");
-            // Set the heading for this table
-            html.push("<table><thead><th>text</th><th>"+arSubs[j]+"</th></thead>");
+            // Finish the header with sub-categories
+            html.push("</thead>");
             // Start the table body
             html.push("<tbody>");
-            // Walk all the hits
-            for (var k=0; k<arHits.length; k++) {
-              var sFile = arHits[k].file;
-              var arSubCounts = arHits[k].subs;
-              var iStart = 1;
-              // Determine the @id for this result
-              var sId = "fh_qc"+iQC+"_f"+k+"_s"+j;
-              var sRowArgs = sAnyRowArg  + 
-                      "("+iStart+","+arSubCounts[j]+",'"+sFile+"',"+iQC+",'"+arSubs[j]+"','#"+sId+"');\"";
-              html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
-              html.push("<td>"+arSubCounts[j]+"</td></tr>");
-              // Make a row where the citation will be placed
-              html.push("<tr class=\"citationrow hidden\"><td colspan=2>"+
-                      "<div class=\"collapse inline-concordance\" id=\""+sId+
-                      "\">Loading...</div></td></tr>");
+            var sAnyRowArg = "class=\"concordance\" onclick=\"crpstudio.result.showFileHits";
+            // Walk all the hits for this QC
+            for (var j=0; j<arHits.length; j++) {
+              // Show where we are
+              var iPtc = (j+1)* 100 / arHits.length;
+              if (j % 1000 === 0) {
+                $("#result_status").html("Results per document: QC line "+(i+1)+" "+iPtc+"%");
+              }
+              // Continue
+              var sFile = arHits[j].file;
+              var iCount = arHits[j].count;
+              if (bIncludeZero || iCount > 0) {
+                var iStart = 1;
+                var sId = "fh_qc"+iQC+"_f"+j; 
+                var arSubCounts = arHits[j].subs;
+                var sRowArgs = sAnyRowArg + 
+                        "("+iStart+","+iCount+",'"+sFile+"',"+iQC+",'','#"+sId+"');\"";
+                html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
+                html.push("<td>"+iCount+"</td>");
+                for (var k=0;k<arSubCounts.length; k++ ) {
+                  html.push("<td>"+arSubCounts[k]+"</td>");
+                }
+                html.push("</tr>");
+                // Determine the @id for this result
+                var iCols = 2+arSubCounts.length;
+                // Make a row where the citation will be placed
+                html.push("<tr class=\"citationrow hidden\"><td colspan="+iCols+">"+
+                        "<div class=\"collapse inline-concordance\" id=\""+sId+
+                        "\">Loading...</div></td></tr>");
+              }
             }
-            // Finish this sub-cat-table
-            html.push("</tbody></table></div>");
+            // Finish the table
+            html.push("</tbody></table>");
+            // Finish the div
+            html.push("</div>");
+            // Make tables for all the sub categories under this iQC
+            for (var j=0;j<arSubs.length; j++) {
+              html.push("<div id=\"result_"+iView+"_qcsub_"+iQC+"_"+j+"\" class=\"result-qc-sub hidden\">");
+              // Set the heading for this table
+              html.push("<table><thead><th>text</th><th>"+arSubs[j]+"</th></thead>");
+              // Start the table body
+              html.push("<tbody>");
+              // Walk all the hits
+              for (var k=0; k<arHits.length; k++) {
+                // Show where we are
+                var iPtc = (k+1)* 100 / arHits.length;
+                if (k % 1000 === 0) {
+                  $("#result_status").html("Results per document: QC line "+(i+1)+" subcat "+(j+1)+"/"+arSubs.length+" "+iPtc+"%");
+                }
+                var sFile = arHits[k].file;
+                var arSubCounts = arHits[k].subs;
+                var iCount = arHits[k].count;
+                if (bIncludeZero || arSubCounts[j] > 0) {
+                  var iStart = 1;
+                  // Determine the @id for this result
+                  var sId = "fh_qc"+iQC+"_f"+k+"_s"+j;
+                  var sRowArgs = sAnyRowArg  + 
+                          "("+iStart+","+arSubCounts[j]+",'"+sFile+"',"+iQC+",'"+arSubs[j]+"','#"+sId+"');\"";
+                  html.push("<tr "+sRowArgs+"><td>" + sFile + "</td>");
+                  html.push("<td>"+arSubCounts[j]+"</td></tr>");
+                  // Make a row where the citation will be placed
+                  html.push("<tr class=\"citationrow hidden\"><td colspan=2>"+
+                          "<div class=\"collapse inline-concordance\" id=\""+sId+
+                          "\">Loading...</div></td></tr>");
+                }
+              }
+              // Finish this sub-cat-table
+              html.push("</tbody></table></div>");
+            }
           }
+          $("#result_status").html("ok");
+          // Join and return the result
+          return html.join("\n");
+        } catch (e) {
+          // There is a problem loading all the data -- show it
+          $("#result_status").html("Cannot load the data for view #2 (documents)");
+          return "";
         }
-        // Join and return the result
-        return html.join("\n");
       },
       
       /* ---------------------------------------------------------------------------

@@ -552,7 +552,13 @@ public abstract class BaseResponse {
     try {
             // Interpret the response: expecting a JSON string with "status", "content"
       JSONObject oResp = new JSONObject(sResp);
-      if (!oResp.has("status")) { output.put("error", "processQueryResponse: /crpp does not return status"); return;}
+      if (!oResp.has("status")) { 
+        sMsg = "processQueryResponse: /crpp does not return status";
+        oStat = new JSONObject(); oStat.put("code", "error"); oStat.put("message", sMsg);
+        output.put("status", oStat);
+        output.put("error", sMsg); 
+        return;
+      }
       // Decypher the status
       oStat = oResp.getJSONObject("status");
       // Transfer the status
@@ -588,6 +594,8 @@ public abstract class BaseResponse {
         case "error":
           logger.DoError("processQueryResponse: /crpp returns error: "+sMsg);
           output.put("error", sMsg);
+          oStat.put("message", sMsg);
+          output.put("status", oStat);
           break;
         case "completed":
           // If the job is already completed, then we need to pass on the results: "table"
