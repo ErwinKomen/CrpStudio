@@ -140,23 +140,43 @@
 
                   <!-- (1) Left COMBOBOX allowing for 'resultsperpage' choosing -->
                   <div class="small-text jump-left large-3 medium-3 small-4 columns"> 
-                    $result_pagination_show
-                    <select id="page_size" class="show-select meta-small" onchange="crpstudio.result.update( $view, {number: $(this).val(), sort: ''})">
-                      <!-- Default option: 10 results per page -->
-                      <option value="10" selected="true">10</option>
-                      <option value="20">20</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                      <option value="200">200</option>
-                      <option value="-1">$result_all</option>
-                    </select>
-                    $result_pagination_perpage
+                    <!-- Allow user to choose sizes  -->
+                    <div class="large-16 medium-16 small-16 row">
+                      $result_pagination_show
+                      <select id="page_size" class="show-select meta-small" onchange="crpstudio.result.update( $view, {number: $(this).val(), sort: ''})">
+                        <!-- Default option: 10 results per page -->
+                        <option value="10" selected="true">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="-1">$result_all</option>
+                      </select>
+                      $result_pagination_perpage
+                    </div>
+                    <!-- EXPORT button  -->
+                    <div class="export large-16 medium-16 small-16 row">
+                      <div class="large-offset-1 medium-offset-1 small-offset-1 large-3 medium-3 small-4 columns">
+                        <a href="#" class="button radius small" onclick="crpstudio.result.doExport($view);">$labels.getString("result.export")</a>
+                      </div>
+                      <div id="$resultsExportId" class="large-9 medium-9 small-8 columns hidden">
+                        <span>$labels.getString("result.export.intro"): </span>
+                        <span id="$resultsFileId"></span>
+                      </div>
+                    </div>
                   </div>
 
-                  <!-- (2) Centered page buttons [<< < n > >>] -->
+                  <!-- (2) Centered page buttons [<< < n > >>] + Result info -->
                   <div class="large-9 medium-9 small-8 centered columns">
-                    <ul id="$resultPageButtons" class="pagebuttons">
-                    </ul>
+                    <!-- (2a) page buttons -->
+                    <div class="large-16 medium-16 small-16 row">
+                      <ul id="$resultPageButtons" class="pagebuttons">
+                      </ul>
+                    </div>
+                    <!-- (2b) Information about these results -->
+                    <div class="large-16 medium-16 small-16 row">  
+                      <div id="$resultsInfoId" class="result-info large-8 medium-8-small-8 large-centered medium-centered small-centered columns"></div>
+                    </div>
                   </div>
 
                   <!-- (3) Right-aligned page-chooser and "GO" button -->
@@ -171,21 +191,7 @@
                 </div>
                 <!-- Show the STATUS -->
                 <div id="$resultStatus" class="large-16 medium-16 small-16 row"></div>
-                <!-- Information about these results -->
-                <div class="large-16 medium-16 small-16 row">  
-                  <div id="$resultsInfoId" class="result-info large-8 medium-8-small-8 large-centered medium-centered small-centered columns"></div>
-                </div>
                 <div class="row" style="line-height: 50%"> . </div>
-                <!-- EXPORT button and information about the current QC -->
-                <div class="export large-16 medium-16 small-16 row">
-                  <div class="large-offset-1 medium-offset-1 small-offset-1 large-3 medium-3 small-4 columns">
-                    <a href="#" class="button radius small" onclick="crpstudio.result.doExport($view);">$labels.getString("result.export")</a>
-                  </div>
-                  <div id="$resultsExportId" class="large-9 medium-9 small-8 columns hidden">
-                    <span>$labels.getString("result.export.intro"): </span>
-                    <span id="$resultsFileId"></span>
-                  </div>
-                </div>
                 <!-- RESULT TABLE for this view -->
                 <div id="$resultsTableId" class="large-16 medium-16 small-16">
                       <i>(Working...)</i>
