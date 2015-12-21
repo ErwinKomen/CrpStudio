@@ -11,6 +11,8 @@ var crpstudio = (function (crpstudio) {
   "use strict";
   crpstudio.config = {
     
+    input_set: "",              // Wording for 'input.selection.set'
+    input_clr: "",              // Wording for 'input.selection.clr'
     baseUrl: null,              // Base URL for crpstudio
     blsUrl:  null,              // Address of the Black Lab Server
     crppUrl: null,              // Address for Corpus Research Project Processor requests

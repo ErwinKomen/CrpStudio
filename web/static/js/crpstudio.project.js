@@ -1005,12 +1005,12 @@ var crpstudio = (function ($, crpstudio) {
           // Show the corpus-selector
           $("#corpus-selector").show();
           // Reset the lng + dir
-          crpstudio.project.setCorpus("");
+          crpstudio.project.setCorpus("reset");
         } else {
           // Make sure sDir is defined
           if (!sDir) sDir = "";
           // Set the lng + dir
-          crpstudio.project.setCorpus(sLng, sDir);
+          crpstudio.project.setCorpus("lng_dir", sLng, sDir);
           // Set the correct option within the 'corpus-selector'
           var sOption = sLng + ":" + sDir + ":" + sDbase;
           $("#input_lng").val(sOption);
@@ -2275,6 +2275,9 @@ var crpstudio = (function ($, crpstudio) {
               var sDbase = oContent.dbase; 
               var bShowSyntax = oContent.showsyntax;
               var oRules = {}; oRules.rules = oContent.rules; oRules.xqinput = oContent.xqinput;
+              // Get correct wording for input.set and input.clr
+              crpstudio.config.input_set = oContent.input_set;
+              crpstudio.config.input_clr = oContent.input_clr;
               // Take out all lists
               crpstudio.prj_deflist = oContent.deflist;
               crpstudio.prj_qrylist = oContent.qrylist;
@@ -2282,7 +2285,7 @@ var crpstudio = (function ($, crpstudio) {
               crpstudio.prj_dbflist = oContent.dbflist;
               crpstudio.prj_crplist = oContent.crplist;
               if (sLanguage !== "")
-                crpstudio.project.setCorpus(sLanguage, sPart, oRules);
+                crpstudio.project.setCorpus("lng_dir_rules", sLanguage, sPart, oRules);
 
               // Prevent undesired change triggers
               var bSelState = bIsSelecting;
@@ -2956,76 +2959,105 @@ var crpstudio = (function ($, crpstudio) {
        *    Set the corpus language (sCorpusName) and the part of the language 
        *    that serves as input (sDirName)
        * 
+       * @param {string} sType       - One of: reset, lng_dir, lng_dir_rules, rules
        * @param {string} sCorpusName
        * @param {string} sDirName
        * @param {object} oRules
        * @returns {undefined}
        */
-      setCorpus : function(sCorpusName, sDirName, oRules) {
+      setCorpus : function(sType, sCorpusName, sDirName, oRules) {
+        // Process input parameters
         var sInputRules = "";
         var sXqInput = "";
-        if (oRules) {
+        if (oRules && oRules.rules !== "") {
           sInputRules = oRules.rules;
           sXqInput = oRules.xqinput;
         }
+        // Determine key, value and id
+        var iId = currentCrp;
         // Check if rules are defined
-        var bHasRules = (sInputRules !== "");
-        // Perhaps only the corpus-name is given?
-        if (sDirName === undefined && sCorpusName !== undefined && sCorpusName === "") {
-          // Reset the corpus name and dir name in the top section
-          $("#top_bar_current_corpus").text("-");
-        } else if (sCorpusName !== undefined && sDirName  !== undefined && 
-                   sCorpusName === "" && sDirName === "" && bHasRules) {
-          // Input rules are supplied for the currently selected corpus
-          //   But no *new* corpus name or dir name are supplied
-          
-          // (1) Set the corpus name and dir name in the top section - extended with ++
-          $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+"++");
-          
-          /*
-          // Make sure the correct input-meta-selector is loaded
-          // crpstudio.input.setMetaInfo(sCorpusName, sDirName, sInputRules);
-          // crpstudio.input.showMetaInfo(sInputRules);
-          */
-         
-          // Determine key, value and id
-          var iId = currentCrp;
-          // New: pass on the change to histAdd
-          private_methods.histAdd("project", iId, currentPrj, "Rules", sInputRules);
-          private_methods.histAdd("project", iId, currentPrj, "xqInput", sXqInput);
-        } else {
-          // Set the corpus name and dir name in the top section
-          var sSignal = (bHasRules) ? "++" : "";
-          $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+sSignal);
-          // Set these values also in our own variables
-          // NOTE: these are used by crpstudio.result
-          currentDir = sDirName;
-          currentLng = sCorpusName;
-          
-          // Make sure the correct input-meta-selector is loaded
-          crpstudio.input.setMetaInfo(sCorpusName, sDirName, sInputRules);
+        // OLD: var bHasRules = (sInputRules !== "");
+        
+        // Action depends on type
+        switch(sType) {
+          case "reset":     // Reset everything
+            // Reset the corpus name and dir name in the top section
+            $("#top_bar_current_corpus").text("-");
+            // Reset the rule-definition part
+            crpstudio.input.reset();
+            crpstudio.input.setState(false);
+            // TODO: if 'reset' is called from other places that require it,
+            //       add code here to send 'clear' information to history
+            break;
+          case "no_rules":  // Send signal to history to remove rules
+            private_methods.histAdd("project", iId, currentPrj, "Rules", sInputRules);
+            private_methods.histAdd("project", iId, currentPrj, "xqInput", sXqInput);          
+            break;
+          case "lng_dir": // Change lng/dir for current CRP + reset 'rules'
+            $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName);
+            // Set these values also in our own variables
+            // NOTE: these are used by crpstudio.result
+            currentDir = sDirName;
+            currentLng = sCorpusName;
 
-          // Hide the corpus selector if we are in project mode
-          switch (loc_tab) {
-            case "project_editor":
-            case "project":
-              // Hide the corpus selector
-              $("#corpus-selector").hide();
-              break;
-            case "input_editor":
-            case "input":
-              // Determine key, value and id
-              var iId = currentCrp;
-              // New: pass on the change to histAdd
-              private_methods.histAdd("project", iId, currentPrj, "Language", sCorpusName);
-              private_methods.histAdd("project", iId, currentPrj, "Part", sDirName);
-              private_methods.histAdd("project", iId, currentPrj, "Rules", sInputRules);
-              private_methods.histAdd("project", iId, currentPrj, "xqInput", sXqInput);
-              break;
-            default:
-              // No particular action right now
-              break;
-          }
+            // Make sure the correct input-meta-selector is loaded
+            crpstudio.input.setMetaInfo(sCorpusName, sDirName, "");
+
+            // Hide the corpus selector if we are in project mode
+            switch (loc_tab) {
+              case "project_editor":
+              case "project":
+                // Hide the corpus selector
+                $("#corpus-selector").hide();
+                break;
+              case "input_editor":
+              case "input":
+                // New: pass on the change to histAdd
+                private_methods.histAdd("project", iId, currentPrj, "Language", sCorpusName);
+                private_methods.histAdd("project", iId, currentPrj, "Part", sDirName);
+                break;
+              default:
+                // No particular action right now
+                break;
+            }
+            // Reset the rule-definition part
+            crpstudio.input.reset();
+            crpstudio.input.setState(false);
+            break;
+          case "rules":   // Set rules for current CRP/lng/dir
+            // (1) Set the corpus name and dir name in the top section - extended with ++
+            $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+"++");
+
+            // New: pass on the change to histAdd
+            private_methods.histAdd("project", iId, currentPrj, "Rules", sInputRules);
+            private_methods.histAdd("project", iId, currentPrj, "xqInput", sXqInput);
+            break;
+          case "lng_dir_rules": // Set the lng/dir/rules for the currently being loaded CRP
+            // (1) Set the corpus name and dir name in the top section
+            $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+"++");
+            // Set these values also in our own variables
+            // NOTE: these are used by crpstudio.result
+            currentDir = sDirName;
+            currentLng = sCorpusName;
+
+            // Make sure the correct input-meta-selector is loaded
+            crpstudio.input.setMetaInfo(sCorpusName, sDirName, sInputRules);
+
+            // Hide the corpus selector if we are in project mode
+            switch (loc_tab) {
+              case "project_editor":
+              case "project":
+                // Hide the corpus selector
+                $("#corpus-selector").hide();
+                break;
+              default:
+                // No particular action right now
+                break;
+            }
+            break;
+          default:
+            // This one is unknown
+            break;
         }
       },
 

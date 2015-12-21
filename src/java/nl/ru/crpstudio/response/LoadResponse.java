@@ -103,6 +103,8 @@ public class LoadResponse extends BaseResponse {
           oContent.put("dbflist", crpThis.getListDbFeat());
           oContent.put("crplist", this.makeListOfCrps(sUserId, crpThis));
           oContent.put("querysellist", this.getQueryList(crpThis));
+          oContent.put("input_set", this.labels.getString("input.selection.set"));
+          oContent.put("input_clr", this.labels.getString("input.selection.clr"));
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");

@@ -83,6 +83,7 @@ var crpstudio = (function ($, crpstudio) {
           crpstudio.input.showMetaInfo(false);
           crpstudio.input.setState(true);
         } else {
+          crpstudio.input.reset();
           crpstudio.input.setState(false);
         }
         
@@ -335,10 +336,20 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {void}
        */
       switchState : function(item) {
-        if ($(item).parent().find("div.content-meta").hasClass("active"))
+        if ($(item).parent().find("div.content-meta").hasClass("active")) {
+          // Reset the rules: fold it inwards
           $(item).find("img").attr("src","./static/img/plus.png");
-        else
+          // Reset the rules
+          crpstudio.project.setCorpus("no_rules");
+          crpstudio.input.reset(); 
+          // Set the correct text
+          $(item).find("h6").text(crpstudio.config.input_set);
+        } else {
+          // Start-up rule-setting: fold it outwards
           $(item).find("img").attr("src","./static/img/minus.png");
+          // Set the correct text
+          $(item).find("h6").text(crpstudio.config.input_clr);
+        }
       },
       
       /**
@@ -350,11 +361,17 @@ var crpstudio = (function ($, crpstudio) {
       setState : function(bValue) {
         // set the 'active' class or remove it
         if (bValue) {
+          // Make the rules active
           $("#meta-accordion").find(".content-meta").addClass("active");
           $("#meta-accordion").find("img").attr("src","./static/img/minus.png");
+          // Set the correct text
+          $(item).find("h6").text(crpstudio.config.input_clr);
         } else {
+          // Make the rules inactive
           $("#meta-accordion").find(".content-meta").removeClass("active");
           $("#meta-accordion").find("img").attr("src","./static/img/plus.png");
+          // Set the correct text
+          $(item).find("h6").text(crpstudio.config.input_set);
         }
         // 
       }
