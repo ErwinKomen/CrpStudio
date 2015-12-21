@@ -365,13 +365,13 @@ var crpstudio = (function ($, crpstudio) {
           $("#meta-accordion").find(".content-meta").addClass("active");
           $("#meta-accordion").find("img").attr("src","./static/img/minus.png");
           // Set the correct text
-          $(item).find("h6").text(crpstudio.config.input_clr);
+          $("#meta-accordion").find("h6").text(crpstudio.config.input_clr);
         } else {
           // Make the rules inactive
           $("#meta-accordion").find(".content-meta").removeClass("active");
           $("#meta-accordion").find("img").attr("src","./static/img/plus.png");
           // Set the correct text
-          $(item).find("h6").text(crpstudio.config.input_set);
+          $("#meta-accordion").find("h6").text(crpstudio.config.input_set);
         }
         // 
       }
