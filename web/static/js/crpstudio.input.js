@@ -150,7 +150,7 @@ var crpstudio = (function ($, crpstudio) {
           var oRules = {}; 
           oRules.rules = JSON.stringify(oInfo.rules); 
           oRules.xqinput = crpstudio.xquery.createRuleQ(oInfo.rules);
-          crpstudio.project.setCorpus("", "", oRules);
+          crpstudio.project.setCorpus("rules", "", "", oRules);
         }
         
         // Put the text in place
@@ -344,6 +344,8 @@ var crpstudio = (function ($, crpstudio) {
           crpstudio.input.reset(); 
           // Set the correct text
           $(item).find("h6").text(crpstudio.config.input_set);
+          // Make sure to reset the text in the 'oview'
+          $("#input_general_oview").html("");
         } else {
           // Start-up rule-setting: fold it outwards
           $(item).find("img").attr("src","./static/img/minus.png");
@@ -372,6 +374,8 @@ var crpstudio = (function ($, crpstudio) {
           $("#meta-accordion").find("img").attr("src","./static/img/plus.png");
           // Set the correct text
           $("#meta-accordion").find("h6").text(crpstudio.config.input_set);
+          // Clear the overview
+          $("#input_general_oview").html("");
         }
         // 
       }

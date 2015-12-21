@@ -2976,7 +2976,7 @@ var crpstudio = (function ($, crpstudio) {
         // Determine key, value and id
         var iId = currentCrp;
         // Check if rules are defined
-        // OLD: var bHasRules = (sInputRules !== "");
+        var bHasRules = (sInputRules !== "");
         
         // Action depends on type
         switch(sType) {
@@ -3025,6 +3025,9 @@ var crpstudio = (function ($, crpstudio) {
             crpstudio.input.setState(false);
             break;
           case "rules":   // Set rules for current CRP/lng/dir
+            // Take over the corpus and dir name (which are not specified now)
+            sCorpusName = currentLng;
+            sDirName = currentDir;
             // (1) Set the corpus name and dir name in the top section - extended with ++
             $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+"++");
 
@@ -3034,7 +3037,8 @@ var crpstudio = (function ($, crpstudio) {
             break;
           case "lng_dir_rules": // Set the lng/dir/rules for the currently being loaded CRP
             // (1) Set the corpus name and dir name in the top section
-            $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+"++");
+            var sSignal = (bHasRules) ? "++" : "";
+            $("#top_bar_current_corpus").text(sCorpusName+":"+sDirName+sSignal);
             // Set these values also in our own variables
             // NOTE: these are used by crpstudio.result
             currentDir = sDirName;
