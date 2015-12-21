@@ -250,6 +250,56 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * createGroupingQ
+       *    Create Xquery code to assign each input file to one particular 'group'
+       *    
+       *    This is called from [crpstudio.result.js] in order to convert
+       *      a particular grouping into a piece of Xquery that can be 
+       *      passed as "xqGrouping" setting to the current Corpus Research Project
+       *      
+       * @param {string} sGroupingValue - the 'value' of the chosen grouping in terms of variables
+       * @returns {string}
+       */
+      createGroupingQ : function(sGroupingValue) {
+        var arCode = [];
+        
+        // Start with the starting tag
+        arCode.push("<metaGrouping>");
+        arCode.push("{");
+        // Get the header and mdi variables
+        arCode.push("  let $hdr := ru:header()");
+        arCode.push("  let $mdi := ru:mdi()");
+        // Get all variables defined for this section in "metavar"
+        // (NOTE: they are only actually calculated in Xquery if they are needed)
+        var arVarset = crpstudio.project.getMetaList("", "", "variables");
+        for (var i=0;i<arVarset.length;i++) {
+          var oVardef = arVarset[i];
+          var sEntry = (oVardef.loc==="header") ? "$hdr" : "$mdi";
+          var sValue = oVardef.value.replace("descendant", sEntry+"/descendant");
+          arCode.push("  let $"+oVardef.name+" := "+sValue);
+        }
+        
+        // The user (or system) supplied 'value' should return a proper group name string
+        arCode.push("  let $name := "+sGroupingValue);
+        // But if the name returns empty, it should be replaced with 'default'
+        arCode.push("  let $group := if ($name = '') then 'default' else $name");
+        
+        // Finish the group-name-determination section
+        arCode.push("       ");
+        
+        // Return the value of the calculated condition 
+        // (first attempt...)
+        arCode.push("  return ru:backgroup($group)");
+        
+        // Add closing tag
+        arCode.push("}");
+        arCode.push("</metaGrouping>");
+        // Return what we have made
+        var sBack = arCode.join("\n");
+        return sBack;
+      },
+      
+      /**
        * createQuery
        *    Construct an Xquery based on the @sPrjType, @bDbase and @sType
        *    The @sType values are defined in CrpstudioBundle.properties

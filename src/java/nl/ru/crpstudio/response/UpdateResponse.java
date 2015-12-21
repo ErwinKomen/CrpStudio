@@ -13,6 +13,7 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
+import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONObject;
 
 /**
@@ -65,8 +66,8 @@ public class UpdateResponse extends BaseResponse {
       switch(iView) {
         case 1: // per hit
         case 2: // per document: 
-          break;
         case 3: // per group: files belonging to one of the named file-groups (e.g: O23)
+          break;
         case 4: // per division: files belonging to one of the named group-divisions (e.g: ME)
           if (!oQuery.has("div")) { sendErrorResponse("UpdateResponse: missing @div for view 3-4");return;}
           break;
@@ -107,8 +108,8 @@ public class UpdateResponse extends BaseResponse {
       if (oQuery.has("dir")) { oMyQuery.put("dir", oQuery.getString("dir")); }     
       // Specification of files
       if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
-      // Specification of grouping division
-      if (oQuery.has("div")) { oMyQuery.put("div", oQuery.getJSONArray("div")); } 
+      // Specification of grouping division (this is Xquery code, which we compress for safe passage)
+      if (oQuery.has("div")) { oMyQuery.put("div", StringUtil.compressSafe(oQuery.getString("div"))); } 
       
       // Put my query into the request
       this.params.put("query", oMyQuery);

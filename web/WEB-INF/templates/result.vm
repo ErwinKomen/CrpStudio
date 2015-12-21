@@ -134,7 +134,26 @@
                 <div id="$tabId" class="result-pane tab-pane lightbg haspadding">
               #end
                 <input type="hidden" class="current-view" value="$view" />
+                <!-- horizontal line -->
                 <div class="gradient"></div>
+              #if($view == "3")
+                <!-- allow user to choose a grouping -->
+                <div class="large-16 medium-16 small-16 row">
+                  <div class="large-3 medium-3 small-3 columns">
+                    <label for="right-label" class="right inline">$labels.getString("result.grouping")</label>
+                  </div>
+                  <div class="large-5 medium-5 small-5 columns left">
+                    <select id="result_view3_grouping">
+                      <!-- Default option: standard grouping -->
+                      <option value="standard" selected="true">standard</option>
+                    </select>
+                  </div>
+                  <div class="large-5 medium-5 small-5 columns left">
+                    <a href="#" class="button radius tiny" 
+                       onclick="crpstudio.result.doGrouping('result_view3_grouping', $view);">$labels.getString("result.grouping.show")</a>
+                  </div>
+                </div>
+              #end
                 <!-- provide PAGINATION options -->
                 <div id="$resultPagination" class="pagination large-16 medium-16 small-16 row hidden">
 

@@ -1846,6 +1846,8 @@ var crpstudio = (function ($, crpstudio) {
               $(".sub-nav dd").removeClass("active");
               $("#result_link").removeClass("hide");
               $("#result_link").addClass("active");
+              // Fill the groupings combobox
+              crpstudio.result.fillGroupings();
               // Don't show save button
               private_methods.showSaveButton(false);
               break;
@@ -2219,7 +2221,7 @@ var crpstudio = (function ($, crpstudio) {
        * 
        * @param {string} sCorpusName
        * @param {string} sCorpusDir
-       * @param {string} sType        - either 'tagset' or 'variables'
+       * @param {string} sType        - either 'tagset' or 'variables' or 'groupings'
        * @returns {JSON array}
        */
       getMetaList : function(sCorpusName, sCorpusDir, sType) {
@@ -2235,8 +2237,9 @@ var crpstudio = (function ($, crpstudio) {
           if (oMeta.name === sMetavar) {
             // What we return depends on the type
             switch (sType) {
-              case "tagset": arBack = oMeta.tagset; break;
+              case "tagset":    arBack = oMeta.tagset;    break;
               case "variables": arBack = oMeta.variables; break;
+              case "groupings": arBack = oMeta.groupings; break;
             }
             // Make sure we leave nicely
             break;

@@ -198,7 +198,8 @@ var crpstudio = (function ($, crpstudio) {
       /**
        * showView 
        *    Make sure the indicate [iView] result-pane is 
-       *    shown, while the rest is hidden   * 
+       *    shown, while the rest is hidden   
+       *     
        * 
        * @param {type} iView
        * @returns {undefined}
@@ -226,6 +227,18 @@ var crpstudio = (function ($, crpstudio) {
             $(this).addClass("hidden");
           }
         });
+        // Some initialisations are view-specific
+        switch (iView) {
+          case 3:
+            // Make sure to clear the table
+            $("#result_table_3").html("");
+            // Select the default grouping
+            crpstudio.result.doGrouping("standard",3);
+            break;
+          default:
+            // No default matters
+            break;
+        }
       },
       
       /* ---------------------------------------------------------------------------
@@ -822,6 +835,175 @@ var crpstudio = (function ($, crpstudio) {
         // Possibly call update()
         if (iQC)
           crpstudio.result.update(loc_view);
+      },
+      
+      /**
+       * fillGroupings -- fill the combobox with 'grouping' names for the user to choose from
+       * 
+       * @returns {void}
+       */
+      fillGroupings : function() {
+        var arGrouping = [];
+        // First put in the 'standard' grouping
+        arGrouping.push("standard");
+        // Get the *general* grouping information for this corpus
+        var arGroupingGen = crpstudio.project.getMetaList("", "", "groupings");
+        // Extract the names
+        for (var i=0;i<arGroupingGen.length;i++) {
+          arGrouping.push(arGroupingGen[i].name);
+        }
+        
+        // TODO: add user-supplied groupings
+        
+        // Fill the combobox with the grouping information
+        crpstudio.corpora.fillCombo("result_view3_grouping", arGrouping);
+        
+      },
+      
+      /**
+       * getGrouping
+       *    Get the 'value' part of the grouping with the indicated name
+       * 
+       * @param {string} sGroupingName - Name of the grouping
+       * @returns {string}             - Value of the grouping
+       */
+      getGrouping : function(sGroupingName) {
+        // Review the *general* grouping information for this corpus
+        var arGroupingGen = crpstudio.project.getMetaList("", "", "groupings");
+        // Extract the names
+        for (var i=0;i<arGroupingGen.length;i++) {
+          // Get this grouping
+          var oGrouping = arGroupingGen[i];
+          // Is this the one?
+          if (oGrouping.name === sGroupingName) {
+            // FOund the correct one -- return the value
+            return oGrouping.value;
+          }
+        }
+        
+        // TODO: add user-supplied groupings
+        
+        // Return failure
+        return "";
+      },
+      
+      /**
+       * doGrouping -- Change showing of grouping to the name of the grouping
+       *               contained in the <select> box with @id = sComboName
+       * 
+       * @param {string} sComboName
+       * @param {int}    iView
+       * @returns {void}
+       */
+      doGrouping : function(sComboName, iView) {
+        // Find out which QC and/or sub-category the user has currentlyu selected
+        var iQC = loc_iCurrentQc;
+        var sSub = loc_sCurrentSub;
+        // Get the value of the combobox
+        var sGroupingName = $("#"+sComboName).val();
+        // Check result
+        if (sGroupingName !== undefined && sGroupingName !== null && sGroupingName !== "") {
+          // Keep the user up to date...
+          $("#result_status_"+iView).html("Fetching information for grouping: "+sGroupingName+"...");
+          var iStart = 0;
+          var iRequesting = 1;
+          var sType = "grouping";
+          // Find the 'value' of the grouping with this name
+          var sValue = crpstudio.result.getGrouping(sGroupingName);
+          // Find the Xqueruy code for this value
+          var sCode = crpstudio.xquery.createGroupingQ(sValue);
+          
+          // Give the correct command to /crpstudio for grouping information
+          var oQuery = { "qc": iQC, "sub": sSub, "view": iView,
+            "userid": crpstudio.currentUser, "prj": crpstudio.project.getPrj(), 
+            "lng": crpstudio.project.getLng(), "dir": crpstudio.project.getDir(), 
+            "type": sType, "start": iStart, 
+            "count": iRequesting, "files": [ ],
+            "div": sCode};
+          // var params = "query=" + JSON.stringify(oQuery);
+          var params = JSON.stringify(oQuery);
+          crpstudio.main.getCrpStudioData("update", params, crpstudio.result.processGrpHits, "#result_table_3");   
+        }
+      },
+      
+      
+      processGrpHits : function(response, target) {
+        var iFirstN = -1;
+        if (response !== null) {
+          var iView = loc_view;
+          // Remove waiting notification in project description
+          $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Processing data...");
+          // The response is a standard object containing "status" (code) and "content" (code, message)
+          var oStatus = response.status;
+          var sStatusCode = oStatus.code;
+          var oContent = response.content;
+          switch (sStatusCode) {
+            case "completed":
+              // The result is in [oContent] as an array of 'hit' values
+              var html = [];
+              for (var i=0;i<oContent.length;i++) {
+                // One result is one div
+                var sRowType = (i % 2 === 0) ? " row-even" : "row-odd";            
+                html.push("<div class=\"one-example " + sRowType + "\">"+
+                          "<div class=\"one-example-context\">");
+                // Access this object
+                var oRow = oContent[i];
+                // Possibly get the first "n" value --> this helps determine pagination resetting
+                if (iFirstN<0) iFirstN = oRow.n;
+                // Add the number of the example            
+                html.push("<b>"+oRow.n+"</b> ");
+                // Possibly add filename
+                if (iView === 1) {
+                  // Need to add the name of the file
+                  html.push("[<span class=\"one-example-filename\">"+oRow.file+"</span>]");
+                }
+                // Add preceding context
+                html.push(oRow.preC);
+                html.push("<span class=\"one-example-hit\">"+oRow.hitC+" </span>");
+                // Close "one-example-context"
+                html.push(oRow.folC+"</div>");
+                // Get the syntax result
+                var sSyntax = private_methods.getSyntax(oRow.hitS);
+                html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
+                // Is there any 'msg' result?
+                if (oRow.msg) {
+                  // Adapt the message
+                  var sMsg = oRow.msg;
+                  sMsg = sMsg.replace(/\</g, '&lt;');
+                  sMsg = sMsg.replace(/\>/g, '&gt;');
+                  // Add it to the output
+                  html.push("<div class=\"one-example-msg\">"+ sMsg +"</div>");
+                }
+                // Finish the "one-example" <div>
+                html.push("</div>");
+              }
+              // Join the results to one string
+              var sJoinedExample = html.join("\n");
+              // put the results in the target
+              $(target).html(sJoinedExample);
+              // Set the amount of hits
+              // loc_numResults = oContent.length;
+              // Show the correct <li> items under "result_pagebuttons_"
+              if (iFirstN<0 || iFirstN===1) {
+                private_methods.doPagination(iView, loc_numResults);
+              }
+              // Show we are ready: clear status
+              $("#result_status_"+iView).html("");
+              break;
+            case "error":
+              var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+              var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+              $("#result_status_"+iView).html("Error: " + sErrorCode);
+              $(target).html("Error: " + sErrorMsg);
+              break;
+            default:
+              $("#result_status"+iView).html("Error: no reply");
+              $(target).html("Error: no reply received from the /crpstudio server");
+              break;
+          }
+        } else {
+          $("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
+        }    
       }
 
     };
