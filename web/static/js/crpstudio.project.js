@@ -3436,7 +3436,7 @@ var crpstudio = (function ($, crpstudio) {
         $(listItem).addClass("active");
         // Make sure the new project is being selected
         var strProject = "...name of this project (wizard)";
-        currentPrj = strProject;
+        // currentPrj = strProject;
         // And set the name of the project in the top-bar div
         $("#top_bar_current_project").text("wizard...");
         // Adapt the text of the project description
