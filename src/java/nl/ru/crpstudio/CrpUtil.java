@@ -79,7 +79,7 @@ public class CrpUtil {
    * @param sPassword
    * @return 
    */
-  boolean setUserNew(String sUserId, String sPassword) {
+  boolean setUserNew(String sUserId, String sPassword, String sEmail) {
     try {
       // Get the array of users
       JSONArray arUser = getUsers();
@@ -97,6 +97,7 @@ public class CrpUtil {
       JSONObject oNew = new JSONObject();
       oNew.put("name", sUserId);
       oNew.put("password", sPassword);
+      oNew.put("email", sEmail);
       arUser.put(oNew);
       oUsers.put("users", arUser);
       // Save the new structure

@@ -323,6 +323,7 @@ var crpstudio = (function ($, crpstudio) {
           var sUserName = $("#j_username").val();
           var sPassWord = $("#j_password1").val();
           var sPassWord2 = $("#j_password2").val();
+          var sEmail = $("#j_email").val();
           // Check
           if (sPassWord !== sPassWord2) {
             // Show error
@@ -332,7 +333,7 @@ var crpstudio = (function ($, crpstudio) {
             return;
           }
           // Issue a request to /crpstudio to enter a new user
-          var oArgs = { "userid": sUserName, "pass": sPassWord };
+          var oArgs = { "userid": sUserName, "pass": sPassWord, "email": sEmail };
           var params = JSON.stringify(oArgs);
           crpstudio.main.getCrpStudioData("j_user_new", params, crpstudio.main.processLoginNew, "#login_error");        
           // window.location = window.location.protocol+loc_tab;

@@ -441,23 +441,27 @@ public class CrpStudio extends HttpServlet {
   public boolean handleNewUser(HttpServletRequest request, ByRef<String> sMsg) {
     String s_jUserName = "";
     String s_jPassWord = "";
+    String s_jEmail = "";
     
     try {
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("userid")) { sMsg.argValue="No [userid] given"; return false;}
       if (!oQuery.has("pass"))   { sMsg.argValue="No [pass] given";   return false;}
+      if (!oQuery.has("email"))  { sMsg.argValue="No [email] given";  return false;}
       
       // There are three parameters: project, userid, type
       s_jPassWord  = oQuery.getString("pass");
-      s_jUserName   = oQuery.getString("userid");
+      s_jUserName  = oQuery.getString("userid");
+      s_jEmail     = oQuery.getString("email");
 
       // Validate: all two must be there
       if (s_jPassWord.isEmpty()) { sMsg.argValue="password is empty"; return false;}
       if (s_jUserName.isEmpty()) { sMsg.argValue="username is empty"; return false;} 
+      if (!isValidEmailAddress(s_jEmail)) { sMsg.argValue= "email is invalid"; return false;}
       
       // Try set a new user
-      if (crpUtil.setUserNew(s_jUserName, s_jPassWord)) {
+      if (crpUtil.setUserNew(s_jUserName, s_jPassWord, s_jEmail)) {
         // Okay this person may log in
         this.bUserOkay = true;
         this.sUserId = s_jUserName;
@@ -477,7 +481,24 @@ public class CrpStudio extends HttpServlet {
       return false;
     }
   }
-   /**
+  
+  /**
+   * isValidEmailAddress - check if this is a valid email address
+   * 
+   * @param email
+   * @return 
+   */
+  private boolean isValidEmailAddress(String email) {
+    boolean result = true;
+    try {
+      String email_regex = "[A-Z]+[a-zA-Z_]+@\b([a-zA-Z]+.){2}\b?.[a-zA-Z]+";
+      result = email.matches(email_regex);
+    } catch (Exception ex) {
+      result = false;
+    }
+    return result;
+  }
+/**
    * getLoginAuthorization -- Check the credentials of this user
    * 
    * @param sUser
