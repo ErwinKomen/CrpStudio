@@ -16,19 +16,50 @@
     <div class="login small-16 medium-16 large-16 row">   
       <div class="small-12 medium-10 large-8 small-centered medium-centered large-centered columns">
         <p><span class="info">$labels.getString("login.line1")</span>
-           <span class="info">$labels.getString("login.line2")</span></p>
+           <br><span class="info">$labels.getString("login.line2")</span></p>
         <form id="login_form" method="post" action="j_security_check">
-          <table>
-            <tr><td>$labels.getString("login.name")</td>
-              <td><input type="text" name="j_username"></td></tr>
-              <td></td>
-            <tr><td>$labels.getString("login.password")</td>
-              <td><input type="password" name= "j_password"></td>
-              <td><button onclick="crpstudio.main.login.accept();" class="radius tiny">OK</button></td>
-              <!-- <td><a href="#" type="submit" form="login_form" onclick="crpstudio.main.login.accept();" class="button radius tiny">OK</a></td> -->
-              <!-- <td><input type="button" onclick="crpstudio.main.login.accept();" class="button radius tiny">OK</td> -->
-            </tr>
-          </table>
+          <div class="tabs-content">
+            <div class="content active">
+              <table>
+                <tr><td id="login_choice_old" onclick="crpstudio.main.login.show('old')" class="cell_active">$labels.getString("login.user.old")</td>
+                    <td id="login_choice_new" onclick="crpstudio.main.login.show('new')" class="cell_inactive">$labels.getString("login.user.new")</td></tr>
+              </table
+            </div>
+            <div class="content" id="login_user_old">
+              <table>
+                <tr><td>$labels.getString("login.name")</td>
+                  <td><input type="text" name="j_username"></td></tr>
+                  <!-- <td></td> -->
+                <tr><td>$labels.getString("login.password")</td>
+                  <td><input type="password" name= "j_password"></td>
+                  <td><button onclick="crpstudio.main.login.accept();" class="radius tiny">$labels.getString("login.button.old")</button></td>
+                  <!-- <td>
+                    <a href="#" aria-label="submit form" onclick="crpstudio.main.login.accept();" class="button radius tiny split">OK</a>
+                    <ul id="login_button" class="f-dropdown" data-dropdown-content>
+                      <li><a href="#" aria-label="submit form" onclick="crpstudio.main.login.accept();></a>Ok</li>
+                      <li><a href="#" aria-label="submit form" onclick="crpstudio.main.login.new();></a>New</li>
+                    </ul>
+                  </td> -->
+                  <!-- <td><input type="button" onclick="crpstudio.main.login.accept();" class="button radius tiny">OK</td> -->
+                </tr>
+              </table>
+            </div>
+            <div class="content hidden" id="login_user_new">
+              <table>
+                <tr><td>$labels.getString("login.name")</td>
+                  <td><input type="text" id="j_username" name="j_username"></td></tr>
+                <tr><td>$labels.getString("login.password")</td>
+                  <td><input type="password" id="j_password1" name= "j_password"></td>
+                </tr>
+                <tr><td>$labels.getString("login.password2")</td>
+                  <td><input type="password"  id="j_password2" name= "j_password2"></td>
+                  <td><a onclick="crpstudio.main.login.newuser();" class="button radius tiny">$labels.getString("login.button.new")</a></td>
+                </tr>
+              </table>
+              <div id="login_status"></div>
+              <div id="login_error"></div>
+            </div>
+          </div>
         </form>
       </div>
     </div>

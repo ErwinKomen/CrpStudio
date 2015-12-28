@@ -161,6 +161,7 @@ public class CrpStudio extends HttpServlet {
       contextRoot = cfg.getServletContext().getContextPath();
 
       responses.put("j_security_check", new LoginResponse());
+      responses.put("j_user_new", new NewUserResponse());
       responses.put("about",    new InfoResponse());
       responses.put("corpora",  new CorporaResponse());
       responses.put("crpchg",   new CrpchgResponse());
@@ -191,6 +192,7 @@ public class CrpStudio extends HttpServlet {
    * @param response 
    */
 	private void processRequest(HttpServletRequest request, HttpServletResponse response) {
+    ByRef<String> sMsg = new ByRef("");
 		try {
       // Reset errors
       errHandle.clearErr();
@@ -206,16 +208,25 @@ public class CrpStudio extends HttpServlet {
       errHandle.debug("session id = " + sSessionId);
 
       // Possibly handle a login attempt
-      if (indexName.equals("j_security_check")) {
-        // Handle the login stuff
-        handleLogin(request);
-        // Set the index name to "home"
-        indexName = "home";
-      } else if (indexName.equals("logoff")) {
-        // Handle the logoff stuff
-        handleLogoff(request);
-        // Set the index name to "home"
-        indexName = "home";
+      switch (indexName) {
+        case "j_security_check":
+          // Handle the login stuff
+          handleLogin(request);
+          // Set the index name to "home"
+          indexName = "home";
+          break;
+        case "j_user_new":
+          // Handle attempt to enter new user
+          if (handleNewUser(request, sMsg)) {
+            // TODO: any code for confirmation of a new user?
+          }
+          break;
+        case "logoff":
+          // Handle the logoff stuff
+          handleLogoff(request);
+          // Set the index name to "home"
+          indexName = "home";
+          break;
       }
       
       // get corresponding response object
@@ -226,7 +237,7 @@ public class CrpStudio extends HttpServlet {
       boolean bOkay = getUserOkay(sThisUser);
 
       // Prepare an appropriate response
-      if(bOkay && responses.containsKey(indexName)) {
+      if((bOkay|| indexName.equals("j_user_new")) && responses.containsKey(indexName)) {
         errHandle.debug("User ok. Turning to: " + indexName);
         // The request is within our limits, so return the appropriate response
         br = responses.get(indexName).duplicate();
@@ -241,6 +252,12 @@ public class CrpStudio extends HttpServlet {
       
       // Perform the base response init()
       br.init(request, response, this);
+      
+      // Check if message needs to be added
+      if (!sMsg.argValue.isEmpty()) {
+        br.setMessage(sMsg.argValue);
+      }
+      
       // Process the request using the appropriate response object
       br.processRequest();
     } catch (Exception ex) {
@@ -419,6 +436,46 @@ public class CrpStudio extends HttpServlet {
     // Make sure we have no current user anymore
     this.bUserOkay = false;
     this.sUserId = "";
+  }
+  
+  public boolean handleNewUser(HttpServletRequest request, ByRef<String> sMsg) {
+    String s_jUserName = "";
+    String s_jPassWord = "";
+    
+    try {
+      // Collect the JSON from our POST caller
+      JSONObject oQuery = new JSONObject(request.getParameter("args"));
+      if (!oQuery.has("userid")) { sMsg.argValue="No [userid] given"; return false;}
+      if (!oQuery.has("pass"))   { sMsg.argValue="No [pass] given";   return false;}
+      
+      // There are three parameters: project, userid, type
+      s_jPassWord  = oQuery.getString("pass");
+      s_jUserName   = oQuery.getString("userid");
+
+      // Validate: all two must be there
+      if (s_jPassWord.isEmpty()) { sMsg.argValue="password is empty"; return false;}
+      if (s_jUserName.isEmpty()) { sMsg.argValue="username is empty"; return false;} 
+      
+      // Try set a new user
+      if (crpUtil.setUserNew(s_jUserName, s_jPassWord)) {
+        // Okay this person may log in
+        this.bUserOkay = true;
+        this.sUserId = s_jUserName;
+        // Also set it globally
+        setUserId(this.sUserId);
+        setUserOkay(this.sUserId, this.bUserOkay);
+      } else {
+        //Cannot add this user: it exists already
+        sMsg.argValue = "User already exists";
+        return false;
+      }
+      // Return positively
+      return true;
+    } catch (Exception ex) {
+      // logger.error(e); 
+      errHandle.DoError("handleNewUser: ", ex);
+      return false;
+    }
   }
    /**
    * getLoginAuthorization -- Check the credentials of this user

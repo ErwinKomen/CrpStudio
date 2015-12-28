@@ -130,8 +130,8 @@ var crpstudio = (function ($, crpstudio) {
          History:
          26/oct/2015  ERK Modified from [rvisualization.js - ExecuteAjaxRequest]
          ==================================================================================== */
-      getCrpStudioData: function(sCommand, sData, callback, target) {
-        // Create search URL
+      getCrpStudioData : function(sCommand, sData, callback, target) {
+        // Create search UgetCrpStudioData:RL
         // var urlSearch = baseUrl + sCommand + "/";
         var urlSearch = config.baseUrl + sCommand ;
         // Send the query /crpstudio for processing
@@ -144,12 +144,17 @@ var crpstudio = (function ($, crpstudio) {
           store: false,
           // process query results
           success : function(responses) { 
-            var oResp = JSON.parse(responses);        
-            callback(oResp, target); 
+            try {
+              var oResp = JSON.parse(responses);        
+              callback(oResp, target); 
+            } catch (e) {
+              // No need to do anything much here
+              crpstudio.main.debug('response is not JSON');
+            }
           },
           // Process any errors
           error : function(jqXHR, textStatus, errorThrown) {
-            debug('The POST request did not succeed: ' + textStatus + 
+            crpstudio.main.debug('The POST request did not succeed: ' + textStatus + 
                             ' Response=' + jqXHR.responseText);
           }
         });
@@ -175,7 +180,7 @@ var crpstudio = (function ($, crpstudio) {
           params = params+"&lang="+crpstudio.config.language;
         }
 
-        debug("params: "+decodeURI(params));
+        crpstudio.main.debug("params: "+decodeURI(params));
 
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 
@@ -295,10 +300,103 @@ var crpstudio = (function ($, crpstudio) {
          * @returns {void}
          */
         accept : function() {
+          // Clean up
+          $("#login_error").html("");
           // Set the page
           loc_tab = "j_security_check";
           // Switch there
           window.location = window.location.protocol+loc_tab;
+        },
+        
+        /**
+         * login.newuser
+         *    Post request to start a new user
+         * 
+         * @returns {void}
+         */
+        newuser : function() {
+          // Clean up
+          $("#login_error").html("");
+          // Set the page
+          loc_tab = "j_user_new";
+          // Gather data
+          var sUserName = $("#j_username").val();
+          var sPassWord = $("#j_password1").val();
+          var sPassWord2 = $("#j_password2").val();
+          // Check
+          if (sPassWord !== sPassWord2) {
+            // Show error
+            $("#login_status").html("The passwords must be identical. Try again");
+            $("#j_password1").val("");
+            $("#j_password2").val("");
+            return;
+          }
+          // Issue a request to /crpstudio to enter a new user
+          var oArgs = { "userid": sUserName, "pass": sPassWord };
+          var params = JSON.stringify(oArgs);
+          crpstudio.main.getCrpStudioData("j_user_new", params, crpstudio.main.processLoginNew, "#login_error");        
+          // window.location = window.location.protocol+loc_tab;
+        },
+        
+        /**
+         * login.show
+         *    Show existing or new user input form
+         * 
+         * @param {type} sType
+         * @returns {undefined}
+         */
+        show : function(sType) {
+          // Clean up
+          $("#login_error").html("");
+          switch(sType) {
+            case "old":
+              $("#login_choice_old").removeClass("cell_active");
+              $("#login_choice_old").addClass("cell_inactive");
+              $("#login_choice_new").removeClass("cell_inactive");
+              $("#login_choice_new").addClass("cell_active");
+              $("#login_user_old").removeClass("hidden");
+              $("#login_user_new").addClass("hidden");
+              break;
+            case "new":
+              $("#login_choice_old").removeClass("cell_inactive");
+              $("#login_choice_old").addClass("cell_active");
+              $("#login_choice_new").removeClass("cell_active");
+              $("#login_choice_new").addClass("cell_inactive");
+              $("#login_user_old").addClass("hidden");
+              $("#login_user_new").removeClass("hidden");
+              break;
+          }
+        }
+      },
+      
+      /**
+       * processLoginNew
+       *    What to do when a new user has logged in
+       *    
+       * @param {type} response   JSON object returned from /crpstudio/load
+       * @param {type} target
+       * @returns {undefined}
+       */
+      processLoginNew : function(response, target) {
+        if (response !== null) {
+          // The response is a standard object containing "status" (code) and "content" (code, message)
+          var oStatus = response.status;
+          var sStatusCode = oStatus.code;
+          var oContent = response.content;
+          switch (sStatusCode) {
+            case "completed":
+              // Show the message
+              var sWelcome = oContent.msg;
+              $(target).html(sWelcome);
+              // Perform 'standard' login
+              loc_tab = "j_security_check";
+              window.location = window.location.protocol+loc_tab;
+              break;
+            case "error":
+              var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+              $(target).html(sErrorMsg);
+              break;
+          }
         }
       },
 
@@ -359,6 +457,9 @@ var crpstudio = (function ($, crpstudio) {
       home : {
         // Set the correct size for the iframe containing the "home.html"
         setSizes : function() {
+          // Clean up
+          $("#login_error").html("");
+          crpstudio.main.login.show("old");
           var h = $(window).innerHeight() - 135;
           $("#homepage").css("height",h+"px");
           crpstudio.main.setNavigationSize();

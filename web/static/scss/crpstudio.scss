@@ -1926,3 +1926,23 @@ textarea, .CodeMirror {
   font-style:italic; 
   color: darkgray;
 }
+.cell_active {
+  background-color: white;
+  color: black;
+  font-weight: bold;
+}
+.cell_active:hover {
+  background-color: whitesmoke;
+  color: darkgreen;
+  font-weight: bold;
+}
+.cell_inactive {
+  background-color: grey;
+  color: white;
+  font-weight: normal;
+}
+.cell_inactive:hover {
+  background-color: lightgray;
+  color: orange;
+  font-weight: normal;
+}

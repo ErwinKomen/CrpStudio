@@ -72,6 +72,44 @@ public class CrpUtil {
   }
   
   /**
+   * setUserNew
+   *    Try to add a new user with Id and Password
+   * 
+   * @param sUserId
+   * @param sPassword
+   * @return 
+   */
+  boolean setUserNew(String sUserId, String sPassword) {
+    try {
+      // Get the array of users
+      JSONArray arUser = getUsers();
+      // Check if this user may log in
+      for (int i = 0 ; i < arUser.length(); i++) {
+        // Get this object
+        JSONObject oUser = arUser.getJSONObject(i);
+        // Does the user exist already?
+        if (oUser.get("name").equals(sUserId)) {
+          // User exists, so return and do not OKAY this
+          return false;
+        }
+      }
+      // User does not exist, so add it
+      JSONObject oNew = new JSONObject();
+      oNew.put("name", sUserId);
+      oNew.put("password", sPassword);
+      arUser.put(oNew);
+      oUsers.put("users", arUser);
+      // Save the new structure
+      FileUtil.writeFile(sUserFile, oUsers.toString(), "utf-8");
+
+      // Return positively
+      return true;
+    } catch (Exception ex) {
+      logger.DoError("Could not create a new user", ex);
+      return false;
+    }
+  }
+  /**
    * addUserSession -- add the combination of a user and a session to the stack
    * 
    * @param sUserId
@@ -128,7 +166,7 @@ public class CrpUtil {
     
   }
   
-  
+
   public void setUserJob(String sUserId, String sSession, String sJobId) {
     // Look for the user
     for (int i=0;i<userCache.size();i++) {
@@ -223,16 +261,13 @@ public class CrpUtil {
   public boolean getUserOkay(String sUserId, String sSession) {
     // Do not accept empty users or empty sessions
     if (sUserId.isEmpty() || sSession.isEmpty()) return false;
-    // Look for the user
-    for (int i=0;i<userCache.size();i++) {
-      // Get this one
-      UserSession oThis = userCache.get(i);
+    for (UserSession oThis : userCache) {
       if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
         // Get the value of the userOkay flag for this user/session combination
         return oThis.userOkay;
       }
     }
-    // User was not found, so return failure
+    // User/session combination was not found, so return failure
     return false;
   }
   

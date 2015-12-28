@@ -83,6 +83,7 @@ public abstract class BaseResponse {
   protected CrpContainer crpContainer;
   protected CorpusResearchProject crpThis;
   protected String sCrpName = "";
+  protected String sMessage = "";
 	
 	protected long startTime = new Date().getTime();
 
@@ -120,6 +121,9 @@ public abstract class BaseResponse {
 	protected void clearContext() {
 		context = new VelocityContext();
 	}
+  
+  public void setMessage(String sMsg) {this.sMessage = sMsg;}
+  public String getmessage() {return this.sMessage;}
 
 	protected Map<String, Object> getQueryParameters() {
 		Map<String, Object> params = new HashMap<String,Object>();
@@ -1005,7 +1009,7 @@ public abstract class BaseResponse {
    * 
    * @param sMsg 
    */
-  protected void sendErrorResponse(String sMsg) {
+  public void sendErrorResponse(String sMsg) {
     Map<String,Object> output = new HashMap<String,Object>();
     JSONObject oStat = new JSONObject();
     JSONObject oCont = new JSONObject();
