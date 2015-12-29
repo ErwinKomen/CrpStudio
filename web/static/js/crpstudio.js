@@ -320,7 +320,7 @@ var crpstudio = (function ($, crpstudio) {
           // Set the page
           loc_tab = "j_user_new";
           // Gather data
-          var sUserName = $("#j_username").val();
+          var sUserName = $("#j_username_new").val();
           var sPassWord = $("#j_password1").val();
           var sPassWord2 = $("#j_password2").val();
           var sEmail = $("#j_email").val();

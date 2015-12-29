@@ -25,6 +25,7 @@ public class HomeResponse extends BaseResponse {
       this.getContext().put("userid", this.sUserId);
       this.getContext().put("maintab", "home");
       // String sCheck = this.getContext().get("userokay").toString();
+      String sTst = this.applyHtmlTemplate(this.templateMan.getTemplate("home"));
       this.displayHtmlTemplate(this.templateMan.getTemplate("home"));
     } catch (Exception ex) {
       this.displayError("HomeResponse error: " + ex.getMessage());

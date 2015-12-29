@@ -415,8 +415,8 @@ public class CrpStudio extends HttpServlet {
   public void handleLogin(HttpServletRequest request) {
     ByRef<String> sUserFound = new ByRef("");
     // Find out who is trying to login
-    String s_jUserName = request.getParameter("j_username");
-    String s_jPassWord = request.getParameter("j_password");
+    String s_jUserName = request.getParameter("j_username_old");
+    String s_jPassWord = request.getParameter("j_password_old");
     // Check if this person is authorized
     if (getLoginAuthorization(s_jUserName, s_jPassWord, sUserFound)) {
       // Okay this person may log in
