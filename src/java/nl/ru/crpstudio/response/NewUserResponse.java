@@ -16,8 +16,8 @@ import nl.ru.util.json.JSONObject;
  * @author Erwin R. Komen
  */
 public class NewUserResponse extends BaseResponse {
-  private String sUserFound;
-	@Override
+
+  @Override
 	protected void completeRequest() {
     JSONObject oContent = new JSONObject();
 

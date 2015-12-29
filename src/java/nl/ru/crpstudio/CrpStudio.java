@@ -19,6 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -84,7 +86,8 @@ public class CrpStudio extends HttpServlet {
   private String sRequestMethod = ""; // Which method is used to approach us?
   private String sSessionId = "";
   private JSONArray arUpdateContent = null;
-
+  private final Pattern VALID_EMAIL_ADDRESS_REGEX = 
+    Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
   // ====================== Getters and setters ======================
   public String getRealPath() { return realPath; }
   public String getContextRoot() { return contextRoot;}
@@ -444,6 +447,8 @@ public class CrpStudio extends HttpServlet {
     String s_jEmail = "";
     
     try {
+      // Reset message
+      sMsg.argValue = "";
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("userid")) { sMsg.argValue="No [userid] given"; return false;}
@@ -491,8 +496,10 @@ public class CrpStudio extends HttpServlet {
   private boolean isValidEmailAddress(String email) {
     boolean result = true;
     try {
-      String email_regex = "[A-Z]+[a-zA-Z_]+@\b([a-zA-Z]+.){2}\b?.[a-zA-Z]+";
-      result = email.matches(email_regex);
+      // String email_regex = "[a-zA-Z]+[a-zA-Z_]+@\\b([a-zA-Z]+.){2}\\b?.[a-zA-Z]+";
+      // result = email.matches(email_regex);
+      Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(email);
+      result = matcher.find();
     } catch (Exception ex) {
       result = false;
     }
