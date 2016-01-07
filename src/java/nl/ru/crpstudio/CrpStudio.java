@@ -441,6 +441,14 @@ public class CrpStudio extends HttpServlet {
     this.sUserId = "";
   }
   
+  /**
+   * handleNewUser -- accept and process new user
+   *    
+   * 
+   * @param request
+   * @param sMsg
+   * @return 
+   */
   public boolean handleNewUser(HttpServletRequest request, ByRef<String> sMsg) {
     String s_jUserName = "";
     String s_jPassWord = "";

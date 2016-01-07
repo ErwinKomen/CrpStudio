@@ -95,9 +95,15 @@ public class CrpUtil {
       }
       // User does not exist, so add it
       JSONObject oNew = new JSONObject();
+      JSONArray arInclude = new JSONArray();
       oNew.put("name", sUserId);
       oNew.put("password", sPassword);
       oNew.put("email", sEmail);
+      // We include an empty array of 'include' permissions
+      // (The permissions need to be received from the CORPORA main menu)
+      oNew.put("include", arInclude);
+      // Make sure user is not admin
+      oNew.put("admin", false);
       arUser.put(oNew);
       oUsers.put("users", arUser);
       // Save the new structure
@@ -110,6 +116,79 @@ public class CrpUtil {
       return false;
     }
   }
+  
+  /**
+   * setUserPersmission -- Give user permission to use a particular corpus
+   * 
+   * @param sUserId     - The id of the user
+   * @param oCorpus     - The corpus: {"lng":"eng_hist","part":"PPCME2"}
+   * @param sPermission - the type of permission (add, remove)
+   * @return 
+   */
+  public boolean setUserPermission(String sUserId, JSONObject oCorpus, String sPermission) {
+    try {
+      // Get the array of users
+      JSONArray arUser = getUsers();
+      // Check if this user may log in
+      for (int i = 0 ; i < arUser.length(); i++) {
+        // Get this object
+        JSONObject oUser = arUser.getJSONObject(i);
+        // Does the user exist already?
+        if (oUser.get("name").equals(sUserId)) {
+          // User exists, proceed by editing the settings
+          JSONArray arInclude = oUser.getJSONArray("include");
+          // What do we need to do?
+          switch(sPermission) {
+            case "add":
+              // Check if this corpus is already in there
+              for (int j=0;j<arInclude.length(); j++) {
+                JSONObject oThis = arInclude.getJSONObject(j);
+                if (oThis.equals(oCorpus)) {
+                  // The corpus is already added, so leave positively
+                  return true;
+                }
+              }
+              // Corpus is not there: add it
+              arInclude.put(oCorpus);
+              break;
+            case "remove":
+              // Check if this corpus is already in there
+              for (int j=0;j<arInclude.length(); j++) {
+                JSONObject oThis = arInclude.getJSONObject(j);
+                if (oThis.equals(oCorpus)) {
+                  // The corpus is in here -- remove it
+                  arInclude.remove(j);
+                  // Leave for-loop
+                  break;
+                }
+              }
+              break;
+            default:
+              // Not sure what to do here -- just leave it?
+              break;
+          }
+          // Assume that arInclude is adapted -- replace it
+          oUser.put("include", arInclude);
+          // Put this user's object back into [arUser]
+          arUser.put(i, oUser);
+          // Replace the [users] array
+          oUsers.put("users", arUser);
+          // Save the new structure
+          FileUtil.writeFile(sUserFile, oUsers.toString(), "utf-8");
+          
+          // Return positively
+          return true;
+        }
+      }
+      
+      // Return failure
+      return false;
+    } catch (Exception ex) {
+      logger.DoError("Could not set user permission", ex);
+      return false;
+    }
+  }
+  
   /**
    * addUserSession -- add the combination of a user and a session to the stack
    * 

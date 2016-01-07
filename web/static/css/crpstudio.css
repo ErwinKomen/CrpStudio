@@ -1447,14 +1447,14 @@ div.hitscroll {
   border-radius: 3px; }
 
 /* break up list-items in parts */
-.side-nav li a div.list_12, div.list_12 {
+.side-nav li a div.list_12, span.list_12 {
   display: inline-block;
   /* border-right: 1px solid black; */
   border-right: 1px solid silver;
   /* margin: 1px; */
   width: 20%; }
 
-.side-nav li a div.list_22, div.list_22 {
+.side-nav li a div.list_22, span.list_22 {
   display: inline-block;
   /* border: 1px solid silver; */
   /* margin: 1px; */
@@ -1604,24 +1604,24 @@ textarea, .CodeMirror {
   font-style: italic;
   color: darkgray; }
 
-/*# sourceMappingURL=crpstudio.css.map */
 .cell_active {
   background-color: white;
   color: black;
-  font-weight: bold;
-}
+  font-weight: bold; }
+
 .cell_active:hover {
   background-color: whitesmoke;
   color: darkgreen;
-  font-weight: bold;
-}
+  font-weight: bold; }
+
 .cell_inactive {
   background-color: grey;
   color: white;
-  font-weight: normal;
-}
+  font-weight: normal; }
+
 .cell_inactive:hover {
   background-color: lightgray;
   color: orange;
-  font-weight: normal;
-}
+  font-weight: normal; }
+
+/*# sourceMappingURL=crpstudio.css.map */
