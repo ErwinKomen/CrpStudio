@@ -896,7 +896,7 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {void}
        */
       doGrouping : function(sComboName, iView) {
-        // Find out which QC and/or sub-category the user has currentlyu selected
+        // Find out which QC and/or sub-category the user has currently selected
         var iQC = loc_iCurrentQc;
         var sSub = loc_sCurrentSub;
         // Get the value of the combobox
@@ -926,7 +926,13 @@ var crpstudio = (function ($, crpstudio) {
         }
       },
       
-      
+      /**
+       * processGrpHits -- Accept the table and process it
+       * 
+       * @param {type} response
+       * @param {type} target
+       * @returns {undefined}
+       */
       processGrpHits : function(response, target) {
         var iFirstN = -1;
         if (response !== null) {
@@ -939,48 +945,10 @@ var crpstudio = (function ($, crpstudio) {
           var oContent = response.content;
           switch (sStatusCode) {
             case "completed":
-              // The result is in [oContent] as an array of 'hit' values
-              var html = [];
-              for (var i=0;i<oContent.length;i++) {
-                // One result is one div
-                var sRowType = (i % 2 === 0) ? " row-even" : "row-odd";            
-                html.push("<div class=\"one-example " + sRowType + "\">"+
-                          "<div class=\"one-example-context\">");
-                // Access this object
-                var oRow = oContent[i];
-                // Possibly get the first "n" value --> this helps determine pagination resetting
-                if (iFirstN<0) iFirstN = oRow.n;
-                // Add the number of the example            
-                html.push("<b>"+oRow.n+"</b> ");
-                // Possibly add filename
-                if (iView === 1) {
-                  // Need to add the name of the file
-                  html.push("[<span class=\"one-example-filename\">"+oRow.file+"</span>]");
-                }
-                // Add preceding context
-                html.push(oRow.preC);
-                html.push("<span class=\"one-example-hit\">"+oRow.hitC+" </span>");
-                // Close "one-example-context"
-                html.push(oRow.folC+"</div>");
-                // Get the syntax result
-                var sSyntax = private_methods.getSyntax(oRow.hitS);
-                html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
-                // Is there any 'msg' result?
-                if (oRow.msg) {
-                  // Adapt the message
-                  var sMsg = oRow.msg;
-                  sMsg = sMsg.replace(/\</g, '&lt;');
-                  sMsg = sMsg.replace(/\>/g, '&gt;');
-                  // Add it to the output
-                  html.push("<div class=\"one-example-msg\">"+ sMsg +"</div>");
-                }
-                // Finish the "one-example" <div>
-                html.push("</div>");
-              }
-              // Join the results to one string
-              var sJoinedExample = html.join("\n");
-              // put the results in the target
-              $(target).html(sJoinedExample);
+              // The result is in [oContent] 
+              var html = crpstudio.result.makeTablesView3(oContent);
+              // Position this table in the div for view=2 (per-document view)
+              $("#result_table_3").html(html);
               // Set the amount of hits
               // loc_numResults = oContent.length;
               // Show the correct <li> items under "result_pagebuttons_"
@@ -1004,7 +972,70 @@ var crpstudio = (function ($, crpstudio) {
         } else {
           $("#project_status").html("ERROR - Failed to remove the .crpx result from the server.");
         }    
-      }
+      },
+      
+      /**
+       * makeTablesView3 -- Make a table of rows (subcat) by columns (group)
+       * 
+       * @param {type} arTable
+       * @returns {String}
+       */
+      makeTablesView3: function(arTable) {
+        var html = [];
+        // This is for view #3
+        var iView = 3;
+        var iQC = 0;
+        // Each QC result must be in its own div
+        html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc hidden\">");
+        // This first of all contains an array of group-names
+        var arGroups = arTable[0].groups;
+        // Create the table header
+        html.push("<table><thead><th>Category</td><th>TOTAL</th>");
+        for (var j=0;j<arGroups.length; j++) {
+          html.push("<th>" + arGroups[j] + "</th>");
+        }
+        // Finish the header with sub-categories
+        html.push("</thead>");
+        // Start the table body
+        html.push("<tbody>");
+        var sAnyRowArg = "class=\"concordance\"";
+        // Walk the rows
+        for (var i=1; i< arTable.length; i++) {
+          // Get this row
+          var oRow = arTable[i];
+          // Get the subcat name and the array of group-cells
+          var sSubCat = oRow.sub;
+          var arGroups = oRow.groups;
+          html.push("<tr "+sAnyRowArg+">");
+          html.push("<td>"+sSubCat+"</td><td>-</td>");
+          // Visit all groups
+          for (var j=0;j<arGroups.length;j++) {
+            // Get this group object
+            var oGroup = arGroups[j];
+            // Get the count and the files
+            var iCount = oGroup.count;
+            var arFiles = oGroup.files;
+            // Figure out the arguments for this cell (cl,icking)
+            var sCellArgs = "onclick=\"crpstudio.result.showOneGroup('"+sSubCat+"','"+oGroup.group+"')\"";
+            // Show the results of this cell
+            html.push("<td "+sCellArgs+">"+iCount+ "</td>");
+          }
+          // Finish off the row
+          html.push("</tr>");
+          // Determine the @id for this result
+          var iCols = 2+arGroups.length;
+          var sId = "view3_"+sSubCat;
+          // Make a row where the citation will be placed
+          html.push("<tr class=\"citationrow hidden\"><td colspan="+iCols+">"+
+                  "<div class=\"collapse inline-concordance\" id=\""+sId+
+                  "\">Loading...</div></td></tr>");
+        }
+        // Finish the table
+        html.push("</tbody></table></div>");
+  
+        // Join and return the result
+        return html.join("\n");
+      }      
 
     };
   }($, crpstudio.config));
