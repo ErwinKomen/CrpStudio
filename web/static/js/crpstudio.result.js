@@ -986,7 +986,7 @@ var crpstudio = (function ($, crpstudio) {
         var iView = 3;
         var iQC = 0;
         // Each QC result must be in its own div
-        html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc hidden\">");
+        html.push("<div id=\"result_"+iView+"_qc"+iQC+"\" class=\"result-qc \">");
         // This first of all contains an array of group-names
         var arGroups = arTable[0].groups;
         // Create the table header
