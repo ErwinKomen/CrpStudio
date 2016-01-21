@@ -259,43 +259,11 @@ var crpstudio = (function ($, crpstudio) {
       },  
       
       /**
-       * uploadDbFile
-       *    Ask user to upload a .xml database file
-       * 
-       * @param {type} el
-       * @returns {undefined}
-       */
-      uploadDbFile : function(el) {
-        // Make sure download info is hidden
-        $("#dbase_download").addClass("hidden");
-        // Get the name of the file
-        var oFile = el.files[0];
-        // TODO: convert to .tar.gz
-        // 
-        // Use the standard readXmlFile function
-        crpstudio.main.readXmlFile(oFile, function(e) {
-          // Get the text of the uploaded CRP into a variable
-          var text = encodeURIComponent(e.target.result);
-          // Signal what we are doing
-          $("#dbase_description").html("Uploading...");
-          // Send this information to the /crpstudio
-          // var params = "file=" + oFile.name + "&userid=" + crpstudio.currentUser +
-          //         "&db=" + text;
-
-          var oArgs = { "file": oFile.name,
-            "db": text, "userid": crpstudio.currentUser };
-          var params = JSON.stringify(oArgs);
-
-          crpstudio.main.getCrpStudioData("upload-db", params, crpstudio.dbase.processUpLoad, "#dbase_description");
-        });
-      },
-      
-      /**
        * processUpLoad
-       *    What to do when a project has been loaded
+       *    What to do when a database has been loaded
        *    
-       * @param {type} response   JSON object returned from /crpstudio/load
-       * @param {type} target
+       * @param {type} response   JSON object returned from /crpstudio/upload
+       * @param {type} target     The 'description' <div> for this dbase
        * @returns {undefined}
        */
       processUpLoad : function(response, target) {
@@ -306,37 +274,17 @@ var crpstudio = (function ($, crpstudio) {
           var oStatus = response.status;
           var sStatusCode = oStatus.code;
           var oContent = response.content;
+          // Obligatory: itemtype
+          var sItemType = oContent.itemtype;
+          // Action depends on the status code
           switch (sStatusCode) {
             case "completed":
-              // If we have succesfully completed *uploading* a file to /crpstudio,
-              //    then it must be added to the list
-              var sDbLine = oContent.dbline;
-              var sDbName = oContent.dbname;
-              // Check if there is any reply
-              if (sDbLine) {
-                // Walk the list of <li> elements with class "db-available"
-                var arDbItem = $("#dbase_list .db-available").not(".divider").not(".heading");
-                var liBef = null;
-                // Start from 0: we are in our own 'section' of "db-available"
-                for (var i=0;i<arDbItem.size();i++) {
-                  // It must have a <a> child node
-                  if (arDbItem[i].childNodes) {
-                    var aChild = arDbItem[i].childNodes.item(0);
-                    // Should we put our dbase before this one?
-                    if (aChild.innerHTML.localeCompare(sDbName)>0) {
-                      // The list item must come before the current one
-                      liBef = arDbItem[i];break;
-                    }
-                  }              
-                }
-                // Did we find any?
-                if (liBef === null) {
-                  // Append it after the divider and heading crp-available
-                  $("#dbase_list .db-available").last().append(sDbLine);
-                } else {
-                  $(sDbLine).insertBefore($(liBef));
-                }
-              }
+              // Adapt the overal list
+              crpstudio.dbs_dbslist = oContent.itemlist;
+              // Get the id
+              var iItemId = oContent.itemid;
+              // Show the list, putting the focus on the new item id
+              crpstudio.list.itemListShow(sItemType, iItemId);
               break;
             case "error":
               var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";

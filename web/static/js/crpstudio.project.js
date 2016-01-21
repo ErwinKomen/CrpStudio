@@ -2526,8 +2526,15 @@ var crpstudio = (function ($, crpstudio) {
           var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
             "userid": crpstudio.currentUser, "itemtext": text };
           var params = JSON.stringify(oArgs);
-
-          crpstudio.main.getCrpStudioData("upload", params, crpstudio.project.processUpLoad, "#"+sItemType+"_description");
+          
+          switch (sItemType) {
+            case "dbase":
+              crpstudio.main.getCrpStudioData("upload", params, crpstudio.dbase.processUpLoad, "#"+sItemType+"_description");
+              break;
+            default:
+              crpstudio.main.getCrpStudioData("upload", params, crpstudio.project.processUpLoad, "#"+sItemType+"_description");
+              break;
+          }
         });
       },
       
@@ -2535,7 +2542,7 @@ var crpstudio = (function ($, crpstudio) {
        * processUpLoad
        *    What to do when a project has been loaded
        *    
-       * @param {type} response   JSON object returned from /crpstudio/load
+       * @param {type} response   JSON object returned from /crpstudio/upload
        * @param {type} target     The 'description' <div> for this 'item' type
        * @returns {undefined}
        */
@@ -2597,7 +2604,7 @@ var crpstudio = (function ($, crpstudio) {
               break;
           }
         } else {
-          $("#"+sItemType+"_status").html("ERROR - Failed to load the .crpx result from the server.");
+          $("#"+sItemType+"_status").html("ERROR - Failed to upload the .crpx result from the server.");
         }    
       },  
 

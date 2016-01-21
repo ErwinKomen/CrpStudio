@@ -1570,6 +1570,15 @@ public abstract class BaseResponse {
   }
 
   /**
+   * clearDbaseList -- Allow resetting of database list
+   * 
+   * @param sUser 
+   */
+  public void clearDbaseList(String sUser) {
+    servlet.setUserDbList(null);
+  }
+  
+  /**
    * getDbaseList -- 
    *    Issue a request to the CRPP to get an overview of the databases
    *    that user @sUser has access to

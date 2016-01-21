@@ -96,6 +96,16 @@ public class UploadResponse extends BaseResponse {
         case "corpus":
           break;
         case "dbase":
+          // Get a list of currently loaded databases
+          JSONArray arDbList = this.getDbaseList(sUserId);
+          // Check if the requested project is already in the list
+          for (int i=0;i<arDbList.length(); i++) {
+            String sDbThis = arDbList.getJSONObject(i).getString("Name");
+            // Is this equal to the requested project?
+            if (sDbThis.equals(sItemName) || sDbThis.equals(sItemName + ".xml")) {
+              bIsNew = false; break;        
+            }          
+          }
           break;
         default:
           // NOTE: do *not* include [dbfeat] here -- it makes really no sense uploading/downloading a dbfeat item
@@ -114,6 +124,33 @@ public class UploadResponse extends BaseResponse {
       
         // Actual upload actions depend on the item type
         switch (sItemType) {
+          case "dbase":
+            // Convert to Base64
+            sItemText = compressSafe(sItemText);
+            // Send the dbase to /crpp and get a reaction
+            oContent = this.sendDbaseToServer(sUserId, sItemName, sItemText);
+            // Invalidate the current project list
+            servlet.setUserDbList(null);
+
+            // Get the NEW array of databases and the id of this database
+            // (this is done by calling /crpp)
+            JSONArray arDbList = this.getDbaseList(sUserId);
+            int iDbaseId = -1;
+            for (int i=0;i<arDbList.length();i++) {
+              JSONObject oThis = arDbList.getJSONObject(i);
+              if (oThis.getString("Name").equals(sItemName) ||
+                  oThis.getString("Name").equals(sItemName+".xml")) {
+                // FOund it
+                iDbaseId = oThis.getInt("DbaseId");
+                break;
+              }
+            }
+            // Add the necessary items to the reply
+            oContent.put("itemlist", arDbList);
+            oContent.put("itemid", iDbaseId );
+            oContent.put("itemname", sItemName);
+            oContent.put("itemtype", sItemType);
+            break;
           case "project":
             // Convert to Base64
             sItemText = compressSafe(sItemText);
@@ -211,6 +248,43 @@ public class UploadResponse extends BaseResponse {
       return oResp.getJSONObject("content");
     } catch (Exception ex) {
       sendErrorResponse("sendProjectToServer could not sent project to server: "+ ex.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * sendDbaseToServer
+   *    Send the indicated database to the /crpp server
+   * 
+   * @param sUserId   - User id associated with this dbase
+   * @param sDbName  - Name of the dbase
+   * @param sDbText  - Text of the dbase
+   * @return          - JSONObject with the "content" section of the /crpp response
+   */
+  private JSONObject sendDbaseToServer(String sUserId, String sDbName, String sDbText) {
+    try {
+      // Send the dbase to /crpp using the correct /dbset parameters
+      this.params.clear();
+      this.params.put("userid", sUserId);
+      this.params.put("name", sDbName);
+      this.params.put("db", sDbText);
+      this.params.put("overwrite", true);
+      String sResp = getCrppPostResponse("dbset", "", this.params);
+
+      // Check the result
+      if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /dbset");
+      // Convert the response to JSON
+      JSONObject oResp = new JSONObject(sResp);
+      // Get the status
+      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      // Decypher the status
+      JSONObject oStat = oResp.getJSONObject("status");
+      if (!oStat.getString("code").equals("completed"))
+        sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
+      // Return the content section
+      return oResp.getJSONObject("content");
+    } catch (Exception ex) {
+      sendErrorResponse("sendDbaseToServer could not sent project to server: "+ ex.getMessage());
       return null;
     }
   }

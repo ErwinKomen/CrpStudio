@@ -1,4 +1,4 @@
-		<div class="footer">CorpusStudioWeb v0.4.1 (20/jan/2015) &copy; 
+		<div class="footer">CorpusStudioWeb v0.4.2 (21/jan/2015) &copy; 
       <a href="http://www.meertens.knaw.nl">Meertens Instituut</a> 2015 - 
       Development: <a href="http://www.clarin.nl">CLARIN-NL</a> - 
       Powered by: <a href="https://github.com/ErwinKomen/CrppServer" target="_blank">Crpp Server</a> &copy; 
@@ -41,7 +41,7 @@
 				#elseif($maintab == "dbases")
 					crpstudio.dbase.setSizes();
 					$( window ).resize(function() {
-						Crpstudio.dbase.setSizes();
+						crpstudio.dbase.setSizes();
 					});
 				#elseif($maintab == "projects")
 					crpstudio.project.tab = "$tab";

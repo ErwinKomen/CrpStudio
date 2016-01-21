@@ -21,6 +21,7 @@ var crpstudio = (function ($, crpstudio) {
   crpstudio.crp_grplist = null,       // List of grouping definitions
   crpstudio.crp_grolist = null,       // List of all groups
   crpstudio.crp_mvrlist = null,       // List of metavar definitions2
+  crpstudio.dbs_dbslist = null,       // List of databases
   crpstudio.dbs_edtlist = null;       // List of databases for editing
   
   // Define module 'main'
