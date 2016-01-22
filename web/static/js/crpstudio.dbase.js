@@ -25,6 +25,7 @@ var crpstudio = (function ($, crpstudio) {
     return {
       // Getters for some 'global' variables used by crpstudio.result
       getDbs: function() { return currentDbs;},
+      getCurrentDb: function() { return loc_currentDbase;},
 
       /* ---------------------------------------------------------------------------
        * Name: switchtab
@@ -373,27 +374,34 @@ var crpstudio = (function ($, crpstudio) {
       },   
       
       /**
-       * downloadDbFile
-       *    Check which Db is currently selected (if any)
-       *    Then download that Db:
+       * downloadFile
+       *    Check which CRP is currently selected (if any)
+       *    Then download that CRP:
        *    (1) from the server --> POST to /crpstudio
        * 
        * @param {type} elDummy
+       * @param {string} sFileType
        * @returns {undefined}
        */
-      downloadDbFile : function(elDummy) {
-        // Find out which one is currently selected
-        var sDbName = loc_currentDbase;
-        if (sDbName && sDbName !== "") {
-          // Note: /crpstudio must check when the last download of this project was
-          // Send this information to the /crpstudio
-          // var params = "dbname=" + sDbName + "&userid=" + crpstudio.currentUser;
-
-          var oArgs = { "dbname": sDbName,
-            "userid": crpstudio.currentUser };
+      downloadFile : function(elDummy, sFileType) {
+        // Access the information object for this type
+        var oItemDesc = crpstudio.list.getItemDescr(sFileType);
+        var sItemName = "";   // Project, corpus or database name
+        var sItemPart = "";   // Part of project, corpus
+        var oListItem = null;
+        // Action depends on the type
+        switch(sFileType) {
+          case "dbase":       // download database in Xquery
+            // Find out which one is currently selected
+            sItemName = loc_currentDbase;
+            break;
+        }
+        if (sItemName && sItemName !== "") {
+          // Pass on an information-object to /crpstudio and to /crpp
+          var oArgs = { "itemname": sItemName, "itempart": sItemPart,
+            "userid": crpstudio.currentUser, "itemtype": sFileType };
           var params = JSON.stringify(oArgs);
-
-          crpstudio.main.getCrpStudioData("download-db", params, crpstudio.dbase.processDownload, "#dbase_description");      
+          crpstudio.main.getCrpStudioData("download", params, crpstudio.dbase.processDownload, "#dbase_description");      
         }
       },  
       
@@ -407,12 +415,15 @@ var crpstudio = (function ($, crpstudio) {
        */
       processDownload : function(response, target) {
         if (response !== null) {
-          // Remove waiting
-          $("#dbase_description").html("");
           // The response is a standard object containing "status" (code) and "content" (code, message)
           var oStatus = response.status;
           var sStatusCode = oStatus.code;
           var oContent = response.content;
+          // Content must at least contain item type
+          var sItemType = oContent.itemtype;
+          // if (sItemType === "definition") sItemType = "def";
+          // Remove waiting
+          $("#"+sItemType+"_description").html("");
           switch (sStatusCode) {
             case "completed":
               // Find out which project has been removed
@@ -423,26 +434,26 @@ var crpstudio = (function ($, crpstudio) {
                 var fFileName = sFile.substring(sFile.lastIndexOf("/")+1);
                 fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
                 // Show the project_download item
-                $("#dbase_download").removeClass("hidden");
-                $("#dbase_download_file").html("<a href=\""+sFile + "\""+
+                $("#"+sItemType+"_download").removeClass("hidden");
+                $("#"+sItemType+"_download_file").html("<a href=\""+sFile + "\""+
                         " target='_blank'\">"+fFileName+"</a>");
               }
               break;
             case "error":
               var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
               var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
-              $("#dbase_status").html("Error: " + sErrorCode);
+              $("#"+sItemType+"_status").html("Error: " + sErrorCode);
               $(target).html("Error: " + sErrorMsg);
               break;
             default:
-              $("#project_status").html("Error: no reply");
+              $("#"+sItemType+"_status").html("Error: no reply");
               $(target).html("Error: no reply received from the /crpstudio server");
               break;
           }
         } else {
-          $("#dbase_status").html("ERROR - Failed to download results database.");
+          $("#"+sItemType+"_status").html("ERROR - Failed to download the item.");
         }    
-      },
+      },     
       
       /**
        * ctlChange
@@ -505,6 +516,24 @@ var crpstudio = (function ($, crpstudio) {
           function() {crpstudio.dbase.ctlTimer(this, "select");});
 
       }, 
+
+      /**
+       * sideToggle
+       *    Toggle the visibility of the <li> items with the indicated class name
+       *    
+       * @param {type} target
+       * @param {type} sSection
+       * @returns {undefined}
+       */
+      sideToggle : function(target, sSection) {
+        // Main action: toggle the indicated section
+        $(target).parent().children("."+sSection+":not(.heading):not(.divider)").toggleClass("hidden");
+        // Divide section into two parts
+        var arSect = sSection.split("-");
+        var sPrf = arSect[0]; 
+        var sSect = arSect[1];
+       
+      },
 
       /**
        * ctlTimer

@@ -1867,6 +1867,12 @@ public abstract class BaseResponse {
    * @param sUser
    * @return -- HTML string containing a table with databases of this user
    */
+  public String getDbaseInfo(String sUser, boolean bForce) {
+    if (bForce) {
+      servlet.setUserDbList(null);
+    }
+    return getDbaseInfo(sUser);
+  }
   public String getDbaseInfo(String sUser) {
     StringBuilder sb = new StringBuilder(); // Put everything into a string builder
     try {
@@ -1928,7 +1934,7 @@ public abstract class BaseResponse {
         String sDbName = oDbase.getString("dbase");
         // Is this the CRP we are looking for?
         if (sDbase.toLowerCase().equals(sDbName.toLowerCase())) {
-          return "<li class='db_"+sDbase+" "+sType+"'><a href=\"#\" onclick='Crpstudio.dbase.setDbase(this, \""+ 
+          return "<li class='db_"+sDbase+" "+sType+"'><a href=\"#\" onclick='crpstudio.dbase.setDbase(this, \""+ 
                   sDbase +"\", \""+sLng+"\", \""+sDir+"\")'>" + sDbase + "</a></li>\n";
         }
       }

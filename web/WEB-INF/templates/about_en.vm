@@ -24,6 +24,7 @@
  
 		<p>
       A pdf version of the Corpus Studio <b>web application</b>'s manual is <a href="$helpManualPdf" target="_blank">here</a>.
+      <br />A pdf version of the Corpus Studio <b>API</b> is <a href="http://corpus-studio-web.cttnww-meertens.vm.surfsara.nl/export/CrpStudioWeb-API.pdf" target="_blank">here</a>.
       <br />The English language reference manual to the Windows Corpus Studio program <a href="$aboutKomenWin" target="_blank">hier</a>.
       <br />Some editions of the Corpus Studio web application give access to the SoNaR corpus.
       The English manual to this corpus is located <a href="$aboutSonarManual" target="_blank">here</a>.</p>
@@ -42,12 +43,12 @@
       Sandra Kübler, Petya Osenova & Martin Volk (eds), 85-96. Sofia, Bulgaria: The institute of information and communication technologies, Bulgarian academy of sciences.</o>
     
 		<p><b>Acknowledgements</b></p>
-    <p>The original Windows version of CorpusStudio was made with support from NWO...</p>
-    <p>The web-based version of CorpusStudio has been supported by CLARIN-NL, project number ... 
+    <p>The original Windows version of CorpusStudio was made with support from NWO.</p>
+    <p>The web-based version of CorpusStudio has been supported by CLARIN-NL (15-003).
       It heavily builds on the shoulders of other developers. 
-      The back end web service uses parts of "BlackLab" and "BlackLab Server", Java software that has originally been developed by INL (??).
-      The user-interface is modelled after the "WhiteLab" interface created by Matje ... </p>
-    <p>
+      The back end web service uses parts of "BlackLab" and "BlackLab Server", Java software that has originally been developed by INL (Jan Niestadt).
+      The user-interface is modelled after the "WhiteLab" interface created by Matje van de Camp (OpenSoNaR)</p>
+    <p></p>
 		<p><b>About Xquery</b></p>
     <p><span class="bibtex">Boag, Scott, Don Chamberlin, Mary F. Fernández, Daniela Florescu, Jonathan Robie, and Jérôme Siméon. 2010. 
     <a href="$aboutBoag2010" >XQuery 1.0: An XML Query Language (Second Edition): W3C Recommendation</a>.

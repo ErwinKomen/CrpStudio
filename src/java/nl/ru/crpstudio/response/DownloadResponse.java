@@ -42,9 +42,18 @@ public class DownloadResponse extends BaseResponse {
       // sItemName = this.request.getParameter("itemname");
       // Validate: must have an item name
       if (sItemName.isEmpty()) { sendErrorResponse("Download item name is not specified"); return;}
-      // Remove the "/" or "\" from the file name
-      if (sItemName.endsWith(".crpx")) 
-        sItemName = FileIO.getFileNameWithoutExtension(sItemName);
+      switch (sItemType) {
+        case "dbase":
+          // Remove the "/" or "\" from the file name
+          if (sItemName.endsWith(".xml")) 
+            sItemName = FileIO.getFileNameWithoutExtension(sItemName);
+          break;
+        default:
+          // Remove the "/" or "\" from the file name
+          if (sItemName.endsWith(".crpx")) 
+            sItemName = FileIO.getFileNameWithoutExtension(sItemName);
+          break;
+      }
       
       // User is also necessary
       // sUserId = this.request.getParameter("userid");
@@ -77,7 +86,7 @@ public class DownloadResponse extends BaseResponse {
       // The action depends on the item type being requested for download
       switch (sItemType) {
         case "project":
-          // Prepare a remove request to /crpp using the correct /crpget parameters
+          // Prepare a download request to /crpp using the correct /crpget parameters
           this.params.put("name", sItemName);
           sResp = getCrppPostResponse("crpget", "", this.params);
 
@@ -134,6 +143,33 @@ public class DownloadResponse extends BaseResponse {
           oContent.put("file", sUrlQuery);
           break;
         case "dbase":       // Download a whole database (compressed)
+          // Prepare a download request to /crpp using the correct /dbget parameters
+          this.params.put("name", sItemName);
+          sResp = getCrppPostResponse("dbget", "", this.params);
+
+          // Check the result
+          if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /dbget");
+          // Convert the response to JSON
+          oResp = new JSONObject(sResp);
+          // Get the status
+          if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+          // Decypher the status
+          oStat = oResp.getJSONObject("status");
+          if (!oStat.getString("code").equals("completed"))
+            sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
+
+          // Get the content part
+          oContent = oResp.getJSONObject("content");
+          // Adaptation: we need to have the itemtype too
+          oContent.put("itemtype", sItemType);
+          // The content part must contain the CRP
+          String sDbText = oContent.getString("db");
+          // Assume that the method is POST:
+          String fileDbName = "/" + servlet.getUserId() +"/"+sItemName+".xml" ;
+          // Get the URL for the user
+          String sUrlDb = makeFileLocResponse(sDbText, fileDbName);
+          // Prepare content
+          oContent.put("file", sUrlDb);
           break;
         default:
           sendErrorResponse("The /crpstudio/download method cannot process type [" + sItemType + "]");

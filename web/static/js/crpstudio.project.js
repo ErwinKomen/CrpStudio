@@ -2895,7 +2895,8 @@ var crpstudio = (function ($, crpstudio) {
             break;
           case "dbase":       // download database in Xquery
             // Find out which one is currently selected
-            sItemName = currentDb;
+            // sItemName = currentDb;
+            sItemName = crpstudio.dbase.getCurrentDb();
             break;
         }
         if (sItemName && sItemName !== "") {
