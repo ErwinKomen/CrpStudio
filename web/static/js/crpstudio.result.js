@@ -14,8 +14,9 @@ var crpstudio = (function ($, crpstudio) {
     var loc_iCurrentQc = -1;  // Currently selected QC line
     var loc_iCurrentSub = -1; // Currently selected QC sub category
     var loc_sCurrentSub = ""; // String for the currently selected sub
-    var loc_view = 1;         // Default view is #1
-    var loc_currentFile = ""; // currently selected file
+    var loc_oGrouping = null;     // Object with current grouping results (view 3)
+    var loc_view = 1;             // Default view is #1
+    var loc_currentFile = "";     // currently selected file
     var loc_numPerPage = 0;       // Number of results per page
     var loc_numPages = 1;         // Number of pages to be shown
     var loc_currentPage = 1;      // Currently selected page
@@ -264,44 +265,58 @@ var crpstudio = (function ($, crpstudio) {
 
         // Continue if there is export permission
         if (ask) {
-          // Validate: if no QC line is selected, return the WHOLE table
-          if (idxQc < 0) {
-            oBack = arTable;
-          } else {
-            // Get the section of the table that is going to be exported
-            oQC = arTable[idxQc];
-            // Is a particular subcat needed?
-            if (idxSub < 0) {
-              // We already have what needs to be returned
-              oBack = oQC;
-            } else {
-              // Get the QC elements
-              var arSubs = oQC.subcats;     // Sub-category names/labels
-              var iQC = oQC.qc;             // Number of this QC
-              var sQcLabel = oQC.result;    // Label for this QC line
-              var iTotal = oQC.total;       // Total count for this QC
-              var arSubCount = oQC.counts;  // Totals per sub-category
-              // Create an array with the correct 'hit' elements for this subcat
-              var arHits = [];
-              var arAll = oQC.hits;        // Array with *all* 'hit' elements (for all subcats)
-              for (var i=0; i<arAll.length;i++) {
-                var oThis = arAll[i];
-                var oNew = {
-                        "file": oThis.file, 
-                        "count": oThis.count, 
-                        "subcount": oThis.subs[idxSub]};
-                arHits.push(oNew);
-              }
+          // Action depends on the view
+          switch (iView) {
+            case 1:
+            case 2:
+              // Validate: if no QC line is selected, return the WHOLE table
+              if (idxQc < 0) {
+                oBack = arTable;
+              } else {
+                // Get the section of the table that is going to be exported
+                oQC = arTable[idxQc];
+                // Is a particular subcat needed?
+                if (idxSub < 0) {
+                  // We already have what needs to be returned
+                  oBack = oQC;
+                } else {
+                  // Get the QC elements
+                  var arSubs = oQC.subcats;     // Sub-category names/labels
+                  var iQC = oQC.qc;             // Number of this QC
+                  var sQcLabel = oQC.result;    // Label for this QC line
+                  var iTotal = oQC.total;       // Total count for this QC
+                  var arSubCount = oQC.counts;  // Totals per sub-category
+                  // Create an array with the correct 'hit' elements for this subcat
+                  var arHits = [];
+                  var arAll = oQC.hits;        // Array with *all* 'hit' elements (for all subcats)
+                  for (var i=0; i<arAll.length;i++) {
+                    var oThis = arAll[i];
+                    var oNew = {
+                            "file": oThis.file, 
+                            "count": oThis.count, 
+                            "subcount": oThis.subs[idxSub]};
+                    arHits.push(oNew);
+                  }
 
-              // Select the correct sub-category
-              oBack = { "qc": iQC, 
-                        "result": sQcLabel,
-                        "total": iTotal,
-                        "subcat": arSubs[idxSub],
-                        "count": arSubCount[idxSub],
-                        "hits": arHits};
-            }      
+                  // Select the correct sub-category
+                  oBack = { "qc": iQC, 
+                            "result": sQcLabel,
+                            "total": iTotal,
+                            "subcat": arSubs[idxSub],
+                            "count": arSubCount[idxSub],
+                            "hits": arHits};
+                }      
+              }              
+              break;
+            case 3:
+              // The grouping structure is already available...
+              var iQC = (idxQc < 0) ? idxQc : idxQc+1;
+              oBack = { "qc": iQC,
+                        "sub": idxSub,
+                        "table": loc_oGrouping };
+              break;
           }
+
 
           // Pack what we have into a string
           //var params = "project="+encodeURIComponent(crpstudio.project.getPrj())
@@ -337,10 +352,22 @@ var crpstudio = (function ($, crpstudio) {
             // Get the name of the file alone
             var fFileName = fFilePath.substring(fFilePath.lastIndexOf("/")+1);
             fFileName = fFileName.substring(0, fFileName.lastIndexOf("."));
-            // Provide the user with a path where he can download the file from
-            $("#results_export_"+iView).removeClass("hidden");
-            $("#results_export_file_"+iView).html("<a href=\""+fFilePath + "\""
-                  + " target='_blank'\">"+fFileName+"</a>");
+            switch(iView) {
+              case "1":
+              case "2":
+              case "5":
+                // Provide the user with a path where he can download the file from
+                $("#results_export_"+iView).removeClass("hidden");
+                $("#results_export_file_"+iView).html("<a href=\""+fFilePath + "\""
+                      + " target='_blank'\">"+fFileName+"</a>");
+                break;
+              case "3":
+                // Id's for this one differ
+                $("#result_view3_export").removeClass("hidden");
+                $("#result_view3_export_file").html("<a href=\""+fFilePath + "\""
+                      + " target='_blank'\">"+fFileName+"</a>");
+                break;                
+            }
           }
           // So far: no action is required
           /*
@@ -927,6 +954,29 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * grpcode -- show or hide the grouping Xquery code for view 3
+       * 
+       * @param {type} sType
+       * @returns {undefined}
+       */
+      grpcode : function(sType) {
+        switch(sType) {
+          case "show":
+            $("#result_view3_grpcode_show").addClass("hidden");
+            $("#result_view3_grpcode_hide").removeClass("hidden");
+            $("#result_table_3").addClass("hidden");
+            $("#result_view3_grpcode").removeClass("hidden");
+            break;
+          case "hide":
+            $("#result_view3_grpcode_show").removeClass("hidden");
+            $("#result_view3_grpcode_hide").addClass("hidden");
+            $("#result_table_3").removeClass("hidden");
+            $("#result_view3_grpcode").addClass("hidden");
+            break;
+        }
+      },
+      
+      /**
        * processGrpHits -- Accept the table and process it
        * 
        * @param {type} response
@@ -946,6 +996,9 @@ var crpstudio = (function ($, crpstudio) {
           switch (sStatusCode) {
             case "completed":
               // The result is in [oContent] 
+              // Make this result available to [crpstudio.result.js]
+              loc_oGrouping = oContent;
+              // Convert into html table
               var html = crpstudio.result.makeTablesView3(oContent);
               // Position this table in the div for view=2 (per-document view)
               $("#result_table_3").html(html);
@@ -1007,7 +1060,9 @@ var crpstudio = (function ($, crpstudio) {
           var sSubCat = oRow.sub;
           var arGroups = oRow.groups;
           html.push("<tr "+sAnyRowArg+">");
-          html.push("<td>"+sSubCat+"</td><td>-</td>");
+          html.push("<td>"+sSubCat+"</td>");
+          // Start counts for this row
+          var arRow = []; var iRowCount = 0;
           // Visit all groups
           for (var j=0;j<arGroups.length;j++) {
             // Get this group object
@@ -1015,13 +1070,14 @@ var crpstudio = (function ($, crpstudio) {
             // Get the count and the files
             var iCount = oGroup.count;
             var arFiles = oGroup.files;
+            iRowCount += iCount;
             // Figure out the arguments for this cell (cl,icking)
             var sCellArgs = "onclick=\"crpstudio.result.showOneGroup('"+sSubCat+"','"+oGroup.group+"')\"";
             // Show the results of this cell
-            html.push("<td "+sCellArgs+">"+iCount+ "</td>");
+            arRow.push("<td "+sCellArgs+">"+iCount+ "</td>");
           }
           // Finish off the row
-          html.push("</tr>");
+          html.push("<td>"+iRowCount+"</td>"+arRow.join("")+"</tr>");
           // Determine the @id for this result
           var iCols = 2+arGroups.length;
           var sId = "view3_"+sSubCat;

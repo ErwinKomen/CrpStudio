@@ -139,7 +139,7 @@
               #if($view == "3")
                 <!-- allow user to choose a grouping -->
                 <div class="large-16 medium-16 small-16 row">
-                  <div class="large-3 medium-3 small-3 columns">
+                  <div class="large-2 medium-2 small-2 columns">
                     <label for="right-label" class="right inline">$labels.getString("result.grouping")</label>
                   </div>
                   <div class="large-5 medium-5 small-5 columns left">
@@ -148,9 +148,30 @@
                       <option value="standard" selected="true">standard</option>
                     </select>
                   </div>
-                  <div class="large-5 medium-5 small-5 columns left">
+                  <div class="large-2 medium-2 small-2 columns left">
                     <a href="#" class="button radius tiny" 
                        onclick="crpstudio.result.doGrouping('result_view3_grouping', $view);">$labels.getString("result.grouping.show")</a>
+                  </div>
+                  <div class="large-2 medium-2 small-2  columns left">
+                    <div id="result_view3_grpcode_show" class="row">
+                      <a href="#" class="button radius tiny" onclick="crpstudio.result.grpcode('show');">$labels.getString("result.grouping.code")</a>
+                    </div>
+                    <div id="result_view3_grpcode_hide" class="row hidden">
+                      <a href="#" class="button radius tiny" onclick="crpstudio.result.grpcode('hide');">$labels.getString("result.grouping.nocode")</a>
+                    </div>
+                  </div>
+                  <div class="large-3 medium-3 small-3 columns left">
+                    <!-- EXPORT button and information about the current grouping -->
+                    <div class="export large-16 medium-16 small-16 row">
+                      <div id="result_view3_info" class="large-6 medium-6 small-6 columns"></div>
+                      <div class="large-3 medium-3 small-4 columns">
+                        <a href="#" class="button radius tiny" onclick="crpstudio.result.doExport(3);">$labels.getString("result.export")</a>
+                      </div>
+                      <div id="result_view3_export" class="large-7 medium-7 small-6 columns hidden">
+                        <span>$labels.getString("result.export.intro"): </span>
+                        <span id="result_view3_export_file"></span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               #end
@@ -215,6 +236,13 @@
                 <div id="$resultsTableId" class="large-16 medium-16 small-16">
                       <i>(Working...)</i>
                 </div>
+              #if($view == "3")
+                <div id="result_view3_grpcode" class="large-16 medium-16 small-16 hidden">
+                  <label>Xquery code for this grouping:</label>
+                  <textarea rows="20" spellcheck="false" placeholder="No information available...">
+                  </textarea>
+                </div>
+              #end
               </div>
             #end
           </div>

@@ -119,9 +119,9 @@ var crpstudio = (function ($, crpstudio) {
         // Make sure the tagset object is specified
         if (!arTagset.length === 0) return "";
         // Get the value for this combination of tagset/tagname
-        for (var i=0;i<crpstudio.tagset.length;i++) {
+        for (var i=0;i<arTagset.length;i++) {
           // Get this item
-          var oTagSpec = crpstudio.tagset[i];
+          var oTagSpec = arTagset[i];
           if (oTagSpec.title === sTagName) {
             // Create a tag-definition object
             var oTagDef = {};
@@ -275,7 +275,7 @@ var crpstudio = (function ($, crpstudio) {
         for (var i=0;i<arVarset.length;i++) {
           var oVardef = arVarset[i];
           var sEntry = (oVardef.loc==="header") ? "$hdr" : "$mdi";
-          var sValue = oVardef.value.replace("descendant", sEntry+"/descendant");
+          var sValue = oVardef.value.replace(/descendant/g, sEntry+"/descendant");
           arCode.push("  let $"+oVardef.name+" := "+sValue);
         }
         
@@ -296,6 +296,8 @@ var crpstudio = (function ($, crpstudio) {
         arCode.push("</metaGrouping>");
         // Return what we have made
         var sBack = arCode.join("\n");
+        // Show this code on the grouping results
+        $("#result_view3_grpcode").children("textarea").html(sBack);
         return sBack;
       },
       

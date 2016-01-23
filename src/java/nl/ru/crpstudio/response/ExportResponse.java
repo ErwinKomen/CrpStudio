@@ -195,7 +195,49 @@ public class ExportResponse extends BaseResponse {
             }
           }
           break;
-        case "3": // Not implemented
+        case "3": // Rows: sub-catagories, Columns: group-labels
+          // Start with preliminaries
+          result.append("Grouping table\n\n");
+          // Get to the actual table
+          JSONObject oMain = arTable.getJSONObject(0);
+          JSONArray arTable2 = oMain.getJSONArray("table");
+          // The group names are on the first row
+          JSONObject oGroups = arTable2.getJSONObject(0);
+          JSONArray arGroups = oGroups.getJSONArray("groups");
+          // Provide the header-row
+          result.append("Category\tTotal");
+          for (int k=0;k<arGroups.length();k++) {
+            // Add this group's name
+            String sGrpName = arGroups.getString(k);
+            result.append("\t"+sGrpName);
+          }
+          // Finish this row
+          result.append("\n");
+          // Process the rows in the table
+          for (int k=1;k<arTable2.length(); k++) {
+            JSONObject oRow = arTable2.getJSONObject(k);
+            String sSub = oRow.getString("sub");
+            // Make a special string for the count values in this row
+            StringBuilder sbRow = new StringBuilder();
+            int iRowTotal = 0;
+            // Get the column objects for this row
+            JSONArray arColumns = oRow.getJSONArray("groups");
+            // Walk the column objects for this row
+            for (int m=0;m<arColumns.length();m++) {
+              // Get this object
+              JSONObject oCol = arColumns.getJSONObject(m);
+              // Get the count
+              int iCount = oCol.getInt("count");
+              // Add to the row string
+              sbRow.append("\t"+iCount);
+              iRowTotal += iCount;
+            }
+            // Create this row
+            result.append(sSub+"\t"+iRowTotal+"\t"+sbRow.toString()+"\n");
+          }
+          
+          
+          break;
         case "4": // Not implemented
           break;
         case "5": // Provide general information from the table
