@@ -306,6 +306,43 @@ public abstract class BaseResponse {
 		return null;
 	}
   
+  public String getCrppPostFileResponse(String index, String trail, Map<String, Object> params, String sContent) {
+    String parameters = "";
+    
+    try {
+      // Take over the parameters
+      this.params = params;
+      // Are there any parameters?
+      if (this.params.size() >0) {
+        // Transform the parameters into a JSON object
+        JSONObject oParams = new JSONObject();
+        for (String sParam : params.keySet()) {
+          // Make sure each parameter is URL-encoded
+          String sEsc = URLEncoder.encode(params.get(sParam).toString(), "UTF-8");
+          oParams.put(sParam, sEsc);
+        }
+        // Serialize the JSON into a string
+        parameters = oParams.toString();
+        // Calculate the request URL
+        String url = this.labels.getString("crppUrlInternal")+ "/" + index + trail;
+        // Keep this URL for reference
+        this.lastUrl = url;
+
+        QueryServiceHandler webservice = new QueryServiceHandler(url, 1);
+        try {
+          String sResp = webservice.fileRequest(new HashMap<String, String[]>(), parameters, sContent);
+          return sResp;
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        return "";
+      } else 
+        return "";
+    } catch (Exception ex) {
+			ex.printStackTrace();
+      return "";
+    }
+  }
    /**
    * getCrppPostResponse --
    *    Issue a POST request to the /crpp machine and return the response

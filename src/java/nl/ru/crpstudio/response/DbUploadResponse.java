@@ -83,6 +83,9 @@ public class DbUploadResponse extends BaseResponse {
         case "dbase":
           // Send the dbase to /crpp and get a reaction
           oContent = this.sendDbaseToServer(sUserId, sItemName, oUserFile);
+          // Clear the list
+
+          oUserFile.Clear();
           // Invalidate the current project list
           servlet.setUserDbList(null);
 
@@ -177,7 +180,7 @@ public class DbUploadResponse extends BaseResponse {
         String sResp = getCrppPostResponse("dbupload", "", this.params);
         // Make sure the response is positive
         if (sResp.isEmpty() || !sResp.startsWith("{")) {
-          sendErrorResponse("Server /crpp gave no valid response on /dbset");
+          sendErrorResponse("Server /crpp gave no valid response on /dbupload");
           return null;
         }
         // Get the response to this chunk sending as JSON
@@ -191,6 +194,7 @@ public class DbUploadResponse extends BaseResponse {
           case "completed":
             // This is okay if we have sent the last one
             if (i+1 < oUserFile.total) {
+              int iError = 1;
               // Bad: completed before reaching the end
             } else {
               // Get the content
@@ -199,7 +203,7 @@ public class DbUploadResponse extends BaseResponse {
             break;
           case "working": 
             // This is okay if we haven't reached the end yet
-            if (i+1 >= oUserFile.total) {
+            if (i+1 > oUserFile.total) {
               // Bad: we should be ready
               sendErrorResponse("Could not complete sending dbase to /crpp: "+oStat.getString("code"));
             } 
