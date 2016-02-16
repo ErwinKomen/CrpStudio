@@ -8,6 +8,7 @@ package nl.ru.crpstudio.response;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.http.Part;
 import nl.ru.crpx.tools.FileIO;
 import static nl.ru.util.StringUtil.compressSafe;
 import static nl.ru.util.StringUtil.decompressSafe;
@@ -34,6 +35,8 @@ public class UploadResponse extends BaseResponse {
       //    itemmain  - main part (project, corpus) to which the item (query/definition/corpus file) belongs
       // There are three parameters: file, userid, crp
        // Collect the JSON from our POST caller
+      // Part oPart1 = request.getPart("args");
+      Part oPart2 = request.getPart("fileToUpload");
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("userid")) { sendErrorResponse("LoadResponse: missing @userid"); return;}
       if (!oQuery.has("file")) { sendErrorResponse("LoadResponse: missing @file"); return;}

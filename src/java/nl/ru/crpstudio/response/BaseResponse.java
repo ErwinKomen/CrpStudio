@@ -47,6 +47,7 @@ import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TabSpecifier;
 import nl.ru.crpstudio.util.TagsetSpecifier;
 import nl.ru.crpstudio.util.TemplateManager;
+import nl.ru.crpstudio.util.UserFile;
 import nl.ru.crpx.project.CorpusResearchProject;
 import nl.ru.crpx.project.CorpusResearchProject.ProjType;
 import nl.ru.crpx.tools.FileIO;
@@ -84,7 +85,7 @@ public abstract class BaseResponse {
   protected CorpusResearchProject crpThis;
   protected String sCrpName = "";
   protected String sMessage = "";
-	
+	protected List<UserFile> lUserFile = new ArrayList<>();
 	protected long startTime = new Date().getTime();
 
 	protected BaseResponse() {
@@ -2431,4 +2432,35 @@ public abstract class BaseResponse {
         ]
       }  
   ============================================================================== */
+  
+  /**
+   * getUserFile  -- Retrieve or create a UserFile object
+   * 
+   * @param sUserId
+   * @param sFilename
+   * @return 
+   */
+  public UserFile getUserFile(String sUserId, String sFilename, ErrHandle oErr) {
+    UserFile oThis = null;
+    try {
+      // Walk the list
+      for (int i=0;i<lUserFile.size();i++) {
+        if (lUserFile.get(i).name.equals(sFilename)) {
+          // Found it!
+          oThis = lUserFile.get(i);
+          return oThis;
+        }
+      }
+      // Haven't found it: add it
+      lUserFile.add(new UserFile(sUserId, sFilename, oErr));
+      oThis = lUserFile.get(lUserFile.size()-1);
+      // Return what we found
+      return oThis;
+    } catch (Exception ex) {
+      logger.DoError("getUserFile: could not complete", ex);
+      return null;
+    }
+  }
+  
+  
 }

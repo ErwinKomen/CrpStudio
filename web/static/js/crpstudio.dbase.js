@@ -15,6 +15,7 @@ var crpstudio = (function ($, crpstudio) {
         currentDbs= -1,         // The id of the currently being executed database
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
+        loc_uploadText = "",    // Text of file that is being uploaded
     loc_ctlCurrent= null;       // Current control
     
     // Methods that are local to [crpstudio.dbase]
@@ -259,6 +260,114 @@ var crpstudio = (function ($, crpstudio) {
         }    
       },  
       
+      /*
+       * uploadChunked
+       *    Try to upload a large file in chunks
+       * 
+       * @param {type} el
+       * @param {type} sItemType
+       * @returns {undefined}
+       */
+      uploadFile : function(el, sItemType) {
+        // Make sure download info is hidden
+        $("#"+sItemType+"_download").addClass("hidden");
+        // Initialise itemmain
+        var sItemMain = "";
+        // Get the name of the file
+        var oFile = el.files[0];
+        // Determine in how many parts we need to slice it
+        var iStep = 1024 * 1024;  // 1 MB chunk size
+        var iTotal = oFile.size;  // Size of the file
+        var iNumChunks = Math.max(Math.ceil(iTotal / iStep), 1);
+        // Preparations for all the sending...
+        var sUrl = config.baseUrl + "dbupload";
+        // Calculate the parameters and put them into a string
+        var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
+          "userid": crpstudio.currentUser};
+        // Loop through the file-slices
+        for (var i=0;i<iNumChunks;i++) {
+          // Get this chunk of the file
+          var iStart = iStep * i;   // Byte where it starts
+          var fChunk = oFile.slice(iStart, iStart + iStep);   // Possibly add oFile.type
+          // adapt the arguments for this chunk
+          oArgs.chunk = i+1;
+          oArgs.total = iNumChunks;
+          // Upload this chunk
+          crpstudio.dbase.uploadSlice(oArgs, sUrl, fChunk);
+        }
+      },
+      
+      uploadSlice : function(oArgs, sUrl, fBlogOrFile) {
+        var params = JSON.stringify(oArgs);
+        var fd = new FormData();
+        fd.append("args", params);
+        fd.append("fileToUpload", fBlogOrFile);
+        var xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener("progress", crpstudio.dbase.uploadProgress, false);
+        xhr.addEventListener("load", crpstudio.dbase.uploadComplete, false);
+        xhr.addEventListener("error", crpstudio.dbase.uploadFailed, false);
+        xhr.addEventListener("abort", crpstudio.dbase.uploadCanceled, false);
+        xhr.open('POST', sUrl);
+        xhr.send(fd);        
+      },
+      
+      uploadProgress : function(evt) {
+        if (evt.lengthComputable) {
+          var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+          $("#dbase_status").html( percentComplete.toString() + '%');
+        }
+        else {
+          $("#dbase_status").html('unable to compute');
+        }      
+      },
+      uploadComplete : function(evt) {
+        /* This event is raised when the server send back a response */
+        $("#dbase_status").html(evt.target.responseText);
+      },
+      uploadFailed : function(evt) {
+        $("#dbase_status").html("There was an error attempting to upload the file.");
+      },
+      uploadCanceled : function(evt) {
+        $("#dbase_status").html("The upload has been canceled by the user or the browser dropped the connection.");
+      } ,     
+      
+      /**
+       * uploadFile
+       *    Ask user to upload a file (dbase)
+       * 
+       * @param {object} el   
+       * @param {string} sItemType
+       * @returns {undefined}
+       */
+      uploadFile_ORG : function(el, sItemType) {
+        // Make sure download info is hidden
+        $("#"+sItemType+"_download").addClass("hidden");
+        // Initialise itemmain
+        var sItemMain = "";
+        // Get the name of the file
+        var oFile = el.files[0];
+        // Use the standard readXmlFile function (this reads any TEXT)
+        crpstudio.main.readXmlFile(oFile, function(e) {
+          // Get the text of the uploaded CRP into a variable
+          // var text = encodeURIComponent(e.target.result);
+          var text = e.target.result;
+          // Signal what we are doing
+          $("#"+sItemType+"_description").html("Uploading...");
+          // Send this information to the /crpstudio
+          //var params = "file=" + oFile.name + "&itemtype=" + sItemType + 
+          //        "&itemmain=" + sItemMain + "&userid=" + crpstudio.currentUser +
+          //        "&itemtext=" + text;
+
+          // Pass on this value to /crpstudio and to /crpp
+          var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
+            "userid": crpstudio.currentUser, "itemtext": text };
+          var params = JSON.stringify(oArgs);
+          
+          crpstudio.main.getCrpStudioData("upload", params, crpstudio.dbase.processUpLoad, 
+          "#"+sItemType+"_description");
+        });
+      },
+      
       /**
        * processUpLoad
        *    What to do when a database has been loaded
@@ -328,6 +437,55 @@ var crpstudio = (function ($, crpstudio) {
           var params = JSON.stringify(oArgs);      
 
           crpstudio.main.getCrpStudioData("remove-db", params, crpstudio.dbase.processRemove, "#dbase_description");      
+        }
+      },
+      
+      /**
+       * removeItem
+       *    Check which Item is currently selected (if any)
+       *    Then remove that item:
+       *    (1) from the server --> POST to /crpstudio
+       *    (2) from the list here --> done in callback
+       * 
+       * @param {type} elDummy      - Not used right now
+       * @param {string} sItemType  - Type of file to remove
+       * @returns {void}            - no return
+       */
+      removeItem : function(elDummy, sItemType) {
+        // Prepare variable
+        var oArgs = null; var iItemId = -1; var lstItem = null; var sCrpName = "";
+        var sItemMain = "";
+        // Make sure download info is hidden
+        $("#"+sItemType+"_download").addClass("hidden");
+        // Find out which project is currently selected
+        sCrpName = currentPrj;
+        // Action depends on the type
+        switch(sItemType) {
+          case "dbase":
+            // There is no real itemmain
+            sItemMain = "ROOT";                       // Databases is root
+            // New method: there is an id
+            iItemId = currentDbId;
+            break;
+          default:
+            // Unable to handle this, so leave
+            return;
+        }
+        if (sCrpName && sCrpName !== "") {
+          var iItemNext = -1;
+          // Action depends on the type
+          switch (sItemType) {
+            case "dbase":
+              // Note: /crpstudio must check when the last download of this project was
+              // Send removal request to /crpstudio, which checks and passes it on to /crpp
+              oArgs = { "itemid": iItemId, "itemtype": sItemType, "itemmain": sItemMain,  
+                        "crp": sCrpName, "userid": crpstudio.currentUser };
+              // Send the remove request
+              var params = JSON.stringify(oArgs);
+              crpstudio.main.getCrpStudioData("remove", params, crpstudio.dbase.processRemove, 
+              "#"+sItemType+"_description");      
+
+          }
         }
       },
       
