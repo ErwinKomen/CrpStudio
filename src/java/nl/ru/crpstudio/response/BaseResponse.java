@@ -85,7 +85,7 @@ public abstract class BaseResponse {
   protected CorpusResearchProject crpThis;
   protected String sCrpName = "";
   protected String sMessage = "";
-	protected List<UserFile> lUserFile = new ArrayList<>();
+	static List<UserFile> lUserFile = new ArrayList<>();
 	protected long startTime = new Date().getTime();
 
 	protected BaseResponse() {
@@ -2436,11 +2436,13 @@ public abstract class BaseResponse {
   /**
    * getUserFile  -- Retrieve or create a UserFile object
    * 
-   * @param sUserId
-   * @param sFilename
+   * @param sUserId   -- User responsible for uploading this file
+   * @param sFilename -- Name of this file
+   * @param iTotal    -- Total number of chunks for this file
+   * @param oErr      -- ErrHandle object
    * @return 
    */
-  public UserFile getUserFile(String sUserId, String sFilename, ErrHandle oErr) {
+  public UserFile getUserFile(String sUserId, String sFilename, int iTotal, ErrHandle oErr) {
     UserFile oThis = null;
     try {
       // Walk the list
@@ -2452,8 +2454,10 @@ public abstract class BaseResponse {
         }
       }
       // Haven't found it: add it
-      lUserFile.add(new UserFile(sUserId, sFilename, oErr));
-      oThis = lUserFile.get(lUserFile.size()-1);
+      oThis = new UserFile(sUserId, sFilename, iTotal, oErr);
+      synchronized(lUserFile) {
+        lUserFile.add(oThis);
+      }
       // Return what we found
       return oThis;
     } catch (Exception ex) {

@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.Part;
+import nl.ru.util.FileUtil;
 
 /**
  * UserFile -- Holds all information pertaining to a file that is
@@ -23,6 +24,8 @@ import javax.servlet.http.Part;
  * @author Erwin
  */
 public class UserFile {
+  // ========================= Constants =======================================
+  static String sProjectBase = "/etc/crpstudio/"; // Base directory where user-spaces are stored
   // ================ Private variables ==============
   private ErrHandle errHandle;
   // ================ Public variables ===============
@@ -55,11 +58,16 @@ public class UserFile {
       oChunk.total = iTotal;
       oChunk.fileName = this.name;
       String sChunkFile = this.name + "." + iChunk + ".tmp";
-      oChunk.fileChunk = sChunkFile;
-      // Add this chunk to the list of chunks
-      this.chunk.add(oChunk);
+      oChunk.fileChunk = FileUtil.nameNormalize(sProjectBase  + this.userId + "/" + sChunkFile) ;
+      synchronized(chunk) {
+        // Add this chunk to the list of chunks
+        this.chunk.add(oChunk);
+      }
+      // =============== DEBUG =========
+      // errHandle.debug("AddChunk ["+iChunk+"] size = " + this.chunk.size());
+      // ===============================
       // Read the chunk
-      if (!getFileUpload(oPart, sChunkFile)) return false;
+      if (!getFileUpload(oPart, oChunk.fileChunk)) return false;
       // Return positively
       return true;
     } catch (Exception ex) {
@@ -81,6 +89,89 @@ public class UserFile {
       errHandle.DoError("UserFile/IsReady: ", ex);
       return false;
     }   
+  }
+  
+  /**
+   * SetSent -- Indicate that the chunk numbered @iChunk has been sent
+   * 
+   * @param iChunk 
+   */
+  public synchronized void SetSent(int iChunk) {
+    try {
+      // Get the chunk with the correct number
+      for (int i=0;i<this.chunk.size(); i++) {
+        FileChunk oChunk = this.chunk.get(i);
+        if (oChunk.number == iChunk) {
+          oChunk.sent = true;
+          return;
+        }
+      }
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/SetSent: ", ex);
+    }   
+  }
+
+  /**
+   * IsSent -- Check if the chunk numbered @iChunk has been sent
+   * 
+   * @param iChunk 
+   * @return  
+   */
+  public boolean IsSent(int iChunk) {
+    try {
+      // Get the chunk with the correct number
+      for (int i=0;i<this.chunk.size(); i++) {
+        FileChunk oChunk = this.chunk.get(i);
+        return oChunk.sent;
+      }
+      return false;
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/IsSent: ", ex);
+      return false;
+    }   
+  }
+
+  /**
+   * Clear -- Clear the current list of file chunks
+   * 
+   * @return 
+   */
+  public synchronized boolean Clear() {
+    try {
+      for (int i=0;i< chunk.size();i++) {
+        File fChunk = new File(chunk.get(i).fileChunk);
+        if (!fChunk.delete()) return false;
+      }
+      chunk.clear();
+      // Check if the size of the list equals the total expected number
+      return (this.total == chunk.size());
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/IsReady: ", ex);
+      return false;
+    }   
+  }
+  
+  /**
+   * getChunk -- get the chunk with the indicated chunk number (starting at 1)
+   * 
+   * @param i
+   * @return 
+   */
+  public String getChunk(int i) {
+    try {
+      // Validate
+      if (i > this.total) return "";
+      // Get the name of the chunk file
+      String sFileName = this.chunk.get(i-1).fileChunk;
+      // Check if it exists
+      File fFile = new File(sFileName);
+      if (!fFile.exists()) return "";
+      // Read the chunk and return it
+      return (new FileUtil()).readFile(fFile);
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/getChunk: ", ex);
+      return "";
+    }
   }
   
   // ================ Private methods =================
@@ -150,4 +241,8 @@ class FileChunk {
   public int total;         // Total number of chunks
   public String fileName;   // Name of the file this belongs to
   public String fileChunk;  // Name of the file where this chunk is stored
+  public boolean sent;      // Indicates chunk has been sent
+  public FileChunk() {
+    this.sent = false;
+  }
 }

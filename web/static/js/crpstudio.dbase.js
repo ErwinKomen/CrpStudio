@@ -284,6 +284,9 @@ var crpstudio = (function ($, crpstudio) {
         // Calculate the parameters and put them into a string
         var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
           "userid": crpstudio.currentUser};
+        // Keep track of progress
+        $("#dbase_expl_upload").removeClass("hidden");
+        $("#dbase_expl_upload_status").removeClass("hidden");
         // Loop through the file-slices
         for (var i=0;i<iNumChunks;i++) {
           // Get this chunk of the file
@@ -292,15 +295,22 @@ var crpstudio = (function ($, crpstudio) {
           // adapt the arguments for this chunk
           oArgs.chunk = i+1;
           oArgs.total = iNumChunks;
+          var params = JSON.stringify(oArgs);
           // Upload this chunk
-          crpstudio.dbase.uploadSlice(oArgs, sUrl, fChunk);
+          crpstudio.dbase.uploadSlice(params, sUrl, fChunk);
         }
       },
       
-      uploadSlice : function(oArgs, sUrl, fBlogOrFile) {
-        var params = JSON.stringify(oArgs);
+      /**
+       * uploadSlice -- Upload one file or slice to the indicated URL
+       * @param {type} sParams
+       * @param {type} sUrl
+       * @param {type} fBlogOrFile
+       * @returns {undefined}
+       */
+      uploadSlice : function(sParams, sUrl, fBlogOrFile) {        
         var fd = new FormData();
-        fd.append("args", params);
+        fd.append("args", sParams);
         fd.append("fileToUpload", fBlogOrFile);
         var xhr = new XMLHttpRequest();
         xhr.upload.addEventListener("progress", crpstudio.dbase.uploadProgress, false);
@@ -314,21 +324,52 @@ var crpstudio = (function ($, crpstudio) {
       uploadProgress : function(evt) {
         if (evt.lengthComputable) {
           var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-          $("#dbase_status").html( percentComplete.toString() + '%');
+          $("#dbase_expl_upload_status").html( percentComplete.toString() + '%');
         }
         else {
-          $("#dbase_status").html('unable to compute');
+          $("#dbase_expl_upload_status").html('unable to compute');
         }      
       },
       uploadComplete : function(evt) {
-        /* This event is raised when the server send back a response */
-        $("#dbase_status").html(evt.target.responseText);
+        /* This event is raised when the server sends back a response */
+        var response = JSON.parse(evt.target.response);
+        // The response is a standard object containing "status" (code) and "content" (code, message)
+        var oStatus = response.status;
+        var sStatusCode = oStatus.code;
+        var oContent = response.content;
+        // find the result_status element
+        var divUplProgress = $("#dbase_expl_upload").get(0);
+        // Find the 'meter' within
+        var arMeter = divUplProgress.getElementsByClassName("meter");
+        // Action depends on the status code
+        switch (sStatusCode) {
+          case "completed":
+            if (arMeter && arMeter.length > 0) {
+              var divStarted = arMeter[0];
+              // Set the correct styles for these elements
+              divStarted.setAttribute("style", "width: 100%");
+            }
+            break;
+          case "working":
+            // Get the percentage of where we are
+            var iPtcStarted = 100 * oContent.read / oContent.total;
+            if (arMeter && arMeter.length > 0) {
+              var divStarted = arMeter[0];
+              // Set the correct styles for these elements
+              divStarted.setAttribute("style", "width: " + iPtcStarted + "%");
+            }
+            break;
+          case "error":
+            break;
+        }
+
+        $("#dbase_expl_upload_status").html(evt.target.responseText);
       },
       uploadFailed : function(evt) {
-        $("#dbase_status").html("There was an error attempting to upload the file.");
+        $("#dbase_expl_upload_status").html("There was an error attempting to upload the file.");
       },
       uploadCanceled : function(evt) {
-        $("#dbase_status").html("The upload has been canceled by the user or the browser dropped the connection.");
+        $("#dbase_expl_upload_status").html("The upload has been canceled by the user or the browser dropped the connection.");
       } ,     
       
       /**

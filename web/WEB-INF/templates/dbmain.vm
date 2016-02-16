@@ -1,12 +1,23 @@
 <!-- side bar: names of databases of this user -->
-<!-- <div id="dbaselist" class="large-16 medium-16 small-16 row"> -->
-
 
   <!-- the part to the right of the side-bar may contain contents of this database -->
   <div id="dbase_general_explorer" class="large-12 medium-12 small-12 columns">
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>
+        <div id="dbase_expl_upload" class="large-16 medium-16 small-16 row hidden">
+          <!-- Progress indication -->
+          <div class="small-8 medium-8 large-8 columns">
+            <div class="large-16 medium-16 small-16 row">$labels.getString("dbase.upload.start")</div>
+            <!-- Progress bar: indicating the number of files that have started -->
+            <div class="progress radius small-8 medium-8 large-8 row">
+              <span id="agentdb007" class="meter" style="width: 0%"></span>
+            </div>
+            <div id="dbase_expl_upload_status" class="large-16 medium-16 small-16 row">
+              <!-- Upload status information when a database is being uploaded -->
+            </div>
+          </div>
+        </div>
         <div id="dbase_expl_description" class="large-16 medium-16 small-16 row">
           <i>(no database selected)</i>
         </div>
