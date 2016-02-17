@@ -16,7 +16,8 @@ var crpstudio = (function ($, crpstudio) {
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
         loc_uploadText = "",    // Text of file that is being uploaded
-    loc_ctlCurrent= null;       // Current control
+        loc_uploadInfo = null,  // DbUpload information
+        loc_ctlCurrent= null;   // Current control
     
     // Methods that are local to [crpstudio.dbase]
     var private_methods = {
@@ -193,7 +194,7 @@ var crpstudio = (function ($, crpstudio) {
           "type": "info", "userid": crpstudio.currentUser };
         var params = JSON.stringify(oArgs);
 
-        crpstudio.maingetCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
+        crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
       },
       
       /**
@@ -261,7 +262,7 @@ var crpstudio = (function ($, crpstudio) {
       },  
       
       /*
-       * uploadChunked
+       * uploadFile
        *    Try to upload a large file in chunks
        * 
        * @param {type} el
@@ -279,25 +280,80 @@ var crpstudio = (function ($, crpstudio) {
         var iStep = 1024 * 1024;  // 1 MB chunk size
         var iTotal = oFile.size;  // Size of the file
         var iNumChunks = Math.max(Math.ceil(iTotal / iStep), 1);
-        // Preparations for all the sending...
-        var sUrl = config.baseUrl + "dbupload";
-        // Calculate the parameters and put them into a string
-        var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
-          "userid": crpstudio.currentUser};
+        // Put this information in a local object
+        loc_uploadInfo = {"file": oFile, "step": iStep, "total": iTotal, 
+          "chunks": iNumChunks, "itemtype": sItemType};
         // Keep track of progress
         $("#dbase_expl_upload").removeClass("hidden");
+        $("#dbase_expl_upload_status").html("waiting for /crpp...");
         $("#dbase_expl_upload_status").removeClass("hidden");
-        // Loop through the file-slices
-        for (var i=0;i<iNumChunks;i++) {
-          // Get this chunk of the file
-          var iStart = iStep * i;   // Byte where it starts
-          var fChunk = oFile.slice(iStart, iStart + iStep);   // Possibly add oFile.type
-          // adapt the arguments for this chunk
-          oArgs.chunk = i+1;
-          oArgs.total = iNumChunks;
-          var params = JSON.stringify(oArgs);
-          // Upload this chunk
-          crpstudio.dbase.uploadSlice(params, sUrl, fChunk);
+        // Calculate the parameters and put them into a string
+        var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
+          "userid": crpstudio.currentUser, "chunk": 0, "total": iNumChunks};
+        // Send these arguments to the /crpstudio server and wait for a positive response
+        var params = JSON.stringify(oArgs);
+
+        crpstudio.main.getCrpStudioData("dbupload", params, crpstudio.dbase.uploadContinue, "#dbase_description");
+      },
+      
+      /*
+       * uploadContinue
+       *    Try to upload a large file in chunks
+       * 
+       * @param {type} el
+       * @param {type} sItemType
+       * @returns {undefined}
+       */
+      uploadContinue : function(response, target) {
+        if (response !== null) {
+          // Remove waiting
+          $("#"+sItemType+"_description").html("");
+          // The response is a standard object containing "status" (code) and "content" (code, message)
+          var oStatus = response.status;
+          var sStatusCode = oStatus.code;
+          var oContent = response.content;
+          switch (sStatusCode) {
+            case "initialized":
+              // Retrieve the information from the local object
+              var oFile = loc_uploadInfo.file;
+              var iStep = loc_uploadInfo.step;
+              var iTotal = loc_uploadInfo.total;
+              var iNumChunks = loc_uploadInfo.chunks;
+              var sItemType = loc_uploadInfo.itemtype;
+
+              // Make sure download info is hidden
+              $("#"+sItemType+"_download").addClass("hidden");
+              // Initialise itemmain
+              var sItemMain = "";
+              // Preparations for all the sending...
+              var sUrl = config.baseUrl + "dbupload";
+              // Calculate the parameters and put them into a string
+              var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
+                "userid": crpstudio.currentUser};
+              // Keep track of progress
+              $("#"+sItemType+"_expl_upload").removeClass("hidden");
+              $("#"+sItemType+"_expl_upload_status").removeClass("hidden");
+              // Loop through the file-slices
+              for (var i=0;i<iNumChunks;i++) {
+                // Get this chunk of the file
+                var iStart = iStep * i;   // Byte where it starts
+                var fChunk = oFile.slice(iStart, iStart + iStep);   // Possibly add oFile.type
+                // adapt the arguments for this chunk
+                oArgs.chunk = i+1;
+                oArgs.total = iNumChunks;
+                var params = JSON.stringify(oArgs);
+                // Upload this chunk
+                crpstudio.dbase.uploadSlice(params, sUrl, fChunk);
+              }
+              break;
+            default:
+              // SOmething is wrong -- we cannot upload
+              var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+              var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+              var sMsg = "Cannot upload.\ncode: " + sErrorCode + "\nMessage: " + sErrorMsg;
+              $("#"+sItemType+"_expl_upload_status").html(sMsg);
+              break;
+          }
         }
       },
       

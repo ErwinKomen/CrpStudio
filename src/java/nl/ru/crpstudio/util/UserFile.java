@@ -16,7 +16,9 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.Part;
+import nl.ru.util.ByRef;
 import nl.ru.util.FileUtil;
+import nl.ru.util.StringUtil;
 
 /**
  * UserFile -- Holds all information pertaining to a file that is
@@ -68,6 +70,35 @@ public class UserFile {
       // ===============================
       // Read the chunk
       if (!getFileUpload(oPart, oChunk.fileChunk)) return false;
+      // Return positively
+      return true;
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/AddChunk: ", ex);
+      return false;
+    }    
+  }
+  /**
+   * CompressChunk -- Add one chunk to the list in a compressed form
+   * 
+   * @param oPart
+   * @param iChunk
+   * @param iTotal
+   * @return 
+   */
+  public boolean CompressChunk(Part oPart, int iChunk, int iTotal) {
+    try {
+      // Create a new chunk
+      FileChunk oChunk = new FileChunk();
+      oChunk.number = iChunk;
+      oChunk.total = iTotal;
+      oChunk.fileName = this.name;
+      String sChunkFile = this.name + "." + iChunk + ".tmp";
+      oChunk.fileChunk = FileUtil.nameNormalize(sProjectBase  + this.userId + "/" + sChunkFile) ;
+      if (!getFileUploadCompressed(oPart, oChunk.fileChunk)) return false;
+      synchronized(chunk) {
+        // Add this chunk to the list of chunks
+        this.chunk.add(oChunk);
+      }
       // Return positively
       return true;
     } catch (Exception ex) {
@@ -174,6 +205,32 @@ public class UserFile {
     }
   }
   
+  /**
+   * getChunkFileLoc -- get the location of the compressed chunk file
+   * 
+   * @param i
+   * @return 
+   */
+  public String getChunkFileLoc(int iChunk) {
+    try {
+      // Validate
+      if (iChunk > this.total) return "";
+      // Look for the chunk with this number
+      for (int i=0;i<this.chunk.size();i++) {
+        FileChunk oChunk = this.chunk.get(i);
+        if (oChunk.number == iChunk) {
+          // Func the chunk
+          return oChunk.fileChunk;
+        }
+      }
+      // Did not find it
+      return "";
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/getChunkFileLoc: ", ex);
+      return "";
+    }
+  }
+  
   // ================ Private methods =================
   
   /**
@@ -229,7 +286,38 @@ public class UserFile {
       return false;
     }    
   }  
-  
+  /**
+   * getFileUploadCompressed -- Upload a file into memory and compress it
+   * 
+   * @param part        - the part we are uploading
+   * @return
+   * @throws IOException 
+   */
+  private boolean getFileUploadCompressed(Part part, String sFile) throws IOException {
+    String sContent = "";
+    
+    try {
+      StringBuilder value;
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+            part.getInputStream(), "UTF-8"))) {
+        value = new StringBuilder();
+        char[] buffer = new char[1024];
+        for (int length = 0; (length = reader.read(buffer)) > 0;) {
+          value.append(buffer, 0, length);
+        } // Close writer
+      }
+      // Compress the result
+      sContent = StringUtil.compressSafe(value.toString());
+      // sContent = value.toString();
+      // Save it to the indicated file
+      FileUtil.writeFile(sFile, sContent, "UTF-8");
+      return true;
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/getFileUploadCompressed: ", ex);
+      return false;
+    }    
+  }  
+    
 }
 /**
  * FileChunk -- one chunk in a file
@@ -241,6 +329,7 @@ class FileChunk {
   public int total;         // Total number of chunks
   public String fileName;   // Name of the file this belongs to
   public String fileChunk;  // Name of the file where this chunk is stored
+  public String compress;   // Content of the file in a compressed form
   public boolean sent;      // Indicates chunk has been sent
   public FileChunk() {
     this.sent = false;

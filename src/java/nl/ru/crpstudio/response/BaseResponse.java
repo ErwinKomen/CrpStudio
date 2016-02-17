@@ -2556,5 +2556,21 @@ public abstract class BaseResponse {
     }
   }
   
+  /**
+   * isMultiPart -- Check if a Http request is multi-part or not
+   * 
+   * @param request
+   * @return 
+   */
+  public boolean isMultiPart(HttpServletRequest request) {
+    try {
+      // Check if we have a multi-part upload
+      return (request.getContentType() != null && 
+              request.getContentType().toLowerCase().contains("multipart/form-data") );
+    } catch (Exception ex) {
+      logger.DoError("isMultiPart:", ex);
+      return false;
+    }
+  }
   
 }
