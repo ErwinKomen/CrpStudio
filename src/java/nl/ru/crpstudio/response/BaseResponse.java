@@ -42,6 +42,7 @@ import nl.ru.crpstudio.crp.CrpContainer;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.ExploreSpecifier;
 import nl.ru.crpstudio.util.MetadataField;
+import nl.ru.crpstudio.util.MultipartUtility;
 import nl.ru.crpstudio.util.QryTypeSpecifier;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TabSpecifier;
@@ -306,6 +307,58 @@ public abstract class BaseResponse {
 		return null;
 	}
   
+  /**
+   * getCrppPostFileResponse
+   *    Perform a multi-part formdata upload
+   * 
+   * @param index
+   * @param trail
+   * @param params
+   * @param arUpload
+   * @return 
+   */
+  public String getCrppPostFileResponse(String index, String trail, Map<String, Object> params, File[] arUpload) {
+    String parameters = "";
+    
+    try {
+      // Take over the parameters
+      this.params = params;
+      // Are there any parameters?
+      if (this.params.size() >0) {
+        // Transform the parameters into a JSON object
+        JSONObject oParams = new JSONObject();
+        for (String sParam : params.keySet()) {
+          // Make sure each parameter is URL-encoded
+          String sEsc = URLEncoder.encode(params.get(sParam).toString(), "UTF-8");
+          oParams.put(sParam, sEsc);
+        }
+        // Serialize the JSON into a string
+        parameters = oParams.toString();
+        // Calculate the request URL
+        String url = this.labels.getString("crppUrlInternal")+ "/" + index + trail;
+        // Keep this URL for reference
+        this.lastUrl = url;
+        
+        MultipartUtility multipart = new MultipartUtility(url, "UTF-8");
+        multipart.addHeaderField("User-Agent", "CodeJava");
+        multipart.addHeaderField("Test-Header", "Header-Value");
+
+        multipart.addFormField("args", parameters);
+        
+        for (int i=0;i<arUpload.length;i++) {
+          multipart.addFilePart("fileUpload",arUpload[i]);
+        }
+        
+        List<String> response = multipart.finish();
+        String sResp = StringUtil.join(response,"\n");
+        return sResp;
+      } else 
+        return "";
+    } catch (Exception ex) {
+			ex.printStackTrace();
+      return "";
+    }
+  }  
   public String getCrppPostFileResponse(String index, String trail, Map<String, Object> params, String sContent) {
     String parameters = "";
     
