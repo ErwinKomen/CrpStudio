@@ -13,6 +13,8 @@ var crpstudio = (function ($, crpstudio) {
     var loc_tab = "project",    // The main tab we are on (equals to "project_editor")
         bIsSelecting =  false,  // Flag to indicate that selection changes take place
         currentDbs= -1,         // The id of the currently being executed database
+        interval =  200,        // Number of milliseconds
+        sDbUplStatus = "",      // Database upload status request
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
         loc_uploadText = "",    // Text of file that is being uploaded
@@ -289,7 +291,7 @@ var crpstudio = (function ($, crpstudio) {
         $("#dbase_expl_upload_status").removeClass("hidden");
         // Calculate the parameters and put them into a string
         var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
-          "userid": crpstudio.currentUser, "chunk": 0, "total": iNumChunks};
+          "userid": crpstudio.currentUser, "chunk": 0, "total": iNumChunks, "action": "init"};
         // Send these arguments to the /crpstudio server and wait for a positive response
         var params = JSON.stringify(oArgs);
 
@@ -329,7 +331,8 @@ var crpstudio = (function ($, crpstudio) {
               var sUrl = config.baseUrl + "dbupload";
               // Calculate the parameters and put them into a string
               var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
-                "userid": crpstudio.currentUser};
+                "userid": crpstudio.currentUser, "action": "send"};
+              var params = "";
               // Keep track of progress
               $("#"+sItemType+"_expl_upload").removeClass("hidden");
               $("#"+sItemType+"_expl_upload_status").removeClass("hidden");
@@ -341,10 +344,41 @@ var crpstudio = (function ($, crpstudio) {
                 // adapt the arguments for this chunk
                 oArgs.chunk = i+1;
                 oArgs.total = iNumChunks;
-                var params = JSON.stringify(oArgs);
+                params = JSON.stringify(oArgs);
                 // Upload this chunk
                 crpstudio.dbase.uploadSlice(params, sUrl, fChunk);
               }
+              /*
+              // Now start periodically checking for the status
+              oArgs.action = "status";
+              oArgs.chunk = 0;
+              params = JSON.stringify(oArgs);
+              // Set the parameters for this class
+              sDbUplStatus = params;
+              setTimeout(
+                function () {
+                  crpstudio.main.getCrpStudioData("dbupload", sDbUplStatus, crpstudio.dbase.uploadContinue, target);
+                }, interval);
+              */
+              // Okay, we're ready here
+              break;     
+            case "working":
+              // Find out where we are in terms of sending from /crpstudio to /crpp
+              
+              // TODO
+              
+              // Send an additional request for status information
+              setTimeout(
+                function () {
+                  crpstudio.main.getCrpStudioData("dbupload", sDbUplStatus, crpstudio.dbase.uploadContinue, target);
+                }, interval);
+              // Okay, we're ready here
+              break;
+            case "completed":
+              // Clean up 
+              
+              // TODO
+              
               break;
             default:
               // SOmething is wrong -- we cannot upload
@@ -369,7 +403,7 @@ var crpstudio = (function ($, crpstudio) {
         fd.append("args", sParams);
         fd.append("fileToUpload", fBlogOrFile);
         var xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener("progress", crpstudio.dbase.uploadProgress, false);
+        // xhr.upload.addEventListener("progress", crpstudio.dbase.uploadProgress, false);
         xhr.addEventListener("load", crpstudio.dbase.uploadComplete, false);
         xhr.addEventListener("error", crpstudio.dbase.uploadFailed, false);
         xhr.addEventListener("abort", crpstudio.dbase.uploadCanceled, false);

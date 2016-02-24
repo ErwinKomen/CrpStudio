@@ -10,6 +10,7 @@ import java.io.File;
 import javax.servlet.http.Part;
 import nl.ru.crpstudio.util.UserFile;
 import nl.ru.crpx.tools.FileIO;
+import nl.ru.util.ByRef;
 import nl.ru.util.FileUtil;
 import static nl.ru.util.StringUtil.compressSafe;
 import nl.ru.util.json.JSONArray;
@@ -24,6 +25,7 @@ public class DbUploadResponse extends BaseResponse {
 	protected void completeRequest() {
     JSONObject oContent = new JSONObject();
     Part oPart = null;
+    ByRef<String> sStatus = new ByRef("");
 
     try {
       // Expecting the following parameters:
@@ -34,18 +36,20 @@ public class DbUploadResponse extends BaseResponse {
       //    itemmain  - main part (project, corpus) to which the item (dbase/result file) belongs
       //    chunk     - number of this chunk (starting with 1)
       //    total     - total number of chunks to be expected
+      //    action    - one of: {'init', 'send', 'status'}
       if (this.isMultiPart(request)) {
         // Get the part that has the file to upload
         oPart = request.getPart("fileToUpload");
       }
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
-      if (!oQuery.has("userid"))    { sendErrorResponse("LoadResponse: missing @userid"); return;}
-      if (!oQuery.has("file"))      { sendErrorResponse("LoadResponse: missing @file"); return;}
-      if (!oQuery.has("itemtype"))  { sendErrorResponse("LoadResponse: missing @itemtype"); return;}
-      if (!oQuery.has("itemmain"))  { sendErrorResponse("LoadResponse: missing @itemmain"); return;}
-      if (!oQuery.has("chunk"))     { sendErrorResponse("LoadResponse: missing @chunk"); return;}
-      if (!oQuery.has("total"))     { sendErrorResponse("LoadResponse: missing @total"); return;}
+      if (!oQuery.has("userid"))    { sendErrorResponse("DbUploadResponse: missing @userid"); return;}
+      if (!oQuery.has("file"))      { sendErrorResponse("DbUploadResponse: missing @file"); return;}
+      if (!oQuery.has("itemtype"))  { sendErrorResponse("DbUploadResponse: missing @itemtype"); return;}
+      if (!oQuery.has("itemmain"))  { sendErrorResponse("DbUploadResponse: missing @itemmain"); return;}
+      if (!oQuery.has("chunk"))     { sendErrorResponse("DbUploadResponse: missing @chunk"); return;}
+      if (!oQuery.has("total"))     { sendErrorResponse("DbUploadResponse: missing @total"); return;}
+      if (!oQuery.has("action"))    { sendErrorResponse("DbUploadResponse: missing @type"); return;}
       
       // There are three parameters: project, userid, type
       sUserId = oQuery.getString("userid");
@@ -54,6 +58,7 @@ public class DbUploadResponse extends BaseResponse {
       String sItemMain = oQuery.getString("itemmain");
       int iChunk = oQuery.getInt("chunk");
       int iTotal = oQuery.getInt("total");
+      String sAction = oQuery.getString("action");    // Type o
       
       // Validate: all three must be there
       if (sFileName.isEmpty()) { sendErrorResponse("File name of project not specified"); return;}
@@ -67,37 +72,65 @@ public class DbUploadResponse extends BaseResponse {
       // Get a handle to the place where this file needs to be stored
       UserFile oUserFile = getUserFile(sUserId, sFileName, iTotal, this.getServlet().getErrHandle());
       
-      // If this has chunk number '0', then this means the user is waiting for confirmation that
-      //   we have reset the userfile list
-      if (iChunk==0) {
-        // Reset the list
-        oUserFile.Clear();
-        // Send a signal to /crpp that it needs to initialize
-        oContent = this.sendDbUploadInit(sUserId, sFileName, iTotal);
-        // Indicate we are ready
-        oContent.put("ready", true);
-        // Send the output to our caller
-        sendStandardResponse("initialized", "dbupload is ready to receive a file", oContent);
-        // Leave this function nicely
-        return;
+      // Action depends on [action] parameter
+      switch (sAction) {
+        case "init":
+          // Reset the list
+          oUserFile.Clear();
+          // Send a signal to /crpp that it needs to initialize
+          oContent = this.sendDbUploadInit(sUserId, sFileName, iTotal);
+          // Indicate we are ready
+          oContent.put("ready", true);
+          // Send the output to our caller
+          sendStandardResponse("initialized", "dbupload is ready to receive a file", oContent);
+          // Leave this function nicely
+          return;
+        case "send":
+          // Compress the chunk and put it into place (in my LOCAL STORE)
+          if (!oUserFile.CompressChunk(oPart, iChunk, iTotal)) {
+            // Send an error
+            sendErrorResponse("Could not compress chunk ["+ iChunk + "/"+ iTotal+"] to /crpp"); return;
+          }
+          // Send off this chunk -- don't wait for an answer
+          if (!this.sendDbaseChunk(oUserFile, iChunk, oContent)) {
+            // Send an error
+            sendErrorResponse("Could not send chunk ["+ iChunk + "/"+ iTotal+"] to /crpp"); return;
+          }
+          // Indicate that this chunk has been sent
+          oUserFile.SetSent(iChunk);
+          // ============== DEBUGGING ==========
+          logger.debug("Sent: "+oUserFile.getSent() + "/" + oUserFile.total);
+          // ===================================
+          // Check whether everything has been sent now
+          if (!oUserFile.AllReady()) {
+            // Send the feedback from /crpp to the caller
+            sendStandardResponse("working", "dbupload JS to /crpstudio", oContent);
+            // Leave nicely
+            return;
+          }
+          // Getting here means: all has been sent...
+          break;
+        case "status":
+          // Request a status update from /crpp
+          oContent = this.getDbUploadStatus(oUserFile, sStatus);
+          // Action depends on the status
+          switch(sStatus.argValue) {
+            case "working":
+              // Send this status back to JS
+              sendStandardResponse("status", "dbupload status from /crpp", oContent);
+              // Leave nicely
+              return;
+            case "completed":
+              break;
+            case "error":
+              // Send this status back to JS
+              sendStandardResponse("error", "dbupload error", oContent);
+              // Leave nicely
+              return;
+          }
       }
       
-      // Compress the chunk and put it into place
-      oUserFile.CompressChunk(oPart, iChunk, iTotal);
       
-      // =============== NEW METHOD ===================
-      // Send this chunk to /crpp
-      oContent = this.uploadDbaseChunk(oUserFile, iChunk);
-      // ==============================================
-      
-      // If this is not the last chunk yet, then return one way
-      if (!oUserFile.IsReady()) {
-        // Send the output to our caller
-        sendStandardResponse("working", "dbupload is processing chunks", oContent);
-        // Indicate that this chunk has been sent
-        oUserFile.SetSent(iChunk);
-        return;
-      }
       // Getting here means that the uploading is ready -- files need to be put together
       // Actual upload actions depend on the item type
       switch (sItemType) {
@@ -289,7 +322,7 @@ public class DbUploadResponse extends BaseResponse {
       // Get the response to this chunk sending as JSON
       JSONObject oResp = new JSONObject(sResp);
       // Get the status
-      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      if (!oResp.has("status")) { sendErrorResponse("Server /crpp gave [status] back"); return null;}
       // Decypher the status
       JSONObject oStat = oResp.getJSONObject("status");
       // Check the status
@@ -329,6 +362,129 @@ public class DbUploadResponse extends BaseResponse {
   }
   
   /**
+   * getDbUploadStatus -- get the status of this dbupload process from /crpp
+   * 
+   * @param oUserFile
+   * @return 
+   */
+  private JSONObject getDbUploadStatus(UserFile oUserFile, ByRef<String> sStatus) {
+    JSONObject oContent = new JSONObject();
+    
+    try {
+      // Send the dbase to /crpp using the correct /dbset parameters
+      this.params.clear();
+      this.params.put("userid", sUserId);
+      this.params.put("name", oUserFile.name);
+      this.params.put("overwrite", true);
+      this.params.put("chunk", 0);
+      this.params.put("total", oUserFile.total);
+      this.params.put("action", "status");
+      
+      String sResp = getCrppPostResponse("dbupload", "", this.params);
+
+      // Make sure the response is positive
+      if (sResp.isEmpty() || !sResp.startsWith("{")) {
+        sendErrorResponse("Server /crpp gave no valid response on /dbupload");
+        return oContent;
+      }
+      // Get the response to this chunk sending as JSON
+      JSONObject oResp = new JSONObject(sResp);
+      // Get the status
+      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      // Decypher the status
+      JSONObject oStat = oResp.getJSONObject("status");
+      // Store the status
+      sStatus.argValue = oStat.getString("code");
+      // Check the status
+      switch (oStat.getString("code")) {
+        case "error":
+          sendErrorResponse("Error while sending dbase to /crpp: "+oStat.getString("code"));
+          break;
+        default:
+          // Get the content
+          oContent = oResp.getJSONObject("content");
+          break;
+      }
+      // Return the content section
+      return oContent;
+    } catch (Exception ex) {
+      sendErrorResponse("getDbUploadStatus could not get status from /crpp: "+ ex.getMessage());
+      return null;
+    }
+  }
+    /**
+   * sendDbaseChunk -- send one chunk to the /crpp server
+   * 
+   * @param oUserFile
+   * @param iChunk
+   * @return 
+   */
+  private boolean sendDbaseChunk(UserFile oUserFile, int iChunk, JSONObject oContent) {
+    try {
+      // Send the dbase to /crpp using the correct /dbset parameters
+      this.params.clear();
+      this.params.put("userid", oUserFile.userId);
+      this.params.put("name", oUserFile.name);
+      this.params.put("overwrite", true);
+      this.params.put("chunk", iChunk);
+      this.params.put("total", oUserFile.total);
+      this.params.put("start", false);
+      this.params.put("action", "send");
+      
+      // Need to have an array of files
+      File[] arFile = new File[1];
+      arFile[0] = new File(oUserFile.getChunkFileLoc(iChunk));
+      
+      String sResp = getCrppPostFileResponse("dbupload", "", this.params, arFile);
+
+      // Make sure the response is positive
+      if (sResp.isEmpty() || !sResp.startsWith("{")) {
+        sendErrorResponse("Server /crpp gave no valid response on /dbupload");
+        return false;
+      }
+      // Get the response to this chunk sending as JSON
+      JSONObject oResp = new JSONObject(sResp);
+      // Get the status
+      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      // Decypher the status
+      JSONObject oStat = oResp.getJSONObject("status");
+      // Check the status
+      switch (oStat.getString("code")) {
+        case "completed":
+          // This is okay if we have sent the last one
+          if (iChunk < oUserFile.total) {
+            int iError = 1;
+            // Bad: completed before reaching the end
+          } else {
+            // Get the content
+            oContent = oResp.getJSONObject("content");
+          }
+          break;
+        case "working": 
+          // This is okay if we haven't reached the end yet
+          if (iChunk > oUserFile.total) {
+            // Bad: we should be ready
+            sendErrorResponse("Could not complete sending dbase to /crpp: "+oStat.getString("code"));
+          } else {
+            // Put in meaningful content parameters
+            oContent.put("read", oUserFile.chunk.size());
+            oContent.put("total", oUserFile.total);
+          }
+          break;
+        case "error":
+          sendErrorResponse("Error while sending dbase to /crpp: "+oStat.getString("code"));
+          break;
+      }
+
+      // Return success
+      return true;
+    } catch (Exception ex) {
+      sendErrorResponse("sendDbaseChunk could not sent chunk to /crpp: "+ ex.getMessage());
+      return false;
+    }
+  }
+  
+  /**
    * sendDbUploadInit
    *    Send the indicated project to the /crpp server
    * 
@@ -347,6 +503,7 @@ public class DbUploadResponse extends BaseResponse {
       this.params.put("chunk", 0);
       this.params.put("total", iTotal);
       this.params.put("start", true);
+      this.params.put("action", "init");
       String sResp = getCrppPostResponse("dbupload", "", this.params);
 
       // Check the result

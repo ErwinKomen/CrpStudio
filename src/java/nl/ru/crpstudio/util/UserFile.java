@@ -123,15 +123,51 @@ public class UserFile {
   }
   
   /**
+   * AllReady -- Check if all chunks have been sent
+   * 
+   * @return 
+   */
+  public boolean AllReady() {
+    int iReady =0;  // Number of chunks ready
+    try {
+      for (FileChunk oChunk : this.chunk) {
+        if (oChunk.sent) iReady += 1;
+      }
+      // Compare with requirements
+      return (iReady >= this.total);
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/AllReady: ", ex);
+      return false;
+    }   
+  }
+  
+  /**
+   * AllReady -- Check if all chunks have been sent
+   * 
+   * @return 
+   */
+  public int getSent() {
+    int iReady =0;  // Number of chunks ready
+    try {
+      for (FileChunk oChunk : this.chunk) {
+        if (oChunk.sent) iReady += 1;
+      }
+      // Compare with requirements
+      return iReady;
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/getSent: ", ex);
+      return -1;
+    }   
+  }
+  
+  /**
    * SetSent -- Indicate that the chunk numbered @iChunk has been sent
    * 
    * @param iChunk 
    */
   public synchronized void SetSent(int iChunk) {
     try {
-      // Get the chunk with the correct number
-      for (int i=0;i<this.chunk.size(); i++) {
-        FileChunk oChunk = this.chunk.get(i);
+      for (FileChunk oChunk : this.chunk) {
         if (oChunk.number == iChunk) {
           oChunk.sent = true;
           return;
