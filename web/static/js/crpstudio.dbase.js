@@ -14,6 +14,7 @@ var crpstudio = (function ($, crpstudio) {
         bIsSelecting =  false,  // Flag to indicate that selection changes take place
         currentDbs= -1,         // The id of the currently being executed database
         interval =  200,        // Number of milliseconds
+        loc_uploadSize = 512 * 1024, // Size of one chunk for uploading
         sDbUplStatus = "",      // Database upload status request
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
@@ -300,12 +301,12 @@ var crpstudio = (function ($, crpstudio) {
         // Get the name of the file
         var oFile = el.files[0];
         // Determine in how many parts we need to slice it
-        var iStep = 1024 * 1024;  // 1 MB chunk size
-        var iTotal = oFile.size;  // Size of the file
-        var iNumChunks = Math.max(Math.ceil(iTotal / iStep), 1);
+        var iStep = loc_uploadSize;  // Size is defined above
+        var iSize = oFile.size;  // Size of the file
+        var iNumChunks = Math.max(Math.ceil(iSize / iStep), 1);
         // Put this information in a local object
-        loc_uploadInfo = {"file": oFile, "step": iStep, "total": iTotal, 
-          "chunks": iNumChunks, "itemtype": sItemType};
+        loc_uploadInfo = {"file": oFile, "step": iStep, "size": iSize, 
+          "total": iNumChunks, "itemtype": sItemType};
         // Keep track of progress
         $("#dbase_expl_upload").removeClass("hidden");
         $("#dbase_expl_upload_status").html("Uploading result dbase is starting up...");
@@ -346,8 +347,8 @@ var crpstudio = (function ($, crpstudio) {
               // Retrieve the information from the local object
               var oFile = loc_uploadInfo.file;
               var iStep = loc_uploadInfo.step;
-              var iTotal = loc_uploadInfo.total;
-              var iNumChunks = loc_uploadInfo.chunks;
+              var iSize= loc_uploadInfo.size;
+              var iNumChunks = loc_uploadInfo.total;
               var sItemType = loc_uploadInfo.itemtype;
 
               // Make sure download info is hidden
@@ -376,6 +377,25 @@ var crpstudio = (function ($, crpstudio) {
               $("#dbase_expl_upload_status").html("Sending the first parts...");
               // Set the action to 'send'
               oArgs.action = "send";
+              // Prepare sending the first chunk
+              oArgs.chunk = 1;
+              oArgs.total = iNumChunks;
+              params = JSON.stringify(oArgs);
+              var fChunk = oFile.slice(0, iStep);
+              // Add information to our local variable
+              loc_uploadInfo.start = 0;
+              loc_uploadInfo.end = iStep;
+              loc_uploadInfo.chunks = 1;
+              loc_uploadInfo.file = oFile;
+              loc_uploadInfo.url = sUrl;
+              // Upload this chunk
+              crpstudio.dbase.uploadSlice(params, sUrl, fChunk);
+              
+              // Once /crpstudio/dbupload, action='send' is finished, 
+              //   the function crpstudio.dbase.uploadComplete() will be called
+              // That function should initiate a new file-slice-send action
+              
+              /*
               // Loop through the file-slices
               for (var i=0;i<iNumChunks;i++) {
                 // Check if action has become 'stop'
@@ -389,7 +409,7 @@ var crpstudio = (function ($, crpstudio) {
                 params = JSON.stringify(oArgs);
                 // Upload this chunk
                 crpstudio.dbase.uploadSlice(params, sUrl, fChunk);
-              }
+              } */
               // Okay, we're ready here
               break;     
             default:
@@ -561,6 +581,21 @@ var crpstudio = (function ($, crpstudio) {
               // Show the progress
               $("#dbase_expl_upload_status").html(
                       "Sent: "+ iPtcStarted.toFixed(1)+ "% Uploaded "+iPtcReceived.toFixed(1)+"%");
+              // Prepare next slice 
+              loc_uploadInfo.start = loc_uploadInfo.start + loc_uploadInfo.step;
+              loc_uploadInfo.end = loc_uploadInfo.end + loc_uploadInfo.step;
+              loc_uploadInfo.chunks = loc_uploadInfo.chunks + 1;
+              var oFile = loc_uploadInfo.file;
+              var sUrl = loc_uploadInfo.url;
+              // Start sending the next slice
+              var oArgs = loc_uploadArgs;
+              oArgs.action = "send";
+              oArgs.chunk = loc_uploadInfo.chunks;
+              var params = JSON.stringify(oArgs);
+              var fChunk = oFile.slice(loc_uploadInfo.start, loc_uploadInfo.end);
+              // Upload this chunk
+              crpstudio.dbase.uploadSlice(params, sUrl, fChunk);
+              
             break;
           case "error":
             // Show the error
