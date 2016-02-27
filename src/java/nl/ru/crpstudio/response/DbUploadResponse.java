@@ -25,7 +25,6 @@ public class DbUploadResponse extends BaseResponse {
 	protected void completeRequest() {
     JSONObject oContent = new JSONObject();
     Part oPart = null;
-    ByRef<String> sStatus = new ByRef("");
 
     try {
       // Expecting the following parameters:
@@ -37,10 +36,6 @@ public class DbUploadResponse extends BaseResponse {
       //    chunk     - number of this chunk (starting with 1)
       //    total     - total number of chunks to be expected
       //    action    - one of: {'init', 'send', 'status'}
-      if (this.isMultiPart(request)) {
-        // Get the part that has the file to upload
-        oPart = request.getPart("fileToUpload");
-      }
       // Collect the JSON from our POST caller
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("userid"))    { sendErrorResponse("DbUploadResponse: missing @userid"); return;}
@@ -72,6 +67,9 @@ public class DbUploadResponse extends BaseResponse {
       // Get a handle to the place where this file needs to be stored
       UserFile oUserFile = getUserFile(sUserId, sFileName, iTotal, this.getServlet().getErrHandle());
       
+      // Make sure content has essential total
+      oContent.put("total", iTotal);
+      
       // Action depends on [action] parameter
       switch (sAction) {
         case "init":
@@ -85,49 +83,72 @@ public class DbUploadResponse extends BaseResponse {
           sendStandardResponse("initialized", "dbupload is ready to receive a file", oContent);
           // Leave this function nicely
           return;
+        case "stop":  // User pressed a button indicating that we need to stop
+          // Make sure WE stop
+          oUserFile.Stop();
+          // Send a STOP signal to /crpp
+          oContent = this.sendDbUploadStop(sUserId, sFileName, iTotal);
+          // Tell that we have indeed stopped
+          sendStandardResponse("stopping", "dbupload is trying to stop", oContent);
+          break;
         case "send":
+          // Double check for interrupt
+          if (oUserFile.interrupt) {sendStandardResponse("stopping", "dbupload is trying to stop", oContent); return;}
+          // Only now read the file to be uploaded
+          if (this.isMultiPart(request)) {
+            // Get the part that has the file to upload
+            oPart = request.getPart("fileToUpload");
+          }
           // Compress the chunk and put it into place (in my LOCAL STORE)
           if (!oUserFile.CompressChunk(oPart, iChunk, iTotal)) {
             // Send an error
             sendErrorResponse("Could not compress chunk ["+ iChunk + "/"+ iTotal+"] to /crpp"); return;
           }
-          // Send off this chunk -- don't wait for an answer
-          if (!this.sendDbaseChunk(oUserFile, iChunk, oContent)) {
-            // Send an error
-            sendErrorResponse("Could not send chunk ["+ iChunk + "/"+ iTotal+"] to /crpp"); return;
-          }
-          // Indicate that this chunk has been sent
-          oUserFile.SetSent(iChunk);
+          // Indicate we have this
+          oUserFile.SetStart(iChunk);
+          // Check for interrupt
+          if (oUserFile.interrupt) {sendStandardResponse("stopping", "dbupload is trying to stop", oContent);return;}
           // ============== DEBUGGING ==========
-          logger.debug("Sent: "+oUserFile.getSent() + "/" + oUserFile.total);
+          logger.debug("Started: "+oUserFile.getStarted() + "/" + oUserFile.total);
           // ===================================
-          // Check whether everything has been sent now
-          if (!oUserFile.AllReady()) {
-            // Send the feedback from /crpp to the caller
+          // Check whether everything has been started up
+          if (oUserFile.getStarted() >= oUserFile.total) {
+            // Start sending to server one by one
+            for (int i=0;i<oUserFile.total;i++) {
+              // Send one chunk
+              iChunk = i+1;
+              if (!this.sendDbaseChunk(oUserFile, iChunk, oContent)) {
+                // Send an error
+                sendErrorResponse("Could not send chunk ["+ iChunk + "/"+ iTotal+"] to /crpp"); return;
+              }
+              // Check for interrupt
+              if (oUserFile.interrupt) {sendStandardResponse("stopping", "dbupload is trying to stop", oContent); return;}
+              // Indicate that this chunk has been sent
+              oUserFile.SetSent(iChunk);
+            }
+          } else {
+            // Not ready to start sending stuff from here to /crpp yet...
+            oContent.put("read", oUserFile.getStarted()); // Read into /crpstudio
+            oContent.put("sent", oUserFile.getSent());    // 
             sendStandardResponse("working", "dbupload JS to /crpstudio", oContent);
-            // Leave nicely
+            // Then leave!
             return;
           }
           // Getting here means: all has been sent...
           break;
         case "status":
-          // Request a status update from /crpp
-          oContent = this.getDbUploadStatus(oUserFile, sStatus);
-          // Action depends on the status
-          switch(sStatus.argValue) {
-            case "working":
-              // Send this status back to JS
-              sendStandardResponse("status", "dbupload status from /crpp", oContent);
-              // Leave nicely
-              return;
-            case "completed":
-              break;
-            case "error":
-              // Send this status back to JS
-              sendStandardResponse("error", "dbupload error", oContent);
-              // Leave nicely
-              return;
-          }
+          // Check for interrupt
+          if (oUserFile.interrupt) {sendStandardResponse("stopping", "dbupload is trying to stop", oContent); return;}
+          // Get the status
+          int iRead = oUserFile.getStarted();
+          int iSent = oUserFile.getSent();
+          oContent.put("read", iRead);
+          oContent.put("sent", iSent);
+          oContent.put("total", oUserFile.total);
+          String sStatus = (iRead < iTotal || iSent < iTotal) ? "working": "completed";
+          // Send this status back to JS
+          sendStandardResponse(sStatus, "dbupload status from /crpp", oContent);
+          return;
       }
       
       
@@ -176,117 +197,7 @@ public class DbUploadResponse extends BaseResponse {
     }
 	}
   
-  /**
-   * sendDbaseToServer
-   *    Send the indicated database to the /crpp server
-   * 
-   * @param sUserId   - User id associated with this dbase
-   * @param sDbName  - Name of the dbase
-   * @param sDbText  - Text of the dbase
-   * @return          - JSONObject with the "content" section of the /crpp response
-   */
-  /*
-  private JSONObject sendDbaseToServer(String sUserId, String sDbName, String sDbText) {
-    try {
-      // Send the dbase to /crpp using the correct /dbset parameters
-      this.params.clear();
-      this.params.put("userid", sUserId);
-      this.params.put("name", sDbName);
-      this.params.put("db", sDbText);
-      this.params.put("overwrite", true);
-      String sResp = getCrppPostResponse("dbset", "", this.params);
-
-      // Check the result
-      if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /dbset");
-      // Convert the response to JSON
-      JSONObject oResp = new JSONObject(sResp);
-      // Get the status
-      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
-      // Decypher the status
-      JSONObject oStat = oResp.getJSONObject("status");
-      if (!oStat.getString("code").equals("completed"))
-        sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
-      // Return the content section
-      return oResp.getJSONObject("content");
-    } catch (Exception ex) {
-      sendErrorResponse("sendDbaseToServer could not sent project to server: "+ ex.getMessage());
-      return null;
-    }
-  }
-  private JSONObject sendDbaseToServer(String sUserId, String sDbName, UserFile oUserFile) {
-    JSONObject oContent = null;
-    
-    try {
-      // Send the dbase to /crpp using the correct /dbset parameters
-      this.params.clear();
-      this.params.put("userid", sUserId);
-      this.params.put("name", sDbName);
-      this.params.put("overwrite", true);
-      this.params.put("total", oUserFile.total);
-      
-      // Need to have an array of files
-      File[] arFile = new File[1];
-      String sTmpFile = "/etc/project/"+sUserId+"/tmp.file";
-      // Walk through the whole list that needs uploading
-      for (int i=0;i< oUserFile.chunk.size();i++) {
-        // Get the text of this chunk
-        sItemText = oUserFile.getChunk(i+1);
-        // Convert to Base64
-        sItemText = compressSafe(sItemText);
-        // Send this chunk
-        this.params.put("dbchunk", sItemText);
-        this.params.put("chunk", i+1);
-        
-        // NEW: Try to upload it as a file
-        FileUtil.writeFile(sTmpFile, sItemText, "UTF-8");
-        arFile[0] = new File(sTmpFile);
-        String sResp = getCrppPostFileResponse("dbupload", "", this.params, arFile);
-        
-        // OLD: String sResp = getCrppPostResponse("dbupload", "", this.params);
-        
-        
-        // Make sure the response is positive
-        if (sResp.isEmpty() || !sResp.startsWith("{")) {
-          sendErrorResponse("Server /crpp gave no valid response on /dbupload");
-          return null;
-        }
-        // Get the response to this chunk sending as JSON
-        JSONObject oResp = new JSONObject(sResp);
-        // Get the status
-        if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
-        // Decypher the status
-        JSONObject oStat = oResp.getJSONObject("status");
-        // Check the status
-        switch (oStat.getString("code")) {
-          case "completed":
-            // This is okay if we have sent the last one
-            if (i+1 < oUserFile.total) {
-              int iError = 1;
-              // Bad: completed before reaching the end
-            } else {
-              // Get the content
-              oContent = oResp.getJSONObject("content");
-            }
-            break;
-          case "working": 
-            // This is okay if we haven't reached the end yet
-            if (i+1 > oUserFile.total) {
-              // Bad: we should be ready
-              sendErrorResponse("Could not complete sending dbase to /crpp: "+oStat.getString("code"));
-            } 
-            break;
-          case "error":
-            sendErrorResponse("Error while sending dbase to /crpp: "+oStat.getString("code"));
-            break;
-        }
-      }
-      // Return the content section
-      return oContent;
-    } catch (Exception ex) {
-      sendErrorResponse("sendDbaseToServer could not sent dbase to /crpp: "+ ex.getMessage());
-      return null;
-    }
-  }  */
+ 
   
   /**
    * uploadDbaseChunk -- upload one chunk to the /crpp server
@@ -412,7 +323,8 @@ public class DbUploadResponse extends BaseResponse {
       return null;
     }
   }
-    /**
+  
+  /**
    * sendDbaseChunk -- send one chunk to the /crpp server
    * 
    * @param oUserFile
@@ -445,7 +357,7 @@ public class DbUploadResponse extends BaseResponse {
       // Get the response to this chunk sending as JSON
       JSONObject oResp = new JSONObject(sResp);
       // Get the status
-      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      if (!oResp.has("status")) {sendErrorResponse("Server /crpp gave no [status] back"); return false;}
       // Decypher the status
       JSONObject oStat = oResp.getJSONObject("status");
       // Check the status
@@ -524,7 +436,46 @@ public class DbUploadResponse extends BaseResponse {
     }
   }
   
+  /**
+   * sendDbUploadStop
+   *    Send a signal to the /crpp server to discontinue and clear the current upload
+   * 
+   * @param sUserId   - User id associated with this CRP
+   * @param sDbName   - Name of the result database to be uploaded
+   * @param iTotal    - Total number of chunks to be sent
+   * @return          - JSONObject with the "content" section of the /crpp response
+   */
+  private JSONObject sendDbUploadStop(String sUserId, String sDbName, int iTotal) {
+    try {
+      // Send the CRP to /crpp using the correct /crpset parameters
+      this.params.clear();
+      this.params.put("userid", sUserId);
+      this.params.put("name", sDbName);
+      this.params.put("overwrite", true);
+      this.params.put("chunk", 0);
+      this.params.put("total", iTotal);
+      this.params.put("start", true);
+      this.params.put("action", "stop");
+      String sResp = getCrppPostResponse("dbupload", "", this.params);
 
+      // Check the result
+      if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /dbupload");
+      // Convert the response to JSON
+      JSONObject oResp = new JSONObject(sResp);
+      // Get the status
+      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      // Decypher the status
+      JSONObject oStat = oResp.getJSONObject("status");
+      if (!oStat.getString("code").equals("initialized"))
+        sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
+      // Return the content section
+      return oResp.getJSONObject("content");
+    } catch (Exception ex) {
+      sendErrorResponse("sendDbUploadInit could not stop dbupload to server: "+ ex.getMessage());
+      return null;
+    }
+  }
+  
 	@Override
 	protected void logRequest() {
 		this.servlet.log("DbUploadResponse");

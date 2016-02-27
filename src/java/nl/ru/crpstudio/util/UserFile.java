@@ -1,9 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (c) 2015 CLARIN-NL, (c) 2016 Radboud University Nijmegen
+ * All rights reserved.
+ *
+ * This software has been developed at the "Meertens Instituut"
+ *   for the CLARIN project "CorpusStudio-WebApplication".
+ *   Additions have been made in 2016 while working at the Radboud University Nijmegen
+ * The application is based on the "CorpusStudio" program written by Erwin R. Komen
+ *   while working for the Radboud University Nijmegen.
+ * The program and the source can be freely used and re-distributed.
+ * 
+ * @author Erwin R. Komen
  */
-
 package nl.ru.crpstudio.util;
 
 import java.io.BufferedReader;
@@ -16,7 +23,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.Part;
-import nl.ru.util.ByRef;
 import nl.ru.util.FileUtil;
 import nl.ru.util.StringUtil;
 
@@ -33,7 +39,8 @@ public class UserFile {
   // ================ Public variables ===============
   public String userId;     // ID for the user of this file
   public String name;       // Name of this file
-  public int total;        // Total number of expected chunks
+  public int total;         // Total number of expected chunks
+  public boolean interrupt; // Flag indicating that we need to stop
   public List<FileChunk> chunk = new ArrayList<>();
   // ================ Class initialization ============
   public UserFile(String sUser, String sName, int iTotal, ErrHandle oErr) {
@@ -41,7 +48,11 @@ public class UserFile {
     this.name = sName;
     this.errHandle = oErr;
     this.total = iTotal;
+    this.interrupt = false;
   }
+  
+  public synchronized void Stop() { this.interrupt = true; }
+  public synchronized void Init() { this.interrupt = false; this.chunk.clear(); }
   
   // ================ Public methods ==================
   /**
@@ -77,6 +88,7 @@ public class UserFile {
       return false;
     }    
   }
+  
   /**
    * CompressChunk -- Add one chunk to the list in a compressed form
    * 
@@ -123,6 +135,43 @@ public class UserFile {
   }
   
   /**
+   * getStarted -- Get the total amount of chunks that have been 'started'
+   * 
+   * @return 
+   */
+  public int getStarted() {
+    int iStarted =0;  // Number of chunks ready
+    try {
+      for (FileChunk oChunk : this.chunk) {
+        if (oChunk.start) iStarted += 1;
+      }
+      // Compare with requirements
+      return iStarted;
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/getStarted: ", ex);
+      return -1;
+    }   
+  }
+  
+  /**
+   * SetStart -- Indicate that the chunk numbered @iChunk has been received by /crpstudio
+   * 
+   * @param iChunk 
+   */
+  public synchronized void SetStart(int iChunk) {
+    try {
+      for (FileChunk oChunk : this.chunk) {
+        if (oChunk.number == iChunk) {
+          oChunk.start = true;
+          return;
+        }
+      }
+    } catch (Exception ex) {
+      errHandle.DoError("UserFile/SetStart: ", ex);
+    }   
+  }
+    
+  /**
    * AllReady -- Check if all chunks have been sent
    * 
    * @return 
@@ -142,7 +191,7 @@ public class UserFile {
   }
   
   /**
-   * AllReady -- Check if all chunks have been sent
+   * getSent -- Check if all chunks have been sent
    * 
    * @return 
    */
@@ -205,6 +254,7 @@ public class UserFile {
    */
   public synchronized boolean Clear() {
     try {
+      this.interrupt = false;
       for (int i=0;i< chunk.size();i++) {
         File fChunk = new File(chunk.get(i).fileChunk);
         if (!fChunk.delete()) return false;
@@ -322,6 +372,7 @@ public class UserFile {
       return false;
     }    
   }  
+  
   /**
    * getFileUploadCompressed -- Upload a file into memory and compress it
    * 
@@ -366,8 +417,10 @@ class FileChunk {
   public String fileName;   // Name of the file this belongs to
   public String fileChunk;  // Name of the file where this chunk is stored
   public String compress;   // Content of the file in a compressed form
-  public boolean sent;      // Indicates chunk has been sent
+  public boolean start;     // Indicates chunk has been received by /crpstudio
+  public boolean sent;      // Indicates chunk has been sent and received by /crpp
   public FileChunk() {
     this.sent = false;
+    this.start = false;
   }
 }
