@@ -19,6 +19,7 @@ var crpstudio = (function ($, crpstudio) {
         loc_recentDbase = "",   // Name of recent dbase
         loc_uploadText = "",    // Text of file that is being uploaded
         loc_uploadInfo = null,  // DbUpload information
+        loc_xhrUpload = null,   // Upload XmlhttpRequest object
         loc_uploadArgs = null,  // Upload arguments
         loc_uploadStop = false, // Signal stoppinf of uploading
         loc_ctlCurrent= null;   // Current control
@@ -470,6 +471,8 @@ var crpstudio = (function ($, crpstudio) {
         if (loc_uploadStop) return;
         // Signal stopping is needed
         loc_uploadStop = true;
+        // Abort the HttpRequest
+        loc_xhrUpload.abort();
         // Get the correct parameters
         var oArgs = loc_uploadArgs;
         oArgs.action = "stop";
@@ -490,6 +493,14 @@ var crpstudio = (function ($, crpstudio) {
         var fd = new FormData();
         fd.append("args", sParams);
         fd.append("fileToUpload", fBlogOrFile);
+        loc_xhrUpload = new XMLHttpRequest();
+        loc_xhrUpload.addEventListener("load", crpstudio.dbase.uploadComplete, false);
+        loc_xhrUpload.addEventListener("error", crpstudio.dbase.uploadFailed, false);
+        loc_xhrUpload.addEventListener("abort", crpstudio.dbase.uploadCanceled, false);
+        loc_xhrUpload.open('POST', sUrl);
+        loc_xhrUpload.send(fd);        
+        
+        /*
         var xhr = new XMLHttpRequest();
         // xhr.upload.addEventListener("progress", crpstudio.dbase.uploadProgress, false);
         xhr.addEventListener("load", crpstudio.dbase.uploadComplete, false);
@@ -497,6 +508,7 @@ var crpstudio = (function ($, crpstudio) {
         xhr.addEventListener("abort", crpstudio.dbase.uploadCanceled, false);
         xhr.open('POST', sUrl);
         xhr.send(fd);        
+        */
       },
       
       uploadProgress : function(evt) {
