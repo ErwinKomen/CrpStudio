@@ -309,6 +309,7 @@ var crpstudio = (function ($, crpstudio) {
           "total": iNumChunks, "itemtype": sItemType};
         // Keep track of progress
         $("#dbase_expl_upload").removeClass("hidden");
+        $("#dbase_expl_description").addClass("hidden");
         $("#dbase_expl_upload_status").html("Uploading result dbase is starting up...");
         $("#dbase_expl_upload_status").removeClass("hidden");
         // Adapt the meters
@@ -452,6 +453,7 @@ var crpstudio = (function ($, crpstudio) {
               private_methods.uploadMeter(1,0);
               // Hide the progress stuff
               $("#dbase_expl_upload").addClass("hidden");
+              $("#dbase_expl_description").removeClass("hidden");
               $("#dbase_expl_upload_status").addClass("hidden");            
               break;
             case "working":
@@ -558,6 +560,7 @@ var crpstudio = (function ($, crpstudio) {
             private_methods.uploadMeter(1,0);
             // Hide the progress stuff
             $("#dbase_expl_upload").addClass("hidden");
+            $("#dbase_expl_description").removeClass("hidden");
             $("#dbase_expl_upload_status").addClass("hidden");            
             break;
           case "completed":
@@ -567,6 +570,7 @@ var crpstudio = (function ($, crpstudio) {
             private_methods.uploadMeter(1,100);
             // Hide the progress stuff
             $("#dbase_expl_upload").addClass("hidden");
+            $("#dbase_expl_description").removeClass("hidden");
             $("#dbase_expl_upload_status").addClass("hidden");            
             // Retrieve the new db list
             
