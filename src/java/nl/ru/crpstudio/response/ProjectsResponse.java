@@ -27,7 +27,7 @@ public class ProjectsResponse extends BaseResponse {
       this.getContext().put("explorespecs", getExploreSpecsList());
       // Get a specification of project-types
       this.getContext().put("prjtypelist", this.getPrjTypeList());
-      // Get a specification of query-types
+      // Get a specification of query relations
       this.getContext().put("qrytypelist", this.getQryTypeList());
       // Get access to the projects this user can choose from
       this.getContext().put("projectlist", this.getProjectInfo(this.sUserId));

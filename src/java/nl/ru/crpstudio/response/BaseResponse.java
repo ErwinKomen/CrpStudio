@@ -43,6 +43,8 @@ import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.ExploreSpecifier;
 import nl.ru.crpstudio.util.MetadataField;
 import nl.ru.crpstudio.util.MultipartUtility;
+import nl.ru.crpstudio.util.QryPositionSpecifier;
+import nl.ru.crpstudio.util.QryRelationSpecifier;
 import nl.ru.crpstudio.util.QryTypeSpecifier;
 import nl.ru.crpstudio.util.QueryServiceHandler;
 import nl.ru.crpstudio.util.TabSpecifier;
@@ -2099,6 +2101,62 @@ public abstract class BaseResponse {
   }
   
   /**
+   * getQryPositionList
+   *    Create an <option> list of possible query positions that can be chosen
+   * 
+   * @return 
+   */
+  public String getQryPositionList() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+
+    try {
+      // Add a first line
+      sb.append("<option value=\"\">(Please make a selection)</option>");
+      // Get a list of query type definitions
+      LinkedList<QryPositionSpecifier> lstQryPosition = getQryPositionSpecsList();
+      // Walk the list
+      for (int i=0;i<lstQryPosition.size();i++) {
+        // Append information on this list
+        sb.append("<option value=\""+lstQryPosition.get(i).getName()+"\">"+lstQryPosition.get(i).getTitle()+"</option>");
+      }
+
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getQryPositionList: could not complete", ex);
+      return "error (getQryPositionList)";
+    }
+  }
+  
+  /**
+   * getQryRelationList
+   *    Create an <option> list of possible query relations that can be chosen
+   * 
+   * @return 
+   */
+  public String getQryRelationList() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+
+    try {
+      // Add a first line
+      sb.append("<option value=\"\">(Please make a selection)</option>");
+      // Get a list of query type definitions
+      LinkedList<QryRelationSpecifier> lstQryRelation = getQryRelationSpecsList();
+      // Walk the list
+      for (int i=0;i<lstQryRelation.size();i++) {
+        // Append information on this list
+        sb.append("<option value=\""+lstQryRelation.get(i).getName()+"\">"+lstQryRelation.get(i).getTitle()+"</option>");
+      }
+
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getQryRelationList: could not complete", ex);
+      return "error (getQryRelationList)";
+    }
+  }
+  
+  /**
    * getQueryList
    *    Return an <option> list of selectable query elements
    * 
@@ -2431,7 +2489,7 @@ public abstract class BaseResponse {
   
   /**
    * getQryTypeSpecsList
-   *    Make a list of explorer side-nav-specification for the "projects" sub pages
+   *    Make a list of query type specifications
    * 
    * @return 
    */
@@ -2448,38 +2506,42 @@ public abstract class BaseResponse {
   }
   
   /**
-   * getQryTypeSpecsList
-   *    Make a list of explorer side-nav-specification for the "projects" sub pages
+   * getQryPositionSpecsList
+   *    Make a list of query position specifications
    * 
    * @return 
    */
-  public LinkedList<TagsetSpecifier> getTagsetSpecsList() {
-    LinkedList<TagsetSpecifier> tabs = new LinkedList<>();
-    String[] arTitle = labels.getString("tagset.title").split(",");
-    // Look for all "tagset.def" keys...
-    Enumeration<String> enumeration = labels.getKeys();
-    while (enumeration.hasMoreElements()) {    
-      String sKeyName = enumeration.nextElement();
-      // Is this a tagset.def. key?
-      if (sKeyName.startsWith("tagset.def.")) {
-        // Get the name of the tagset
-        String arPart[] = sKeyName.split("[.]");
-        String sTagsetName = arPart[2].trim();
-        // Get the definition for this tagset
-        String[] arValue = labels.getString(sKeyName).split(",");
-        // Validate length of array: if the length does *not* match, simply skip 
-        if (arValue.length == arTitle.length) {
-          // Add the combination of tagset/name/value 
-          for (int i=0;i<arTitle.length;i++) {
-            TagsetSpecifier tabThis = new TagsetSpecifier(sTagsetName, arTitle[i].trim(), arValue[i].trim());
-            tabs.add(tabThis);
-          }
-        }
-      }
+  public LinkedList<QryPositionSpecifier> getQryPositionSpecsList() {
+    LinkedList<QryPositionSpecifier> tabs = new LinkedList<>();
+    String[] arTitle = labels.getString("query.position.title").split(",");
+    String[] arName = labels.getString("query.position.name").split(",");
+    String[] arDef = labels.getString("query.position.def").split(",");
+    for (int i=0;i<arName.length;i++) {
+      QryPositionSpecifier tabThis = new QryPositionSpecifier(arTitle[i].trim(), arName[i].trim(), arDef[i].trim());
+      tabs.add(tabThis);
     }
-        // Return the result
+    // Return the result
     return(tabs);
   }
+  
+    /**
+   * getQryRelationSpecsList
+   *    Make a list of query relation specifications
+   * 
+   * @return 
+   */
+  public LinkedList<QryRelationSpecifier> getQryRelationSpecsList() {
+    LinkedList<QryRelationSpecifier> tabs = new LinkedList<>();
+    String[] arTitle = labels.getString("query.relation.title").split(",");
+    String[] arName = labels.getString("query.relation.name").split(",");
+    for (int i=0;i<arName.length;i++) {
+      QryRelationSpecifier tabThis = new QryRelationSpecifier(arTitle[i].trim(), arName[i].trim());
+      tabs.add(tabThis);
+    }
+    // Return the result
+    return(tabs);
+  }
+  
   
 	/**
 	 * Complete the request - automatically called by processRequest()

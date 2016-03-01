@@ -47,14 +47,22 @@ public class LoadResponse extends BaseResponse {
       switch(loadType) {
         case "init":  // No project is specified, we just want to have the list of projects
           oContent.put("crplist", this.makeListOfCrps(sUserId, null));
+          /*
           // Get a list of tagsets
           oContent.put("tagsetlist", this.getTagsetSpecsList());
+                  */
           // Get the list in the "metavar" section of crp-info.json
           oContent.put("metavarstart", servlet.getMetavarStart());
           // Get a list of metadata information
           oContent.put("metalist", this.getCorpusMetaInfo());
+          // Get a list of the constituent definitions
+          oContent.put("constituents", servlet.getConstituents());
           // Get the groupings defined by the user
           oContent.put("groupinglist", this.getGroupings(sUserId));
+          // Get a specification of query-types
+          oContent.put("qryrelationlist", this.getQryRelationList());
+          // Get a specification of query positions
+          oContent.put("qrypositionlist", this.getQryPositionList());
           // Get the table with corpora information -- see crp-info.json
           if (!this.makeCorpusParts()) { sendErrorResponse("LoadResponse: could not makeCorpusParts()");  return;}
           oContent.put("corpuslist", servlet.getCorpusParts());

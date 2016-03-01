@@ -2218,10 +2218,15 @@ var crpstudio = (function ($, crpstudio) {
           switch (sStatusCode) {
             case "completed":
               crpstudio.prj_crplist = oContent.crplist;   // See crpstudio.js
+              /*
               crpstudio.tagset = oContent.tagsetlist;     // See crpstudio.xquery.js
+              */
               crpstudio.metaInfo = oContent.metalist;     // See crpstudio.js
               crpstudio.metaStart = oContent.metavarstart;// See crpstudio.js
+              crpstudio.constituents = oContent.constituents;
               crpstudio.corpusInfo = oContent.corpuslist; // See crpstudio.js
+              crpstudio.qry_relation = oContent.qryrelationlist;
+              crpstudio.qry_position = oContent.qrypositionlist;
               // Show the recent ones
               crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
               // $("#project_list li .crp-recent").removeClass("hidden");
@@ -3770,7 +3775,7 @@ var crpstudio = (function ($, crpstudio) {
        * 22/jun/2015  ERK Created
        */
       setSizes : function() {
-        // Calculate sh
+        // Calculate shin
         var sh = ($(window).innerHeight() - 135) / 2 - 130;
         // Set the minimal height
         var minHeight = 30;

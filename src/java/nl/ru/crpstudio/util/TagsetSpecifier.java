@@ -20,14 +20,17 @@ public class TagsetSpecifier {
   private String loc_sTitle = "";   // Title (e.g: "Queries")
   private String loc_sValue = "";   // Full name (e.g: "query")
   private String loc_sTagset = "";  // Name of this tagset
+  private String loc_sDesc = "";    // Description
   // Initialisation of the class
-  public TagsetSpecifier(String sTagset, String sTagName, String sTagValue) {
+  public TagsetSpecifier(String sTagset, String sTagName, String sTagValue, String sTagDescription) {
     this.loc_sTagset = sTagset;
     this.loc_sTitle = sTagName;
     this.loc_sValue = sTagValue;
+    this.loc_sDesc = sTagDescription;
   }
   // Getters
   public String getTagset() { return this.loc_sTagset; }
   public String getTitle()  { return this.loc_sTitle; }
   public String getValue()  { return this.loc_sValue; }
+  public String getDescr()  { return this.loc_sDesc; }
 }

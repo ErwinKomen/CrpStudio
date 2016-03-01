@@ -77,6 +77,7 @@ public class CrpStudio extends HttpServlet {
   private JSONArray objCorpora = null;
   private JSONArray objCorpusParts = null;
   private JSONArray objMetavarStart = null;   // Initial list
+  private JSONArray objConstituents = null;   // List of [constituents] from crp-info.json
   private JSONArray objMetavar = null;        // List containing id's
 	private String contextRoot;
   private TemplateManager templateMan;
@@ -114,6 +115,7 @@ public class CrpStudio extends HttpServlet {
   public JSONArray getMetavars() { return objMetavar;}
   public void setMetavars(JSONArray aTable) {objMetavar = aTable;}
   public JSONArray getMetavarStart() { return objMetavarStart;}
+  public JSONArray getConstituents() { return objConstituents;}
   public String getRequestMethod() { return sRequestMethod;}
   public CrpContainer getCrpContainer() { return crpContainer; }
   public JSONArray getUpdateContent() { return arUpdateContent; }
@@ -329,6 +331,7 @@ public class CrpStudio extends HttpServlet {
         JSONObject oCorpora = new JSONObject(sCorpora);
         objCorpora = oCorpora.getJSONArray("corpora");
         objMetavarStart = oCorpora.getJSONArray("metavar");
+        objConstituents = oCorpora.getJSONArray("constituents");
       }
       // Return to the caller negatively
       return false;

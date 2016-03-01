@@ -8,7 +8,12 @@
 /*jslint browser: true, indent: 2 */
 var crpstudio = (function ($, crpstudio) {
   "use strict";
-  crpstudio.tagset = null;
+  // ========== Variables that are global to 'crpstudio' ===================================
+  //            (also see crpstudio.js)
+  crpstudio.tagset = null,        // Array with pre-specified tags like 'subject', 'object' and so on
+  crpstudio.qry_relation = null,  // Array with pre-specified relations: preceding-sibling, child, parent...
+  crpstudio.qry_position = null;  // Array with pre-specified positions: first, last, any
+  
   // Define module 'xquery'
   crpstudio.xquery = (function ($, config){
     // Variables within the scope of [crpstudio.xquery]
@@ -82,29 +87,6 @@ var crpstudio = (function ($, crpstudio) {
         return sTagset;
       },
 
-      /**
-       * getTagDefOld
-       *    Get the language/part dependant tag for the indicated @sType
-       * ======= THIS FUNCTION IS OBSOLETE ============
-       * @param {type} sTagName
-       * @returns {undefined}
-       */
-      getTagDefOld : function(sTagName) {
-        // Determine the tagset
-        var sTagset = private_methods.getTagsetName();
-        // Make sure the tagset object is specified
-        if (!crpstudio.tagset) return "";
-        // Get the value for this combination of tagset/tagname
-        for (var i=0;i<crpstudio.tagset.length;i++) {
-          // Get this item
-          var oTagSpec = crpstudio.tagset[i];
-          if (oTagSpec.tagset === sTagset && oTagSpec.title === sTagName) {
-            return oTagSpec.value;
-          }
-        }
-        // No success
-        return "";
-      },
       
       /**
        * getTagDef
@@ -135,38 +117,7 @@ var crpstudio = (function ($, crpstudio) {
         }
         // No success
         return {};
-      },
-      
-     /**
-       * getVarDef
-       *    Get the type/loc/value part of variable @sVarName from the "metavar"
-       *    section of crp-info.json
-       * 
-       * @param {string} sVarName
-       * @returns {object}
-       */
-      getVarDef : function(sVarName) {
-        // Get the 'tagset' section from the "metavar" part from [crp-info.json]
-        var arVarset = crpstudio.project.getMetaList("", "", "variables");
-        // Make sure the tagset object is specified
-        if (!arVarset.length === 0) return "";
-        // Get the value for this combination of tagset/tagname
-        for (var i=0;i<crpstudio.tagset.length;i++) {
-          // Get this item
-          var oVarSpec = crpstudio.tagset[i];
-          if (oVarSpec.title === sVarName) {
-            // Create a tag-definition object
-            var oVarDef = {};
-            oVarDef.type  = oVarSpec.type;
-            oVarDef.loc   = oVarSpec.loc;
-            oVarDef.value = oVarSpec.value;
-            return oVarDef;
-          }
-        }
-        // No success
-        return {};
       }
-      
     };
     
     // Define what we return publically
@@ -418,6 +369,17 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  where (");
               arCode.push("        exists($sbj)");
               arCode.push("    and exists($obj)");
+              arCode.push("  )");
+              break;
+            case "clsSubVfinFirst":
+              arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
+              arCode.push(" ");
+              arCode.push("  (: Retrieve first constituent - if it is a finite verb :)");
+              arCode.push("  let $subVfin := $search/child::"+oDescr.const+"[1][ru:matches(@"+oDescr.pos+",'"+oTag.vbFin.class+"')]");
+              arCode.push(" ");
+              arCode.push("  (: the vFin first constituent must exist :)");
+              arCode.push("  where (");
+              arCode.push("     exists($subVfin)");
               arCode.push("  )");
               break;
             case "npAll":
