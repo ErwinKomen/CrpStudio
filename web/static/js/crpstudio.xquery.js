@@ -18,6 +18,9 @@ var crpstudio = (function ($, crpstudio) {
   crpstudio.xquery = (function ($, config){
     // Variables within the scope of [crpstudio.xquery]
     var sLng = "",    // Language we are currently working with
+        arMonth =  new Array('January', 'February', 'March', 'April', 
+                             'May', 'June', 'July', 'August', 'September', 
+                             'October', 'November', 'December'),
         sPart = "";   // Part of the language (e.g: CGN, Sonar etc)
     
     // Define private methods
@@ -253,6 +256,22 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * getCurrentDate
+       *    Get the current date as a string
+       * 
+       * @returns {String}
+       */
+      getCurrentDate : function() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = arMonth[today.getMonth()]; //January is 0!
+        var yyyy = today.getFullYear();
+
+        var sBack = dd+'/'+mm+'/'+yyyy;        
+        return sBack;
+      },
+      
+      /**
        * createQuery
        *    Construct an Xquery based on the @sPrjType, @bDbase and @sType
        *    The @sType values are defined in CrpstudioBundle.properties
@@ -260,14 +279,20 @@ var crpstudio = (function ($, crpstudio) {
        *    They are passed on the JS as a reaction to /crpstudio/projects
        *      using the Java function BaseResponse::getQryTypeList()
        * 
-       * @param {type} sPrjType
-       * @param {type} bDbase
-       * @param {type} sType
+       * @param {string}  sPrjType   - Project type
+       * @param {boolean} bDbase     - database is input
+       * @param {string}  sType      - Type of overall query to produce (preset); may be "definition"
+       * @param {string}  sItemName  - Name of the query/definition
+       * @param {boolean} bMakeDbase - output into a database
        * @returns {String}
        */
-      createQuery : function(sPrjType, bDbase, sType) {
+      createQuery : function(sPrjType, bDbase, sType, sItemName, bMakeDbase) {
         // clsAny, clsMain, clsSub, clsInf,  npSbj,    npObj,  npAny,   ppAny,   vbAny,  vbFin
-        var arCode = [];
+        var arCode = [];    // Code for in the query
+        var arDef = [];     // Code for in a definitions file
+        var arWhere = [];   // Code containing the 'where' part
+        var arArgList = []; // List of arguments for definition function
+        var arCnsList = []; // Same list, but with the constituents as used in the Query code
         var sSubcat = "";
         var sMsg = "";
         var oTag = {clsAny: private_methods.getTagDef("clsAny"),
@@ -284,6 +309,20 @@ var crpstudio = (function ($, crpstudio) {
         var oDescr = private_methods.getDescr(sPrjType);
         // Validate
         if (oDescr === null || oDescr.length === 0) return "(: Unknown project type :)";
+        // Prepare creating a definitions file
+        var sDefName = "";
+        if (sType === "definition") 
+          sDefName = sItemName;
+        else
+          sDefName = sItemName + "_def";
+        // Add preamble to definition
+        arDef.push("(: ----------------------------------------------------------------------------");
+        arDef.push("   Name:  " + sDefName);
+        arDef.push("   Goal:  Definition supporting main query");
+        arDef.push("   History:");
+        // TODO: add the current date after the user
+        arDef.push("   " + crpstudio.currentUser + "\t" + crpstudio.xquery.getCurrentDate() + "\tCreated");
+        arDef.push("   ---------------------------------------------------------------------------- :)");
         // Get the tags we need to work with
         var sTagMain = oDescr.main;
         arCode.push("<"+sTagMain+">{");
@@ -312,9 +351,11 @@ var crpstudio = (function ($, crpstudio) {
           switch(sType) {
             case "clsAll":
               arCode.push(" for $search in //"+oDescr.const);
+              if (bMakeDbase) { arArgList.push("cls"); arCnsList.push("search");}
               break;
             case "clsMain":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
+              if (bMakeDbase) { arArgList.push("clsMain"); arCnsList.push("search");}
               break;
             case "clsMainSbj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
@@ -322,10 +363,14 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  (: Retrieve possible subject :)");
               arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
               arCode.push("  ");
-              arCode.push("  (: subject must exist :)");
-              arCode.push("  where (");
-              arCode.push("    exists($sbj)");
-              arCode.push("  )");
+              arWhere.push("  (: subject must exist :)");
+              arWhere.push("  where (");
+              arWhere.push("    exists($sbj)");
+              arWhere.push("  )");
+              if (bMakeDbase) {
+                arArgList.push("clsMain"); arArgList.push("npSbj");
+                arCnsList.push("search"); arCnsList.push("sbj");
+              }
               break;
             case "clsMainSbjObj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
@@ -336,14 +381,19 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  (: Retrieve possible direct/indirect object :)");
               arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')]");
               arCode.push("  ");
-              arCode.push("  (: subject and object must exist :)");
-              arCode.push("  where (");
-              arCode.push("        exists($sbj)");
-              arCode.push("    and exists($obj)");
-              arCode.push("  )");
+              arWhere.push("  (: subject and object must exist :)");
+              arWhere.push("  where (");
+              arWhere.push("        exists($sbj)");
+              arWhere.push("    and exists($obj)");
+              arWhere.push("  )");
+              if (bMakeDbase) {
+                arArgList.push("clsMain");arArgList.push("npSbj");arArgList.push("npObj");
+                arCnsList.push("search"); arCnsList.push("sbj");arCnsList.push("obj");
+              }
               break;
             case "clsSub":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
+              if (bMakeDbase) { arArgList.push("clsSub"); arCnsList.push("search");}
               break;
             case "clsSubSbj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
@@ -351,10 +401,14 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  (: Retrieve possible subject :)");
               arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
               arCode.push("  ");
-              arCode.push("  (: subject must exist :)");
-              arCode.push("  where (");
-              arCode.push("    exists($sbj)");
-              arCode.push("  )");
+              arWhere.push("  (: subject must exist :)");
+              arWhere.push("  where (");
+              arWhere.push("    exists($sbj)");
+              arWhere.push("  )");
+              if (bMakeDbase) {
+                arArgList.push("clsSub");arArgList.push("npSbj");
+                arCnsList.push("search");arCnsList.push("sbj");
+              }
               break;
             case "clsSubSbjObj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
@@ -365,11 +419,15 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  (: Retrieve possible direct/indirect object :)");
               arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')]");
               arCode.push("  ");
-              arCode.push("  (: subject and object must exist :)");
-              arCode.push("  where (");
-              arCode.push("        exists($sbj)");
-              arCode.push("    and exists($obj)");
-              arCode.push("  )");
+              arWhere.push("  (: subject and object must exist :)");
+              arWhere.push("  where (");
+              arWhere.push("        exists($sbj)");
+              arWhere.push("    and exists($obj)");
+              arWhere.push("  )");
+              if (bMakeDbase) {
+                arArgList.push("clsSub");arArgList.push("npSbj");arArgList.push("npObj");
+                arCnsList.push("search"); arCnsList.push("sbj");arCnsList.push("obj");
+              }
               break;
             case "clsSubVfinFirst":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
@@ -377,30 +435,93 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push("  (: Retrieve first constituent - if it is a finite verb :)");
               arCode.push("  let $subVfin := $search/child::"+oDescr.const+"[1][ru:matches(@"+oDescr.pos+",'"+oTag.vbFin.class+"')]");
               arCode.push(" ");
-              arCode.push("  (: the vFin first constituent must exist :)");
-              arCode.push("  where (");
-              arCode.push("     exists($subVfin)");
-              arCode.push("  )");
+              arWhere.push("  (: the vFin first constituent must exist :)");
+              arWhere.push("  where (");
+              arWhere.push("     exists($subVfin)");
+              arWhere.push("  )");
+              if (bMakeDbase) {
+                arArgList.push("clsSub");arArgList.push("vFin");
+                arCnsList.push("search"); arCnsList.push("subVfin");
+              }
               break;
             case "npAll":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npAny.class+"')]");
+              if (bMakeDbase) { arArgList.push("npAny");arCnsList.push("search"); }
               break;
             case "ppAll":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.ppAny.class+"')]");
+              if (bMakeDbase) { arArgList.push("ppAny");arCnsList.push("search"); }
               break;
             default:
               arCode.push(" for $search in //"+oDescr.const);
               break;
           }
-          // Provide a return statement
+          // Continue with code for the database
+          if (bMakeDbase) {
+            var strArgList = "";  // List of arguments
+            var strCnsList = "";  // List of constituents
+            var strDbList = "";   // List for the concat() function
+            for (var i=0;i<arArgList.length;i++) {
+              // Argument list
+              if (strArgList !== "") strArgList = strArgList + ", ";
+              strArgList = strArgList + "$nd_" + arArgList[i] + " as node()?";
+              // List for calling features
+              if (strCnsList !== "") strCnsList = strCnsList + ", ";
+              strCnsList = strCnsList + "$" + arCnsList[i];
+            }
+            arDef.push("declare function tb:GetFt" + sItemName + "(" + strArgList + ") as xs:string?");
+            arDef.push("{");                
+            // Make code to get the text of all the arguments
+            for (var i=0;i<arArgList.length;i++) {
+              arDef.push("  (: Get the text of argument #"+(i+1)+" :)");
+              arDef.push("  let $ft_txt_"+arArgList[i]+" := ru:NodeText($nd_"+arArgList[i]+")");
+              arDef.push("");
+              // Keep track of the concat() function
+              if (strDbList !== "") strDbList += ",';', \n" + "      ";
+              strDbList += "$ft_txt_"+arArgList[i];
+            }            
+            // Make code to get the label fo all the arguments
+            for (var i=0;i<arArgList.length;i++) {
+              arDef.push("  (: Get the label of argument #"+(i+1)+" :)");
+              arDef.push("  let $ft_lbl_"+arArgList[i]+" := $nd_"+arArgList[i]+"/@"+oDescr.pos);
+              arDef.push("");
+              // Keep track of the concat() function
+              if (strDbList !== "") strDbList += ",';', \n" + "      ";
+              strDbList += "$ft_lbl_"+arArgList[i];
+            }     
+            // Finish the database function
+            arDef.push("  return concat(" + strDbList + ")");
+            arDef.push("};");
+            arDef.push("");
+          }
+          // Combine the definition function
+          var strDefText = arDef.join("\n");
+          // Create a new definition file
+          var oDef = {"Name": sDefName, "Goal": "Support query ["+sItemName+"]", 
+                      "Comment": "Supply variable definitions and functions in support of query ["+sItemName+"]",
+                      "Text": strDefText};
+                    
+          // Does this provide Dbase output?
+          if (bMakeDbase) {
+            arCode.push("  (: Calculate the features for the results database :)");
+            arCode.push("  let $dbList := tb:GetFt"+sItemName + "(" + strCnsList + ")");
+            arCode.push("  ");
+            sMsg = ", $dbList";
+          }
+          
+          // Add the 'where' part
+          arCode.push(arWhere.join("\n"));
+          
+          // Provide a return statement for the main query
           arCode.push("  ");
           arCode.push(" (: Return results :)");
-          arCode.push(" return ru:back($search"+sMsg+sSubcat+")");
+          arCode.push(" return ru:back($search"+sMsg+sSubcat+")");          
         }
         // Closing tag
         arCode.push("}</"+sTagMain+">");
         // Combine the contents of arCode and return it as one string, separated by \n
-        return (arCode.join("\n"));
+        var oBack = {"query": arCode.join("\n"), "definition": oDef};
+        return (oBack);
       }
     };
   }($, crpstudio.config));

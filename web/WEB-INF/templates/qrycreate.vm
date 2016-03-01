@@ -36,15 +36,16 @@
               </div>
             </div>
             <!-- Query BUILDER (this will be filled in mostly programmatically) -->
-            <div class="large-16 medium-16 small-16 row hidden">
+            <div id="query_new_builder" class="large-16 medium-16 small-16 row hidden">
               <!-- Specification of where to start -->
               <div class="large-16 medium-16 small-16 row">
                 <div class="large-2 medium-3 small-4 columns left">
                   <label for="right-label" class="left inline">$labels.getString("query.build.start")</label>
                 </div>
+                <!-- list of constituent types -->
                 <div class="large-10 medium-10 small-10 columns left">
-                  <select id="query_new_qrytype" class="left general_input"  placeholder="start query...">
-                    ${qrytypelist}
+                  <select id="query_new_cnstype" class="left general_input"  placeholder="start query...">
+                    ${cnstypelist}
                   </select>
                 </div>
               </div>

@@ -3592,13 +3592,24 @@ var crpstudio = (function ($, crpstudio) {
                 case "definition":
                   oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
                   var oThisCrp = crpstudio.list.getListObject("project", "CrpId", currentCrp);
-                  oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, "definition");
+                  oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, "definition", sItemName, false);
                   break;
                 case "query":
                   oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comment = sItemComment;
                   var oThisCrp = crpstudio.list.getListObject("project", "CrpId", currentCrp);
                   var sType = $("#query_new_qrytype").val();
-                  oNew.Text = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, sType);
+                  // TODO: possibly react here if [sType] equals [qryBuild]
+                  if (sType === "qryBuild") {
+                    // TODO: call some kind of function
+                    // TODO: then leave here, so that user needs to press "save" once more??
+                  }
+                  // Continue...
+                  var bDbOutput = $("#query_new_db").prop("checked");
+                  var oQuery = crpstudio.xquery.createQuery(oThisCrp.ProjectType, loc_dbaseInput, sType, sItemName, bDbOutput);
+                  oNew.Text = oQuery.query;
+                  // Create a definition file accompanying the query
+                  var oDef = oQuery.definition;
+                  var iDefId = crpstudio.list.createListItem("definition", oDef, private_methods.histAddItem);
                   break;
                 case "dbfeat":
                   oNew.Name = sItemName;
