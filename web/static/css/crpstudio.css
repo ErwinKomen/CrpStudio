@@ -61,7 +61,7 @@ h6 {
 
 #tour-icon {
   width: 30px;
-  height: 45px;
+  height: 30px;
   padding: 0; }
 
 #tour-icon > img {
@@ -131,6 +131,10 @@ h6 {
   border-radius: 3px; }
 
 /* Whitelab.navigation */
+.top-bar-section {
+  height: 35px !important;
+  line-height: 35px !important; }
+
 .top-bar-section a {
   font-family: source-sans-pro, sans-serif;
   letter-spacing: 1px;
@@ -163,19 +167,30 @@ h6 {
 .top-bar-section a {
   font-weight: bold !important; }
 
+.top-bar {
+  height: 35px;
+  line-height: 35px; }
+
 .top-bar .row {
   max-width: 90em; }
 
 img.currentLang {
   border: 2px solid green; }
 
-.navLogo {
-  width: 250px;
+#navLogo {
+  display: block;
+  max-height: 70px;
+  /* width: 250px;*/
+  width: auto;
+  height: auto;
   overflow: visible; }
 
 .top-bar-section li.active:not(.has-form) a:not(.button) {
   background: #008cba;
   color: #fff; }
+
+.top-bar-section li:not(.has-form) a:not(.button) {
+  line-height: 35px; }
 
 .top-bar-section a.active {
   background: #008cba !important; }
@@ -189,8 +204,8 @@ ul.nav.nav-tabs > li > a {
   height: 100%; }
 
 #subnav {
-  margin-top: 20px;
-  height: 50px;
+  margin-top: 5px;
+  height: 30px;
   /*margin-bottom: 20px;*/
   padding-left: 20px;
   width: 100%;
@@ -1176,12 +1191,12 @@ ul.dropdown-menu {
 .progress {
   /* min-width: 600px; */
   margin-bottom: 2px;
-  /* background: #bbb; */ }
+  background: #bbb; }
 
 .progress .meter {
   font-size: small;
-  /* color: #fff; */
-  /* background: #099; */
+  color: #fff;
+  background: #099;
   padding-left: 5px; }
 
 .row-fluid {

@@ -10,6 +10,10 @@ var crpstudio = (function ($, crpstudio) {
   "use strict";
   crpstudio.list = (function ($, config) {
     var currentCorpus = "",       // Currently selected corpus
+        loc_selected = {          // Object containing the selected item for each itemtype
+          "project":null, "query": null, "def": null, "dbf": null,
+          "corpus": null, "grouping": null, "group": null, 
+          "metavar": null, "dbase": null, "result": null},        
         bIsSelecting = false;     // Selection
     // Methods that are local to [crpstudio.list]
     var private_methods = {
@@ -147,6 +151,76 @@ var crpstudio = (function ($, crpstudio) {
         }
         // Didn't find it
         return null;
+      },
+      
+      /**
+       * showNewItemConstructor -- Show or hide the constructor page for a new item
+       * 
+       * @param {type} sItemType
+       * @param {type} bSet
+       * @returns {undefined}
+       */
+      showNewItemConstructor : function(sItemType, bSet) {
+        // Get the prefix
+        var oItemDescr = crpstudio.list.getItemDescr(sItemType);
+        if (oItemDescr === null) return;
+        var sPrefix = oItemDescr.divprf;
+        // Check if we actually have something
+        if (sPrefix !== "") {
+          // Set or reset the page constructor
+          if (bSet) {
+            // Make sure the new query form becomes visible
+            $("#"+sPrefix+"_general_editor").addClass("hidden");
+            $("#"+sPrefix+"_new_create").removeClass("hidden");
+          } else {
+            // Make sure the new query form is hidden
+            $("#"+sPrefix+"_general_editor").removeClass("hidden");
+            $("#"+sPrefix+"_new_create").addClass("hidden");
+          }
+          // Also make sure no download stuff is shown
+          var sDownloadDiv = oItemDescr.download;
+          if (sDownloadDiv !== "") {
+            $("#"+sDownloadDiv).addClass("hidden");
+          }
+        }
+      },
+      
+      /**
+       * setSelected
+       *    Make sure the user-selected list-item element gets the green background color
+       * 
+       * @param {element} target
+       * @param {string}  sItemType
+       * @returns {void}
+       */
+      setSelected : function(target, sItemType) {
+        // Make sure the 'new' page is initially not shown
+        crpstudio.list.showNewItemConstructor(sItemType, false);
+        // Get the <li>
+        var listItem = $(target).closest('li');
+        // Remember the *currently* selected one (if any)
+        var listSel = listItem.children('.active');
+        // Store this item in an appropriate place
+        loc_selected[sItemType] = listSel;
+        // Look at all the <li> children of <ul>
+        var listHost = listItem.closest('ul');
+        listHost.children('li').each(function() { $(this).removeClass("active");});
+        // Set the "active" class for the one the user has selected
+        $(listItem).addClass("active");        
+      },
+      
+      /**
+       * backSelected
+       *    Return to the previously selected item
+       * 
+       * @param {string} sItemType
+       * @returns {void}
+       */
+      backSelected : function(sItemType) {
+        var listSel = loc_selected[sItemType];
+        if (listSel !== null) {
+          crpstudio.list.setSelected(listSel, sItemType);
+        }
       },
       
       /**
@@ -448,6 +522,8 @@ var crpstudio = (function ($, crpstudio) {
        *  15/oct/2015 ERK When there is no iItemId, check if a default needs to be shown
        */
       setCrpItem : function(target, sType, iItemId) {
+        // Make sure that any 'new' constructor is not shown anymore
+        crpstudio.list.showNewItemConstructor(sType, false);
         // Do we need to grab a default item?
         if (!iItemId || iItemId < 0) {
           // Default id

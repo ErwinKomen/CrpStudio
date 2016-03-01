@@ -563,6 +563,7 @@ var crpstudio = (function ($, crpstudio) {
         }
       },
       
+
       /**
        * showExeButtons -- show or hide the Execute buttons
        * 
@@ -2028,6 +2029,9 @@ var crpstudio = (function ($, crpstudio) {
           private_methods.showSaveButton(false);      
         }
         var strProject = $(target).text();
+        // Show this particular project with green background
+        crpstudio.list.setSelected(target, "project");
+        /*
         // Make sure download info is hidden
         $("#project_download").addClass("hidden");
         // Get the <li>
@@ -2036,7 +2040,7 @@ var crpstudio = (function ($, crpstudio) {
         var listHost = listItem.parent();
         listHost.children('li').each(function() { $(this).removeClass("active");});
         // Set the "active" class for the one the user has selected
-        $(listItem).addClass("active");
+        $(listItem).addClass("active"); */
         // Make internal and visible changes to project name
         private_methods.changePrjName(sPrjName);
         // Status: indicate that we are loading the project
@@ -2494,6 +2498,8 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       uploadFile : function(el, sItemType) {
+        // Make sure the correct element is active
+        crpstudio.list.setSelected(el, sItemType);
         // Make sure download info is hidden
         $("#"+sItemType+"_download").addClass("hidden");
         // Initialise itemmain
@@ -2864,6 +2870,8 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       downloadFile : function(elDummy, sFileType) {
+        // Make sure the correct element is active
+        crpstudio.list.setSelected(elDummy, sFileType);
         // Access the information object for this type
         var oItemDesc = crpstudio.list.getItemDescr(sFileType);
         var sItemName = "";   // Project, corpus or database name
@@ -3358,6 +3366,30 @@ var crpstudio = (function ($, crpstudio) {
        * 23/jun/2015  ERK Created
        */
       createManual : function(target, sItemType) {
+        // Make sure the correct element is active
+        crpstudio.list.setSelected(target, sItemType);
+        // Show the correct page
+        crpstudio.list.showNewItemConstructor(sItemType, true);
+        // Action depends on the kind of item
+        switch (sItemType) {
+          case "query":         // New QUERY
+            // Set some property value
+            $("#query_new_qc").prop("checked", true);
+            break;
+          case "constructor":   // New CONSTRUCTOR = Query Constructor Item
+            // Create a new QC object
+            var oQC = private_methods.makeNewQCobj();
+            // Put the values of the object to the right places
+            // input query result goal comment
+            $("#qc_new_input").val(oQC.Input);
+            $("#qc_new_query").val(oQC.Query);
+            $("#qc_new_result").val(oQC.Result);
+            $("#qc_new_goal").val(oQC.Goal);
+            $("#qc_new_comment").val(oQC.Comment);
+            break;
+        }        
+        
+        /*
         // Action depends on the kind of item
         switch (sItemType) {
           case "project":       // Completely new PROJECT (CRP)
@@ -3393,7 +3425,7 @@ var crpstudio = (function ($, crpstudio) {
             $("#qc_new_goal").val(oQC.Goal);
             $("#qc_new_comment").val(oQC.Comment);
             
-            
+            */
             
             /*
             // Get the maximum QCid
@@ -3418,12 +3450,12 @@ var crpstudio = (function ($, crpstudio) {
               $("#qc_new_input").val(sQcInput);
             }
             */
-           
+           /*
             // Make sure the new constructor form becomes visible
             $("#qc_general_editor").addClass("hidden");
             $("#qc_new_create").removeClass("hidden");
             break;
-        }
+        } */
       },
       
       /* ---------------------------------------------------------------------------
@@ -3435,13 +3467,8 @@ var crpstudio = (function ($, crpstudio) {
       createWizard : function(target) {
         // Make sure download info is hidden
         $("#project_download").addClass("hidden");
-        // Get the <li>
-        var listItem = $(target).closest('li');
-        // Look at all the <li> children of <ul>
-        var listHost = listItem.closest('ul');
-        listHost.children('li').each(function() { $(this).removeClass("active");});
-        // Set the "active" class for the one the user has selected
-        $(listItem).addClass("active");
+        // Make sure the correct element is active
+        crpstudio.list.setSelected(target, "project");
         // Make sure the new project is being selected
         var strProject = "...name of this project (wizard)";
         // currentPrj = strProject;
@@ -3455,9 +3482,9 @@ var crpstudio = (function ($, crpstudio) {
        * createItem
        *    Create a new qry/def/dbf/ and so on
        * 
-       * @param {type} sItemType
-       * @param {type} sAction
-       * @returns {undefined}
+       * @param {string} sItemType
+       * @param {string} sAction    Is 'create' or 'cancel'
+       * @returns {void}
        */
       createItem : function(sItemType, sAction) {
         var bOkay = false;
@@ -3574,6 +3601,8 @@ var crpstudio = (function ($, crpstudio) {
             }
             break;
           case "cancel":
+            // Return to the item that was previously selected
+            crpstudio.list.backSelected(sItemType);
             // Return to the current item
             bOkay = true;
             break;

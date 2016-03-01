@@ -36,7 +36,7 @@ public class UploadResponse extends BaseResponse {
       // There are three parameters: file, userid, crp
        // Collect the JSON from our POST caller
       // Part oPart1 = request.getPart("args");
-      Part oPart2 = request.getPart("fileToUpload");
+      // Part oPart2 = request.getPart("fileToUpload");
       JSONObject oQuery = new JSONObject(request.getParameter("args"));
       if (!oQuery.has("userid")) { sendErrorResponse("LoadResponse: missing @userid"); return;}
       if (!oQuery.has("file")) { sendErrorResponse("LoadResponse: missing @file"); return;}

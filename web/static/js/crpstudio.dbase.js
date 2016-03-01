@@ -30,7 +30,7 @@ var crpstudio = (function ($, crpstudio) {
       /**
        * uploadMeter -- set the indicated upload-meter to the indicated percentage
        * @param {type} iMeter
-       * @param {type} iPtc
+       * @param {type} fPtc
        * @returns {undefined}
        */
       uploadMeter : function(iMeter, fPtc) {
@@ -296,6 +296,8 @@ var crpstudio = (function ($, crpstudio) {
       uploadFile : function(el, sItemType) {
         // Make sure download info is hidden
         $("#"+sItemType+"_download").addClass("hidden");
+        // Make sure the correct element is active
+        crpstudio.list.setSelected(el, sItemType);
         // Initialise itemmain
         var sItemMain = "";
         // Get the name of the file
@@ -310,6 +312,7 @@ var crpstudio = (function ($, crpstudio) {
         // Keep track of progress
         $("#dbase_expl_upload").removeClass("hidden");
         $("#dbase_expl_description").addClass("hidden");
+        $("#dbase_expl").addClass("hidden");
         $("#dbase_expl_upload_status").html("Uploading result dbase is starting up...");
         $("#dbase_expl_upload_status").removeClass("hidden");
         // Adapt the meters
@@ -423,7 +426,6 @@ var crpstudio = (function ($, crpstudio) {
           }
         }
       },
-
       
       /*
        * uploadStatus
@@ -465,7 +467,7 @@ var crpstudio = (function ($, crpstudio) {
               private_methods.uploadMeter(1,iPtcReceived);
               // Show the progress
               $("#dbase_expl_upload_status").html(
-                      "Sent: "+ iPtcStarted.toFixed(1)+ "% Uploaded "+iPtcReceived.toFixed(1)+"%");
+                      "Sent: "+ iPtcStarted.toFixed(0)+ "% Uploaded "+iPtcReceived.toFixed(0)+"%");
               
               // Calculate the parameters for the next status request and put them into a string
               var oArgs = loc_uploadArgs;
@@ -479,7 +481,18 @@ var crpstudio = (function ($, crpstudio) {
                   crpstudio.main.getCrpStudioData("dbupload", sDbUplStatus, crpstudio.dbase.uploadStatus, target);
                 }, interval);
               break;
-          } 
+          case "completed":
+            // Show we are ready
+            $("#dbase_expl_upload_status").html("READY");
+            // Adapt the meter
+            private_methods.uploadMeter(1,100);
+            // Hide the progress stuff
+            $("#dbase_expl_upload").addClass("hidden");
+            $("#dbase_expl_description").removeClass("hidden");
+            $("#dbase_expl_upload_status").addClass("hidden");            
+            // Retrieve the new db list
+            
+            break;          } 
         }
       },
       
@@ -533,6 +546,7 @@ var crpstudio = (function ($, crpstudio) {
         */
       },
       
+      /*
       uploadProgress : function(evt) {
         if (evt.lengthComputable) {
           var percentComplete = Math.round(evt.loaded * 100 / evt.total);
@@ -541,8 +555,14 @@ var crpstudio = (function ($, crpstudio) {
         else {
           $("#dbase_expl_upload_status").html('unable to compute');
         }      
-      },
+      },*/
       
+      /**
+       * uploadComplete -- When one slice of the database has finished uploading
+       * 
+       * @param {type} evt
+       * @returns {undefined}
+       */
       uploadComplete : function(evt) {
         /* This event is raised when the server sends back a response */
         var response = JSON.parse(evt.target.response);
@@ -563,6 +583,7 @@ var crpstudio = (function ($, crpstudio) {
             $("#dbase_expl_description").removeClass("hidden");
             $("#dbase_expl_upload_status").addClass("hidden");            
             break;
+            /*
           case "completed":
             // Show we are ready
             $("#dbase_expl_upload_status").html("READY");
@@ -575,6 +596,7 @@ var crpstudio = (function ($, crpstudio) {
             // Retrieve the new db list
             
             break;
+            */
           case "working":
               // How much has been received by /crpstudio
               var iPtcStarted = 100 * oContent.read / oContent.total;
@@ -584,7 +606,7 @@ var crpstudio = (function ($, crpstudio) {
               private_methods.uploadMeter(1,iPtcReceived);
               // Show the progress
               $("#dbase_expl_upload_status").html(
-                      "Sent: "+ iPtcStarted.toFixed(1)+ "% Uploaded "+iPtcReceived.toFixed(1)+"%");
+                      "Sent: "+ iPtcStarted.toFixed(0)+ "% Uploaded "+iPtcReceived.toFixed(0)+"%");
               // Prepare next slice 
               loc_uploadInfo.start = loc_uploadInfo.start + loc_uploadInfo.step;
               loc_uploadInfo.end = loc_uploadInfo.end + loc_uploadInfo.step;
@@ -608,49 +630,25 @@ var crpstudio = (function ($, crpstudio) {
         }
 
       },
+      
+      /**
+       * uploadFailed -- one slice of uploading failed
+       * 
+       * @param {type} evt
+       * @returns {undefined}
+       */
       uploadFailed : function(evt) {
         $("#dbase_expl_upload_status").html("There was an error attempting to upload the file.");
       },
+      
+      /**
+       * uploadCanceled -- one slice of uploading was canceled
+       * @param {type} evt
+       * @returns {undefined}
+       */
       uploadCanceled : function(evt) {
         $("#dbase_expl_upload_status").html("The upload has been canceled by the user or the browser dropped the connection.");
       } ,     
-      
-      /**
-       * uploadFile
-       *    Ask user to upload a file (dbase)
-       * 
-       * @param {object} el   
-       * @param {string} sItemType
-       * @returns {undefined}
-       */
-      uploadFile_ORG : function(el, sItemType) {
-        // Make sure download info is hidden
-        $("#"+sItemType+"_download").addClass("hidden");
-        // Initialise itemmain
-        var sItemMain = "";
-        // Get the name of the file
-        var oFile = el.files[0];
-        // Use the standard readXmlFile function (this reads any TEXT)
-        crpstudio.main.readXmlFile(oFile, function(e) {
-          // Get the text of the uploaded CRP into a variable
-          // var text = encodeURIComponent(e.target.result);
-          var text = e.target.result;
-          // Signal what we are doing
-          $("#"+sItemType+"_description").html("Uploading...");
-          // Send this information to the /crpstudio
-          //var params = "file=" + oFile.name + "&itemtype=" + sItemType + 
-          //        "&itemmain=" + sItemMain + "&userid=" + crpstudio.currentUser +
-          //        "&itemtext=" + text;
-
-          // Pass on this value to /crpstudio and to /crpp
-          var oArgs = { "file": oFile.name, "itemtype": sItemType, "itemmain": sItemMain,
-            "userid": crpstudio.currentUser, "itemtext": text };
-          var params = JSON.stringify(oArgs);
-          
-          crpstudio.main.getCrpStudioData("upload", params, crpstudio.dbase.processUpLoad, 
-          "#"+sItemType+"_description");
-        });
-      },
       
       /**
        * processUpLoad
@@ -826,6 +824,8 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       downloadFile : function(elDummy, sFileType) {
+        // Make sure the correct element is active
+        crpstudio.list.setSelected(elDummy, sFileType);
         // Access the information object for this type
         var oItemDesc = crpstudio.list.getItemDescr(sFileType);
         var sItemName = "";   // Project, corpus or database name

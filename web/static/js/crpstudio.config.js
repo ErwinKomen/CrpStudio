@@ -29,7 +29,7 @@ var crpstudio = (function (crpstudio) {
     // Object defining the elements of Query, Definition, DbFeat and Constructor
     prj_access: [
       {name: "project", id: "CrpId", listfield: "Name", sortfield: "Name", sorttype: "txt", 
-        descr: "project_description", prf: "crp", 
+        descr: "project_description", prf: "crp", download: "project_download",
         before: function(sType, iItemId) { return crpstudio.project.setCrpItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.project.setCrpItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "project_general", cur: "crp_current", divprf: "project", fields: [
@@ -42,7 +42,7 @@ var crpstudio = (function (crpstudio) {
             { field: "Created",     type: "cap", loc: "project_general_datecreated"}, 
             { field: "Changed",     type: "cap", loc: "project_general_datechanged"}]},
       {name: "query", id: "QueryId", listfield: "Name", sortfield: "Name",  sorttype: "txt", 
-        descr: "query_description", prf: "qry", 
+        descr: "query_description", prf: "qry", download: "query_download",
         before: function(sType, iItemId) { return crpstudio.project.setCrpItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.project.setCrpItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "query_general", cur: "qry_current", divprf: "query", fields: [
@@ -54,7 +54,7 @@ var crpstudio = (function (crpstudio) {
             { field: "Created",     type: "cap", loc: "query_general_datecreated"}, 
             { field: "Changed",     type: "cap", loc: "query_general_datechanged"}]},
       {name: "definition",id: "DefId", listfield: "Name", sortfield: "Name",  sorttype: "txt", 
-        descr: "def_description",  prf: "def", 
+        descr: "def_description",  prf: "def", download: "definition_download",
         before: function(sType, iItemId) { return crpstudio.project.setCrpItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.project.setCrpItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "def_general", cur: "def_current", divprf: "def", fields: [
@@ -66,7 +66,7 @@ var crpstudio = (function (crpstudio) {
             { field: "Created",     type: "cap", loc: "def_general_datecreated"}, 
             { field: "Changed",     type: "cap", loc: "def_general_datechanged"}]},
       {name: "dbfeat", id: "DbFeatId", listfield: "Name", sortfield: "FtNum",  sorttype: "int", 
-        descr: "dbf_description",  prf: "dbf", 
+        descr: "dbf_description",  prf: "dbf", download: "",
         before: function(sType, iItemId) { return crpstudio.project.setCrpItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.project.setCrpItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "dbf_general", cur: "dbf_current", divprf: "dbf", fields: [
@@ -75,7 +75,7 @@ var crpstudio = (function (crpstudio) {
             { field: "QCid",        type: "txt", loc: "dbf_general_qcid"}, 
             { field: "FtNum",       type: "txt", loc: "dbf_general_ftnum"}]},
       {name: "constructor", id: "QCid", listfield: "Result", sortfield: "QCid",  sorttype: "int", 
-        descr: "qc_description",  prf: "qc", 
+        descr: "qc_description",  prf: "qc", download: "",
         before: function(sType, iItemId) { return crpstudio.project.setCrpItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.project.setCrpItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "qc_general", cur: "qc_current", divprf: "qc", fields: [
@@ -89,7 +89,7 @@ var crpstudio = (function (crpstudio) {
             { field: "Goal",        type: "txt", loc: "qc_general_goal"}, 
             { field: "Comment",     type: "txt", loc: "qc_general_comment"}]},
       {name: "corpus", id: "CorpusId", listfield: "part", sortfield: "part",  sorttype: "txt", 
-        descr: "corpus_description", prf: "cor", 
+        descr: "corpus_description", prf: "cor", download: "corpus_download",
         before: function(sType, iItemId) { return crpstudio.corpora.setCorItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.corpora.setCorItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "corpus_general", cur: "cor_current", divprf: "corpus", fields: [
@@ -102,7 +102,7 @@ var crpstudio = (function (crpstudio) {
             { field: "url",         type: "txt", loc: "corpus_general_url"}, 
             { field: "metavar",     type: "txt", loc: "corpus_general_metavar"}]},
       {name: "grouping", id: "GrpId", listfield: "Name", sortfield: "Name",  sorttype: "txt", 
-        descr: "grouping_description", prf: "grp", 
+        descr: "grouping_description", prf: "grp", download: "",
         before: function(sType, iItemId) { return crpstudio.corpora.setCorItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.corpora.setCorItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "grouping_general", cur: "grp_current", divprf: "grouping", fields: [
@@ -110,7 +110,7 @@ var crpstudio = (function (crpstudio) {
             { field: "Comment",     type: "txt", loc: "grouping_general_comment"}, 
             { field: "Text",        type: "txt", loc: "grouping_general_text"}]},
       {name: "group", id: "GroId", listfield: "Name", sortfield: "Name",  sorttype: "txt", 
-        descr: "group_description", prf: "gro", 
+        descr: "group_description", prf: "gro", download: "",
         before: function(sType, iItemId) { return crpstudio.corpora.setCorItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.corpora.setCorItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "group_general", cur: "gro_current", divprf: "group", fields: [
@@ -122,7 +122,7 @@ var crpstudio = (function (crpstudio) {
             { field: "value",       type: "txt", loc: "group_general_value"}, 
             { field: "comment",     type: "txt", loc: "group_general_comment"}]},
       {name: "metavar", id: "MtvId", listfield: "name", sortfield: "name",  sorttype: "txt", 
-        descr: "metavar_description", prf: "mtv", 
+        descr: "metavar_description", prf: "mtv", download: "",
         before: function(sType, iItemId) { return crpstudio.corpora.setCorItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.corpora.setCorItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "metavar_general", cur: "mtv_current", divprf: "metavar", fields: [
@@ -132,7 +132,7 @@ var crpstudio = (function (crpstudio) {
             { field: "loc",         type: "txt", loc: "metavar_general_loc"}, 
             { field: "value",       type: "txt", loc: "metavar_general_value"}]},
       {name: "dbase", id: "DbaseId", listfield: "Name", sortfield: "Name",  sorttype: "txt", 
-        descr: "dbase_description", prf: "db", 
+        descr: "dbase_description", prf: "db", download: "dbase_download",
         before: function(sType, iItemId) { return crpstudio.dbase.setDbsItemBefore(sType, iItemId);}, 
         after: function(sType, iItemId, bSelLocal, oArgs) { crpstudio.dbase.setDbsItemAfter(sType, iItemId, bSelLocal, oArgs);},
         gen: "dbase_general", cur: "dbs_current", divprf: "dbase", fields: [

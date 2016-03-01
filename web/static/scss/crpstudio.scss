@@ -90,7 +90,7 @@ h6 {
 
 #tour-icon {
 	width: 30px;
-	height: 45px;
+	height: 30px;
 	padding: 0;
 }
 
@@ -175,6 +175,10 @@ h6 {
 }
 
 /* Whitelab.navigation */
+.top-bar-section {
+  height: 35px !important;  
+  line-height: 35px !important;
+}
 
 .top-bar-section a {
 	font-family: source-sans-pro, sans-serif;
@@ -215,6 +219,10 @@ h6 {
 	font-weight: bold !important;
 }
 
+.top-bar {
+  height: 35px;
+  line-height: 35px;
+}
 .top-bar .row {
 	max-width: 90em;
 }
@@ -223,14 +231,23 @@ img.currentLang {
 	border: 2px solid green;
 }
 
-.navLogo {
-	width: 250px;
+#navLogo {
+  display: block;
+  max-height: 70px;
+  
+	/* width: 250px;*/
+  width: auto;
+  height: auto;
 	overflow: visible;
 }
 
 .top-bar-section li.active:not(.has-form) a:not(.button) {
 	background:  $colTopBar;
 	color: #fff;
+}
+
+.top-bar-section li:not(.has-form) a:not(.button) {
+  line-height: 35px;
 }
 
 .top-bar-section a.active {
@@ -248,8 +265,8 @@ ul.nav.nav-tabs > li > a {
 }
 
 #subnav {
-	margin-top: 20px;
-	height: 50px;
+	margin-top: 5px;
+	height: 30px;
 	/*margin-bottom: 20px;*/
 	padding-left: 20px;
 	width: 100%;
