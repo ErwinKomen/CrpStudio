@@ -970,6 +970,21 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * inputWarning
+       *    Set or clear the input corpus warning
+       * 
+       * @param {type} bSet
+       * @returns {undefined}
+       */
+      inputWarning : function(bSet) {
+        if (bSet) {
+          $("#project_general_warning").removeClass("hidden");
+        } else {
+          $("#project_general_warning").addClass("hidden");
+        }
+      },
+      
+      /**
        * initProject
        *    Initialise a project: clear Qry, Def, Dbf, Qc pointers
        * 
@@ -999,12 +1014,14 @@ var crpstudio = (function ($, crpstudio) {
         // Clear dbfeat
         $("#dbf_general").addClass("hidden");
         $("#dbf_description").html("<i>No dbfeat line selected</i>");
-
+        
+        // Initially clear warning
+        private_methods.inputWarning(false);
 
         // Do we have a lng (+ optional dir)?
-        if ((!sLng || sLng === "") && prj_language ==="") {
-          // Show the corpus-selector
-          $("#corpus-selector").show();
+        if ((!sLng || sLng === "") /* && prj_language ==="" */) {
+          // Show input warning
+          private_methods.inputWarning(true);
           // Reset the lng + dir
           crpstudio.project.setCorpus("reset");
         } else {
@@ -1015,14 +1032,12 @@ var crpstudio = (function ($, crpstudio) {
           // Set the correct option within the 'corpus-selector'
           var sOption = sLng + ":" + sDir + ":" + sDbase;
           $("#input_lng").val(sOption);
-          // Hide the corpus-selector
-          // $("#corpus-selector").hide();
         }
         if (!sDbase || sDbase === "") {
           crpstudio.project.resetDbase(false);
         } else {
           crpstudio.project.setDbase(sDbase, sLng, sDir, false);
-        }        
+        }     
       }
     };
 
@@ -1641,6 +1656,19 @@ var crpstudio = (function ($, crpstudio) {
         }
       },
       
+      /**
+       * setProjectTab 
+       *    Set the correct item under "search-nav" to 'active'
+       * 
+       * @param {type} sItemType
+       * @returns {undefined}
+       */
+      setProjectTab : function(sItemType) {
+        // Clear all the 'active' classes
+        $("#search-nav").children().removeClass("active");
+        $("#"+sItemType+"_link").addClass("active");
+      },
+      
       /* ---------------------------------------------------------------------------
        * Name: switchtab
        * Goal: switch the tab within the [Search] page
@@ -1681,6 +1709,10 @@ var crpstudio = (function ($, crpstudio) {
             case "project":
               // Selecting...
               bIsSelecting = true;
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("project");
+              // Remove input warning
+              private_methods.inputWarning(false);
               // The execute buttons are shown if there is a current project
               var bHaveProject = (currentPrj!==undefined && currentPrj!=="");
               private_methods.showExeButtons(bHaveProject);
@@ -1689,8 +1721,10 @@ var crpstudio = (function ($, crpstudio) {
               // Possibly *show* the lng/corpus selector
               if (currentPrj!=="" && 
                   (!currentLng || currentLng === "")) {
+                // Set input warning
+                private_methods.inputWarning(true);
                 // Show it
-                $("#corpus-selector").show();
+                // $("#corpus-selector").show();
               }
               // Do we have a current project?
               if (currentPrj === "") {
@@ -1711,10 +1745,10 @@ var crpstudio = (function ($, crpstudio) {
               break;
             case "input_editor": 
             case "input":
-              /* =========== META selection is for the future
-              // Make sure the metadata selector is being shown
-              $("#metadata").show();
-                  */
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("input");
+              // Remove input warning
+              private_methods.inputWarning(false);
               // Show the database selector if this is a database-input 
               if (loc_dbaseInput) {
                 // Show the database selector
@@ -1769,6 +1803,8 @@ var crpstudio = (function ($, crpstudio) {
             case "definitions": case "definition_editor":
               // Prevent undesired change triggers
               bIsSelecting = true;
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("definitions");
               // Fill the definitions list
               // crpstudio.list.showlist("definition");
               crpstudio.list.showlist("definition", currentDef);
@@ -1789,6 +1825,8 @@ var crpstudio = (function ($, crpstudio) {
             case "queries": case "query_editor":
               // Prevent undesired change triggers
               bIsSelecting = true;
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("queries");
               // Fill the query list
               // crpstudio.list.showlist("query");
               crpstudio.list.showlist("query", currentQry);
@@ -1809,6 +1847,8 @@ var crpstudio = (function ($, crpstudio) {
             case "constructor": case "constructor_editor":
               // Prevent undesired change triggers
               bIsSelecting = true;
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("constructor");
               // Fill the constructor list
               // crpstudio.list.showlist("constructor");
               crpstudio.list.showlist("constructor", currentQc);
@@ -1827,6 +1867,8 @@ var crpstudio = (function ($, crpstudio) {
             case "dbfeat": case "dbfeat_editor":
               // Prevent undesired change triggers
               bIsSelecting = true;
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("dbfeat");
               // Fill the constructor list
               // crpstudio.list.showlist("dbfeat");
               crpstudio.list.showlist("dbfeat", currentDbf, currentQc);
@@ -1845,8 +1887,10 @@ var crpstudio = (function ($, crpstudio) {
             case "result_display":
               // Other actions
               $(".sub-nav dd").removeClass("active");
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("result");
               $("#result_link").removeClass("hide");
-              $("#result_link").addClass("active");
+              // $("#result_link").addClass("active");
               // Fill the groupings combobox
               crpstudio.result.fillGroupings();
               // Don't show save button
@@ -1857,7 +1901,8 @@ var crpstudio = (function ($, crpstudio) {
               $(".sub-nav dd").removeClass("active");
               $("#document").removeClass("hide");
               $("#document_link").removeClass("hide");
-              $("#document_link").addClass("active");
+              // Make sure correct project-tab is selected
+              crpstudio.project.setProjectTab("document");
               // Don't show save button
               private_methods.showSaveButton(false);
               break;
@@ -2994,6 +3039,12 @@ var crpstudio = (function ($, crpstudio) {
         // Check if rules are defined
         var bHasRules = (sInputRules !== "");
         
+        // Should we hide the input warning?
+        if (sCorpusName && sCorpusName !== "") {
+          // Hide input warning
+          private_methods.inputWarning(false);          
+        }
+        
         // Action depends on type
         switch(sType) {
           case "reset":     // Reset everything
@@ -3368,7 +3419,7 @@ var crpstudio = (function ($, crpstudio) {
       createManual : function(target, sItemType) {
         // Make sure the correct element is active
         crpstudio.list.setSelected(target, sItemType);
-        // Show the correct page
+        // Show the CONSTRUCTOR page
         crpstudio.list.showNewItemConstructor(sItemType, true);
         // Action depends on the kind of item
         switch (sItemType) {
@@ -3526,7 +3577,8 @@ var crpstudio = (function ($, crpstudio) {
                   oNew.Name = sItemName; oNew.Goal = sItemGoal; oNew.Comments = sItemComment;
                   oNew.Author = crpstudio.currentUser;
                   // The prjtype value needs to be lower-case
-                  oNew.ProjectType = config.defPrjType.toLowerCase();
+                  // OLD: oNew.ProjectType = config.defPrjType.toLowerCase();
+                  oNew.ProjectType = $("#project_new_prjtype").val().toLowerCase();
                   // Initialise project settings
                   private_methods.initProject("", "", "");
                   // Indicate a new CRP has been created but not yet saved

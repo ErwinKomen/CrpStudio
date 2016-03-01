@@ -8,6 +8,9 @@
           <i>(no project selected)</i>
         </div>
         <div id="project_general" class="large-16 medium-16 small-16 row hidden">
+          <div id="project_general_warning" class="warning large-16 medium-16 small-16 row hidden">
+            $labels.getString("project.general.warning")
+          </div>
           <div id="project_general_top" class="large-16 medium-16 small-16 row">
             <!-- The top-left contains name, author, type and goal -->
             <div id="project_general_left" class="large-11 medium-11 small-11 columns">

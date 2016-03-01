@@ -1639,4 +1639,9 @@ textarea, .CodeMirror {
   color: orange;
   font-weight: normal; }
 
+/* warning has special background */
+.warning {
+  background-color: lightblue;
+  font-weight: bold; }
+
 /*# sourceMappingURL=crpstudio.css.map */
