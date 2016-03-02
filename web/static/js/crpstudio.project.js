@@ -3546,6 +3546,7 @@ var crpstudio = (function ($, crpstudio) {
         var bOkay = false;
         var oDescr = crpstudio.list.getItemDescr(sItemType);
         var sDivPrf = oDescr.divprf;
+        var arFeatures = [];    // Start with an empty list of features
         // Determine the new name
         var sNewName = "new_name";
         switch(sItemType) {
@@ -3610,6 +3611,8 @@ var crpstudio = (function ($, crpstudio) {
                   // Create a definition file accompanying the query
                   var oDef = oQuery.definition;
                   var iDefId = crpstudio.list.createListItem("definition", oDef, private_methods.histAddItem);
+                  // Possibly create features (later on in this function)
+                  arFeatures = oQuery.features;
                   break;
                 case "dbfeat":
                   oNew.Name = sItemName;
@@ -3662,6 +3665,19 @@ var crpstudio = (function ($, crpstudio) {
                     iItemId = crpstudio.list.createListItem("constructor", oQC, private_methods.histAddItem);
                     // (4) Make the new query list
                     private_methods.setQueryOptionList();
+                    // Check if a list of features should be linked to this new QC
+                    if (arFeatures !== null && arFeatures.length > 0) {
+                      // There is a list of features that can be added and linked to this QC
+                      var oDbFeat = {"Pre": "True", "QCid": iItemId.toString()};
+                      for (var k=0;k<arFeatures.length;k++) {
+                        var iFtNum = k+1;
+                        // Adapt specifications for this feature
+                        oDbFeat.FtNum = iFtNum.toString();
+                        oDbFeat.Name = arFeatures[k];
+                        // Create a new item
+                        var iDbFeatId = crpstudio.list.createListItem("dbfeat", oDbFeat, private_methods.histAddItem);
+                      }
+                    }
                   }
                   break;
               }

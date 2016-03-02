@@ -520,7 +520,9 @@ var crpstudio = (function ($, crpstudio) {
         // Closing tag
         arCode.push("}</"+sTagMain+">");
         // Combine the contents of arCode and return it as one string, separated by \n
-        var oBack = {"query": arCode.join("\n"), "definition": oDef};
+        var oBack = {"query": arCode.join("\n"), 
+          "definition": oDef, 
+          "features": arArgList};
         return (oBack);
       }
     };
