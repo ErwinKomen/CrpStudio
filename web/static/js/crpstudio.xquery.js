@@ -360,8 +360,8 @@ var crpstudio = (function ($, crpstudio) {
             case "clsMainSbj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
               arCode.push(" ");
-              arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
+              arCode.push("  (: Retrieve the first possible subject  :)");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')][1]");
               arCode.push("  ");
               arWhere.push("  (: subject must exist :)");
               arWhere.push("  where (");
@@ -375,11 +375,11 @@ var crpstudio = (function ($, crpstudio) {
             case "clsMainSbjObj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsMain.class+"')]");
               arCode.push(" ");
-              arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
+              arCode.push("  (: Retrieve the first possible subject :)");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')][1]");
               arCode.push(" ");
-              arCode.push("  (: Retrieve possible direct/indirect object :)");
-              arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')]");
+              arCode.push("  (: Retrieve the first possible direct/indirect object :)");
+              arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')][1]");
               arCode.push("  ");
               arWhere.push("  (: subject and object must exist :)");
               arWhere.push("  where (");
@@ -398,8 +398,8 @@ var crpstudio = (function ($, crpstudio) {
             case "clsSubSbj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
               arCode.push(" ");
-              arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
+              arCode.push("  (: Retrieve the first possible subject :)");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')][1]");
               arCode.push("  ");
               arWhere.push("  (: subject must exist :)");
               arWhere.push("  where (");
@@ -413,11 +413,11 @@ var crpstudio = (function ($, crpstudio) {
             case "clsSubSbjObj":
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
               arCode.push(" ");
-              arCode.push("  (: Retrieve possible subject :)");
-              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')]");
+              arCode.push("  (: Retrieve the first possible subject :)");
+              arCode.push("  let $sbj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npSbj.class+"')][1]");
               arCode.push(" ");
-              arCode.push("  (: Retrieve possible direct/indirect object :)");
-              arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')]");
+              arCode.push("  (: Retrieve the first possible direct/indirect object :)");
+              arCode.push("  let $obj := $search/child::"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.npObj.class+"')][1]");
               arCode.push("  ");
               arWhere.push("  (: subject and object must exist :)");
               arWhere.push("  where (");
@@ -433,7 +433,7 @@ var crpstudio = (function ($, crpstudio) {
               arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag.clsSub.class+"')]");
               arCode.push(" ");
               arCode.push("  (: Retrieve first constituent - if it is a finite verb :)");
-              arCode.push("  let $subVfin := $search/child::"+oDescr.const+"[1][ru:matches(@"+oDescr.pos+",'"+oTag.vbFin.class+"')]");
+              arCode.push("  let $subVfin := $search/child::"+oDescr.const+"[1][ru:matches(@"+oDescr.pos+",'"+oTag.vbFin.class+"')][1]");
               arCode.push(" ");
               arWhere.push("  (: the vFin first constituent must exist :)");
               arWhere.push("  where (");
