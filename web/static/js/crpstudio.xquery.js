@@ -17,11 +17,15 @@ var crpstudio = (function ($, crpstudio) {
   // Define module 'xquery'
   crpstudio.xquery = (function ($, config){
     // Variables within the scope of [crpstudio.xquery]
-    var sLng = "",    // Language we are currently working with
+    var sLng = "",              // Language we are currently working with
+        loc_sConstituents = "", // List of constituents
+        loc_sRelations = "",    // Relations
+        loc_sPositions = "",    // Positions
+        loc_arVarName = [],     // Array of variable names
         arMonth =  new Array('January', 'February', 'March', 'April', 
                              'May', 'June', 'July', 'August', 'September', 
                              'October', 'November', 'December'),
-        sPart = "";   // Part of the language (e.g: CGN, Sonar etc)
+        sPart = "";           // Part of the language (e.g: CGN, Sonar etc)
     
     // Define private methods
     var private_methods = {
@@ -524,7 +528,216 @@ var crpstudio = (function ($, crpstudio) {
           "definition": oDef, 
           "features": arArgList};
         return (oBack);
+      },
+      
+      /**
+       * varNameChange
+       *    Process changes in the name of variable # iNumber
+       * 
+       * @param {type} target
+       * @param {type} iNumber
+       * @returns {undefined}
+       */
+      varNameChange : function(target, iNumber) {
+        // Get the name of the variable
+        var sName = $(target).val().trim();
+        // Check for the first element, which must be 'search'
+        if (loc_arVarName.length === 0) loc_arVarName.push("search");
+        // Check if a variable with this number already exists
+        if (loc_arVarName.length <= iNumber) {
+          // Add an element
+          loc_arVarName.push(sName);
+        } else {
+          // Adapt the existing element
+          loc_arVarName[iNumber] = sName;
+        }
+        // Create new options
+        var arHtml = [];
+        for (var i=0;i<loc_arVarName.length;i++) {
+          arHtml.push("<option value=\""+loc_arVarName[i]+"\">"+loc_arVarName[i]+"</option>");
+        }
+        // Adapt the existing combobox
+        var sTowards = "cns_towards"+iNumber;
+        var sOrgVal = $("#"+sTowards).val();
+        if (!sOrgVal || sOrgVal === "") sOrgVal = "search";
+        $("#"+sTowards).html(arHtml.join("\n"));
+        $("#"+sTowards).val(sOrgVal);
+      },
+      
+      /**
+       * getVariables 
+       *    Get a list of the currently available variables
+       * 
+       * @returns {undefined}
+       */
+      getVariables : function() {
+        var arHtml = [];
+        arHtml.push("search");
+      },
+      
+      /**
+       * getBuildItem
+       *    Create one table row element for [query_new_cns]
+       * 
+       * @returns {undefined}
+       */
+      getBuildItem : function() {
+        var arHtml = [];    // Array to put in parts for this row
+        // Find out how many rows are in there already
+        var iRowNumber = $("#query_new_cns").find("tr").length+1;
+        // Start the row
+        arHtml.push("<tr id=\"cns_number_"+iRowNumber+"\" >");
+        // (1) Allow user to enter a name in [cns_name_dd]
+        arHtml.push("<td><input id=\"cns_name"+iRowNumber+"\""+
+                " class=\"left general_input\" type=\"text\" placeholder=\"name (no spaces)\" >"+
+                "<small id=\"cns_name"+iRowNumber+"_error\" class=\"hidden\">Name must be new and not have spaces</small>"+
+                "</td>");
+        // (2) Allow user to select a constituent type
+        arHtml.push("<td><select>"+loc_sConstituents+"</select></td>");
+        // (3) Allow user to select a constituent relation
+        arHtml.push("<td><select>"+loc_sRelations+"</select></td>");
+        // (4) Allow user to select a constituent positions
+        arHtml.push("<td><select>"+loc_sPositions+"</select></td>");
+        // (5) Provide a list of variable names that have already been made, including "search"
+        arHtml.push("<td><select id=\"cns_towards"+iRowNumber+"\">"+loc_arVarName+"</select></td>");
+        // (6) Add a button to *remove* this current row
+        arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.removeBuildRow(this);\""+
+                " class=\"button tiny round\"><b>-</b></a></td>");
+        // (7) Add a button to *add* a new row
+        arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.addBuildRow(this);\""+
+                " class=\"button tiny round\"><b>+</b></a></td>");
+        
+        // Finish the row
+        arHtml.push("</tr>");
+        // Return the combined result
+        return arHtml.join("\n");
+      },
+     
+      removeBuildRow: function(target) {
+        var sRowName = $(target).closest("tr").attr("id");
+      },
+      
+      addBuildRow : function(target) {
+        var sRowName = $(target).closest("tr").attr("id");
+        
+      },
+      
+      /**
+       * buildQueryParts
+       *    Collect the user-chosen query parts 
+       * 
+       * @returns {object}
+       */
+      buildQueryParts : function() {
+        // Create an object where we collect the results
+        var oBuild = {};
+        // Get the $search consonant type
+        oBuild.search = $("#query_new_cnstype").val();
+        // Process all the table rows in [query_new_cns]
+        var arCnsRows = $("#query_new_cns").find("tr");
+        var arCns = [];
+        for (var i=0;i<arCnsRows.length;i++) {
+          // Get all the <td> elements
+          var arTd = $(arCnsRows[i]).children("td");
+          var oCns = {};
+          // Get the relevant information for this included constituent
+        }
+        // Process all the table rows in [query_new_cnd]
+        var arCndRows = $("#query_new_cnd").find("tr");
+        var arCnd = [];
+        for (var i=0;i<arCndRows.length;i++) {
+          // Get all the <td> elements
+          var arTd = $(arCnsRows[i]).children("td");
+          var oCnd = {};
+          // Get the relevant information for this included condition
+        }
+        // COmbine
+        oBuild.cns = arCns;
+        oBuild.cnd = arCnd;
+        // Return the result
+        return oBuild;
+      },
+      
+      /**
+       * newQueryType
+       *    This function is called when "query_new_qrytype" changes
+       * 
+       * @param {e} target
+       * @returns {void}
+       */
+      newQueryType : function(target) {
+        // Find out what the changed value is
+        var sTypeValue = $(target).val();
+        // Switch the [query_new_builder] on or off
+        if (sTypeValue === "qryBuild") {
+          // Fill the combobox afresh
+          if (loc_sConstituents === "") {
+            var arHtml = [];
+            arHtml.push("<option value=\"\">(Please make a selection)</option>");
+            // Prepare the array of consonants
+            for (var i=0;i<crpstudio.constituents.length;i++) {
+              var oThis = crpstudio.constituents[i];
+              var sShow = (crpstudio.config.language === "en") ? oThis.eng : oThis.nld;
+              arHtml.push("<option value=\""+oThis.title+"\">"+oThis.title+": "+sShow+"</option>");
+            }
+            loc_sConstituents = arHtml.join("\n");
+            // Prepare an array of relations
+            loc_sRelations = crpstudio.qry_relation;
+            // Prepare an array of positions
+            loc_sPositions = crpstudio.qry_position;
+            // Put a *FIRST* row into place
+            $("#query_new_cns").html(crpstudio.xquery.getBuildItem());
+            // Add event handling
+            crpstudio.xquery.addBuildChangeEvents("query_new_builder");
+          }
+          $("#query_new_cnstype").html(loc_sConstituents);
+          // Show the builder
+          $("#query_new_builder").removeClass("hidden");
+        } else {
+          $("#query_new_builder").addClass("hidden");
+        }
+      },
+      
+      /**
+       * ctlTimer
+       *    Catch events from <input> and so forth
+       * 
+       * @param {type} target
+       * @param {type} sType
+       * @returns {undefined}
+       */
+      ctlTimer : function(target, sType) {
+        var sIdName = "cns_name";
+        
+        // Check the type
+        switch(sType) {
+          case "input":
+            // We are dealing with an <input> event
+            var sId = $(target).prop("id");
+            if (sId.startsWith(sIdName)) {
+              var iNumber = parseInt(sId.substring(sIdName.length), 10);
+              crpstudio.xquery.varNameChange(target, iNumber);
+            }
+            break;
+        }
+      },
+
+      /**
+       * addBuildChangeEvents
+       *    Add events to facilitate query building
+       * 
+       * @param {e} sItemId
+       * @returns {void}
+       */
+      addBuildChangeEvents : function(sItemId) {
+        // Get the ID of the element we need
+        var sId = "#" + sItemId;
+        // Add event handlers on all INPUT elements under "project_general"
+        $(sId + " input").on("change paste input", 
+          function() {crpstudio.xquery.ctlTimer(this, "input");});
       }
+      
+      
     };
   }($, crpstudio.config));
   

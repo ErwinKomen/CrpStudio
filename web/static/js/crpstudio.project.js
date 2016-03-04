@@ -3431,6 +3431,7 @@ var crpstudio = (function ($, crpstudio) {
           case "query":         // New QUERY
             // Set some property value
             $("#query_new_qc").prop("checked", true);
+            $("#query_new_db").prop("checked", true);
             break;
           case "constructor":   // New CONSTRUCTOR = Query Constructor Item
             // Create a new QC object
@@ -3445,73 +3446,7 @@ var crpstudio = (function ($, crpstudio) {
             break;
         }        
         
-        /*
-        // Action depends on the kind of item
-        switch (sItemType) {
-          case "project":       // Completely new PROJECT (CRP)
-            // Make sure the new query form becomes visible
-            $("#project_general_editor").addClass("hidden");
-            $("#project_new_create").removeClass("hidden");
-            break;
-          case "query":         // New QUERY
-            // Set some property value
-            $("#query_new_qc").prop("checked", true);
-            // Make sure the new query form becomes visible
-            $("#query_general_editor").addClass("hidden");
-            $("#query_new_create").removeClass("hidden");
-            break;
-          case "definition":    // New DEFINITION (file/set)
-            // Make sure the new definition form becomes visible
-            $("#def_general_editor").addClass("hidden");
-            $("#def_new_create").removeClass("hidden");
-            break;
-          case "dbfeat":        // New DBFEAT = result database feature for a QC
-            // Make sure the new dbfeat form becomes visible
-            $("#dbf_general_editor").addClass("hidden");
-            $("#dbf_new_create").removeClass("hidden");
-            break;
-          case "constructor":   // New CONSTRUCTOR = Query Constructor Item
-            // Create a new QC object
-            var oQC = private_methods.makeNewQCobj();
-            // Put the values of the object to the right places
-            // input query result goal comment
-            $("#qc_new_input").val(oQC.Input);
-            $("#qc_new_query").val(oQC.Query);
-            $("#qc_new_result").val(oQC.Result);
-            $("#qc_new_goal").val(oQC.Goal);
-            $("#qc_new_comment").val(oQC.Comment);
-            
-            */
-            
-            /*
-            // Get the maximum QCid
-            var iQCmaxId = private_methods.getQcMaxId();
-            // Create and set the list under "#qc_general_input"
-            private_methods.makeQcInput(iQCmaxId+1, "new");
-            // Try to fill in values in the creation form:
-            // (1) Find the first query that is not yet available in the query pipeline
-            var oQryFree = private_methods.getNextQuery();
-            // Validate
-            if (oQryFree === null) {
-              // There is no query to point to
-              $("#qc_new_input").val("Source");
-            } else {
-              // Provide details from this query
-              $("#qc_new_query").val(oQryFree.Name);
-              $("#qc_new_result").val(oQryFree.Name);
-              $("#qc_new_goal").val(oQryFree.Goal);
-              $("#qc_new_comment").val(oQryFree.Comment);
-              // (2) Suggest where this should be inserted
-              var sQcInput = (iQCmaxId <0) ? "Source" : iQCmaxId + "/out";
-              $("#qc_new_input").val(sQcInput);
-            }
-            */
-           /*
-            // Make sure the new constructor form becomes visible
-            $("#qc_general_editor").addClass("hidden");
-            $("#qc_new_create").removeClass("hidden");
-            break;
-        } */
+ 
       },
       
       /* ---------------------------------------------------------------------------
@@ -3725,7 +3660,7 @@ var crpstudio = (function ($, crpstudio) {
           }
         }
       },
-
+      
       /**
        * sideToggle
        *    Toggle the visibility of the <li> items with the indicated class name

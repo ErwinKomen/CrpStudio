@@ -30,7 +30,8 @@
                 <label for="right-label" class="left inline">$labels.getString("query.new.qrytype")</label>
               </div>
               <div class="large-10 medium-10 small-10 columns left">
-                <select id="query_new_qrytype" class="left general_input"  placeholder="start query...">
+                <select id="query_new_qrytype" class="left general_input"  placeholder="start query..."
+                        onchange="crpstudio.xquery.newQueryType(this)">
                   ${qrytypelist}
                 </select>
               </div>
@@ -38,16 +39,48 @@
             <!-- Query BUILDER (this will be filled in mostly programmatically) -->
             <div id="query_new_builder" class="large-16 medium-16 small-16 row hidden">
               <!-- Specification of where to start -->
-              <div class="large-16 medium-16 small-16 row">
+              <div class="large-16 medium-16 small-16 row collapse prefix-radius">
+                <!-- Order: [Label] - [search] - [combo 'type'] -->
                 <div class="large-2 medium-3 small-4 columns left">
                   <label for="right-label" class="left inline">$labels.getString("query.build.start")</label>
                 </div>
+                <div class="large-2 medium-2 small-2 columns"><span class="prefix">search</span></div>
                 <!-- list of constituent types -->
-                <div class="large-10 medium-10 small-10 columns left">
+                <div class="large-4 medium-4 small-4 columns left">
                   <select id="query_new_cnstype" class="left general_input"  placeholder="start query...">
                     ${cnstypelist}
                   </select>
                 </div>
+              </div>
+              <!-- Other constituents that are part of the construction to look for -->
+              <div class="large-offset-2 medium-offset-3 small-offset-4 large-14 medium-13 small-12 row">
+                <table class="" cellspacing="0" width="100%">
+                  <thead><tr>
+                    <th>$labels.getString("query.build.cns.name")</th>
+                    <th>$labels.getString("query.build.cns.type")</th>
+                    <th>$labels.getString("query.build.cns.relation")</th>
+                    <th>$labels.getString("query.build.cns.position")</th>
+                    <th>$labels.getString("query.build.cns.towards")</th>
+                  </tr></thead>
+                  <tbody id="query_new_cns">
+                    <!-- this is filled in programmatically -->
+                  </tbody>
+                </table>
+              </div>
+              <!-- Additional conditions on one or more of the constituents -->
+              <div id="query_new_additional" 
+                   class="large-offset-2 medium-offset-3 small-offset-4 large-14 medium-13 small-12 row hidden">
+                <table class="" cellspacing="0" width="100%">
+                  <thead><tr>
+                    <th>$labels.getString("query.build.cns.name")</th>
+                    <th>$labels.getString("query.build.cns.relation")</th>
+                    <th>$labels.getString("query.build.cns.position")</th>
+                    <th>$labels.getString("query.build.cns.towards")</th>
+                  </tr></thead>
+                  <tbody id="query_new_cnd">
+                    <!-- this is filled in programmatically -->
+                  </tbody>
+                </table>
               </div>
             </div>
             <!-- Query QC checkbox: specify whether query should be put into QC or not -->
