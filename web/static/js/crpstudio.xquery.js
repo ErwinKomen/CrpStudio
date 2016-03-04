@@ -124,6 +124,21 @@ var crpstudio = (function ($, crpstudio) {
         }
         // No success
         return {};
+      },
+      
+      /**
+       * getRowNumber 
+       *    Given the tag name and the full id, return the number in the tag-name
+       * 
+       * @param {string} sIdName
+       * @param {string} sId
+       * @returns {int}
+       */
+      getRowNumber : function(sIdName, sId) {
+        if (sId.startsWith(sIdName)) {
+          var iNumber = parseInt(sId.substring(sIdName.length), 10);
+          return iNumber;
+        } else return 0;
       }
     };
     
@@ -553,7 +568,7 @@ var crpstudio = (function ($, crpstudio) {
         }
         // Create new options
         var arHtml = [];
-        for (var i=0;i<loc_arVarName.length;i++) {
+        for (var i=0;i<loc_arVarName.length-1;i++) {
           arHtml.push("<option value=\""+loc_arVarName[i]+"\">"+loc_arVarName[i]+"</option>");
         }
         // Adapt the existing combobox
@@ -562,17 +577,6 @@ var crpstudio = (function ($, crpstudio) {
         if (!sOrgVal || sOrgVal === "") sOrgVal = "search";
         $("#"+sTowards).html(arHtml.join("\n"));
         $("#"+sTowards).val(sOrgVal);
-      },
-      
-      /**
-       * getVariables 
-       *    Get a list of the currently available variables
-       * 
-       * @returns {undefined}
-       */
-      getVariables : function() {
-        var arHtml = [];
-        arHtml.push("search");
       },
       
       /**
@@ -602,10 +606,10 @@ var crpstudio = (function ($, crpstudio) {
         arHtml.push("<td><select id=\"cns_towards"+iRowNumber+"\">"+loc_arVarName+"</select></td>");
         // (6) Add a button to *remove* this current row
         arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.removeBuildRow(this);\""+
-                " class=\"button tiny round\"><b>-</b></a></td>");
+                " class=\"knopje\"><b>-</b></a></td>");
         // (7) Add a button to *add* a new row
         arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.addBuildRow(this);\""+
-                " class=\"button tiny round\"><b>+</b></a></td>");
+                " class=\"knopje\"><b>+</b></a></td>");
         
         // Finish the row
         arHtml.push("</tr>");
@@ -613,13 +617,46 @@ var crpstudio = (function ($, crpstudio) {
         return arHtml.join("\n");
       },
      
+      /**
+       * removeBuildRow
+       *    Remove the row on which [target] is situated
+       * 
+       * @param {type} target
+       * @returns {undefined}
+       */
       removeBuildRow: function(target) {
-        var sRowName = $(target).closest("tr").attr("id");
+        var divRow = $(target).closest("tr");
+        var sRowName = $(divRow).attr("id");
+        var iRow = private_methods.getRowNumber("cns_number_", sRowName);
+        // Check how many rows there are 
+        var iTotal = $("#query_new_cns").find("tr").length;
+        // Validate
+        if (iRow < iTotal) {
+          // We may not remove this row
+          return;
+        }
+        $(divRow).remove();
+        // Add event handling
+        crpstudio.xquery.addBuildChangeEvents("query_new_builder");
       },
       
+      /**
+       * addBuildRow
+       *    Add a new row after [target]
+       * 
+       * @param {type} target
+       * @returns {undefined}
+       */
       addBuildRow : function(target) {
-        var sRowName = $(target).closest("tr").attr("id");
-        
+        var divRow = $(target).closest("tr");
+        var sRowName = $(divRow).attr("id");
+        var iRow = private_methods.getRowNumber("", sRowName);
+        // Get the new row's content
+        var sContent = crpstudio.xquery.getBuildItem();
+        // Add this <tr> after the current <tr>
+        $(divRow).after(sContent);
+        // Add event handling
+        crpstudio.xquery.addBuildChangeEvents("query_new_builder");
       },
       
       /**
