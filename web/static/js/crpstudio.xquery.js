@@ -567,17 +567,31 @@ var crpstudio = (function ($, crpstudio) {
           // Adapt the existing element
           loc_arVarName[iNumber] = sName;
         }
+        // Adapt the contents of the variable boxes
+        crpstudio.xquery.adaptVarCombos(iNumber);
+      },
+      
+      /**
+       * adaptVarCombos
+       *    Adapt the contents of the variable combo-boxes
+       * 
+       * @param {type} iNumber
+       * @returns {undefined}
+       */
+      adaptVarCombos : function(iNumber) {
         // Create new options
         var arHtml = [];
         for (var i=0;i<loc_arVarName.length-1;i++) {
           arHtml.push("<option value=\""+loc_arVarName[i]+"\">"+loc_arVarName[i]+"</option>");
         }
-        // Adapt the existing combobox on this BuildItem
-        var sTowards = "cns_towards"+iNumber;
-        var sOrgVal = $("#"+sTowards).val();
-        if (!sOrgVal || sOrgVal === "") sOrgVal = "search";
-        $("#"+sTowards).html(arHtml.join("\n"));
-        $("#"+sTowards).val(sOrgVal);
+        if (iNumber >0) {
+          // Adapt the existing combobox on this BuildItem
+          var sTowards = "cns_towards"+iNumber;
+          var sOrgVal = $("#"+sTowards).val();
+          if (!sOrgVal || sOrgVal === "") sOrgVal = "search";
+          $("#"+sTowards).html(arHtml.join("\n"));
+          $("#"+sTowards).val(sOrgVal);
+        }
         
         // Create options for condition item
         var arCondItem = [];
@@ -590,7 +604,7 @@ var crpstudio = (function ($, crpstudio) {
           var sOrgSel = $(this).val();
           $(this).html(sCondList);
           $(this).val(sOrgSel);
-        });
+        });        
       },
       
       /**
@@ -716,10 +730,59 @@ var crpstudio = (function ($, crpstudio) {
             $("#query_new_additional").removeClass("hidden");
           }
         }
+        // Adapt the contents of the variable boxes
+        crpstudio.xquery.adaptVarCombos(0);
         // Add event handling
         crpstudio.xquery.addBuildChangeEvents("query_new_builder");
       },
       
+      /**
+       * removeConditionRow
+       *    Remove the row on which [target] is situated
+       * 
+       * @param {type} target
+       * @returns {undefined}
+       */
+      removeConditionRow: function(target) {
+        var divRow = $(target).closest("tr");
+        var sRowName = $(divRow).attr("id");
+        var iRow = private_methods.getRowNumber("cnd_number_", sRowName);
+        // Check how many rows there are 
+        var iTotal = $("#query_new_cnd").find("tr").length;
+        // Validate
+        if (iRow < iTotal) {
+          // We may not remove this row
+          return;
+        }
+        $(divRow).remove();
+        // TODO: check which 'additional conditions' must be removed because
+        //       this row has been removed
+        
+        // Add event handling
+        crpstudio.xquery.addBuildChangeEvents("query_new_builder");
+      },
+      
+      /**
+       * addConditionRow
+       *    Add a new row after [target]
+       * 
+       * @param {type} target
+       * @returns {undefined}
+       */
+      addConditionRow : function(target) {
+        var divRow = $(target).closest("tr");
+        var sRowName = $(divRow).attr("id");
+        var iRow = private_methods.getRowNumber("cnd_number_", sRowName);
+        // Get the new row's content
+        var sContent = crpstudio.xquery.getConditionItem();
+        // Add this <tr> after the current <tr>
+        $(divRow).after(sContent);
+        // Adapt the contents of the variable boxes
+        crpstudio.xquery.adaptVarCombos(0);
+        // Add event handling
+        crpstudio.xquery.addBuildChangeEvents("query_new_builder");
+      },
+            
       /**
        * buildQueryParts
        *    Collect the user-chosen query parts 
@@ -791,6 +854,8 @@ var crpstudio = (function ($, crpstudio) {
           $("#query_new_cnstype").html(loc_sConstituents);
           // Make sure the constituent-choosing is switched off initially
           $("#query_new_constituents").addClass("hidden");
+          // Make sure the additional-choosing is switched off initially
+          $("#query_new_additional").addClass("hidden");
           // Show the builder
           $("#query_new_builder").removeClass("hidden");
         } else {
