@@ -3356,6 +3356,8 @@ var crpstudio = (function ($, crpstudio) {
 
         // Find out who we are by looking up the caller's @id value
         var oItem = private_methods.getItemObject(sCallerId);
+        // Check what is returned
+        if (oItem === null) return;
         // Get the current iItemId
         var iItemId = -1;
         switch(oItem.type) {
@@ -3432,6 +3434,8 @@ var crpstudio = (function ($, crpstudio) {
             // Set some property value
             $("#query_new_qc").prop("checked", true);
             $("#query_new_db").prop("checked", true);
+            // Make sure the query-type selector is reset
+            $("#query_new_qrytype").val($("#query_new_qrytype option:first").val());
             break;
           case "constructor":   // New CONSTRUCTOR = Query Constructor Item
             // Create a new QC object

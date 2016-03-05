@@ -22,6 +22,7 @@ var crpstudio = (function ($, crpstudio) {
         loc_sRelations = "",    // Relations
         loc_sPositions = "",    // Positions
         loc_arVarName = [],     // Array of variable names
+        loc_arVarAll = [],      // List of *all* the variable names
         arMonth =  new Array('January', 'February', 'March', 'April', 
                              'May', 'June', 'July', 'August', 'September', 
                              'October', 'November', 'December'),
@@ -571,12 +572,25 @@ var crpstudio = (function ($, crpstudio) {
         for (var i=0;i<loc_arVarName.length-1;i++) {
           arHtml.push("<option value=\""+loc_arVarName[i]+"\">"+loc_arVarName[i]+"</option>");
         }
-        // Adapt the existing combobox
+        // Adapt the existing combobox on this BuildItem
         var sTowards = "cns_towards"+iNumber;
         var sOrgVal = $("#"+sTowards).val();
         if (!sOrgVal || sOrgVal === "") sOrgVal = "search";
         $("#"+sTowards).html(arHtml.join("\n"));
         $("#"+sTowards).val(sOrgVal);
+        
+        // Create options for condition item
+        var arCondItem = [];
+        for (var i=0;i<loc_arVarName.length;i++) {
+          arCondItem.push("<option value=\""+loc_arVarName[i]+"\">"+loc_arVarName[i]+"</option>");
+        }
+        var sCondList = arCondItem.join("\n");
+        // Adapt all the comboboxes on the 'ConditionItem' elements
+        $("#query_new_cnd .cnd-var").each(function() {
+          var sOrgSel = $(this).val();
+          $(this).html(sCondList);
+          $(this).val(sOrgSel);
+        });
       },
       
       /**
@@ -597,11 +611,11 @@ var crpstudio = (function ($, crpstudio) {
                 "<small id=\"cns_name"+iRowNumber+"_error\" class=\"hidden\">Name must be new and not have spaces</small>"+
                 "</td>");
         // (2) Allow user to select a constituent type
-        arHtml.push("<td><select>"+loc_sConstituents+"</select></td>");
+        arHtml.push("<td><select id=\"cns_type"+iRowNumber+"\">"+loc_sConstituents+"</select></td>");
         // (3) Allow user to select a constituent relation
-        arHtml.push("<td><select>"+loc_sRelations+"</select></td>");
+        arHtml.push("<td><select id=\"cns_rel"+iRowNumber+"\">"+loc_sRelations+"</select></td>");
         // (4) Allow user to select a constituent positions
-        arHtml.push("<td><select>"+loc_sPositions+"</select></td>");
+        arHtml.push("<td><select id=\"cns_pos"+iRowNumber+"\">"+loc_sPositions+"</select></td>");
         // (5) Provide a list of variable names that have already been made, including "search"
         arHtml.push("<td><select id=\"cns_towards"+iRowNumber+"\">"+loc_arVarName+"</select></td>");
         // (6) Add a button to *remove* this current row
@@ -617,6 +631,39 @@ var crpstudio = (function ($, crpstudio) {
         return arHtml.join("\n");
       },
      
+      /**
+       * getConditionItem
+       *    Create one table row element for [query_new_cnd]
+       * 
+       * @returns {undefined}
+       */
+      getConditionItem : function() {
+        var arHtml = [];    // Array to put in parts for this row
+        // Find out how many rows are in there already
+        var iRowNumber = $("#query_new_cnd").find("tr").length+1;
+        // Start the row
+        arHtml.push("<tr id=\"cnd_number_"+iRowNumber+"\" >");
+        // (2) Allow user to select one variable (including 'search')
+        arHtml.push("<td><select id=\"cnd_var"+iRowNumber+"\" class=\"cnd-var\">"+loc_arVarName+"</select></td>");
+        // (3) Allow user to select a constituent relation
+        arHtml.push("<td><select id=\"cnd_rel"+iRowNumber+"\">"+loc_sRelations+"</select></td>");
+        // (4) Allow user to select a constituent positions
+        arHtml.push("<td><select id=\"cnd_pos"+iRowNumber+"\">"+loc_sPositions+"</select></td>");
+        // (5) Provide a list of variable names that have already been made, including "search"
+        arHtml.push("<td><select id=\"cnd_towards"+iRowNumber+"\" class=\"cnd-var\">"+loc_arVarName+"</select></td>");
+        // (6) Add a button to *remove* this current row
+        arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.removeConditionRow(this);\""+
+                " class=\"knopje\"><b>-</b></a></td>");
+        // (7) Add a button to *add* a new row
+        arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.addConditionRow(this);\""+
+                " class=\"knopje\"><b>+</b></a></td>");
+        
+        // Finish the row
+        arHtml.push("</tr>");
+        // Return the combined result
+        return arHtml.join("\n");
+      },
+
       /**
        * removeBuildRow
        *    Remove the row on which [target] is situated
@@ -636,6 +683,9 @@ var crpstudio = (function ($, crpstudio) {
           return;
         }
         $(divRow).remove();
+        // TODO: check which 'additional conditions' must be removed because
+        //       this row has been removed
+        
         // Add event handling
         crpstudio.xquery.addBuildChangeEvents("query_new_builder");
       },
@@ -650,11 +700,22 @@ var crpstudio = (function ($, crpstudio) {
       addBuildRow : function(target) {
         var divRow = $(target).closest("tr");
         var sRowName = $(divRow).attr("id");
-        var iRow = private_methods.getRowNumber("", sRowName);
+        var iRow = private_methods.getRowNumber("cns_number_", sRowName);
         // Get the new row's content
         var sContent = crpstudio.xquery.getBuildItem();
         // Add this <tr> after the current <tr>
         $(divRow).after(sContent);
+        // Check if 'additional' is already shown
+        if ($("#query_new_additional").hasClass("hidden")) {
+          // It is not shown: check if it *should* be shown
+          var iTotal = $("#query_new_cns").find("tr").length;
+          if (iTotal >=2) {
+            // Yes it should be shown -- first put at least *ONE* row there
+            $("#query_new_cnd").html(crpstudio.xquery.getConditionItem());
+            // Now show it
+            $("#query_new_additional").removeClass("hidden");
+          }
+        }
         // Add event handling
         crpstudio.xquery.addBuildChangeEvents("query_new_builder");
       },
@@ -722,12 +783,14 @@ var crpstudio = (function ($, crpstudio) {
             loc_sRelations = crpstudio.qry_relation;
             // Prepare an array of positions
             loc_sPositions = crpstudio.qry_position;
-            // Put a *FIRST* row into place
-            $("#query_new_cns").html(crpstudio.xquery.getBuildItem());
-            // Add event handling
-            crpstudio.xquery.addBuildChangeEvents("query_new_builder");
           }
+          // Put a *FIRST* row into place
+          $("#query_new_cns").html(crpstudio.xquery.getBuildItem());
+          // Add event handling
+          crpstudio.xquery.addBuildChangeEvents("query_new_builder");
           $("#query_new_cnstype").html(loc_sConstituents);
+          // Make sure the constituent-choosing is switched off initially
+          $("#query_new_constituents").addClass("hidden");
           // Show the builder
           $("#query_new_builder").removeClass("hidden");
         } else {
@@ -745,15 +808,27 @@ var crpstudio = (function ($, crpstudio) {
        */
       ctlTimer : function(target, sType) {
         var sIdName = "cns_name";
+        var sId = $(target).attr("id");
         
         // Check the type
         switch(sType) {
           case "input":
             // We are dealing with an <input> event
-            var sId = $(target).prop("id");
             if (sId.startsWith(sIdName)) {
               var iNumber = parseInt(sId.substring(sIdName.length), 10);
               crpstudio.xquery.varNameChange(target, iNumber);
+            }
+            break;
+          case "select":
+            // Action depends on the combobox that is selected
+            switch(sId) {
+              case "query_new_cnstype":
+                // Check if a value has been chosen
+                if ($(target).val() !== "") {
+                  // This means that the [query_new_constituents] may be shown
+                  $("#query_new_constituents").removeClass("hidden");
+                }
+                break;
             }
             break;
         }
@@ -769,9 +844,12 @@ var crpstudio = (function ($, crpstudio) {
       addBuildChangeEvents : function(sItemId) {
         // Get the ID of the element we need
         var sId = "#" + sItemId;
-        // Add event handlers on all INPUT elements under "project_general"
+        // Add event handlers on all INPUT elements under sItemId
         $(sId + " input").on("change paste input", 
           function() {crpstudio.xquery.ctlTimer(this, "input");});
+        // Add event handlers on all SELECT elements under sItemId
+        $(sId + " select").on("change paste input", 
+          function() {crpstudio.xquery.ctlTimer(this, "select");});
       }
       
       
