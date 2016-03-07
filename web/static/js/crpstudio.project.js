@@ -3426,6 +3426,13 @@ var crpstudio = (function ($, crpstudio) {
       createManual : function(target, sItemType) {
         // Make sure the correct element is active
         crpstudio.list.setSelected(target, sItemType);
+        // type-dependent initialisations
+        switch(sItemType) {
+          case "query":
+            $("#query_new_qrytype").val("");
+            $("#query_new_builder").addClass("hidden");
+            break;
+        }
         // Show the CONSTRUCTOR page
         crpstudio.list.showNewItemConstructor(sItemType, true);
         // Action depends on the kind of item

@@ -2117,7 +2117,8 @@ public abstract class BaseResponse {
       // Walk the list
       for (int i=0;i<lstQryPosition.size();i++) {
         // Append information on this list
-        sb.append("<option value=\""+lstQryPosition.get(i).getName()+"\">"+lstQryPosition.get(i).getTitle()+"</option>");
+        sb.append("<option value=\""+lstQryPosition.get(i).getName()+"\">"+
+                lstQryPosition.get(i).getTitle()+"</option>");
       }
 
       // Return the result

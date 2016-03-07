@@ -53,6 +53,15 @@ var crpstudio = (function ($, crpstudio) {
         return oBack;
       },
       
+      getPosition : function(sPosCode) {
+        switch(sPosCode) {
+          case "first": return "[1]";
+          case "last": return "[last()]";
+          case "any": return "";
+        }
+        return "";
+      },
+      
       /**
        * getTagsetName
        *    Get the name of the tagset to be used for the combination of the current
@@ -369,6 +378,54 @@ var crpstudio = (function ($, crpstudio) {
           arCode.push(" (: Loop through the elements of each text :)");
           // Model depends on type
           switch(sType) {
+            case "qryBuild":
+              // Retrieve all the elements as an object
+              var oQry = crpstudio.xquery.getQryBuild();
+              if (oQry !== null) {
+                var bHasWhere = false;
+                // Process the object
+                arCode.push(" for $search in //"+oDescr.const+"[ru:matches(@"+oDescr.pos+",'"+oTag[oQry.search].class+"')]");
+                arCode.push(" ");
+                // Add the parameters to the list for dbase processing
+                if (bMakeDbase) {
+                  arCnsList.push("search");
+                  arArgList.push(oQry.search);
+                }
+                // Do we need a 'where' pre-amble?
+                if (oQry.cns.length>0) {
+                  arWhere.push("  (: constituents all must exist :)");
+                  arWhere.push("  where (");
+                  bHasWhere = true;
+                }
+                // Process all constituents
+                for (var i=0;i<oQry.cns.length;i++) {
+                  var oCns = oQry.cns[i];
+                  var sPos = private_methods.getPosition(oCns.pos);
+                  arCode.push("  (: Retrieve constituent ["+oCns.name+"]:)");
+                  arCode.push("  let $"+oCns.name+" := $"+oCns.towards+"/"+oCns.rel+"::"+oDescr.const+
+                          "[ru:matches(@"+oDescr.pos+",'"+oTag[oCns.type].class+"')]"+sPos);
+                  arCode.push(" ");
+                  // This constituent also must exist
+                  var sAnd = (i===0) ? "" : "and ";
+                  arWhere.push("    "+sAnd+"exists($"+oCns.name+")");
+                  // TODO: iets met arArgList en arCnsList
+                  // Add the parameters to the list for dbase processing
+                  if (bMakeDbase) {
+                    arCnsList.push(oCns.name);
+                    arArgList.push(oCns.name);
+                  }
+                }
+                // Process all conditions
+                for (var i=0;i<oQry.cnd.length;i++) {
+                  var oCnd = oQry.cnd[i];
+                }                
+                // Do we need a 'where' closure?
+                if (bHasWhere) {
+                  arWhere.push("  )");
+                }
+                
+              }
+              break;
             case "clsAll":
               arCode.push(" for $search in //"+oDescr.const);
               if (bMakeDbase) { arArgList.push("cls"); arCnsList.push("search");}
@@ -544,6 +601,46 @@ var crpstudio = (function ($, crpstudio) {
           "definition": oDef, 
           "features": arArgList};
         return (oBack);
+      },
+      
+      /**
+       * getQryBuild
+       *    Collect the user-input into an object
+       * 
+       * @returns {undefined}
+       */
+      getQryBuild : function() {
+        var oBack = {};
+        // Find the definition of 'search'
+        oBack.search = $("#query_new_cnstype").val();
+        // Walk through all constituents
+        var arConst = [];
+        $("#query_new_cns tr").each(function() {
+          var oConst = {};
+          oConst.name = $(this).find("input").val();
+          oConst.type = $(this).find("select").eq(0).val();
+          oConst.rel = $(this).find("select").eq(1).val();
+          oConst.pos = $(this).find("select").eq(2).val();
+          oConst.towards = $(this).find("select").eq(3).val();
+          arConst.push(oConst);
+        });
+        oBack.cns = arConst;
+        // Walk through all additional conditions
+        var arCond = [];
+        $("#query_new_cnd tr").each(function() {
+          // Check something has been selected as a relation
+          if ($(this).find("select").eq(0).val()) {
+            var oCond = {};
+            oCond.var = $(this).find("select").eq(0).val();
+            oCond.rel = $(this).find("select").eq(1).val();
+            oCond.pos = $(this).find("select").eq(2).val();
+            oCond.towards = $(this).find("select").eq(3).val();
+            arConst.push(oCond);
+          }
+        });
+        oBack.cnd = arCond;
+        // Return the object
+        return oBack;
       },
       
       /**
