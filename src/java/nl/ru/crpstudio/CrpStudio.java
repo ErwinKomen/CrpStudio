@@ -97,8 +97,10 @@ public class CrpStudio extends HttpServlet {
   public TemplateManager getTemplateManager() {return templateMan;}
   public String getUserId() { return crpUtil.getUserId(sSessionId); }
   public boolean getUserOkay(String sId) {this.bUserOkay = crpUtil.getUserOkay(sId, sSessionId); return bUserOkay; }
-  public void setUserId(String sId) {sUserId = sId;}
+  public String getUserLang(String sId) {return crpUtil.getUserLang(sId, sSessionId);}
+  public void setUserId(String sId) {if (!sId.isEmpty()) sUserId = sId;}
   public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
+  public void setUserLang(String sId, String sLang) {crpUtil.setUserLang(sId, sSessionId, sLang);}
   public void setUserRemove(String sId) {bUserOkay = false; crpUtil.removeUserSession(sId, sSessionId);}
   public void setUserJob(String sJobId) { crpUtil.setUserJob(sUserId, sSessionId, sJobId);}
   public String getUserJob() { return crpUtil.getUserJob(sUserId, sSessionId);}

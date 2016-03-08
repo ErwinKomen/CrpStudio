@@ -597,11 +597,27 @@ public abstract class BaseResponse {
 	 * Calls the completeRequest and logRequest implementations
 	 */
 	final public void processRequest() {
-		this.locale = request.getLocale();
-		this.lang = this.request.getParameter("lang");
     // Initialize the user id and the user okay
     this.sUserId = servlet.getUserId();
     this.bUserOkay = servlet.getUserOkay(this.sUserId);
+    // Get a possible new language
+    String sNewLng = this.request.getParameter("lang");
+    // Possibly adapt the currently stored language
+    if (sNewLng != null && !sNewLng.isEmpty()) {
+      // Add it here
+      this.lang = sNewLng;
+      // Also add it to the current user
+      servlet.setUserLang(sUserId, sNewLng);
+    } else {
+      sNewLng = servlet.getUserLang(sUserId);
+      // If this is not empty...
+      if (sNewLng != null && !sNewLng.isEmpty())
+        this.lang = sNewLng;
+    }
+      
+    // Get the locale from the request
+		this.locale = request.getLocale();
+		// OLD: this.lang = this.request.getParameter("lang");
 		try {
 			this.servlet.log("("+this.getClass()+
               ", user=["+sUserId+","+bUserOkay+"]"+

@@ -77,9 +77,12 @@ public class CrpUtil {
    * 
    * @param sUserId
    * @param sPassword
+   * @param sEmail
    * @return 
    */
-  boolean setUserNew(String sUserId, String sPassword, String sEmail) {
+  public synchronized boolean setUserNew(String sUserId, String sPassword, String sEmail) {
+    // Validate
+    if (sUserId.isEmpty()) return false;
     try {
       // Get the array of users
       JSONArray arUser = getUsers();
@@ -125,7 +128,9 @@ public class CrpUtil {
    * @param sPermission - the type of permission (add, remove)
    * @return 
    */
-  public boolean setUserPermission(String sUserId, JSONObject oCorpus, String sPermission) {
+  public synchronized boolean setUserPermission(String sUserId, JSONObject oCorpus, String sPermission) {
+    // Validate
+    if (sUserId.isEmpty()) return false;
     try {
       // Get the array of users
       JSONArray arUser = getUsers();
@@ -196,9 +201,11 @@ public class CrpUtil {
    * @param sSession 
    */
   public void addUserSession(String sUserId, String sSession) {
-    // TODO: make sure it is not there (yet)
-    // Add the combination to the array
-    userCache.add(new UserSession(sUserId, sSession, true));
+    synchronized(userCache) {
+      // TODO: make sure it is not there (yet)
+      // Add the combination to the array
+      userCache.add(new UserSession(sUserId, sSession, true));
+    }
   }
   
   /**
@@ -208,16 +215,18 @@ public class CrpUtil {
    * @param sSession 
    */
   public void removeUserSession(String sUserId, String sSession) {
-    // Look for the user
-    for (int i=0;i<userCache.size();i++) {
-      // Get this one
-      UserSession oThis = userCache.get(i);
-      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
-        // Set it to false
-        oThis.userOkay = false;
-        // Reset the session id
-        oThis.sessionId = "";
-        return;
+    synchronized(userCache) {
+      // Look for the user
+      for (int i=0;i<userCache.size();i++) {
+        // Get this one
+        UserSession oThis = userCache.get(i);
+        if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+          // Set it to false
+          oThis.userOkay = false;
+          // Reset the session id
+          oThis.sessionId = "";
+          return;
+        }
       }
     }
   }
@@ -229,16 +238,20 @@ public class CrpUtil {
    * @param sSession 
    */
   public void setUserOkay(String sUserId, String sSession) {
-    // Look for the user
-    for (int i=0;i<userCache.size();i++) {
-      // Get this one
-      UserSession oThis = userCache.get(i);
-      // TODO: what if the user is there, but with a different session??
-      // Check if the combination occurs
-      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
-        // Set it to false
-        oThis.userOkay = true;
-        return;
+    // Validate
+    if (sUserId.isEmpty()) return;
+    synchronized(userCache) {
+      // Look for the user
+      for (int i=0;i<userCache.size();i++) {
+        // Get this one
+        UserSession oThis = userCache.get(i);
+        // TODO: what if the user is there, but with a different session??
+        // Check if the combination occurs
+        if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+          // Set it to false
+          oThis.userOkay = true;
+          return;
+        }
       }
     }
     // User was not found, so add it
@@ -246,18 +259,53 @@ public class CrpUtil {
     
   }
   
+  /**
+   * setUserLang -- Set language for the combination User/Session 
+   * 
+   * @param sUserId
+   * @param sSession 
+   * @param sLang
+   */
+  public void setUserLang(String sUserId, String sSession, String sLang) {
+    // Validate
+    if (sUserId.isEmpty()) return;
+    synchronized(userCache) {
+      // Look for the user
+      for (int i=0;i<userCache.size();i++) {
+        // Get this one
+        UserSession oThis = userCache.get(i);
+        // TODO: what if the user is there, but with a different session??
+        // Check if the combination occurs
+        if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+          // Set it to false
+          oThis.lang = sLang;
+          return;
+        }
+      }
+      // User was not found, so add it
+      addUserSession(sUserId, sSession);
+      // And then set the language for this last user
+      UserSession oLast = userCache.get(userCache.size()-1);
+      oLast.lang = sLang;
+    }
+  }
+  
 
   public void setUserJob(String sUserId, String sSession, String sJobId) {
-    // Look for the user
-    for (int i=0;i<userCache.size();i++) {
-      // Get this one
-      UserSession oThis = userCache.get(i);
-      // TODO: what if the user is there, but with a different session??
-      // Check if the combination occurs
-      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
-        // Set it to false
-        oThis.jobId = sJobId;
-        return;
+    // Validate
+    if (sUserId.isEmpty()) return;
+    synchronized(userCache) {
+      // Look for the user
+      for (int i=0;i<userCache.size();i++) {
+        // Get this one
+        UserSession oThis = userCache.get(i);
+        // TODO: what if the user is there, but with a different session??
+        // Check if the combination occurs
+        if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+          // Set it to false
+          oThis.jobId = sJobId;
+          return;
+        }
       }
     }
     
@@ -305,6 +353,7 @@ public class CrpUtil {
     // Found nothing
     return null;
   }
+  
   /**
    * setUserList -- set the specified list for this user
    * 
@@ -314,19 +363,23 @@ public class CrpUtil {
    * @param sListType 
    */
   public void setUserList(String sUserId, String sSession, JSONArray aList, String sListType) {
-    // Look for the user
-    for (int i=0;i<userCache.size();i++) {
-      // Get this one
-      UserSession oThis = userCache.get(i);
-      // TODO: what if the user is there, but with a different session??
-      // Check if the combination occurs
-      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
-        // Action depends on list type
-        switch (sListType) {
-          case "crp": oThis.aCrpList = aList; break;
-          case "db": oThis.aDbList = aList; break;
+    // Validate
+    if (sUserId.isEmpty()) return;
+    synchronized(userCache) {
+      // Look for the user
+      for (int i=0;i<userCache.size();i++) {
+        // Get this one
+        UserSession oThis = userCache.get(i);
+        // TODO: what if the user is there, but with a different session??
+        // Check if the combination occurs
+        if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+          // Action depends on list type
+          switch (sListType) {
+            case "crp": oThis.aCrpList = aList; break;
+            case "db": oThis.aDbList = aList; break;
+          }
+          return;
         }
-        return;
       }
     }
   }
@@ -349,6 +402,26 @@ public class CrpUtil {
     }
     // User/session combination was not found, so return failure
     return false;
+  }
+  
+  /**
+   * getUserLang - Get the language for this user/session
+   * 
+   * @param sUserId
+   * @param sSession
+   * @return 
+   */
+  public String getUserLang(String sUserId, String sSession) {
+    // Do not accept empty users or empty sessions
+    if (sUserId.isEmpty() || sSession.isEmpty()) return "";
+    for (UserSession oThis : userCache) {
+      if (oThis.userId.equals(sUserId) && oThis.sessionId.equals(sSession)) {
+        // Get the value of the userOkay flag for this user/session combination
+        return oThis.lang;
+      }
+    }
+    // User/session combination was not found, so return failure
+    return "";
   }
   
   /**
@@ -416,6 +489,7 @@ class UserSession {
   public String sessionId;  // ID of the session for this user
   public boolean userOkay;  // Is this user correctly logged in?
   public String jobId;      // Id of the job attached to this user/session
+  public String lang;       // Interface language for this user
   // TODO: start time of logging in
   public String lngLast;    // Last language corpus used
   public String crpLast;    // Last CRP that has been used
@@ -432,6 +506,7 @@ class UserSession {
     this.aDbList = null;
     this.aTable = null;
     this.aCrpList = null;
+    this.lang = "";
   }
 }
 

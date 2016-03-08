@@ -426,7 +426,7 @@ var crpstudio = (function ($, crpstudio) {
                 for (var i=0;i<oQry.cns.length;i++) {
                   var oCns = oQry.cns[i];
                   var sPos = private_methods.getPosition(oCns.pos);
-                  var sUnq = private_methods.getPosition(oCns.unq);
+                  var sUnq = private_methods.getPosition(oCns.unique);
                   arCode.push("  (: Retrieve constituent ["+oCns.name+"]:)");
                   arCode.push("  let $"+oCns.name+" := $"+oCns.towards+"/"+oCns.rel+"::"+oDescr.const+
                           sPos+"[ru:matches(@"+oDescr.pos+",'"+oTag[oCns.type].class+"')]"+sUnq);

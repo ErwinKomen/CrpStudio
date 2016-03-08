@@ -412,7 +412,7 @@ var crpstudio = (function ($, crpstudio) {
        * 22/jun/2015 ERK Copied from WhiteLab
        */  
       switchLanguage : function(lang) {
-        crpstudio.config.language = "lang";
+        crpstudio.config.language = lang;
         var tabPrj = crpstudio.project.getTab();
         if (loc_tab === "search" && tabPrj !== "result" && tabPrj !== "document") {
           window.location = window.location.protocol+loc_tab+"?lang="+crpstudio.config.language+"&tab="+tabPrj;
