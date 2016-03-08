@@ -2227,6 +2227,7 @@ var crpstudio = (function ($, crpstudio) {
               crpstudio.corpusInfo = oContent.corpuslist; // See crpstudio.js
               crpstudio.qry_relation = oContent.qryrelationlist;
               crpstudio.qry_position = oContent.qrypositionlist;
+              crpstudio.qry_unicity = oContent.qryunicitylist;
               // Show the recent ones
               crpstudio.project.sideToggle($("#project_list li.heading.crp-recent").get(0), "crp-recent");
               // $("#project_list li .crp-recent").removeClass("hidden");

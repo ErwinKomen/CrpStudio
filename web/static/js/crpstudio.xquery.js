@@ -11,8 +11,9 @@ var crpstudio = (function ($, crpstudio) {
   // ========== Variables that are global to 'crpstudio' ===================================
   //            (also see crpstudio.js)
   crpstudio.tagset = null,        // Array with pre-specified tags like 'subject', 'object' and so on
+  crpstudio.qry_unicity = null,   // Array with pre-specified unicity guarantees: first, last
   crpstudio.qry_relation = null,  // Array with pre-specified relations: preceding-sibling, child, parent...
-  crpstudio.qry_position = null;  // Array with pre-specified positions: first, last, any
+  crpstudio.qry_position = null;  // Array with pre-specified positions: first, second, last, any
   
   // Define module 'xquery'
   crpstudio.xquery = (function ($, config){
@@ -21,6 +22,7 @@ var crpstudio = (function ($, crpstudio) {
         loc_sConstituents = "", // List of constituents
         loc_sRelations = "",    // Relations
         loc_sPositions = "",    // Positions
+        loc_sUnicity = "",      // Unicity guarantees
         loc_arVarName = [],     // Array of variable names
         loc_arVarAll = [],      // List of *all* the variable names
         arMonth =  new Array('January', 'February', 'March', 'April', 
@@ -56,6 +58,7 @@ var crpstudio = (function ($, crpstudio) {
       getPosition : function(sPosCode) {
         switch(sPosCode) {
           case "first": return "[1]";
+          case "second": return "[2]";
           case "last": return "[last()]";
           case "any": return "";
         }
@@ -135,6 +138,37 @@ var crpstudio = (function ($, crpstudio) {
         // No success
         return {};
       },
+      
+      /**
+       * getTagDefSet
+       *    Get all language/part dependant tags for all available @sType's
+       * 
+       * @returns {object}
+       */
+      getTagDefSet : function() {
+        // Create an empty object
+        var oTagDefSet = {};
+        // Get the 'tagset' section from the "metavar" part from [crp-info.json]
+        var arTagset = crpstudio.project.getMetaList("", "", "tagset");
+        // Make sure the tagset object is specified
+        if (!arTagset.length === 0) return "";
+        // Get the value for this combination of tagset/tagname
+        for (var i=0;i<arTagset.length;i++) {
+          // Get this item
+          var oTagSpec = arTagset[i];
+          // Create a tag-definition object
+          var oTagDef = {};
+          oTagDef.class = oTagSpec.def;
+          if (oTagSpec.hasOwnProperty("fs"))
+            oTagDef.fs = oTagSpec.fs;
+          else
+            oTagDef.fs = null;
+          // Add this tagdef to the object
+          oTagDefSet[oTagSpec.title] = oTagDef;
+        }
+        // Return the total set
+        return oTagDefSet;
+      },      
       
       /**
        * getRowNumber 
@@ -324,16 +358,7 @@ var crpstudio = (function ($, crpstudio) {
         var arCnsList = []; // Same list, but with the constituents as used in the Query code
         var sSubcat = "";
         var sMsg = "";
-        var oTag = {clsAny: private_methods.getTagDef("clsAny"),
-                    clsMain: private_methods.getTagDef("clsMain"),
-                    clsSub: private_methods.getTagDef("clsSub"),
-                    clsInf: private_methods.getTagDef("clsInf"),
-                    npSbj: private_methods.getTagDef("npSbj"),
-                    npObj: private_methods.getTagDef("npObj"),
-                    npAny: private_methods.getTagDef("npAny"),
-                    ppAny: private_methods.getTagDef("ppAny"),
-                    vbAny: private_methods.getTagDef("vbAny"),
-                    vbFin: private_methods.getTagDef("vbFin")};
+        var oTag = private_methods.getTagDefSet();
         // Get a descriptor object
         var oDescr = private_methods.getDescr(sPrjType);
         // Validate
@@ -401,9 +426,10 @@ var crpstudio = (function ($, crpstudio) {
                 for (var i=0;i<oQry.cns.length;i++) {
                   var oCns = oQry.cns[i];
                   var sPos = private_methods.getPosition(oCns.pos);
+                  var sUnq = private_methods.getPosition(oCns.unq);
                   arCode.push("  (: Retrieve constituent ["+oCns.name+"]:)");
                   arCode.push("  let $"+oCns.name+" := $"+oCns.towards+"/"+oCns.rel+"::"+oDescr.const+
-                          "[ru:matches(@"+oDescr.pos+",'"+oTag[oCns.type].class+"')]"+sPos);
+                          sPos+"[ru:matches(@"+oDescr.pos+",'"+oTag[oCns.type].class+"')]"+sUnq);
                   arCode.push(" ");
                   // This constituent also must exist
                   var sAnd = (i===0) ? "" : "and ";
@@ -415,9 +441,55 @@ var crpstudio = (function ($, crpstudio) {
                     arArgList.push(oCns.name);
                   }
                 }
-                // Process all conditions
+                // Process all additional conditions
                 for (var i=0;i<oQry.cnd.length;i++) {
                   var oCnd = oQry.cnd[i];
+                  var sPos = private_methods.getPosition(oCnd.pos);
+                  // Assumption: 'additional' conditions always require 'and'
+                  var sAnd = "    and ";
+                  // Action depends on the kind of relation that is chosen
+                  switch(oCnd.rel) {
+                    case "child":
+                      arWhere.push(sAnd+"($"+oCnd.var+" is $"+oCnd.towards+"/child::"+oDescr.const+sPos+")");
+                      break;
+                    case "descendant":
+                      if (sPos === "") {
+                        arWhere.push(sAnd+"($"+oCnd.var+" intersect $"+oCnd.towards+"/descendant::"+oDescr.const+")");
+                      } else {
+                        arWhere.push(sAnd+"($"+oCnd.var+" is $"+oCnd.towards+"/descendant::"+oDescr.const+sPos+")");
+                      }
+                      break;
+                    case "parent":
+                      arWhere.push(sAnd+"($"+oCnd.var+" is $"+oCnd.towards+"/parent::"+oDescr.const+sPos+")");
+                      break;
+                    case "ancestor":
+                      if (sPos === "") {
+                        arWhere.push(sAnd+"($"+oCnd.var+" intersect $"+oCnd.towards+"/ancestor::"+oDescr.const+")");
+                      } else {
+                        arWhere.push(sAnd+"($"+oCnd.var+" is $"+oCnd.towards+"/ancestor::"+oDescr.const+sPos+")");
+                      }
+                      break;
+                    case "preceding":
+                      arWhere.push(sAnd+"($"+oCnd.var+" << "+"$"+oCnd.towards+")");
+                      break;
+                    case "preceding-sibling":
+                      if (sPos === "") {
+                        arWhere.push(sAnd+"($"+oCnd.var+" intersect $"+oCnd.towards+"/preceding-sibling::"+oDescr.const+")");
+                      } else {
+                        arWhere.push(sAnd+"($"+oCnd.var+" is $"+oCnd.towards+"/preceding-sibling::"+oDescr.const+sPos+")");
+                      }
+                      break;
+                    case "following":
+                      arWhere.push(sAnd+"($"+oCnd.var+" >> "+"$"+oCnd.towards+")");
+                      break;
+                    case "following-sibling":
+                      if (sPos === "") {
+                        arWhere.push(sAnd+"($"+oCnd.var+" intersect $"+oCnd.towards+"/following-sibling::"+oDescr.const+")");
+                      } else {
+                        arWhere.push(sAnd+"($"+oCnd.var+" is $"+oCnd.towards+"/following-sibling::"+oDescr.const+sPos+")");
+                      }
+                      break;
+                  }
                 }                
                 // Do we need a 'where' closure?
                 if (bHasWhere) {
@@ -619,9 +691,10 @@ var crpstudio = (function ($, crpstudio) {
           var oConst = {};
           oConst.name = $(this).find("input").val();
           oConst.type = $(this).find("select").eq(0).val();
-          oConst.rel = $(this).find("select").eq(1).val();
-          oConst.pos = $(this).find("select").eq(2).val();
+          oConst.pos = $(this).find("select").eq(1).val();
+          oConst.rel = $(this).find("select").eq(2).val();
           oConst.towards = $(this).find("select").eq(3).val();
+          oConst.unique = $(this).find("select").eq(4).val();
           arConst.push(oConst);
         });
         oBack.cns = arConst;
@@ -632,10 +705,10 @@ var crpstudio = (function ($, crpstudio) {
           if ($(this).find("select").eq(0).val()) {
             var oCond = {};
             oCond.var = $(this).find("select").eq(0).val();
-            oCond.rel = $(this).find("select").eq(1).val();
-            oCond.pos = $(this).find("select").eq(2).val();
+            oCond.pos = $(this).find("select").eq(1).val();
+            oCond.rel = $(this).find("select").eq(2).val();
             oCond.towards = $(this).find("select").eq(3).val();
-            arConst.push(oCond);
+            arCond.push(oCond);
           }
         });
         oBack.cnd = arCond;
@@ -723,16 +796,18 @@ var crpstudio = (function ($, crpstudio) {
                 "</td>");
         // (2) Allow user to select a constituent type
         arHtml.push("<td><select id=\"cns_type"+iRowNumber+"\">"+loc_sConstituents+"</select></td>");
-        // (3) Allow user to select a constituent relation
-        arHtml.push("<td><select id=\"cns_rel"+iRowNumber+"\">"+loc_sRelations+"</select></td>");
-        // (4) Allow user to select a constituent positions
+        // (3) Allow user to select a constituent positions
         arHtml.push("<td><select id=\"cns_pos"+iRowNumber+"\">"+loc_sPositions+"</select></td>");
+        // (4) Allow user to select a constituent relation
+        arHtml.push("<td><select id=\"cns_rel"+iRowNumber+"\">"+loc_sRelations+"</select></td>");
         // (5) Provide a list of variable names that have already been made, including "search"
         arHtml.push("<td><select id=\"cns_towards"+iRowNumber+"\">"+loc_arVarName+"</select></td>");
-        // (6) Add a button to *remove* this current row
+        // (6) Allow user to select a unicity positions
+        arHtml.push("<td><select id=\"cns_unq"+iRowNumber+"\">"+loc_sUnicity+"</select></td>");
+        // (7) Add a button to *remove* this current row
         arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.removeBuildRow(this);\""+
                 " class=\"knopje\"><b>-</b></a></td>");
-        // (7) Add a button to *add* a new row
+        // (8) Add a button to *add* a new row
         arHtml.push("<td><a href=\"#\" onclick=\"crpstudio.xquery.addBuildRow(this);\""+
                 " class=\"knopje\"><b>+</b></a></td>");
         
@@ -756,10 +831,10 @@ var crpstudio = (function ($, crpstudio) {
         arHtml.push("<tr id=\"cnd_number_"+iRowNumber+"\" >");
         // (2) Allow user to select one variable (including 'search')
         arHtml.push("<td><select id=\"cnd_var"+iRowNumber+"\" class=\"cnd-var\">"+loc_arVarName+"</select></td>");
-        // (3) Allow user to select a constituent relation
-        arHtml.push("<td><select id=\"cnd_rel"+iRowNumber+"\">"+loc_sRelations+"</select></td>");
-        // (4) Allow user to select a constituent positions
+        // (3) Allow user to select a constituent positions
         arHtml.push("<td><select id=\"cnd_pos"+iRowNumber+"\">"+loc_sPositions+"</select></td>");
+        // (4) Allow user to select a constituent relation
+        arHtml.push("<td><select id=\"cnd_rel"+iRowNumber+"\">"+loc_sRelations+"</select></td>");
         // (5) Provide a list of variable names that have already been made, including "search"
         arHtml.push("<td><select id=\"cnd_towards"+iRowNumber+"\" class=\"cnd-var\">"+loc_arVarName+"</select></td>");
         // (6) Add a button to *remove* this current row
@@ -816,6 +891,7 @@ var crpstudio = (function ($, crpstudio) {
         var sContent = crpstudio.xquery.getBuildItem();
         // Add this <tr> after the current <tr>
         $(divRow).after(sContent);
+        /*
         // Check if 'additional' is already shown
         if ($("#query_new_additional").hasClass("hidden")) {
           // It is not shown: check if it *should* be shown
@@ -826,7 +902,7 @@ var crpstudio = (function ($, crpstudio) {
             // Now show it
             $("#query_new_additional").removeClass("hidden");
           }
-        }
+        } */
         // Adapt the contents of the variable boxes
         crpstudio.xquery.adaptVarCombos(0);
         // Add event handling
@@ -879,6 +955,43 @@ var crpstudio = (function ($, crpstudio) {
         // Add event handling
         crpstudio.xquery.addBuildChangeEvents("query_new_builder");
       },
+      
+      /**
+       * showRelations
+       *    Show or hide the additional relations <div>
+       * 
+       * @param {type} bShow
+       * @returns {undefined}
+       */
+      showRelations : function(bShow) {
+        if (bShow) {
+          // Validate
+          if ($("#query_new_additional").hasClass("hidden")) {
+            // It is not shown: check if it *should* be shown
+            var iTotal = $("#query_new_cns").find("tr").length;
+            if (iTotal >=2) {
+              // Yes it should be shown 
+              // put at least *ONE* row there
+              $("#query_new_cnd").html(crpstudio.xquery.getConditionItem());
+              // Adapt the contents of the variable boxes
+              crpstudio.xquery.adaptVarCombos(0);
+              // Now show it
+              $("#query_new_additional").removeClass("hidden");
+              // Make the 'hide' button visible
+              $("#query_new_additional_show").addClass("hidden");
+              $("#query_new_additional_hide").removeClass("hidden");
+            }
+          }
+        } else {
+          // Make sure it disappears
+          $("#query_new_additional").addClass("hidden");
+          // Empty all conditions
+          $("#query_new_cnd").html("");
+          // Make the 'show' button visible
+          $("#query_new_additional_hide").addClass("hidden");
+          $("#query_new_additional_show").removeClass("hidden");
+        }
+      },
             
       /**
        * buildQueryParts
@@ -886,6 +999,7 @@ var crpstudio = (function ($, crpstudio) {
        * 
        * @returns {object}
        */
+      /*
       buildQueryParts : function() {
         // Create an object where we collect the results
         var oBuild = {};
@@ -899,6 +1013,9 @@ var crpstudio = (function ($, crpstudio) {
           var arTd = $(arCnsRows[i]).children("td");
           var oCns = {};
           // Get the relevant information for this included constituent
+          
+          // Add to array
+          arCns.push(oCns);
         }
         // Process all the table rows in [query_new_cnd]
         var arCndRows = $("#query_new_cnd").find("tr");
@@ -908,13 +1025,16 @@ var crpstudio = (function ($, crpstudio) {
           var arTd = $(arCnsRows[i]).children("td");
           var oCnd = {};
           // Get the relevant information for this included condition
+          // 
+          // Add to array
+          arCnd.push(oCnd);
         }
         // COmbine
         oBuild.cns = arCns;
         oBuild.cnd = arCnd;
         // Return the result
         return oBuild;
-      },
+      },*/
       
       /**
        * newQueryType
@@ -943,6 +1063,8 @@ var crpstudio = (function ($, crpstudio) {
             loc_sRelations = crpstudio.qry_relation;
             // Prepare an array of positions
             loc_sPositions = crpstudio.qry_position;
+            // Prepare an array of unicity guarantees
+            loc_sUnicity = crpstudio.qry_unicity;
           }
           // Put a *FIRST* row into place
           $("#query_new_cns").html(crpstudio.xquery.getBuildItem());

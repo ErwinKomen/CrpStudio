@@ -2050,7 +2050,7 @@ public abstract class BaseResponse {
 
     try {
       // Add a first line
-      sb.append("<option value=\"\">(Please make a selection)</option>");
+      sb.append("<option value=\"\">(Choose)</option>");
       // Walk through all project types
       ProjType[] arPrjType = ProjType.values();
       for (int i=0;i<arPrjType.length;i++) {
@@ -2083,7 +2083,7 @@ public abstract class BaseResponse {
 
     try {
       // Add a first line
-      sb.append("<option value=\"\">(Please make a selection)</option>");
+      sb.append("<option value=\"\">(Choose)</option>");
       // Get a list of query type definitions
       LinkedList<QryTypeSpecifier> lstQryType = getQryTypeSpecsList();
       // Walk the list
@@ -2111,7 +2111,7 @@ public abstract class BaseResponse {
 
     try {
       // Add a first line
-      sb.append("<option value=\"\">(Please make a selection)</option>");
+      sb.append("<option value=\"\">(Choose)</option>");
       // Get a list of query type definitions
       LinkedList<QryPositionSpecifier> lstQryPosition = getQryPositionSpecsList();
       // Walk the list
@@ -2130,6 +2130,35 @@ public abstract class BaseResponse {
   }
   
   /**
+   * getQryUnicityList
+   *    Create an <option> list of possible query positions that can be chosen
+   * 
+   * @return 
+   */
+  public String getQryUnicityList() {
+    StringBuilder sb = new StringBuilder(); // Put everything into a string builder
+
+    try {
+      // DO NOT Add a first line -- one option MUST be chosen
+      // sb.append("<option value=\"\">(Choose)</option>");
+      // Get a list of query type definitions
+      LinkedList<QryPositionSpecifier> lstQryUnicity = getQryUnicitySpecsList();
+      // Walk the list
+      for (int i=0;i<lstQryUnicity.size();i++) {
+        // Append information on this list
+        sb.append("<option value=\""+lstQryUnicity.get(i).getName()+"\">"+
+                lstQryUnicity.get(i).getTitle()+"</option>");
+      }
+
+      // Return the result
+      return sb.toString();
+    } catch (Exception ex) {
+      logger.DoError("getQryUnicityList: could not complete", ex);
+      return "error (getQryUnicityList)";
+    }
+  }
+
+  /**
    * getQryRelationList
    *    Create an <option> list of possible query relations that can be chosen
    * 
@@ -2140,7 +2169,7 @@ public abstract class BaseResponse {
 
     try {
       // Add a first line
-      sb.append("<option value=\"\">(Please make a selection)</option>");
+      sb.append("<option value=\"\">(Choose)</option>");
       // Get a list of query type definitions
       LinkedList<QryRelationSpecifier> lstQryRelation = getQryRelationSpecsList();
       // Walk the list
@@ -2171,7 +2200,7 @@ public abstract class BaseResponse {
       // Get all the queries for the current CRP
       List<JSONObject> lstQry = prjThis.getListQuery();
       // Add a first line
-      sb.append("<option value=\"\">(Please make a selection)</option>");
+      sb.append("<option value=\"\">(Choose)</option>");
       // Walk this list
       for (int i=0;i<lstQry.size();i++) {
         // Access this item in the list
@@ -2517,6 +2546,25 @@ public abstract class BaseResponse {
     String[] arTitle = labels.getString("query.position.title").split(",");
     String[] arName = labels.getString("query.position.name").split(",");
     String[] arDef = labels.getString("query.position.def").split(",");
+    for (int i=0;i<arName.length;i++) {
+      QryPositionSpecifier tabThis = new QryPositionSpecifier(arTitle[i].trim(), arName[i].trim(), arDef[i].trim());
+      tabs.add(tabThis);
+    }
+    // Return the result
+    return(tabs);
+  }
+  
+  /**
+   * getQryUnicitySpecsList
+   *    Make a list of query unicity specifications
+   * 
+   * @return 
+   */
+  public LinkedList<QryPositionSpecifier> getQryUnicitySpecsList() {
+    LinkedList<QryPositionSpecifier> tabs = new LinkedList<>();
+    String[] arTitle = labels.getString("query.unicity.title").split(",");
+    String[] arName = labels.getString("query.unicity.name").split(",");
+    String[] arDef = labels.getString("query.unicity.def").split(",");
     for (int i=0;i<arName.length;i++) {
       QryPositionSpecifier tabThis = new QryPositionSpecifier(arTitle[i].trim(), arName[i].trim(), arDef[i].trim());
       tabs.add(tabThis);

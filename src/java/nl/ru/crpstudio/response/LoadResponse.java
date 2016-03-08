@@ -63,6 +63,8 @@ public class LoadResponse extends BaseResponse {
           oContent.put("qryrelationlist", this.getQryRelationList());
           // Get a specification of query positions
           oContent.put("qrypositionlist", this.getQryPositionList());
+          // Get a specification of query positions
+          oContent.put("qryunicitylist", this.getQryUnicityList());
           // Get the table with corpora information -- see crp-info.json
           if (!this.makeCorpusParts()) { sendErrorResponse("LoadResponse: could not makeCorpusParts()");  return;}
           oContent.put("corpuslist", servlet.getCorpusParts());

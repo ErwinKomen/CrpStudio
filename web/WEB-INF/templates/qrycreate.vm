@@ -60,9 +60,10 @@
                   <thead><tr>
                     <th>$labels.getString("query.build.cns.name")</th>
                     <th>$labels.getString("query.build.cns.type")</th>
-                    <th>$labels.getString("query.build.cns.relation")</th>
                     <th>$labels.getString("query.build.cns.position")</th>
+                    <th>$labels.getString("query.build.cns.relation")</th>
                     <th>$labels.getString("query.build.cns.towards")</th>
+                    <th>$labels.getString("query.build.cns.unique")</th>
                   </tr></thead>
                   <tbody id="query_new_cns">
                     <!-- this is filled in programmatically -->
@@ -70,14 +71,22 @@
                 </table>
               </div>
               <!-- Additional conditions on one or more of the constituents -->
+              <div class="large-offset-2 medium-offset-3 small-offset-4 large-14 medium-13 small-12 row">
+                <div>
+                  <span>$labels.getString("query.build.additional")<span>
+                  <span>
+                    <a href="#" id="query_new_additional_show" onclick="crpstudio.xquery.showRelations(true);" class="button tiny">$labels.getString("query.build.rel.show")</a>
+                    <a href="#" id="query_new_additional_hide" onclick="crpstudio.xquery.showRelations(false);" class="button tiny hidden">$labels.getString("query.build.rel.hide")</a>
+                  </span>
+                </div>
+              </div>
               <div id="query_new_additional" 
                    class="large-offset-2 medium-offset-3 small-offset-4 large-14 medium-13 small-12 row hidden">
-                <div>$labels.getString("query.build.additional")</div>
                 <table class="" cellspacing="0" width="100%">
                   <thead><tr>
                     <th>$labels.getString("query.build.cns.name")</th>
-                    <th>$labels.getString("query.build.cns.relation")</th>
                     <th>$labels.getString("query.build.cns.position")</th>
+                    <th>$labels.getString("query.build.cns.relation")</th>
                     <th>$labels.getString("query.build.cns.towards")</th>
                   </tr></thead>
                   <tbody id="query_new_cnd">
