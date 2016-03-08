@@ -540,6 +540,100 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * removeDbf
+       *    Remove all <dbf> items that are linked to the given QCid 
+       * 
+       * @param {int} iQCid
+       * @param {string} sCrpName
+       * @returns {undefined}
+       */
+      removeDbf : function(iQCid, sCrpName) {        
+        // Get the list of dbf items
+        var sItemType = "dbfeat";
+        var arDbf = crpstudio.list.getList(sItemType, "QCid");
+        for (var i=0;i<arDbf.length;i++) {
+          var oDbf = arDbf[i];
+          // SHould this one be removed?
+          if (iQCid === oDbf["QCid"]) {
+            var iItemId = oDbf["DbFeatId"];
+            // Make a call to histAdd, which prepares the deletion in the actual feature
+            // NOTE: histAdd also calls itemPerculate(), which renumbers FtNum accordingly (but not the ids)
+            private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
+            // Delete the item from the list
+            var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+          }
+        }
+        
+      },
+      
+      /**
+       * removeDef
+       *    Remove the definition with the indicated name
+       * 
+       * @param {type} sDefName
+       * @param {type} sCrpName
+       * @returns {undefined}
+       */
+      removeDef : function(sDefName, sCrpName) {
+        var sItemType = "definition";
+        var arDef = crpstudio.list.getList(sItemType, "DefId");
+        for (var i=0;i<arDef.length;i++) {
+          // Is thi sthe one?
+          var oDef = arDef[i];
+          if (oDef["Name"] === sDefName) {
+            // This is the one: delete it
+            var iItemId = oDef["DefId"];
+            // Remove it
+            private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
+            // Delete the item from the list
+            var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+            // Now we can leave
+            return;
+          }
+        }
+      },
+      
+      /**
+       * removeQc
+       *    Remove the item with the indicated QCid from the list
+       *    Also pass this on to the history
+       * 
+       * @param {type} iQCid
+       * @param {type} sCrpName
+       * @returns {undefined}
+       */
+      removeQc : function(iQCid, sCrpName) {
+        // Get the list of dbf items
+        var sItemType = "constructor";
+        var arQC = crpstudio.list.getList(sItemType, "QCid");
+        for (var i=arQC.length-1;i>=0;i--) {
+          var oQC = arQC[i];
+          var iItemId = oQC["QCid"];
+          if (iItemId === iQCid) {
+            // Check: is there another constructor relying on me?
+            if (private_methods.qcDependant(iItemId)) {
+              // Another line is dependant upon [iItemId], so we cannot remove it
+              // Warn the user
+              var sMsg = (crpstudio.config.language === "en") ? 
+                "First remove constructor lines that take this line as input" : 
+                "Verwijder eerst de regels uit de constructor die deze regel als invoer hebben";
+              alert(sMsg);
+              // Exit this function
+              return;
+            }
+            // Make a call to histAdd, which prepares the deletion in the actual CRP
+            private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
+            // Delete the item from the list
+            var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+
+            // Perform re-numbering on the items coming on or after iItemNext
+            private_methods.qcRenumber(iItemId);
+          }
+        }
+        
+      },
+      
+      /**
        * getItemValue -- get the value of the indicated item
        *                 use the on-board lists to get it
        * @param {type} sListType
@@ -2797,7 +2891,33 @@ var crpstudio = (function ($, crpstudio) {
                 crpstudio.main.getCrpStudioData("remove", params, crpstudio.project.processRemove, "#"+sItemType+"_description");      
               }
               break;
-            case "query": case "definition": 
+            case "definition": 
+              // Make a call to histAdd, which signals the deletion
+              private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
+              // Delete the item from the list
+              iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+              // Show the list, putting the focus on the new item id
+              crpstudio.list.itemListShow(sItemType, iItemNext);
+              break;
+            case "query":
+              // Check #1: do we have a coupled QC?
+              var oQry = crpstudio.list.getListItem("query", {"QueryId": iItemId});
+              var sQname = oQry["Name"];
+              // Get all possible QCs with this query, sorted on QCid
+              var arQC = crpstudio.list.getList("constructor", "QCid");
+              // Walk the QCs down
+              for (var i=arQC.length-1;i>=0;i--) {
+                // Process this QC item
+                var oQC = arQC[i];
+                var iQCid = oQC["QCid"];
+                // Find and remove all <dbfeat> items with this QCid
+                private_methods.removeDbf(iQCid, sCrpName);
+                // Try remove this item from the QC list
+                private_methods.removeQc(iQCid, sCrpName);
+              }
+              // Check and possibly remove definitions
+              private_methods.removeDef(sQname+"_def", sCrpName);
+              
               // Make a call to histAdd, which signals the deletion
               private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
               // Delete the item from the list
@@ -2832,6 +2952,8 @@ var crpstudio = (function ($, crpstudio) {
                 return;
               }
               
+              // Find and remove all <dbfeat> items with this QCid
+              private_methods.removeDbf(iItemId, sCrpName);
               
               // Make a call to histAdd, which prepares the deletion in the actual CRP
               private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
