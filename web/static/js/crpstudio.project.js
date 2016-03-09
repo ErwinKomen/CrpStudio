@@ -59,7 +59,7 @@ var crpstudio = (function ($, crpstudio) {
        * @param {string} sType  - project, query, definition etc
        * @param {int} iId       - numerical id of query/def etc
        * @param {string} sCrp   - name of the CRP
-       * @param {string} sKey   - field name (e.g. "Goal", "Text")
+       * @param {string} sKey   - field name (e.g. "Goal", "Text") [OR: 'delete', and then sValue=""]
        * @param {string} sValue - new value of the field
        * @param {bool}   bForce - this value must be created, even if it equals the old one
        * @returns {bool}
@@ -68,9 +68,14 @@ var crpstudio = (function ($, crpstudio) {
         // If this is a change in name, then check it immediately
         if (!private_methods.itemCheck(sType, iId, sKey, sValue)) return false;
         // Check what the 'old' value was
-        var sOld = private_methods.getItemValue(sType, iId, sCrp, sKey);
-        // Validate: only real changes must continue
-        if (sValue === sOld && (!bForce || bForce===undefined || bForce===false)) return false;
+        var sOld = "";
+        if (sValue==="" && (sKey==="delete" || sKey === "create")) {
+          // There is no use in finding an 'old' value and comparing it to the new one
+        } else {
+          sOld = private_methods.getItemValue(sType, iId, sCrp, sKey);
+          // Validate: only real changes must continue
+          if (sValue === sOld && (!bForce || bForce===undefined || bForce===false)) return false;
+        }
         // Some changes cause perculation (e.g. query name change --> QC list; dbfeat --> FtNum)
         if (!private_methods.itemPerculate(sType, iId, sCrp, sKey, sValue, sOld)) return false;
         // Possibly get the last item of history
@@ -106,7 +111,8 @@ var crpstudio = (function ($, crpstudio) {
           var oNew = {type: sType, id: iPushId, crp: sCrp, key: sKey, value: sValue, old: sOld, saved: false};
           // Add the new element to the list
           lstHistory.push(oNew);
-        }
+        }          
+
         // Check if the value needs to be adapted in a list
         switch (sKey) {
           case "delete":
@@ -551,16 +557,18 @@ var crpstudio = (function ($, crpstudio) {
         // Get the list of dbf items
         var sItemType = "dbfeat";
         var arDbf = crpstudio.list.getList(sItemType, "QCid");
-        for (var i=0;i<arDbf.length;i++) {
+        for (var i=arDbf.length-1;i>=0;i--) {
           var oDbf = arDbf[i];
           // SHould this one be removed?
-          if (iQCid === oDbf["QCid"]) {
-            var iItemId = oDbf["DbFeatId"];
+          if (iQCid === parseInt(oDbf["QCid"],10)) {
+            var iItemId = parseInt(oDbf["DbFeatId"],10);
             // Make a call to histAdd, which prepares the deletion in the actual feature
             // NOTE: histAdd also calls itemPerculate(), which renumbers FtNum accordingly (but not the ids)
             private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
             // Delete the item from the list
             var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+            // Show the list, putting the focus on the new item id
+            crpstudio.list.itemListShow(sItemType, iItemNext);
           }
         }
         
@@ -582,11 +590,13 @@ var crpstudio = (function ($, crpstudio) {
           var oDef = arDef[i];
           if (oDef["Name"] === sDefName) {
             // This is the one: delete it
-            var iItemId = oDef["DefId"];
+            var iItemId = parseInt(oDef["DefId"],10);
             // Remove it
             private_methods.histAdd(sItemType, iItemId, sCrpName, "delete", "");
             // Delete the item from the list
             var iItemNext = crpstudio.project.removeItemFromList(sItemType, iItemId);
+            // Show the list, putting the focus on the new item id
+            crpstudio.list.itemListShow(sItemType, iItemNext);
             // Now we can leave
             return;
           }
@@ -598,7 +608,7 @@ var crpstudio = (function ($, crpstudio) {
        *    Remove the item with the indicated QCid from the list
        *    Also pass this on to the history
        * 
-       * @param {type} iQCid
+       * @param {int} iQCid
        * @param {type} sCrpName
        * @returns {undefined}
        */
@@ -608,7 +618,7 @@ var crpstudio = (function ($, crpstudio) {
         var arQC = crpstudio.list.getList(sItemType, "QCid");
         for (var i=arQC.length-1;i>=0;i--) {
           var oQC = arQC[i];
-          var iItemId = oQC["QCid"];
+          var iItemId = parseInt(oQC["QCid"],10);
           if (iItemId === iQCid) {
             // Check: is there another constructor relying on me?
             if (private_methods.qcDependant(iItemId)) {
@@ -628,6 +638,8 @@ var crpstudio = (function ($, crpstudio) {
 
             // Perform re-numbering on the items coming on or after iItemNext
             private_methods.qcRenumber(iItemId);
+            // Show the list, putting the focus on the new item id
+            crpstudio.list.itemListShow(sItemType, iItemNext);
           }
         }
         
@@ -2901,7 +2913,7 @@ var crpstudio = (function ($, crpstudio) {
               break;
             case "query":
               // Check #1: do we have a coupled QC?
-              var oQry = crpstudio.list.getListItem("query", {"QueryId": iItemId});
+              var oQry = crpstudio.list.getListItem("query", {"QueryId": iItemId.toString()});
               var sQname = oQry["Name"];
               // Get all possible QCs with this query, sorted on QCid
               var arQC = crpstudio.list.getList("constructor", "QCid");
@@ -2909,11 +2921,14 @@ var crpstudio = (function ($, crpstudio) {
               for (var i=arQC.length-1;i>=0;i--) {
                 // Process this QC item
                 var oQC = arQC[i];
-                var iQCid = oQC["QCid"];
-                // Find and remove all <dbfeat> items with this QCid
-                private_methods.removeDbf(iQCid, sCrpName);
-                // Try remove this item from the QC list
-                private_methods.removeQc(iQCid, sCrpName);
+                // Should this one be removed?
+                if (oQC["Query"] === sQname) {
+                  var iQCid = parseInt(oQC["QCid"],10);
+                  // Find and remove all <dbfeat> items with this QCid
+                  private_methods.removeDbf(iQCid, sCrpName);
+                  // Try remove this item from the QC list
+                  private_methods.removeQc(iQCid, sCrpName);
+                }
               }
               // Check and possibly remove definitions
               private_methods.removeDef(sQname+"_def", sCrpName);

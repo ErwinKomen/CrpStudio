@@ -488,6 +488,10 @@ var crpstudio = (function ($, crpstudio) {
         var oItemDesc = crpstudio.list.getItemDescr(sListType);
         // Get the NAME of this element
         var oListItem = crpstudio.list.getListObject(sListType, oItemDesc.id, iItemId);
+        if (oListItem===null) {
+          // That is a pity...
+          return null;
+        }
         // Construct the unique class name identifying our target
         var sClass = oItemDesc.prf + "_" + oListItem[oItemDesc.listfield];
         // Get the location identifier for this element: Intersection --> no space after "available"
@@ -719,7 +723,11 @@ var crpstudio = (function ($, crpstudio) {
         // Action depends on type
         switch (sItemType) {
           case "dbfeat":
-            crpstudio.list.showlist(sItemType, iItemId, parseInt(oNew.QCid, 10));
+            if (oNew && oNew !== null) {
+              crpstudio.list.showlist(sItemType, iItemId, parseInt(oNew.QCid, 10));
+            } else {
+              crpstudio.list.showlist(sItemType, iItemId);
+            }
             break;
           default:
             crpstudio.list.showlist(sItemType, iItemId);
