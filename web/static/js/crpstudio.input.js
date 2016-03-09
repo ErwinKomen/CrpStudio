@@ -170,7 +170,9 @@ var crpstudio = (function ($, crpstudio) {
        */
       setMetaRules : function(sInputRules) {
         // TODO: transform [sInputRules] into a JSON array of rules, and implement these
-        if (sInputRules !== "" && sInputRules.startsWith("[")) {
+        // NOTE: the function .startsWith() is not compatible with some browsers
+        // if (sInputRules !== "" && sInputRules.startsWith("[")) {
+        if (sInputRules !== "" && sInputRules.indexOf("[") === 0) {
           // Transform the rules into an array
           var arRules = JSON.parse(sInputRules);
           // Any substance?

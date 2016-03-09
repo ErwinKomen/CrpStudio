@@ -455,7 +455,9 @@ var crpstudio = (function ($, crpstudio) {
           var oItem = oList[i];
           // Check if this item contains a troubling element
           var sInput = oItem["Input"];
-          if (sInput.startsWith(sCheck))
+          // NOTE: .startsWith() is not compatible with earlier IE
+          // if (sInput.startsWith(sCheck))
+          if (sInput.indexOf(sCheck) === 0)
             return true;
         }
         // COming here means there should be no problem

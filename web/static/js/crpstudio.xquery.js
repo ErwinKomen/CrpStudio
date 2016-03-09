@@ -179,7 +179,9 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {int}
        */
       getRowNumber : function(sIdName, sId) {
-        if (sId.startsWith(sIdName)) {
+        // NOTE: .startsWith() is not compatible with earlier IE
+        // if (sId.startsWith(sIdName)) {
+        if (sId.indexOf(sIdName) === 0) {
           var iNumber = parseInt(sId.substring(sIdName.length), 10);
           return iNumber;
         } else return 0;
@@ -355,6 +357,7 @@ var crpstudio = (function ($, crpstudio) {
         var arDef = [];     // Code for in a definitions file
         var arWhere = [];   // Code containing the 'where' part
         var arArgList = []; // List of arguments for definition function
+        var arFeatList = [];// List of feature names
         var arCnsList = []; // Same list, but with the constituents as used in the Query code
         var sSubcat = "";
         var sMsg = "";
@@ -642,6 +645,13 @@ var crpstudio = (function ($, crpstudio) {
             arDef.push("  return concat(" + strDbList + ")");
             arDef.push("};");
             arDef.push("");
+            // Construct feature NAMES
+            for (var i=0;i<arArgList.length;i++) {
+              arFeatList.push(arArgList[i]+"_text");
+            }
+            for (var i=0;i<arArgList.length;i++) {
+              arFeatList.push(arArgList[i]+"_cat");
+            }
           }
           // Combine the definition function
           var strDefText = arDef.join("\n");
@@ -656,6 +666,13 @@ var crpstudio = (function ($, crpstudio) {
             arCode.push("  let $dbList := tb:GetFt"+sItemName + "(" + strCnsList + ")");
             arCode.push("  ");
             sMsg = ", $dbList";
+            if (arCnsList.length > 1) {
+              // Default subcategory: category of first argument
+              sSubcat = ", $cat";
+              arCode.push("  (: Divide results over something -- e.g. category of a constituent :)");
+              arCode.push("  let $cat := $"+arCnsList[1]+"/@"+oDescr.pos);
+              arCode.push("  ");
+            }
           }
           
           // Add the 'where' part
@@ -671,7 +688,7 @@ var crpstudio = (function ($, crpstudio) {
         // Combine the contents of arCode and return it as one string, separated by \n
         var oBack = {"query": arCode.join("\n"), 
           "definition": oDef, 
-          "features": arArgList};
+          "features": arFeatList};
         return (oBack);
       },
       
@@ -994,49 +1011,6 @@ var crpstudio = (function ($, crpstudio) {
       },
             
       /**
-       * buildQueryParts
-       *    Collect the user-chosen query parts 
-       * 
-       * @returns {object}
-       */
-      /*
-      buildQueryParts : function() {
-        // Create an object where we collect the results
-        var oBuild = {};
-        // Get the $search consonant type
-        oBuild.search = $("#query_new_cnstype").val();
-        // Process all the table rows in [query_new_cns]
-        var arCnsRows = $("#query_new_cns").find("tr");
-        var arCns = [];
-        for (var i=0;i<arCnsRows.length;i++) {
-          // Get all the <td> elements
-          var arTd = $(arCnsRows[i]).children("td");
-          var oCns = {};
-          // Get the relevant information for this included constituent
-          
-          // Add to array
-          arCns.push(oCns);
-        }
-        // Process all the table rows in [query_new_cnd]
-        var arCndRows = $("#query_new_cnd").find("tr");
-        var arCnd = [];
-        for (var i=0;i<arCndRows.length;i++) {
-          // Get all the <td> elements
-          var arTd = $(arCnsRows[i]).children("td");
-          var oCnd = {};
-          // Get the relevant information for this included condition
-          // 
-          // Add to array
-          arCnd.push(oCnd);
-        }
-        // COmbine
-        oBuild.cns = arCns;
-        oBuild.cnd = arCnd;
-        // Return the result
-        return oBuild;
-      },*/
-      
-      /**
        * newQueryType
        *    This function is called when "query_new_qrytype" changes
        * 
@@ -1098,7 +1072,9 @@ var crpstudio = (function ($, crpstudio) {
         switch(sType) {
           case "input":
             // We are dealing with an <input> event
-            if (sId.startsWith(sIdName)) {
+            // NOTE: .startsWith() is not compatible with earlier IE
+            // if (sId.startsWith(sIdName)) {
+            if (sId.indexOf(sIdName) === 0) {
               var iNumber = parseInt(sId.substring(sIdName.length), 10);
               crpstudio.xquery.varNameChange(target, iNumber);
             }
