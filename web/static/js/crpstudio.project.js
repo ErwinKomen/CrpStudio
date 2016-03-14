@@ -1047,9 +1047,10 @@ var crpstudio = (function ($, crpstudio) {
        * makeNewQCobj
        *    Create a new object with values to construct a new QC
        * 
-       * @returns {undefined}
+       * @param {bool} bNext
+       * @returns {object}
        */
-      makeNewQCobj : function() {
+      makeNewQCobj : function(bNext) {
         var oQC = {};
         // Get the maximum QCid
         var iQCmaxId = private_methods.getQcMaxId();
@@ -1070,7 +1071,7 @@ var crpstudio = (function ($, crpstudio) {
           oQC.Goal = oQryFree.Goal;
           oQC.Comment = oQryFree.Comment;
           // (2) Suggest where this should be inserted
-          var sQcInput = (iQCmaxId <0) ? "Source" : iQCmaxId + "/out";
+          var sQcInput = (iQCmaxId <0 || !bNext) ? "Source" : iQCmaxId + "/out";
           oQC.Input = sQcInput;
         }
         // Return the result
@@ -3464,7 +3465,7 @@ var crpstudio = (function ($, crpstudio) {
         // Clear any previously set timer
         clearTimeout(typingTimer);
         // =============== DEBUG =========
-        crpstudio.main.debug("ctlTimer: cleared");
+        // crpstudio.main.debug("ctlTimer: cleared");
         // ===============================
         var sCallerId = $(source).attr("id");
         var sValue;
@@ -3530,6 +3531,15 @@ var crpstudio = (function ($, crpstudio) {
                 break;
             }
             break;
+          case "constructor":
+            // Process changes in 'input' line selection
+            switch (oItem.key) {
+              case "Input": // When the 'input' line changes, this needs to be reflected in the left list
+                //  Make sure the list is re-drawn
+                crpstudio.list.itemListShow(oItem.type, iItemId);
+                break;
+            }
+            break;
           case "dbase":
             break;
           case "dbfeat":
@@ -3581,12 +3591,13 @@ var crpstudio = (function ($, crpstudio) {
             // Set some property value
             $("#query_new_qc").prop("checked", true);
             $("#query_new_db").prop("checked", true);
+            $("#query_new_prev").prop("checked", false);  // Do NOT use previous query as input by default
             // Make sure the query-type selector is reset
             $("#query_new_qrytype").val($("#query_new_qrytype option:first").val());
             break;
           case "constructor":   // New CONSTRUCTOR = Query Constructor Item
             // Create a new QC object
-            var oQC = private_methods.makeNewQCobj();
+            var oQC = private_methods.makeNewQCobj(false);
             // Put the values of the object to the right places
             // input query result goal comment
             $("#qc_new_input").val(oQC.Input);
@@ -3739,11 +3750,12 @@ var crpstudio = (function ($, crpstudio) {
                 case "query":
                   // Check if query should be put into the constructor straight away
                   var bAddQC = $("#query_new_qc").prop("checked");
+                  var bPrevQC = $("#query_new_prev").prop("checked");
                   if (bAddQC) {
                     // Yes, add the query into the pipeline
                     // (1) Create a new object based on what we have
                     //     This makes members: input, query, result, goal, comment
-                    var oQC = private_methods.makeNewQCobj();
+                    var oQC = private_methods.makeNewQCobj(bPrevQC);
                     // (2) set standard values for Cmp, Output and Mother
                     oQC.Cmp = "False"; oQC.Output = (crpstudio.prj_qclist.length + 1) + "_" + oQC.Query;
                     oQC.Mother = "False";

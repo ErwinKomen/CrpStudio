@@ -29,7 +29,7 @@
               <div class="large-2 medium-3 small-4 columns left">
                 <label for="right-label" class="left inline">$labels.getString("query.new.qrytype")</label>
               </div>
-              <div class="large-10 medium-10 small-10 columns left">
+              <div class="large-9 medium-8 small-7 columns left">
                 <select id="query_new_qrytype" class="left general_input"  placeholder="start query..."
                         onchange="crpstudio.xquery.newQueryType(this)">
                   ${qrytypelist}
@@ -97,9 +97,13 @@
             </div>
             <!-- Query QC checkbox: specify whether query should be put into QC or not -->
             <div class="large-16 medium-16 small-16 row">
-              <div class="large-14 medium-13 small-12 large-offset-2 medium-offset-3 small-offset-4 columns left">
+              <div class="large-7 medium-6 small-5 large-offset-2 medium-offset-3 small-offset-4 columns left">
                 <input type="checkbox" id="query_new_qc">
                 <label for="query_new_qc">$labels.getString("query.new.qc")</label>
+              </div>
+              <div class="large-7 medium-6 small-5 columns left">
+                <input type="checkbox" id="query_new_prev">
+                <label for="query_new_qc">$labels.getString("query.new.prev")</label>
               </div>
             </div>
             <!-- Query DB output checkbox: specify whether query outputs features to a result database -->
