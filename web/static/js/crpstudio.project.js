@@ -455,9 +455,7 @@ var crpstudio = (function ($, crpstudio) {
           var oItem = oList[i];
           // Check if this item contains a troubling element
           var sInput = oItem["Input"];
-          // NOTE: .startsWith() is not compatible with earlier IE
-          // if (sInput.startsWith(sCheck))
-          if (sInput.indexOf(sCheck) === 0)
+          if (sInput.startsWith(sCheck))
             return true;
         }
         // COming here means there should be no problem
@@ -1047,10 +1045,9 @@ var crpstudio = (function ($, crpstudio) {
        * makeNewQCobj
        *    Create a new object with values to construct a new QC
        * 
-       * @param {bool} bNext
-       * @returns {object}
+       * @returns {undefined}
        */
-      makeNewQCobj : function(bNext) {
+      makeNewQCobj : function() {
         var oQC = {};
         // Get the maximum QCid
         var iQCmaxId = private_methods.getQcMaxId();
@@ -1071,7 +1068,7 @@ var crpstudio = (function ($, crpstudio) {
           oQC.Goal = oQryFree.Goal;
           oQC.Comment = oQryFree.Comment;
           // (2) Suggest where this should be inserted
-          var sQcInput = (iQCmaxId <0 || !bNext) ? "Source" : iQCmaxId + "/out";
+          var sQcInput = (iQCmaxId <0) ? "Source" : iQCmaxId + "/out";
           oQC.Input = sQcInput;
         }
         // Return the result
@@ -2541,6 +2538,21 @@ var crpstudio = (function ($, crpstudio) {
           function() {crpstudio.project.ctlTimer(this, "select");});
 
       }, 
+      
+      /**
+       * addCheckEvents
+       *    Add pointers to ctlCheck()
+       *    Do this for all the [input] elements under [sItemId]
+       * 
+       * @param {type} sItemId
+       * @returns {undefined}
+       */
+      addCheckEvents : function(sItemId) {
+        var sId = "#" + sItemId;
+        // Add event handlers on all INPUT elements under "project_general"
+        $(sId + " input").on("change paste input", 
+          function() {crpstudio.project.ctlCheck(this, "input");});        
+      },
 
       /**
        * addXqueryResizeEvents
@@ -3453,6 +3465,66 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * ctlCheck
+       *    Process a change in one of the form INPUT items made by the user
+       *    Some INPUT elements do not allow SPACES, so this should capture it
+       * 
+       * @param {type} source
+       * @param {type} sType
+       * @returns {undefined}
+       */
+      ctlCheck : function(source, sType) {
+        // Get the ID of the input source element
+        var sCallerId = $(source).attr("id");
+        var sValue;
+        // make sure only 'input' is processed
+        if (sType === "input") {
+          // Get the value fo this element
+          sValue = $(source).val();      
+          // Action depends on the caller id
+          var bError = false;
+          var sItemType = "";
+          switch (sCallerId) {
+            case "query_new_name":  // Do not allow spacy query names
+              bError = true; sItemType = "query";
+              break;
+            case "def_new_name":    // Do not allow spacy definition names
+              bError = true; sItemType = "definition";
+              break;
+            case "dbf_new_name":    // Do not allow spacy dbfeat names
+              bError = true; sItemType = "dbfeat";
+              break;
+            case "qc_new_result":   // Do not allow spacy result labels
+              bError = true; sItemType = "constructor";
+              break;
+          }
+          // Do we have an item type?
+          if (sItemType !== "") {
+            var oDescr = crpstudio.list.getItemDescr(sItemType);
+            var sDivPrf = oDescr.divprf;
+            // Determine the new name
+            var sNewName = "new_name";
+            switch(sItemType) {
+              case "constructor":
+                sNewName = "new_result";
+                break;
+            }
+            // Do we have an error?
+            if (bError) {
+              // Name contains spaces
+              $("#"+sDivPrf+"_"+sNewName+"_error").html("Remove spaces: ["+sValue+"]");
+              $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");
+              $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("hidden");
+            } else {
+              // Reset any previous naming
+              $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("error");
+              $("#"+sDivPrf+"_"+sNewName+"_error").addClass("hidden");
+            }
+          }
+        }
+      },
+      
+      /**
        * ctlTimer
        *    Process a change in one of the form items made by the user
        *    The normal behaviour is to add an item to the history (histAdd)
@@ -3465,7 +3537,7 @@ var crpstudio = (function ($, crpstudio) {
         // Clear any previously set timer
         clearTimeout(typingTimer);
         // =============== DEBUG =========
-        // crpstudio.main.debug("ctlTimer: cleared");
+        crpstudio.main.debug("ctlTimer: cleared");
         // ===============================
         var sCallerId = $(source).attr("id");
         var sValue;
@@ -3531,15 +3603,6 @@ var crpstudio = (function ($, crpstudio) {
                 break;
             }
             break;
-          case "constructor":
-            // Process changes in 'input' line selection
-            switch (oItem.key) {
-              case "Input": // When the 'input' line changes, this needs to be reflected in the left list
-                //  Make sure the list is re-drawn
-                crpstudio.list.itemListShow(oItem.type, iItemId);
-                break;
-            }
-            break;
           case "dbase":
             break;
           case "dbfeat":
@@ -3591,13 +3654,12 @@ var crpstudio = (function ($, crpstudio) {
             // Set some property value
             $("#query_new_qc").prop("checked", true);
             $("#query_new_db").prop("checked", true);
-            $("#query_new_prev").prop("checked", false);  // Do NOT use previous query as input by default
             // Make sure the query-type selector is reset
             $("#query_new_qrytype").val($("#query_new_qrytype option:first").val());
             break;
           case "constructor":   // New CONSTRUCTOR = Query Constructor Item
             // Create a new QC object
-            var oQC = private_methods.makeNewQCobj(false);
+            var oQC = private_methods.makeNewQCobj();
             // Put the values of the object to the right places
             // input query result goal comment
             $("#qc_new_input").val(oQC.Input);
@@ -3671,6 +3733,11 @@ var crpstudio = (function ($, crpstudio) {
                 $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");
                 $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("hidden");
                 return;
+              } else if (sItemName.indexOf(" ") >= 0) {
+                // Name contains spaces
+                $("#"+sDivPrf+"_"+sNewName+"_error").html("Remove spaces: ["+sItemName+"]");
+                $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");
+                $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("hidden");
               }
               // Determine how the new item will look like
               var oNew = {}; var iFtNum = 0;
@@ -3750,12 +3817,11 @@ var crpstudio = (function ($, crpstudio) {
                 case "query":
                   // Check if query should be put into the constructor straight away
                   var bAddQC = $("#query_new_qc").prop("checked");
-                  var bPrevQC = $("#query_new_prev").prop("checked");
                   if (bAddQC) {
                     // Yes, add the query into the pipeline
                     // (1) Create a new object based on what we have
                     //     This makes members: input, query, result, goal, comment
-                    var oQC = private_methods.makeNewQCobj(bPrevQC);
+                    var oQC = private_methods.makeNewQCobj();
                     // (2) set standard values for Cmp, Output and Mother
                     oQC.Cmp = "False"; oQC.Output = (crpstudio.prj_qclist.length + 1) + "_" + oQC.Query;
                     oQC.Mother = "False";
