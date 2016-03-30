@@ -2549,7 +2549,7 @@ var crpstudio = (function ($, crpstudio) {
        */
       addCheckEvents : function(sItemId) {
         var sId = "#" + sItemId;
-        // Add event handlers on all INPUT elements under "project_general"
+        // Add event handlers on all INPUT elements under [sItemId]
         $(sId + " input").on("change paste input", 
           function() {crpstudio.project.ctlCheck(this, "input");});        
       },
@@ -3484,18 +3484,19 @@ var crpstudio = (function ($, crpstudio) {
           // Action depends on the caller id
           var bError = false;
           var sItemType = "";
+          var iSpaceLoc = sValue.indexOf(" ");
           switch (sCallerId) {
             case "query_new_name":  // Do not allow spacy query names
-              bError = true; sItemType = "query";
+              bError = (iSpaceLoc>=0); sItemType = "query";
               break;
             case "def_new_name":    // Do not allow spacy definition names
-              bError = true; sItemType = "definition";
+              bError = (iSpaceLoc>=0); sItemType = "definition";
               break;
             case "dbf_new_name":    // Do not allow spacy dbfeat names
-              bError = true; sItemType = "dbfeat";
+              bError = (iSpaceLoc>=0); sItemType = "dbfeat";
               break;
             case "qc_new_result":   // Do not allow spacy result labels
-              bError = true; sItemType = "constructor";
+              bError = (iSpaceLoc>=0); sItemType = "constructor";
               break;
           }
           // Do we have an item type?
@@ -3637,6 +3638,10 @@ var crpstudio = (function ($, crpstudio) {
        * 23/jun/2015  ERK Created
        */
       createManual : function(target, sItemType) {
+        var sItemNewName = "";
+        var oDescr = crpstudio.list.getItemDescr(sItemType);
+        var sDivPrf = oDescr.divprf;
+
         // Make sure the correct element is active
         crpstudio.list.setSelected(target, sItemType);
         // type-dependent initialisations
@@ -3669,6 +3674,11 @@ var crpstudio = (function ($, crpstudio) {
             $("#qc_new_comment").val(oQC.Comment);
             break;
         }        
+        // Determine what the [sItemNewName] is 
+        sItemNewName = sDivPrf + "_new";
+        
+        // Make sure events are captured
+        crpstudio.project.addCheckEvents(sItemNewName);
         
  
       },
@@ -3738,6 +3748,8 @@ var crpstudio = (function ($, crpstudio) {
                 $("#"+sDivPrf+"_"+sNewName+"_error").html("Remove spaces: ["+sItemName+"]");
                 $("#"+sDivPrf+"_"+sNewName+"_error").addClass("error");
                 $("#"+sDivPrf+"_"+sNewName+"_error").removeClass("hidden");
+                // Do not allow spacy names
+                return;
               }
               // Determine how the new item will look like
               var oNew = {}; var iFtNum = 0;
