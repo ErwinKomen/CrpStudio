@@ -751,7 +751,7 @@ var crpstudio = (function ($, crpstudio) {
         if (loc_arVarName.length <= iNumber) {
           // Add an element
           loc_arVarName.push(sName);
-        } else {
+        } else if (iNumber > 0) {
           // Adapt the existing element
           loc_arVarName[iNumber] = sName;
         }
@@ -895,6 +895,17 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       /**
+       * setRowDefault -- set default values for the indicated row
+       * @param {type} iRow
+       * @returns {undefined}
+       */
+      setRowDefault : function(iRow) {
+        $("#cns_pos"+iRow).val("any");
+        $("#cns_rel"+iRow).val("child");
+        $("#cns_unq"+iRow).val("first");
+      },
+      
+      /**
        * addBuildRow
        *    Add a new row after [target]
        * 
@@ -913,9 +924,7 @@ var crpstudio = (function ($, crpstudio) {
         // Add this <tr> after the current <tr>
         $(divRow).after(sContent);
         // Set default values for the building block
-        $("#cns_pos"+iRow).val("any");
-        $("#cns_rel"+iRow).val("child");
-        $("#cns_unq"+iRow).val("first");
+        crpstudio.xquery.setRowDefault(iRow+1);
         
         /*
         // Check if 'additional' is already shown
@@ -930,7 +939,7 @@ var crpstudio = (function ($, crpstudio) {
           }
         } */
         // Adapt the contents of the variable boxes
-        crpstudio.xquery.adaptVarCombos(0);
+        crpstudio.xquery.adaptVarCombos(iRow+1);
         // Add event handling
         crpstudio.xquery.addBuildChangeEvents("query_new_builder");
       },
@@ -1051,6 +1060,14 @@ var crpstudio = (function ($, crpstudio) {
           }
           // Put a *FIRST* row into place
           $("#query_new_cns").html(crpstudio.xquery.getBuildItem());
+          // Fill it with default values
+          crpstudio.xquery.setRowDefault(1);
+          /*
+          // Adapt the contents of the variable boxes
+          crpstudio.xquery.varNameChange(target, 0);
+          // crpstudio.xquery.adaptVarCombos(0);
+          */
+          
           // Add event handling
           crpstudio.xquery.addBuildChangeEvents("query_new_builder");
           $("#query_new_cnstype").html(loc_sConstituents);
@@ -1107,16 +1124,7 @@ var crpstudio = (function ($, crpstudio) {
               // Make sure name changes ripple through down
               var iNumber = parseInt(sId.substring(sIdName.length), 10);
               crpstudio.xquery.varNameChange(target, iNumber);
-            } else if (sId.indexOf(sIdType) === 0) {
-              // User has chosen a value for [cns_typeN]
-              var sTypeName = $(target).val();
-              // Check if a variable name has already been chosen
-              var iNumber = parseInt(sId.substring(sIdType.length), 10);
-              if ($("#cns_name"+iNumber).val() ==="") {
-                // User has NOT yet chosen a name: give one
-                $("#cns_name"+iNumber).val(sTypeName+iNumber);
-              }
-            }
+            } 
             break;
           case "select":
             // Action depends on the combobox that is selected
@@ -1128,6 +1136,20 @@ var crpstudio = (function ($, crpstudio) {
                   $("#query_new_constituents").removeClass("hidden");
                 }
                 break;
+            }
+            // Other test
+            if (sId.indexOf(sIdType) === 0) {
+              // User has chosen a value for [cns_typeN]
+              var sTypeName = $(target).val();
+              // Check if a variable name has already been chosen
+              var iNumber = parseInt(sId.substring(sIdType.length), 10);
+              if ($("#cns_name"+iNumber).val() ==="") {
+                // User has NOT yet chosen a name: give one
+                $("#cns_name"+iNumber).val(sTypeName+iNumber);
+                // Process name change: this requires the NAME target
+                var targetName = sId.replace("_type","_name");
+                crpstudio.xquery.varNameChange("#"+targetName, iNumber);
+              }
             }
             break;
         }
