@@ -23,6 +23,7 @@ var crpstudio = (function ($, crpstudio) {
         loc_sRelations = "",    // Relations
         loc_sPositions = "",    // Positions
         loc_sUnicity = "",      // Unicity guarantees
+        loc_bQerror = false,    // Error in query name
         loc_arVarName = [],     // Array of variable names
         loc_arVarAll = [],      // List of *all* the variable names
         arMonth =  new Array('January', 'February', 'March', 'April', 
@@ -901,6 +902,9 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       addBuildRow : function(target) {
+        // Validate
+        if (loc_bQerror) return;
+        // Okay, continue
         var divRow = $(target).closest("tr");
         var sRowName = $(divRow).attr("id");
         var iRow = private_methods.getRowNumber("cns_number_", sRowName);
@@ -908,6 +912,11 @@ var crpstudio = (function ($, crpstudio) {
         var sContent = crpstudio.xquery.getBuildItem();
         // Add this <tr> after the current <tr>
         $(divRow).after(sContent);
+        // Set default values for the building block
+        $("#cns_pos"+iRow).val("any");
+        $("#cns_rel"+iRow).val("child");
+        $("#cns_unq"+iRow).val("first");
+        
         /*
         // Check if 'additional' is already shown
         if ($("#query_new_additional").hasClass("hidden")) {
@@ -1066,17 +1075,47 @@ var crpstudio = (function ($, crpstudio) {
        */
       ctlTimer : function(target, sType) {
         var sIdName = "cns_name";
+        var sIdType = "cns_type";
         var sId = $(target).attr("id");
         
         // Check the type
         switch(sType) {
           case "input":
             // We are dealing with an <input> event
+            // Check for 'space-in-name' exception 
+
             // NOTE: .startsWith() is not compatible with earlier IE
             // if (sId.startsWith(sIdName)) {
             if (sId.indexOf(sIdName) === 0) {
+              // This is <input id="cns_nameNNN"> -- check the contents
+              var sVarName = $(target).val();
+              if (sVarName.indexOf(" ")>=0) {
+                // Do not allow a space in a name
+                $("#"+sId+"_error").html("Remove spaces: ["+sVarName+"]");
+                $("#"+sId+"_error").addClass("error");
+                $("#"+sId+"_error").removeClass("hidden");
+                // Set the local warning flag to prevent new items being created
+                loc_bQerror = true;
+                // Leave without further ado
+                return;
+              } else {
+                // Make sure warning is removed
+                $("#"+sId+"_error").removeClass("error");
+                $("#"+sId+"_error").addClass("hidden");
+                loc_bQerror = false;
+              }
+              // Make sure name changes ripple through down
               var iNumber = parseInt(sId.substring(sIdName.length), 10);
               crpstudio.xquery.varNameChange(target, iNumber);
+            } else if (sId.indexOf(sIdType) === 0) {
+              // User has chosen a value for [cns_typeN]
+              var sTypeName = $(target).val();
+              // Check if a variable name has already been chosen
+              var iNumber = parseInt(sId.substring(sIdType.length), 10);
+              if ($("#cns_name"+iNumber).val() ==="") {
+                // User has NOT yet chosen a name: give one
+                $("#cns_name"+iNumber).val(sTypeName+iNumber);
+              }
             }
             break;
           case "select":
