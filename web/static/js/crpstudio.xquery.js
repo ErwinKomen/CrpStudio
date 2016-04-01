@@ -743,12 +743,19 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       varNameChange : function(target, iNumber) {
+        var sName;  // Name of the variable 
+        
         // Get the name of the variable
-        var sName = $(target).val().trim();
+        if (target===null) {
+          // Initialize it to the FIRST variable
+          sName = "cns_name1";
+        } else {
+          sName = $(target).val().trim();
+        }
         // Check for the first element, which must be 'search'
         if (loc_arVarName.length === 0) loc_arVarName.push("search");
         // Check if a variable with this number already exists
-        if (loc_arVarName.length <= iNumber) {
+        if (iNumber > 1 && loc_arVarName.length <= iNumber) {
           // Add an element
           loc_arVarName.push(sName);
         } else if (iNumber > 0) {
@@ -761,15 +768,37 @@ var crpstudio = (function ($, crpstudio) {
       
       /**
        * adaptVarCombos
-       *    Adapt the contents of the variable combo-boxes
+       *    Adapt the contents of ALL the variable combo-boxes
        * 
        * @param {type} iNumber
        * @returns {undefined}
        */
       adaptVarCombos : function(iNumber) {
+        // Find out how many rows have been made
+        var iRowsMax = $("#query_new_cns").children("tr").length; // Not correct: loc_arVarName.length;
+        // Walk all the query-builder rows
+        for (var iRow=1;iRow<=iRowsMax;iRow++) {
+          // Adapt the list of options for *this* row
+          var arHtml = [];
+          for (var i=0;i<iRow;i++) {
+            arHtml.push("<option value=\""+loc_arVarName[i]+"\">"+loc_arVarName[i]+"</option>");
+          }
+          if (iRow >0) {
+            // Adapt the existing combobox on this BuildItem
+            var sTowards = "cns_towards"+iRow;
+            var sOrgVal = $("#"+sTowards).val();
+            var iIdx = $("#"+sTowards)[0].selectedIndex;
+            if (!sOrgVal || sOrgVal === "") sOrgVal = "search";
+            $("#"+sTowards).html(arHtml.join("\n"));
+            $("#"+sTowards).val(sOrgVal);
+            if (iIdx<0) iIdx = 0;
+            $("#"+sTowards)[0].selectedIndex = iIdx;
+          }
+        }
+        /*
         // Create new options
         var arHtml = [];
-        for (var i=0;i<loc_arVarName.length-1;i++) {
+        for (var i=0;i<loc_arVarName.length && i < iNumber;i++) {
           arHtml.push("<option value=\""+loc_arVarName[i]+"\">"+loc_arVarName[i]+"</option>");
         }
         if (iNumber >0) {
@@ -779,7 +808,7 @@ var crpstudio = (function ($, crpstudio) {
           if (!sOrgVal || sOrgVal === "") sOrgVal = "search";
           $("#"+sTowards).html(arHtml.join("\n"));
           $("#"+sTowards).val(sOrgVal);
-        }
+        }*/
         
         // Create options for condition item
         var arCondItem = [];
@@ -819,7 +848,7 @@ var crpstudio = (function ($, crpstudio) {
         // (4) Allow user to select a constituent relation
         arHtml.push("<td><select id=\"cns_rel"+iRowNumber+"\">"+loc_sRelations+"</select></td>");
         // (5) Provide a list of variable names that have already been made, including "search"
-        arHtml.push("<td><select id=\"cns_towards"+iRowNumber+"\">"+loc_arVarName+"</select></td>");
+        arHtml.push("<td><select id=\"cns_towards"+iRowNumber+"\"></select></td>");
         // (6) Allow user to select a unicity positions
         arHtml.push("<td><select id=\"cns_unq"+iRowNumber+"\">"+loc_sUnicity+"</select></td>");
         // (7) Add a button to *remove* this current row
@@ -1057,11 +1086,16 @@ var crpstudio = (function ($, crpstudio) {
             loc_sPositions = crpstudio.qry_position;
             // Prepare an array of unicity guarantees
             loc_sUnicity = crpstudio.qry_unicity;
+            // Initialize the variable names
+            loc_arVarName = [];
           }
           // Put a *FIRST* row into place
           $("#query_new_cns").html(crpstudio.xquery.getBuildItem());
+          var iRow = 1;
+          // Make sure the first row is processed
+          crpstudio.xquery.varNameChange(null, iRow);
           // Fill it with default values
-          crpstudio.xquery.setRowDefault(1);
+          crpstudio.xquery.setRowDefault(iRow);
           /*
           // Adapt the contents of the variable boxes
           crpstudio.xquery.varNameChange(target, 0);
@@ -1163,13 +1197,19 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {void}
        */
       addBuildChangeEvents : function(sItemId) {
+        var sEvTypes = "change paste input";
+
         // Get the ID of the element we need
         var sId = "#" + sItemId;
-        // Add event handlers on all INPUT elements under sItemId
-        $(sId + " input").on("change paste input", 
+        // Remove previous ones
+        $(sId + " input").off(sEvTypes, 
           function() {crpstudio.xquery.ctlTimer(this, "input");});
-        // Add event handlers on all SELECT elements under sItemId
-        $(sId + " select").on("change paste input", 
+        $(sId + " select").off(sEvTypes, 
+          function() {crpstudio.xquery.ctlTimer(this, "select");});
+        // Add new ones
+        $(sId + " input").on(sEvTypes, 
+          function() {crpstudio.xquery.ctlTimer(this, "input");});
+        $(sId + " select").on(sEvTypes, 
           function() {crpstudio.xquery.ctlTimer(this, "select");});
       }
       
