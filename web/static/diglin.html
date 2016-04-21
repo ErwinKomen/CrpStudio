@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Diglin functionality testing</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div>Listen to a DigLin sound fragment</div>
+    <form>
+      <fieldset>
+        <legend>Background</legend>
+        <div>
+          <input id="diglin_user" type="text" placeholder="student id">
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Question</legend>
+        <div>
+          <input id="diglin_question" type="text" placeholder="question abbreviation">
+        </div>
+      </fieldset>
+      <!-- allow submitting -->
+      <div>
+        <a href="#" onclick="diglin_submit(this)">Go</a>
+      </div>
+    </form>
+    <div id="diglin_reply">
+      
+    </div>
+    <script>
+    var gl_arUser = [];     // Array of users
+    var gl_arQuestion = []; // Array of questions
+
+    // ==============================================================
+    // Name:  getSoundUrl
+    // Goal:  Given the User/Question, provide a link to the sound
+    // History:
+    // 20/apr/2016  ERK  Created for DigLin
+    // ==============================================================
+    function getSoundUrl(sQuestionId, sUserId) {
+      // Validate the parameters
+      if (sQuestionId === undefined || sUserId === undefined) return "";
+      // We have a valid question and user id
+      // Translate user-id into user-number
+      var sUserNum = getUserNum(sUserId);
+      // Translate question-id into question number
+      var sQuestionNum = getQuestionNum(sQuestionId);
+      // Create the correct link to the sound
+      var sLink = "http://cls.ru.nl/diglin/"+sUserNum+"/"+sQuestionNum+".mp3";
+      return sLink;
+    }
+
+    // ==============================================================
+    // Name:  getUserNum
+    // Goal:  Map the user id (string/name) to a number from 1 on
+    // History:
+    // 20/apr/2016  ERK  Created for DigLin
+    // ==============================================================
+    function getUserNum(sUserId) {
+      // validate
+      if (sUserId === undefined) return "0";
+      // Check if the name is in the array
+      for (var i=0;i<gl_arUser.length;i++) {
+        // Is this the name?
+        if (gl_arUser[i] === sUserId) {
+          // This is the name: return the correct string id
+          return parseInt(i+1, 10);
+        }
+      }
+      // User is not (yet) in the array: add it
+      gl_arUser.push(sUserId);
+      // Return the correct id
+      return parseInt(gl_arUser.length,10);
+    }
+
+    // ==============================================================
+    // Name:  getQuestionNum
+    // Goal:  Map the question id (string/name) to a number from 1 on
+    // History:
+    // 20/apr/2016  ERK  Created for DigLin
+    // ==============================================================
+    function getQuestionNum(sUserId) {
+      // validate
+      if (sUserId === undefined) return "0";
+      // Check if the name is in the array
+      for (var i=0;i<gl_arQuestion.length;i++) {
+        // Is this the name?
+        if (gl_arQuestion[i] === sUserId) {
+          // This is the name: return the correct string id
+          return parseInt(i+1, 10);
+        }
+      }
+      // User is not (yet) in the array: add it
+      gl_arQuestion.push(sUserId);
+      // Return the correct id
+      return parseInt(gl_arQuestion.length,10);
+    }      
+    
+    // ==============================================================
+    // Name:  diglin_submit
+    // Goal:  Test the functionality
+    // History:
+    // 20/apr/2016  ERK  Created for DigLin
+    // ==============================================================
+      function diglin_submit(el) {
+        var sUserId = $("#diglin_user").val();
+        var sQuestionId = $("#diglin_question").val();
+        var sUrl = getSoundUrl(sQuestionId, sUserId);
+        var sHtml = "<p> </p><p>The combination of user/question leads to this URL:</p>" + sUrl;
+        $("#diglin_reply").html(sHtml);
+      }
+    </script>
+  </body>
+</html>
