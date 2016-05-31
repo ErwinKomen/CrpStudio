@@ -1241,7 +1241,7 @@ public abstract class BaseResponse {
    * @param contents
    * @param fileName 
    */
-	public String makeFileLocResponse(String contents, String fileName) {
+  public String makeFileLocResponse(String contents, String fileName) {
     String sExportPath = "/files";
     try {
       // Create the file location name
@@ -1251,11 +1251,18 @@ public abstract class BaseResponse {
       if (sRightMost.equals("/") || sRightMost.equals("\\"))
         sWebRoot = sWebRoot.substring(0, sWebRoot.length()-1);
       String sFileLoc = FileUtil.nameNormalize(sWebRoot + sExportPath+ fileName);
+      // Save the contents to the file
+      FileUtil.writeFile(sFileLoc, contents, "utf-8");
+      // Check for additional unzipping
+      if (sFileLoc.endsWith(".gz")) {
+        String sUnzipped = sFileLoc.substring(0, sFileLoc.length()-3);
+        FileUtil.decompressGzipFile(sFileLoc, sUnzipped);
+        sFileLoc = sUnzipped;
+        fileName = fileName.substring(0, fileName.length()-3);
+      }
       // Create the URL for this file
       String sFileUrl = "http://" + request.getServerName() + ":"+ 
               request.getServerPort() + servlet.getContextRoot() + sExportPath+ fileName;
-      // Save the contents to the file
-      FileUtil.writeFile(sFileLoc, contents, "utf-8");
       // Return the location
       return sFileUrl;
     } catch (Exception ex) {
@@ -1967,6 +1974,59 @@ public abstract class BaseResponse {
     }
   }
   
+  /**
+   * getDbaseInfo -- Make a request to CRPP for database [sDbName]
+   *    owned by user [sUser].
+   *    Return the full path of the .xml.gz database
+   * 
+   * @param sUser
+   * @param sDbName
+   * @return 
+   */
+  public JSONObject getDbaseInfo(String sUser, String sDbName) {
+    JSONObject oInfo = null;
+    
+    try {
+      // Prepare a download request to /crpp using the correct /dbinfo parameters
+      this.params.clear();
+      this.params.put("userid", sUser);
+      this.params.put("name", sDbName);
+      this.params.put("start", -1);
+      this.params.put("count", 0);
+      String sResp = getCrppPostResponse("dbinfo", "", this.params);
+      
+      // Check the result
+      if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /dbinfo");
+      // Convert the response to JSON
+      JSONObject oResp = new JSONObject(sResp);
+      // Get the status
+      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      // Decypher the status
+      JSONObject oStat = oResp.getJSONObject("status");
+      if (!oStat.getString("code").equals("completed"))
+        sendErrorResponse("Server /crpp returned status: ["+oStat.getString("code")+
+                "] and message: [" + oStat.getString("message")+"]");
+
+      // Get the content part
+      JSONObject oContent = oResp.getJSONObject("content");
+      if (oContent.has("General")) {
+        JSONObject oGeneral = oContent.getJSONObject("General");
+        // Put in all the elements of general
+        oInfo = new JSONObject();
+        oInfo.put("ProjectName", oGeneral.getString("ProjectName"));
+        oInfo.put("Created", oGeneral.getString("Created"));
+        oInfo.put("Language", oGeneral.getString("Language"));
+        oInfo.put("Part", oGeneral.getString("Part"));
+        oInfo.put("Notes", oGeneral.getString("Notes"));
+        oInfo.put("Features", oGeneral.getJSONArray("Features"));
+      }
+    
+      return oInfo;
+    } catch (Exception ex) {
+      logger.DoError("getDbaseInfo: could not complete", ex);
+      return null;
+    }
+  }
  
   /**
    * getDbaseInfo -- 

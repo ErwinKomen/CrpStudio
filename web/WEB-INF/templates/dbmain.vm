@@ -11,9 +11,12 @@
         </div>
         <!-- (2) SUMMARY of database (and perhaps some EDITING) -->
         <div id="dbase_expl" class="large-16 medium-16 small-16 row hidden">
-          <!-- Project's SUMMARY -->
+          <!-- Database short STATUS -->
+          <div id="dbase_expl_status" class="large-16 medium-16 small-16 row hidden">
+          </div>
+          <!-- Database SUMMARY area -->
           <fieldset><legend>$labels.getString("dbase.summary")</legend>
-            <div class="panel"></div>
+            <div id="dbase_expl_summary" class="panel"></div>
           </fieldset>
         </div>
         <!-- (3) UPLOADING of a database -->

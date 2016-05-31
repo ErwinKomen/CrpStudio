@@ -931,7 +931,8 @@ var crpstudio = (function ($, crpstudio) {
         // Check result
         if (sGroupingName !== undefined && sGroupingName !== null && sGroupingName !== "") {
           // Keep the user up to date...
-          $("#result_status_"+iView).html("Fetching information for grouping: "+sGroupingName+"...");
+          $("#result_status_"+iView).html("Fetching information for grouping: "+sGroupingName+
+                  "...<br>(This may take some while -- don't interrupt!)");
           var iStart = 0;
           var iRequesting = 1;
           var sType = "grouping";

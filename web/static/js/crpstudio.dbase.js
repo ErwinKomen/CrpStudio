@@ -201,6 +201,11 @@ var crpstudio = (function ($, crpstudio) {
         $(listItem).addClass("active");
         // Make sure the active class is selected
         loc_currentDbase = sDbName;
+        // SHow what is happening in [dbmain.vm]
+        $("#dbase_expl_description").addClass("hidden");
+        $("#dbase_expl_status").addClass("hidden");
+        $("#dbase_expl").removeClass("hidden");
+        $("#dbase_expl_summary").html("Loading: " + sDbName + "<br><i>(This may take some time, especially if a new index is created)</i>");
         // Also set the name of the currently selected project in a div
         $("#dbase_current").text(sDbName);
         // And set the name of the project in the top-bar div
@@ -239,7 +244,7 @@ var crpstudio = (function ($, crpstudio) {
           var oContent = response.content;
           switch (sStatusCode) {
             case "completed":
-              // Get the information passed on about this project
+              // Get the information passed on about this database
               var sNameDb = oContent.namedb;
               var sNamePrj = oContent.nameprj;
               var sLng = oContent.lng;
@@ -253,6 +258,21 @@ var crpstudio = (function ($, crpstudio) {
               $("#dbase_general_corpus").val(sCorpus);
               $("#dbase_general_datecreated").html(sDateCreated);
               $("#dbase_general_comments").val(sComments);
+              
+              // Also treate the form [dbmain.vm]
+              var arHtml = [];
+              arHtml.push("<table>");
+              arHtml.push("<tr><td>Corpus project</td><td colspan=2>"+sNamePrj+"</td></tr>");
+              arHtml.push("<tr><td>Database name</td><td colspan=2>" + sNameDb + "</td></tr>");
+              arHtml.push("<tr><td>Database created</td><td colspan=2>"+sDateCreated+"</td></tr>");
+              arHtml.push("<tr><td>Corpus used</td><td colspan=2>"+sCorpus+"</td></tr>");
+              arHtml.push("<tr><td>Notes</td><td colspan=2>"+sComments+"</td></tr>");
+              var arFeats = oContent.features;
+              for (var i=0;i<arFeats.length;i++) {
+                arHtml.push("<tr><td>Feature</td><td>"+(i+1)+"</td><td>"+arFeats[i]+"</td></tr>");
+              }
+              arHtml.push("</table>");
+              $("#dbase_expl_summary").html(arHtml.join("\n"));
 
               // Add event handlers on all INPUT elements under "dbase_general"
               $("#dbase_general input").on("change keydown paste input", 
@@ -274,6 +294,14 @@ var crpstudio = (function ($, crpstudio) {
               var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
               $("#dbase_status").html("Error: " + sErrorCode);
               $(target).html("Error: " + sErrorMsg);
+              
+              // Create message 
+              var sSummaryMsg = "Error:<br>";
+              if (sErrorCode.toLowerCase()!=="error") {
+                sSummaryMsg += sErrorCode + "<br>";
+              }
+              sSummaryMsg += "<b>" + sErrorMsg + "</b>";
+              $("#dbase_expl_summary").html(sSummaryMsg);
               break;
             default:
               $("#dbase_status").html("Error: no reply");
@@ -834,6 +862,11 @@ var crpstudio = (function ($, crpstudio) {
         // Action depends on the type
         switch(sFileType) {
           case "dbase":       // download database in Xquery
+            $("#dbase_expl_description").addClass("hidden");
+            $("#dbase_expl").removeClass("hidden");
+            $("#dbase_expl_status").removeClass("hidden");
+            $("#dbase_expl_status").html("Preparing file for downloading"+
+                    "<br><i>(Databases are compressed for downloading)</i>");
             // Find out which one is currently selected
             sItemName = loc_currentDbase;
             break;
@@ -863,11 +896,13 @@ var crpstudio = (function ($, crpstudio) {
           var oContent = response.content;
           // Content must at least contain item type
           var sItemType = oContent.itemtype;
-          // if (sItemType === "definition") sItemType = "def";
+          if (sItemType === undefined) sItemType = "dbase";
           // Remove waiting
           $("#"+sItemType+"_description").html("");
           switch (sStatusCode) {
             case "completed":
+              $("#dbase_expl_status").html("READY");
+              $("#dbase_expl_status").addClass("hidden");
               // Find out which project has been removed
               var sFile = oContent.file;
               // Validate
@@ -886,6 +921,7 @@ var crpstudio = (function ($, crpstudio) {
               var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
               $("#"+sItemType+"_status").html("Error: " + sErrorCode);
               $(target).html("Error: " + sErrorMsg);
+              $("#dbase_expl_status").html("Error: " + sErrorMsg);
               break;
             default:
               $("#"+sItemType+"_status").html("Error: no reply");

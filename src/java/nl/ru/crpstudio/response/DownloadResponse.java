@@ -8,6 +8,7 @@ package nl.ru.crpstudio.response;
 
 // import java.math.BigInteger;
 import nl.ru.crpx.tools.FileIO;
+import nl.ru.util.StringUtil;
 import nl.ru.util.json.JSONObject;
 
 public class DownloadResponse extends BaseResponse {
@@ -15,11 +16,11 @@ public class DownloadResponse extends BaseResponse {
   private String sItemType;   // Type of the item: project, corpus, dbase
   private String sItemPart;   // Part of an item (definition, query)
 
-	@Override
-	protected void completeRequest() {
-    JSONObject oContent = new JSONObject();
+  @Override
+  protected void completeRequest() {
+  JSONObject oContent = new JSONObject();
 
-    try {
+  try {
       // Expecting the following parameters:
       //  Obligatory:
       //    userid    - Identifier of the user
@@ -91,15 +92,15 @@ public class DownloadResponse extends BaseResponse {
           sResp = getCrppPostResponse("crpget", "", this.params);
 
           // Check the result
-          if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /crpset");
+          if (sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("Server /crpp gave no valid response on /crpset"); return; }
           // Convert the response to JSON
           oResp = new JSONObject(sResp);
           // Get the status
-          if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+          if (!oResp.has("status")) { sendErrorResponse("Server /crpp gave [status] back"); return; }
           // Decypher the status
           oStat = oResp.getJSONObject("status");
           if (!oStat.getString("code").equals("completed"))
-            sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
+          { sendErrorResponse("Server /crpp returned status: "+oStat.getString("code")); return; }
 
           // Get the content part
           oContent = oResp.getJSONObject("content");
@@ -119,7 +120,7 @@ public class DownloadResponse extends BaseResponse {
         case "definition":  // Download a definition as a .xq file
           // Obligatory: itempart
           if (sItemPart.isEmpty())
-            sendErrorResponse("DownloadResponse (definition): parameter [itempart] is not specified");
+          { sendErrorResponse("DownloadResponse (definition): parameter [itempart] is not specified"); return; }
           // Get the indicated definition of the indicated CRP
           String sDefText = this.getProjectDef(sItemName, sUserId, sItemPart);
           // Assume that the method is POST:
@@ -132,7 +133,7 @@ public class DownloadResponse extends BaseResponse {
         case "query":       // Download a query as a .xq file
           // Obligatory: itempart
           if (sItemPart.isEmpty())
-            sendErrorResponse("DownloadResponse (query): parameter [itempart] is not specified");
+          { sendErrorResponse("DownloadResponse (query): parameter [itempart] is not specified"); return; }
           // Get the indicated definition of the indicated CRP
           String sQueryText = this.getProjectQuery(sItemName, sUserId, sItemPart);
           // Assume that the method is POST:
@@ -148,22 +149,22 @@ public class DownloadResponse extends BaseResponse {
           sResp = getCrppPostResponse("dbget", "", this.params);
 
           // Check the result
-          if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /dbget");
+          if (sResp.isEmpty() || !sResp.startsWith("{")) { sendErrorResponse("Server /crpp gave no valid response on /dbget"); return; }
           // Convert the response to JSON
           oResp = new JSONObject(sResp);
           // Get the status
-          if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+          if (!oResp.has("status")) { sendErrorResponse("Server /crpp gave [status] back"); return; }
           // Decypher the status
           oStat = oResp.getJSONObject("status");
           if (!oStat.getString("code").equals("completed"))
-            sendErrorResponse("Server /crpp returned status: "+oStat.getString("code"));
+          { sendErrorResponse("Server /crpp returned status: "+oStat.getString("code")); return; }
 
           // Get the content part
           oContent = oResp.getJSONObject("content");
           // Adaptation: we need to have the itemtype too
           oContent.put("itemtype", sItemType);
-          // The content part must contain the CRP
-          String sDbText = oContent.getString("db");
+          // The content part must contain the database -- decompress it
+          String sDbText = StringUtil.decompressSafe(oContent.getString("db"));
           // Assume that the method is POST:
           String fileDbName = "/" + servlet.getUserId() +"/"+sItemName+".xml" ;
           // Get the URL for the user
