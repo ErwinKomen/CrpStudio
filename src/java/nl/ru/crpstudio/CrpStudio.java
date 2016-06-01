@@ -67,19 +67,19 @@ public class CrpStudio extends HttpServlet {
   private static ErrHandle errHandle = null;
   private static CrpContainer crpContainer;   // Link to the CRP-User list manager
   // ===================== Local variables ===========================
-	private String realPath = "";
+  private String realPath = "";
   // private Logger logger;
-	// private Map<String, Template> templates = new HashMap<>();
-	private Map<String, BaseResponse> responses = new HashMap<>();
-	private List<MetadataField> filterFields = null;
-	private LinkedList<FieldDescriptor> searchFields = null;
+  // private Map<String, Template> templates = new HashMap<>();
+  private Map<String, BaseResponse> responses = new HashMap<>();
+  private List<MetadataField> filterFields = null;
+  private LinkedList<FieldDescriptor> searchFields = null;
   private List<String> lngIndices = null;
   private JSONArray objCorpora = null;
   private JSONArray objCorpusParts = null;
   private JSONArray objMetavarStart = null;   // Initial list
   private JSONArray objConstituents = null;   // List of [constituents] from crp-info.json
   private JSONArray objMetavar = null;        // List containing id's
-	private String contextRoot;
+  private String contextRoot;
   private TemplateManager templateMan;
   private CrpUtil crpUtil;
   private String sUserId = "";
@@ -87,17 +87,20 @@ public class CrpStudio extends HttpServlet {
   private String sRequestMethod = ""; // Which method is used to approach us?
   private String sSessionId = "";
   private JSONArray arUpdateContent = null;
+  private int iDB_PAGE = 40;          // Number of database results to collect in one go
   private final Pattern VALID_EMAIL_ADDRESS_REGEX = 
     Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
   // ====================== Getters and setters ======================
   public String getRealPath() { return realPath; }
   public String getContextRoot() { return contextRoot;}
-	public List<MetadataField> getMetadataFields() { return filterFields;}
+  public List<MetadataField> getMetadataFields() { return filterFields;}
   public LinkedList<FieldDescriptor> getSearchFields() { return searchFields; }
   public TemplateManager getTemplateManager() {return templateMan;}
   public String getUserId() { return crpUtil.getUserId(sSessionId); }
   public boolean getUserOkay(String sId) {this.bUserOkay = crpUtil.getUserOkay(sId, sSessionId); return bUserOkay; }
   public String getUserLang(String sId) {return crpUtil.getUserLang(sId, sSessionId);}
+  public int getDbPage() { return this.iDB_PAGE;}
+  public void setDbPage(int iPage) {this.iDB_PAGE = iPage;}
   public void setUserId(String sId) {if (!sId.isEmpty()) sUserId = sId;}
   public void setUserOkay(String sId, boolean bOkay) {bUserOkay = bOkay; crpUtil.setUserOkay(sId, sSessionId);}
   public void setUserLang(String sId, String sLang) {crpUtil.setUserLang(sId, sSessionId, sLang);}
@@ -122,7 +125,7 @@ public class CrpStudio extends HttpServlet {
   public CrpContainer getCrpContainer() { return crpContainer; }
   public JSONArray getUpdateContent() { return arUpdateContent; }
   public void setUpdateContent(JSONArray aTable) { arUpdateContent = aTable;}
-	@Override
+  @Override
   public void log(String msg) {errHandle.debug(msg);}
   
   /**

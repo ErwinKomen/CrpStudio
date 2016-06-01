@@ -22,6 +22,8 @@ import nl.ru.util.json.JSONObject;
 public class LoadDbResponse extends BaseResponse {
   private String dbName;    // Name of the database to be loaded
   private String loadType;  // Type of information to be loaded
+  private int iStart;       // Starting number
+  private int iCount;       // Number of items
 
   @Override
   protected void completeRequest() {
@@ -47,12 +49,24 @@ public class LoadDbResponse extends BaseResponse {
           // TODO: Pass on a list of databases and information about them
           oContent.put("dbaselist", this.getDbaseList(sUserId));
           break;
-        case "info":
+        case "list":    // Request for a list-view segment
+          // Validate obligatory parameters
+          if (!oQuery.has("dbase") || !oQuery.has("start") || !oQuery.has("count")) 
+            { sendErrorResponse("LoadDbResponse: missing one of: dbase, count, start");  return;}
+          // Retrieve the parameters
+          dbName = oQuery.getString("dbase"); if (dbName.isEmpty()) { sendErrorResponse("Name of database not specified"); return;}
+          iStart = oQuery.getInt("start"); iCount = oQuery.getInt("count");
+          // Other validations
+          if (iCount <=0) iCount = this.servlet.getDbPage();
+          if (iStart <=0) iStart = 1;
+          break;
+        case "detail":  // Request for a detail-view
+          break;
+        case "info":    // Request just for the summary information
           // Validate "dbase" parameter
-          if (!oQuery.has("dbase")) { sendErrorResponse("LoadDbResponse: missing @project");  return;}
-          dbName = oQuery.getString("dbase");
-          // Name may be empty...
-          if (dbName.isEmpty()) { sendErrorResponse("Name of database not specified"); return;}
+          if (!oQuery.has("dbase")) { sendErrorResponse("LoadDbResponse: missing @dbase");  return;}
+          // Retrieve and validate parameter
+          dbName = oQuery.getString("dbase"); if (dbName.isEmpty()) { sendErrorResponse("Name of database not specified"); return;}
           
           // Get database information from CRPP
           JSONObject oInfo = this.getDbaseInfo(sUserId, dbName);
@@ -90,12 +104,12 @@ public class LoadDbResponse extends BaseResponse {
 
   @Override
   protected void logRequest() {
-          this.servlet.log("LoadDbResponse - logRequest");
+    this.servlet.log("LoadDbResponse - logRequest");
   }
 
   @Override
   public LoadDbResponse duplicate() {
-          return new LoadDbResponse();
+    return new LoadDbResponse();
   }
 
  

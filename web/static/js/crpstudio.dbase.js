@@ -204,6 +204,7 @@ var crpstudio = (function ($, crpstudio) {
         // SHow what is happening in [dbmain.vm]
         $("#dbase_expl_description").addClass("hidden");
         $("#dbase_expl_status").addClass("hidden");
+        $("#dbase_expl_action").addClass("hidden");
         $("#dbase_expl").removeClass("hidden");
         $("#dbase_expl_summary").html("Loading: " + sDbName + "<br><i>(This may take some time, especially if a new index is created)</i>");
         // Also set the name of the currently selected project in a div
@@ -273,6 +274,9 @@ var crpstudio = (function ($, crpstudio) {
               }
               arHtml.push("</table>");
               $("#dbase_expl_summary").html(arHtml.join("\n"));
+              
+              // Now show the listview button
+              $("#dbase_expl_action").removeClass("hidden");
 
               // Add event handlers on all INPUT elements under "dbase_general"
               $("#dbase_general input").on("change keydown paste input", 
@@ -313,6 +317,29 @@ var crpstudio = (function ($, crpstudio) {
         }    
       },  
       
+      /**
+       * listView -- Request the information for a listview
+       * 
+       * @param {element} target
+       * @param {integer} iStart
+       * @param {integer} iCount
+       * @returns {undefined}
+       */
+      listView : function(target, iStart, iCount) {
+        // Get the currently selected database
+        var sDbName = loc_currentDbase;
+        // INterpret the parameters
+        var start = 1; var count = -1;
+        if (iStart !== undefined) start = iStart;
+        if (iCount !== undefined) count = iCount;
+        // Pass on the listview request to the /crpstudio server
+        var oArgs = { "dbase": sDbName,
+          "type": "list", "start": start, "count": count, "userid": crpstudio.currentUser };
+        var params = JSON.stringify(oArgs);
+
+        crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
+      },
+      
       /*
        * uploadFile
        *    Try to upload a large file in chunks
@@ -340,6 +367,7 @@ var crpstudio = (function ($, crpstudio) {
         // Keep track of progress
         $("#dbase_expl_upload").removeClass("hidden");
         $("#dbase_expl_description").addClass("hidden");
+        $("#dbase_expl_action").addClass("hidden");
         $("#dbase_expl").addClass("hidden");
         $("#dbase_expl_upload_status").html("Uploading result dbase is starting up...");
         $("#dbase_expl_upload_status").removeClass("hidden");
@@ -863,6 +891,7 @@ var crpstudio = (function ($, crpstudio) {
         switch(sFileType) {
           case "dbase":       // download database in Xquery
             $("#dbase_expl_description").addClass("hidden");
+            $("#dbase_expl_action").addClass("hidden");
             $("#dbase_expl").removeClass("hidden");
             $("#dbase_expl_status").removeClass("hidden");
             $("#dbase_expl_status").html("Preparing file for downloading"+

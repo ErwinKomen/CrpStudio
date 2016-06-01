@@ -9,17 +9,22 @@
         <div id="dbase_expl_description" class="large-16 medium-16 small-16 row">
           <i>(no database selected)</i>
         </div>
-        <!-- (2) SUMMARY of database (and perhaps some EDITING) -->
+        <!-- (2) BUTTON(S) for database action(s) -->
+        <div id="dbase_expl_action" class="large-16 medium-16 small-16 row hidden">
+          <a href="#" onclick="crpstudio.dbase.listView()" class="button radius reset small secondary">
+            <span>$labels.getString("dbase.general.listview")</span>
+          </a>
+        </div>
+        <!-- (3) SUMMARY of database (and perhaps some EDITING) -->
         <div id="dbase_expl" class="large-16 medium-16 small-16 row hidden">
           <!-- Database short STATUS -->
-          <div id="dbase_expl_status" class="large-16 medium-16 small-16 row hidden">
-          </div>
+          <div id="dbase_expl_status" class="large-16 medium-16 small-16 row hidden"></div>
           <!-- Database SUMMARY area -->
           <fieldset><legend>$labels.getString("dbase.summary")</legend>
             <div id="dbase_expl_summary" class="panel"></div>
           </fieldset>
         </div>
-        <!-- (3) UPLOADING of a database -->
+        <!-- (4) UPLOADING of a database -->
         <div id="dbase_expl_upload" class="large-16 medium-16 small-16 row hidden">
           <!-- Progress indication -->
           <div class="small-8 medium-8 large-8 columns">

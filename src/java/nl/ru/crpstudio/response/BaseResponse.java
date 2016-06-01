@@ -68,18 +68,18 @@ import org.apache.velocity.VelocityContext;
  */
 public abstract class BaseResponse {
 
-	private final String OUTPUT_ENCODING = "UTF-8";
+  private final String OUTPUT_ENCODING = "UTF-8";
   static ErrHandle logger;
 
-	protected HttpServletRequest request;
-	protected HttpServletResponse response;
-	protected CrpStudio servlet;
-	private VelocityContext context = new VelocityContext();
-	protected ResourceBundle labels;
-	protected Locale locale;
-	protected String lastUrl = null;
-	protected Map<String,Object> params;
-	protected String lang;
+  protected HttpServletRequest request;
+  protected HttpServletResponse response;
+  protected CrpStudio servlet;
+  private VelocityContext context = new VelocityContext();
+  protected ResourceBundle labels;
+  protected Locale locale;
+  protected String lastUrl = null;
+  protected Map<String,Object> params;
+  protected String lang;
   protected TemplateManager templateMan;
   protected boolean bUserOkay = false;
   protected String sUserId = "none";
@@ -88,49 +88,49 @@ public abstract class BaseResponse {
   protected CorpusResearchProject crpThis;
   protected String sCrpName = "";
   protected String sMessage = "";
-	static List<UserFile> lUserFile = new ArrayList<>();
-	protected long startTime = new Date().getTime();
+  static List<UserFile> lUserFile = new ArrayList<>();
+  protected long startTime = new Date().getTime();
 
-	protected BaseResponse() {
-	}
-	
-	public CrpStudio getServlet() {
-		return this.servlet;
-	}
+  protected BaseResponse() {
+  }
 
-	/**
-	 * Initialise this object with
-	 * @param argRequest
-	 * @param argResponse
-	 * @param argServlet
-	 */
-	public void init(HttpServletRequest argRequest, HttpServletResponse argResponse, CrpStudio argServlet) {
-		request = argRequest;
-		response = argResponse;
-		servlet = argServlet;
+  public CrpStudio getServlet() {
+          return this.servlet;
+  }
+
+  /**
+   * Initialise this object with
+   * @param argRequest
+   * @param argResponse
+   * @param argServlet
+   */
+  public void init(HttpServletRequest argRequest, HttpServletResponse argResponse, CrpStudio argServlet) {
+    request = argRequest;
+    response = argResponse;
+    servlet = argServlet;
     templateMan = argServlet.getTemplateManager();
     logger = argServlet.getErrHandle();
     crpContainer = argServlet.getCrpContainer();
-	}
+  }
 
-	/**
-	 * Get the velocity context object
-	 *
-	 * @return velocity context
-	 */
-	protected VelocityContext getContext() {
-		return context;
-	}
+  /**
+   * Get the velocity context object
+   *
+   * @return velocity context
+   */
+  protected VelocityContext getContext() {
+    return context;
+  }
 
-	protected void clearContext() {
-		context = new VelocityContext();
-	}
+  protected void clearContext() {
+    context = new VelocityContext();
+  }
   
   public void setMessage(String sMsg) {this.sMessage = sMsg;}
   public String getmessage() {return this.sMessage;}
 
-	protected Map<String, Object> getQueryParameters() {
-		Map<String, Object> params = new HashMap<String,Object>();
+  protected Map<String, Object> getQueryParameters() {
+    Map<String, Object> params = new HashMap<String,Object>();
     
     try {
       String query = this.getParameter("query", "");
