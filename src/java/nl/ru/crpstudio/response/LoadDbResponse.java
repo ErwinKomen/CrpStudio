@@ -24,6 +24,7 @@ public class LoadDbResponse extends BaseResponse {
   private String loadType;  // Type of information to be loaded
   private int iStart;       // Starting number
   private int iCount;       // Number of items
+  JSONObject oInfo = null;
 
   @Override
   protected void completeRequest() {
@@ -43,6 +44,9 @@ public class LoadDbResponse extends BaseResponse {
       if (loadType.isEmpty()) { sendErrorResponse("Specify type of information needed");  return;}
       if (sUserId.isEmpty())  { sendErrorResponse("The userid is not specified");         return; }
       
+      // Make sure that the loadtype is returned in the reply
+      oContent.put("type", loadType);
+      
       // The actual reply depends on the @loadType
       switch(loadType) {
         case "dbases":
@@ -59,6 +63,16 @@ public class LoadDbResponse extends BaseResponse {
           // Other validations
           if (iCount <=0) iCount = this.servlet.getDbPage();
           if (iStart <=0) iStart = 1;
+          // Get the requested information from the CRPP
+          oInfo = this.getDbaseInfo(sUserId, dbName, iStart, iCount);
+          oContent.put("namedb", dbName);
+          // Retrieve the <General> parameters
+          if (!addGeneral(oInfo, oContent)) { sendErrorResponse("Could not copy <General> part"); return;}
+          // Retrieve the Count and the Results
+          if (oInfo.has("count") && oInfo.has("results")) {
+            oContent.put("count", oInfo.getInt("count"));
+            oContent.put("results", oInfo.getJSONArray("results"));
+          }
           break;
         case "detail":  // Request for a detail-view
           break;
@@ -69,25 +83,10 @@ public class LoadDbResponse extends BaseResponse {
           dbName = oQuery.getString("dbase"); if (dbName.isEmpty()) { sendErrorResponse("Name of database not specified"); return;}
           
           // Get database information from CRPP
-          JSONObject oInfo = this.getDbaseInfo(sUserId, dbName);
+          oInfo = this.getDbaseInfo(sUserId, dbName);
           oContent.put("namedb", dbName);
-          JSONArray arFt = new JSONArray();
-          String sNamePrj = ""; String sLng = ""; String sDir = "";
-          String sDateCreated = ""; String sComments = "";
-          if (oInfo != null) {
-            sNamePrj = oInfo.getString("ProjectName");
-            sLng = oInfo.getString("Language");
-            sDir = oInfo.getString("Part");
-            sDateCreated = oInfo.getString("Created");
-            sComments = oInfo.getString("Notes");
-            arFt = oInfo.getJSONArray("Features");
-          }
-          oContent.put("nameprj", sNamePrj);
-          oContent.put("lng", sLng);
-          oContent.put("dir", sDir);
-          oContent.put("datecreated", sDateCreated);
-          oContent.put("comments", sComments);
-          oContent.put("features", arFt);
+          // Retrieve the <General> parameters
+          if (!addGeneral(oInfo, oContent)) { sendErrorResponse("Could not copy <General> part"); return;}
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");
@@ -112,5 +111,35 @@ public class LoadDbResponse extends BaseResponse {
     return new LoadDbResponse();
   }
 
- 
+  /**
+   * addGeneral -- add general information from @oInfo to @oContent
+   * @param oInfo
+   * @param oContent
+   * @return 
+   */
+  private boolean addGeneral(JSONObject oInfo, JSONObject oContent) {
+    try {
+      JSONArray arFt = new JSONArray();
+      String sNamePrj = ""; String sLng = ""; String sDir = "";
+      String sDateCreated = ""; String sComments = "";
+      if (oInfo != null) {
+        sNamePrj = oInfo.getString("ProjectName");
+        sLng = oInfo.getString("Language");
+        sDir = oInfo.getString("Part");
+        sDateCreated = oInfo.getString("Created");
+        sComments = oInfo.getString("Notes");
+        arFt = oInfo.getJSONArray("Features");
+      }
+      oContent.put("nameprj", sNamePrj);
+      oContent.put("lng", sLng);
+      oContent.put("dir", sDir);
+      oContent.put("datecreated", sDateCreated);
+      oContent.put("comments", sComments);
+      oContent.put("features", arFt);
+      return true;
+    } catch (Exception ex) {
+      sendErrorResponse("LoadDbResponse: could not complete: " + ex.getMessage());
+      return false;
+    }
+  }
 }

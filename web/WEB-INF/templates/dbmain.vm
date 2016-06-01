@@ -5,49 +5,71 @@
     <form>
       <fieldset>
         <legend>$labels.getString("general")</legend>
-        <!-- (1) DESCRIPTION of database -->
-        <div id="dbase_expl_description" class="large-16 medium-16 small-16 row">
-          <i>(no database selected)</i>
+        <div id="dbasenav" class="row">
+          <dl class="sub-nav large-16 medium-16 small-16"  data-tab>
+            <dd class="tab-title active">
+              <a class="tablink" href="#dbase_panel_summary" onclick="crpstudio.dbase.switchDbaseView(this, 'summary')">$labels.getString("dbase.panel.summary")</a></dd>
+            <dd class="tab-title">
+              <a class="tablink" href="#dbase_panel_list" onclick="crpstudio.dbase.switchDbaseView(this, 'list')" >$labels.getString("dbase.panel.listview")</a></dd>
+            <dd class="tab-title">
+              <a class="tablink" href="#dbase_panel_detail" onclick="crpstudio.dbase.switchDbaseView(this, 'details')" >$labels.getString("dbase.panel.details")</a></dd>
+          </dl>
         </div>
-        <!-- (2) BUTTON(S) for database action(s) -->
-        <div id="dbase_expl_action" class="large-16 medium-16 small-16 row hidden">
-          <a href="#" onclick="crpstudio.dbase.listView()" class="button radius reset small secondary">
-            <span>$labels.getString("dbase.general.listview")</span>
-          </a>
-        </div>
-        <!-- (3) SUMMARY of database (and perhaps some EDITING) -->
-        <div id="dbase_expl" class="large-16 medium-16 small-16 row hidden">
-          <!-- Database short STATUS -->
-          <div id="dbase_expl_status" class="large-16 medium-16 small-16 row hidden"></div>
-          <!-- Database SUMMARY area -->
-          <fieldset><legend>$labels.getString("dbase.summary")</legend>
-            <div id="dbase_expl_summary" class="panel"></div>
-          </fieldset>
-        </div>
-        <!-- (4) UPLOADING of a database -->
-        <div id="dbase_expl_upload" class="large-16 medium-16 small-16 row hidden">
-          <!-- Progress indication -->
-          <div class="small-8 medium-8 large-8 columns">
-            <div class="large-16 medium-16 small-16 row">$labels.getString("dbase.upload.start")</div>
-            <!-- Progress bar: indicating the number of files that have started -->
-            <div class="progress alert round ">
-              <span id="agentdb007" class="meter" style="width: 0%"></span>
+        <div class="tabs-content large-16 medium-16 small-16 ">
+          <div id="dbase_panel_summary" class="large-16 medium-16 small-16 content active">
+            <!-- (1) DESCRIPTION of database -->
+            <div id="dbase_expl_description" class="large-16 medium-16 small-16 row">
+              <i>(no database selected)</i>
             </div>
-            <!-- Progress bar: indicating the number of files that have beenprocessed -->
-            <div class="progress success round ">
-              <span id="agentdb008" class="meter" style="width: 0%"></span>
+            <!-- (3) SUMMARY of database (and perhaps some EDITING) -->
+            <div id="dbase_expl" class="large-16 medium-16 small-16 row hidden">
+              <!-- Database short STATUS -->
+              <div id="dbase_expl_status" class="large-16 medium-16 small-16 row hidden"></div>
+              <!-- Database SUMMARY area -->
+              <div id="dbase_expl_summary" class="large-16 medium-16 small-16 row"></div>
+              <!--
+              <fieldset><legend>$labels.getString("dbase.summary")</legend>
+                <div id="dbase_expl_summary" class="panel"></div>
+              </fieldset>
+              -->
             </div>
-            <div id="dbase_expl_upload_status" class="large-16 medium-16 small-16 row">
-              <!-- Upload status information when a database is being uploaded -->
+            <!-- (4) UPLOADING of a database -->
+            <div id="dbase_expl_upload" class="large-16 medium-16 small-16 row hidden">
+              <!-- Progress indication -->
+              <div class="small-8 medium-8 large-8 columns">
+                <div class="large-16 medium-16 small-16 row">$labels.getString("dbase.upload.start")</div>
+                <!-- Progress bar: indicating the number of files that have started -->
+                <div class="progress alert round ">
+                  <span id="agentdb007" class="meter" style="width: 0%"></span>
+                </div>
+                <!-- Progress bar: indicating the number of files that have beenprocessed -->
+                <div class="progress success round ">
+                  <span id="agentdb008" class="meter" style="width: 0%"></span>
+                </div>
+                <div id="dbase_expl_upload_status" class="large-16 medium-16 small-16 row">
+                  <!-- Upload status information when a database is being uploaded -->
+                </div>
+              </div>
+              <!-- STOP with uploading (if possible) -->
+              <div id="dbase_upload_cancel" class="small-2 medium-2 large-2 columns left">
+                <a href="#" onclick="crpstudio.dbase.uploadStop()" class="button radius reset small secondary">
+                  <span>$labels.getString("dbase.upload.cancel")</span>
+                </a>
+              </div>
             </div>
           </div>
-          <!-- STOP with uploading (if possible) -->
-          <div id="dbase_upload_cancel" class="small-2 medium-2 large-2 columns left">
-            <a href="#" onclick="crpstudio.dbase.uploadStop()" class="button radius reset small secondary">
-              <span>$labels.getString("dbase.upload.cancel")</span>
-            </a>
+          <div id="dbase_panel_list" class="content large-16 medium-16 small-16" >
+            <div id="dbase_expl_results" class="large-16 medium-16 small-16 result-qc row">
+              <i>(no results available)</i>
+            </div>
+          </div>
+          <div id="dbase_panel_details" class="content large-16 medium-16 small-16" >
+            <div id="dbase_expl_details" class="large-16 medium-16 small-16 row">
+              <i>(no details available)</i>
+            </div>
           </div>
         </div>
+
       </fieldset>
     </form>
   </div>

@@ -87,7 +87,7 @@ public class CrpStudio extends HttpServlet {
   private String sRequestMethod = ""; // Which method is used to approach us?
   private String sSessionId = "";
   private JSONArray arUpdateContent = null;
-  private int iDB_PAGE = 40;          // Number of database results to collect in one go
+  private int iDB_PAGE = 30;          // Number of database results to collect in one go
   private final Pattern VALID_EMAIL_ADDRESS_REGEX = 
     Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
   // ====================== Getters and setters ======================

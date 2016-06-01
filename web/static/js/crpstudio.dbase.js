@@ -204,9 +204,12 @@ var crpstudio = (function ($, crpstudio) {
         // SHow what is happening in [dbmain.vm]
         $("#dbase_expl_description").addClass("hidden");
         $("#dbase_expl_status").addClass("hidden");
-        $("#dbase_expl_action").addClass("hidden");
+        // $("#dbase_expl_action").addClass("hidden");
         $("#dbase_expl").removeClass("hidden");
         $("#dbase_expl_summary").html("Loading: " + sDbName + "<br><i>(This may take some time, especially if a new index is created)</i>");
+        $("#dbasenav dl dd").removeClass("active");
+        $("#dbasenav dl dd").first().addClass("active");
+        crpstudio.dbase.switchDbaseView(target, 'summary');
         // Also set the name of the currently selected project in a div
         $("#dbase_current").text(sDbName);
         // And set the name of the project in the top-bar div
@@ -236,6 +239,8 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       processLoad : function(response, target) {
+        var arHtml = [];
+
         if (response !== null) {
           // Remove waiting
           $("#dbase_description").html("");
@@ -261,22 +266,62 @@ var crpstudio = (function ($, crpstudio) {
               $("#dbase_general_comments").val(sComments);
               
               // Also treate the form [dbmain.vm]
-              var arHtml = [];
-              arHtml.push("<table>");
-              arHtml.push("<tr><td>Corpus project</td><td colspan=2>"+sNamePrj+"</td></tr>");
-              arHtml.push("<tr><td>Database name</td><td colspan=2>" + sNameDb + "</td></tr>");
-              arHtml.push("<tr><td>Database created</td><td colspan=2>"+sDateCreated+"</td></tr>");
-              arHtml.push("<tr><td>Corpus used</td><td colspan=2>"+sCorpus+"</td></tr>");
-              arHtml.push("<tr><td>Notes</td><td colspan=2>"+sComments+"</td></tr>");
-              var arFeats = oContent.features;
-              for (var i=0;i<arFeats.length;i++) {
-                arHtml.push("<tr><td>Feature</td><td>"+(i+1)+"</td><td>"+arFeats[i]+"</td></tr>");
+              // (1) What type of info are we targetting?
+              var sLoadType = oContent.type;
+              if (sLoadType === undefined) sLoadType = "info";
+              switch(sLoadType) {
+                case "info":    // Only display general part
+                  arHtml.push("<table>");
+                  arHtml.push("<tr><td>Corpus project</td><td colspan=2>"+sNamePrj+"</td></tr>");
+                  arHtml.push("<tr><td>Database name</td><td colspan=2>" + sNameDb + "</td></tr>");
+                  arHtml.push("<tr><td>Database created</td><td colspan=2>"+sDateCreated+"</td></tr>");
+                  arHtml.push("<tr><td>Corpus used</td><td colspan=2>"+sCorpus+"</td></tr>");
+                  arHtml.push("<tr><td>Notes</td><td colspan=2>"+sComments+"</td></tr>");
+                  var arFeats = oContent.features;
+                  for (var i=0;i<arFeats.length;i++) {
+                    arHtml.push("<tr><td>Feature</td><td>"+(i+1)+"</td><td>"+arFeats[i]+"</td></tr>");
+                  }
+                  arHtml.push("</table>");
+                  $("#dbase_expl_summary").html(arHtml.join("\n"));
+                  break;
+                case "list":    // Listview
+                  var iCount = oContent.count; if (iCount === undefined) iCount = 0;
+                  var arResults = oContent.results;
+                  // Produce header for table
+                  arHtml.push("<table><thead><th>#</th><th>Cat</th><th>Text</th><th>Sentence</th><th>Constituent</th></thead><tbody>");
+                  // Process each individual result
+                  for (var i=0;i<iCount;i++) {
+                    // Get this result
+                    var oResult = arResults[i];
+                    // Create an id for this result
+                    var sId = "dbase_list_"+oResult.ResId;
+                    // Add the results from this row
+                    arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\")'><td>"+
+                            oResult.ResId+"</td><td>"+oResult.Cat+"</td><td>"+
+                            oResult.TextId+"</td><td>"+oResult.sentId+"</td><td>"+
+                            oResult.constId+"</td></tr>");
+                    // Add the features in a hidden row??
+                    arHtml.push("<tr id="+sId+" class='citationrow hidden'><td colspan='5'><table><tr><td>Feature</td><td>Value</td></tr>");
+                    // Create table with key/value for features
+                    var arFeats = oResult.Features;
+                    for (var j=0;j<arFeats.length;j++) {
+                      var sFeatName = oContent.features[j];
+                      arHtml.push("<tr><td>"+sFeatName+"</td><td>"+arFeats[j]+"</td></tr>");
+                    }
+                    // Finish this cell
+                    arHtml.push("</table></td></tr>");
+                  }
+                  // Finish the table
+                  arHtml.push("</tbody></table>");
+                  // Add table to the list
+                  $("#dbase_expl_results").html(arHtml.join("\n"));
+                  break;
+                case "detail":  // Detail view
+                  break;
               }
-              arHtml.push("</table>");
-              $("#dbase_expl_summary").html(arHtml.join("\n"));
               
               // Now show the listview button
-              $("#dbase_expl_action").removeClass("hidden");
+              // $("#dbase_expl_action").removeClass("hidden");
 
               // Add event handlers on all INPUT elements under "dbase_general"
               $("#dbase_general input").on("change keydown paste input", 
@@ -316,6 +361,70 @@ var crpstudio = (function ($, crpstudio) {
           $("#dbase_status").html("ERROR - Failed to load the .xml database from the server.");
         }    
       },  
+      
+      /**
+       * showListItem -- show or hide an item from the database list
+       * 
+       * @param {type} element
+       * @param {type} update
+       * @returns {undefined}
+       */
+      showListItem : function(element, update) {
+        // Check whether we need to show or hide
+        if ($(element).hasClass("hidden") || (update)) {
+          // Make sure the <div> is now being shown
+          $(element).removeClass("hidden");
+          
+        } else {
+          // Hide the details
+          $(element).addClass("hidden");
+        }
+        
+      },
+      
+      /**
+       * switchDbaseView --
+       *    Switch between three Database views: summary, list or detail
+       *    
+       * @param {type} target
+       * @param {type} type
+       * @param {type} iStart
+       * @param {type} iCount
+       * @returns {undefined}
+       */
+      switchDbaseView : function(target, type, iStart, iCount) {
+        if (type === undefined) type = "summary";
+        // Initially make all inactive
+        $("#dbase_panel_summary").removeClass("active");
+        $("#dbase_panel_list").removeClass("active");
+        $("#dbase_panel_details").removeClass("active");
+        switch(type) {
+          case "summary":   // Summary view
+            // Set it active
+            $("#dbase_panel_summary").addClass("active");
+            break;
+          case "list":      // List view
+            // Set it active
+            $("#dbase_panel_list").addClass("active");
+            // Get the currently selected database
+            var sDbName = loc_currentDbase;
+            // INterpret the parameters
+            var start = 1; var count = -1;
+            if (iStart !== undefined) start = iStart;
+            if (iCount !== undefined) count = iCount;
+            // Pass on the listview request to the /crpstudio server
+            var oArgs = { "dbase": sDbName,
+              "type": "list", "start": start, "count": count, "userid": crpstudio.currentUser };
+            var params = JSON.stringify(oArgs);
+
+            crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");            
+            break;            
+          case "details":    // Details view
+            // Set it active
+            $("#dbase_panel_details").addClass("active");
+            break;
+        }
+      },
       
       /**
        * listView -- Request the information for a listview
@@ -367,7 +476,7 @@ var crpstudio = (function ($, crpstudio) {
         // Keep track of progress
         $("#dbase_expl_upload").removeClass("hidden");
         $("#dbase_expl_description").addClass("hidden");
-        $("#dbase_expl_action").addClass("hidden");
+        // $("#dbase_expl_action").addClass("hidden");
         $("#dbase_expl").addClass("hidden");
         $("#dbase_expl_upload_status").html("Uploading result dbase is starting up...");
         $("#dbase_expl_upload_status").removeClass("hidden");
@@ -891,7 +1000,7 @@ var crpstudio = (function ($, crpstudio) {
         switch(sFileType) {
           case "dbase":       // download database in Xquery
             $("#dbase_expl_description").addClass("hidden");
-            $("#dbase_expl_action").addClass("hidden");
+            // $("#dbase_expl_action").addClass("hidden");
             $("#dbase_expl").removeClass("hidden");
             $("#dbase_expl_status").removeClass("hidden");
             $("#dbase_expl_status").html("Preparing file for downloading"+

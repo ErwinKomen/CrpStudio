@@ -203,7 +203,7 @@ ul.nav.nav-tabs > li > a {
   width: 100%;
   height: 100%; }
 
-#subnav {
+#subnav, #dbasenav {
   margin-top: 5px;
   height: 30px;
   /*margin-bottom: 20px;*/
@@ -211,13 +211,13 @@ ul.nav.nav-tabs > li > a {
   width: 100%;
   border-bottom: 1px solid #E3E3E3; }
 
-#subnav a {
+#subnav a, #dbasenav a {
   font-size: 0.77778rem; }
 
-#subnav dd.active a {
+#subnav dd.active a, #dbasenav dd.active a {
   background: #008cba; }
 
-#subnav dd.active a:hover {
+#subnav dd.active a:hover, #dbasenav dd.active a:hover {
   background: #007095;
   color: silver; }
 
@@ -537,6 +537,21 @@ input.small-loadlist {
 .accordion dd > a, .tabs dd > a {
   font-family: source-sans-pro, sans-serif; }
 
+/*
+.tabs dd.active a, .tabs .tab-title.active a{
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;  
+    border-bottom: 1px solid white !important;
+} */
+/* Foundation TAB bottom container that is ACTIVE */
+/*
+.tabs-content > .content.active {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;  
+} */
 dl.accordion {
   margin-bottom: 100px; }
 

@@ -1981,6 +1981,69 @@ public abstract class BaseResponse {
    * 
    * @param sUser
    * @param sDbName
+   * @param iStart
+   * @param iCount
+   * @return 
+   */
+  public JSONObject getDbaseInfo(String sUser, String sDbName, int iStart, int iCount) {
+    JSONObject oInfo = null;
+    
+    try {
+      // Prepare a download request to /crpp using the correct /dbinfo parameters
+      this.params.clear();
+      this.params.put("userid", sUser);
+      this.params.put("name", sDbName);
+      this.params.put("start", iStart);
+      this.params.put("count", iCount);
+      String sResp = getCrppPostResponse("dbinfo", "", this.params);
+      
+      // Check the result
+      if (sResp.isEmpty() || !sResp.startsWith("{")) sendErrorResponse("Server /crpp gave no valid response on /dbinfo");
+      // Convert the response to JSON
+      JSONObject oResp = new JSONObject(sResp);
+      // Get the status
+      if (!oResp.has("status")) sendErrorResponse("Server /crpp gave [status] back");
+      // Decypher the status
+      JSONObject oStat = oResp.getJSONObject("status");
+      if (!oStat.getString("code").equals("completed"))
+        sendErrorResponse("Server /crpp returned status: ["+oStat.getString("code")+
+                "] and message: [" + oStat.getString("message")+"]");
+
+      // Get the content part
+      JSONObject oContent = oResp.getJSONObject("content");
+      // Get the General part at any rate
+      if (oContent.has("General")) {
+        JSONObject oGeneral = oContent.getJSONObject("General");
+        // Put in all the elements of general
+        oInfo = new JSONObject();
+        oInfo.put("ProjectName", oGeneral.getString("ProjectName"));
+        oInfo.put("Created", oGeneral.getString("Created"));
+        oInfo.put("Language", oGeneral.getString("Language"));
+        oInfo.put("Part", oGeneral.getString("Part"));
+        oInfo.put("Notes", oGeneral.getString("Notes"));
+        oInfo.put("Features", oGeneral.getJSONArray("Features"));
+      }
+      // Get results, if there are any
+      if (oContent.has("Count") && oContent.has("Results")) {
+        // Copy the information
+        oInfo.put("count", oContent.getInt("Count"));
+        oInfo.put("results", oContent.getJSONArray("Results"));
+      }
+    
+      return oInfo;
+    } catch (Exception ex) {
+      logger.DoError("getDbaseInfo: could not complete", ex);
+      return null;
+    }
+  }
+
+  /**
+   * getDbaseInfo -- Make a request to CRPP for database [sDbName]
+   *    owned by user [sUser].
+   *    Return the full path of the .xml.gz database
+   * 
+   * @param sUser
+   * @param sDbName
    * @return 
    */
   public JSONObject getDbaseInfo(String sUser, String sDbName) {
