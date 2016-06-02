@@ -1,22 +1,22 @@
-		<div class="footer">CorpusStudioWeb v0.4.6 (8/mar/2016) &copy; 
-      <a href="http://www.meertens.knaw.nl">Meertens Instituut, Radboud University Nijmegen</a> 2015 - 
+    <div class="footer">CorpusStudioWeb v0.4.7 (2/jun/2016) &copy; 
+      <a href="http://www.meertens.knaw.nl">Meertens Instituut, Radboud University Nijmegen</a> 2015-2016 - 
       Development: <a href="http://www.clarin.nl">CLARIN-NL</a> - 
       Powered by: <a href="https://github.com/ErwinKomen/CrppServer" target="_blank">Crpp Server</a> &copy; 
       <a href="http://www.meertens.knaw.nl">Meertens Instituut</a> 2015</div>
-		<script>
-			
-		
-			$(document).foundation();
-			
-			$(function() {
-				var state = crpstudio.main.cookies.checkCookie('corpusstudio');
-				if (state !== undefined) {
-					$("div.cookies").removeClass("active");
-					$("nav.topbar").css({top : 0});
-				} else {
-					$("div.cookies").addClass("active");
-					$("nav.topbar").css({top : 50});
-				}
+    <script>
+
+
+      $(document).foundation();
+
+      $(function() {
+        var state = crpstudio.main.cookies.checkCookie('corpusstudio');
+        if (state !== undefined) {
+          $("div.cookies").removeClass("active");
+          $("nav.topbar").css({top : 0});
+        } else {
+          $("div.cookies").addClass("active");
+          $("nav.topbar").css({top : 50});
+        }
         crpstudio.config.baseUrl = location.pathname.replace(/^\/([^\/]+)\/.*$/, "/$1/");
         crpstudio.config.crppUrl = '$labels.getString("crppUrlInternal")/';
         crpstudio.config.blsUrl = '$labels.getString("blsUrlExternal")/$labels.getString("corpus")/';
@@ -26,57 +26,47 @@
         #if($username)
           crpstudio.main.setUser("${username}");
         #end
-				crpstudio.main.tab = "$maintab";    // Old
+        crpstudio.main.tab = "$maintab";    // Old
         crpstudio.main.setTab("$maintab");  // New
-				#if($maintab == "home")
-					crpstudio.main.home.setSizes();
-					$( window ).resize(function() {
-						crpstudio.main.home.setSizes();
-					});
-				#elseif($maintab == "corpora")
-					crpstudio.corpora.setSizes();
-					$( window ).resize(function() {
-						crpstudio.corpora.setSizes();
-					});
-				#elseif($maintab == "dbases")
-					crpstudio.dbase.setSizes();
-					$( window ).resize(function() {
-						crpstudio.dbase.setSizes();
-					});
-				#elseif($maintab == "projects")
-					crpstudio.project.tab = "$tab";
-					crpstudio.project.setSizes();
-					$( window ).resize(function() {
-						crpstudio.project.setSizes();
-					});
+        #if($maintab == "home")
+          crpstudio.main.home.setSizes();
+          $( window ).resize(function() { crpstudio.main.home.setSizes(); });
+        #elseif($maintab == "corpora")
+          crpstudio.corpora.setSizes();
+          $( window ).resize(function() { crpstudio.corpora.setSizes(); });
+        #elseif($maintab == "dbases")
+          crpstudio.dbase.setSizes();
+          $( window ).resize(function() { crpstudio.dbase.setSizes(); });
+        #elseif($maintab == "projects")
+          crpstudio.project.tab = "$tab";
+          crpstudio.project.setSizes();
+          $( window ).resize(function() { crpstudio.project.setSizes(); });
           crpstudio.project.initCrpList();
-				#elseif($maintab == "about")
-					crpstudio.main.about.setSizes();
-					$( window ).resize(function() {
-						crpstudio.main.about.setSizes();
-					});
-				#end
-			});
+        #elseif($maintab == "about")
+          crpstudio.main.about.setSizes();
+          $( window ).resize(function() { crpstudio.main.about.setSizes(); });
+        #end
+        });
 
-			$(document).keypress(function(e) {
-			    if(e.which == 13 && crpstudio.main.tab === 'projects' && 
+      $(document).keypress(function(e) {
+        if(e.which == 13 && crpstudio.main.tab === 'projects' && 
               (crpstudio.project.tab === 'simple' || 
                 crpstudio.project.tab === 'extended' || 
                crpstudio.project.tab === 'advanced')) {
-			    	$( "#"+crpstudio.project.tab ).find(".search").trigger( "click" );
-			    }
-			});
-			
-			$(document).mouseup(function (e) {
-			    var container = $("#advanced ul.options");
-			
-			    if (!container.is(e.target) // if the target of the click isn't the container...
-			        && container.has(e.target).length === 0) // ... nor a descendant of the container
-			    {
-			        container.parent().removeClass("active");
-			    }
-			});
-			
-		</script>
-	</body>
+          $( "#"+crpstudio.project.tab ).find(".search").trigger( "click" );
+        }
+      });
+
+      $(document).mouseup(function (e) {
+        var container = $("#advanced ul.options");
+
+        if (!container.is(e.target)                   // if the target of the click isn't the container...
+            && container.has(e.target).length === 0)  // ... nor a descendant of the container
+        {
+            container.parent().removeClass("active");
+        }
+      });
+
+    </script>
+  </body>
 </html>

@@ -32,7 +32,7 @@ public class DbasesResponse extends BaseResponse {
       String tab = this.getParameter("tabdb", "overview");
       this.getContext().put("tabdb", tab);
       // The initial tab should not show the metaoptions
-  		this.getContext().put("showMetaOptions", "no");
+      this.getContext().put("showMetaOptions", "no");
       // Now produce the "dbases" tab 
       this.displayHtmlTemplate(this.templateMan.getTemplate("dbases"));
     } catch (Exception ex) {

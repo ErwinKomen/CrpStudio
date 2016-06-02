@@ -255,7 +255,7 @@ img.currentLang {
 }
 
 .top-bar-section a.active:hover {
-	background:  $colTopHover !important;
+  background:  $colTopHover !important;
 }
 
 ul.nav.nav-tabs > li > a {
@@ -264,13 +264,29 @@ ul.nav.nav-tabs > li > a {
   height: 100%;
 }
 
-#subnav, #dbasenav {
+#subnav {
   margin-top: 5px;
   height: 30px;
   /*margin-bottom: 20px;*/
   padding-left: 20px;
   width: 100%;
   border-bottom: 1px solid #E3E3E3;
+}
+
+#dbasenav {
+  margin-top: 5px;
+  height: 30px;
+  /*margin-bottom: 20px;*/
+  padding-left: 20px;
+  /* width: 100%; */
+  border-bottom: 1px solid #E3E3E3; /* */
+}
+
+.dashboard {
+  margin-top: 5px;
+  height: 30px;
+  background-color: lightyellow;
+  border-bottom: 1px solid #E3E3E3; /* */
 }
 
 #subnav a, #dbasenav a {

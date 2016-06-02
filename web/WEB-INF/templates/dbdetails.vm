@@ -1,0 +1,6 @@
+<!-- side bar: NO side-bar should be shown for the list view -->
+
+  <div id="dbase_expl_details" class="large-16 medium-16 small-16 row">
+    <i>(no details available)</i>
+  </div>
+

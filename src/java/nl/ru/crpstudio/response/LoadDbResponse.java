@@ -25,6 +25,7 @@ public class LoadDbResponse extends BaseResponse {
   private int iStart;       // Starting number
   private int iCount;       // Number of items
   JSONObject oInfo = null;
+  JSONArray arColumns = new JSONArray();
 
   @Override
   protected void completeRequest() {
@@ -68,6 +69,22 @@ public class LoadDbResponse extends BaseResponse {
           oContent.put("namedb", dbName);
           // Retrieve the <General> parameters
           if (!addGeneral(oInfo, oContent)) { sendErrorResponse("Could not copy <General> part"); return;}
+          // Set the columns that should be displayed
+          if (oQuery.has("columns")) {
+            // The caller supplied 'columns', so take them over
+            arColumns = oQuery.getJSONArray("columns");
+          } else {
+            // no columns were supplied, so we set the default ones
+            arColumns.put("ResId");
+            arColumns.put("Cat");
+            arColumns.put("TextId");
+            arColumns.put("SubType");
+            arColumns.put("sentId");
+            arColumns.put("constId");
+            arColumns.put("");
+            arColumns.put("");
+          }
+          oContent.put("columns", arColumns);
           // Retrieve the Count and the Results
           if (oInfo.has("count") && oInfo.has("results")) {
             oContent.put("count", oInfo.getInt("count"));

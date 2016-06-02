@@ -19,6 +19,7 @@ var crpstudio = (function ($, crpstudio) {
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
         loc_uploadText = "",    // Text of file that is being uploaded
+        loc_oResults = null,    // Object containing the last details for a database list-view
         loc_uploadInfo = null,  // DbUpload information
         loc_xhrUpload = null,   // Upload XmlhttpRequest object
         loc_uploadArgs = null,  // Upload arguments
@@ -62,7 +63,7 @@ var crpstudio = (function ($, crpstudio) {
       switchTab : function(target, sRecentDb, bForce) {
         crpstudio.main.debug("switching to dbase tab "+target+" from "+loc_tab);
         if (target !== loc_tab || bForce) {
-          $("#search .content").removeClass("active");
+          $("#dbase_main .content").removeClass("active");
           $("#"+target).addClass("active");
           $("#subnav dd").removeClass("active");
           $("#"+target+"_link").addClass("active");
@@ -70,14 +71,9 @@ var crpstudio = (function ($, crpstudio) {
           $("#"+target+"_status").text("");
           // Make sure the global variable is set correctly
           loc_tab = target;
-          // Initially hide *all* SELECTORs
-          $("#dbase_explore").hide(); $("#dbase_editor").hide();
-          
-          // Remove textarea event handlers
-          /*
-          $("#query_general_top").unbind();
-          $("#def_general_top").unbind();
-          */
+          // Initially hide *all* 'content' children of the dbase_main <div>
+          // $("#dbase_main .content").addClass("hidden");
+          // $("#dbase_explore").hide(); $("#dbase_editor").hide();
           
           // Capture the current selecting state
           var bSelState = bIsSelecting;
@@ -87,16 +83,20 @@ var crpstudio = (function ($, crpstudio) {
             case "dbase_explore":
               // Selecting...
               bIsSelecting = true;
+              
               // Fill the list of editor information
-              crpstudio.list.showlist("dbase", currentDbs);
+              // TODO: repair this generalized handling...
+              // crpstudio.list.showlist("dbase", currentDbs);
               
               // Show the editor selector
               $("#dbase_explore").show();
               // Show the contents of the explorer
               $("#dbase_general_explore").removeClass("hidden");
               $("#dbase_general_editor").addClass("hidden");
+              
               // Call setCrpItem() which should check if a 'default' item needs to be shown
-              crpstudio.list.setCrpItem(null, "dbase", -1);    
+              // TODO: repair generalized list handling
+              // crpstudio.list.setCrpItem(null, "dbase", -1);    
               
               // NOTE: do *NOT* add change events
               
@@ -107,7 +107,7 @@ var crpstudio = (function ($, crpstudio) {
               // Fill the list of editor information
               crpstudio.list.showlist("dbase", currentDbs);
               
-              // Show the editor selector
+              // Show the editor tab-page
               $("#dbase_editor").show();
               // Show the contents of the editor
               $("#dbase_general_explore").addClass("hidden");
@@ -118,6 +118,15 @@ var crpstudio = (function ($, crpstudio) {
               // Add event handlers on all INPUT elements under "def_general" to get changes sent to the CRP on the server
               crpstudio.dbase.addChangeEvents("dbase_general");
 
+              break;
+            case "dbase_listview":
+              // Show the listview tab-page
+              $("#dbase_listview").show();
+              crpstudio.dbase.listView(target, 1, -1);
+              break;
+            case "dbase_details":
+              // Show the details tab-page
+              $("#dbase_details").show();
               break;
             default:
               break;
@@ -285,36 +294,10 @@ var crpstudio = (function ($, crpstudio) {
                   $("#dbase_expl_summary").html(arHtml.join("\n"));
                   break;
                 case "list":    // Listview
-                  var iCount = oContent.count; if (iCount === undefined) iCount = 0;
-                  var arResults = oContent.results;
-                  // Produce header for table
-                  arHtml.push("<table><thead><th>#</th><th>Cat</th><th>Text</th><th>Sentence</th><th>Constituent</th></thead><tbody>");
-                  // Process each individual result
-                  for (var i=0;i<iCount;i++) {
-                    // Get this result
-                    var oResult = arResults[i];
-                    // Create an id for this result
-                    var sId = "dbase_list_"+oResult.ResId;
-                    // Add the results from this row
-                    arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\")'><td>"+
-                            oResult.ResId+"</td><td>"+oResult.Cat+"</td><td>"+
-                            oResult.TextId+"</td><td>"+oResult.sentId+"</td><td>"+
-                            oResult.constId+"</td></tr>");
-                    // Add the features in a hidden row??
-                    arHtml.push("<tr id="+sId+" class='citationrow hidden'><td colspan='5'><table><tr><td>Feature</td><td>Value</td></tr>");
-                    // Create table with key/value for features
-                    var arFeats = oResult.Features;
-                    for (var j=0;j<arFeats.length;j++) {
-                      var sFeatName = oContent.features[j];
-                      arHtml.push("<tr><td>"+sFeatName+"</td><td>"+arFeats[j]+"</td></tr>");
-                    }
-                    // Finish this cell
-                    arHtml.push("</table></td></tr>");
-                  }
-                  // Finish the table
-                  arHtml.push("</tbody></table>");
-                  // Add table to the list
-                  $("#dbase_expl_results").html(arHtml.join("\n"));
+                  // Keep the results within [crpstudio.dbase]
+                  loc_oResults = oContent;
+                  // Show the results on the correct page
+                  crpstudio.dbase.listViewShow("dbase_expl_results", oContent);
                   break;
                 case "detail":  // Detail view
                   break;
@@ -398,6 +381,9 @@ var crpstudio = (function ($, crpstudio) {
         $("#dbase_panel_summary").removeClass("active");
         $("#dbase_panel_list").removeClass("active");
         $("#dbase_panel_details").removeClass("active");
+        // De-activate all switchboards
+        $("#dbase_dashboard .dashboard").addClass("hidden");
+        $("#dbase_dashb_"+type).removeClass("hidden");
         switch(type) {
           case "summary":   // Summary view
             // Set it active
@@ -447,6 +433,99 @@ var crpstudio = (function ($, crpstudio) {
         var params = JSON.stringify(oArgs);
 
         crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
+      },
+      
+      /**
+       * getListViewColumnOptions - Create a <select> string with options taken
+       *    from arResFields and arFeatures.
+       * @param {type} arResFields
+       * @param {type} arFeatures
+       * @returns {undefined}
+       */
+      getListViewColumnOptions : function(arResFields, arFeatures) {
+        var arHtml = [];
+        arHtml.push("<select>");
+        for (var sKeyName in arResFields) {
+          arHtml.push("<option value=\""+sKeyName+"\">"+sKeyName+"</option>");
+        }
+        /*
+        for (var i=0;i<arResFields.length;i++) {
+          // Get key name
+          var sKeyName = Object.keys(arResFields[i])[0];
+          arHtml.push("<option value=\""+sKeyName+"\">"+sKeyName+"</option>");
+        } */
+        for (var i=0;i<arFeatures.length;i++) {
+          arHtml.push("<option value=\""+arFeatures[i]+"\">"+arFeatures[i]+"</option>");
+        }
+        arHtml.push("</select>");
+        return arHtml.join("\n");
+      },
+      
+      /**
+       * listViewShow -- create a list of results as defined in [oContent] and show it on [target]
+       * 
+       * @param {type} target
+       * @param {type} oContent
+       * @returns {undefined}
+       */
+      listViewShow : function(target, oContent) {
+        var iCount = oContent.count; if (iCount === undefined) iCount = 0;
+        var arResults = oContent.results;
+        var arColumns = oContent.columns;
+        var arHtml = [];
+        var sOptions = crpstudio.dbase.getListViewColumnOptions(arResults[0], oContent.features);
+        // Set the initial 
+        // Produce header for table
+        arHtml.push("<table><thead>");
+        for (var i=0;i<arColumns.length;i++) {
+          arHtml.push("<th id=\"db_list_column_"+(i+1)+"\">"+sOptions+"</th>");
+        }
+        arHtml.push("</thead><tbody>");
+        // arHtml.push("<table><thead><th>#</th><th>Cat</th><th>Text</th><th>Sentence</th><th>Constituent</th></thead><tbody>");
+        // Process each individual result
+        for (var i=0;i<iCount;i++) {
+          // Get this result
+          var oResult = arResults[i];
+          // Create an id for this result
+          var sId = "dbase_list_"+oResult.ResId;
+          // Add the results from this row
+          arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\")'>");
+          for (var j=0;j<arColumns.length;j++) {
+            var sValue = "";
+            if (arColumns[j] !== "") {
+              sValue = oResult[arColumns[j]];
+            }
+            arHtml.push("<td>"+sValue+"</td>");
+          }
+          
+          /*
+          "<td>"+oResult.ResId+"</td><td>"+oResult.Cat+"</td><td>"+
+                  oResult.TextId+"</td><td>"+oResult.sentId+"</td><td>"+
+                  oResult.constId+"</td></tr>");
+          */
+          arHtml.push("</tr>");
+          
+          // Add the features in a hidden row??
+          arHtml.push("<tr id="+sId+" class='citationrow hidden'><td colspan='5'><table><tr><td>Feature</td><td>Value</td></tr>");
+          // Create table with key/value for features
+          var arFeats = oResult.Features;
+          for (var j=0;j<arFeats.length;j++) {
+            var sFeatName = oContent.features[j];
+            arHtml.push("<tr><td>"+sFeatName+"</td><td>"+arFeats[j]+"</td></tr>");
+          }
+          // Finish this cell
+          arHtml.push("</table></td></tr>");
+        }
+        // Finish the table
+        arHtml.push("</tbody></table>");
+        // Add table to the list
+        $("#" + target).html(arHtml.join("\n"));
+        // Select the values for the listview columns
+        for (var i=0;i<arColumns.length;i++) {
+          var sColumnName = "db_list_column_" + (i+1);
+          $("#"+sColumnName).val(arColumns[i]);
+        }
+        
       },
       
       /*

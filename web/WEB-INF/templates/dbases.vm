@@ -1,49 +1,79 @@
 #parse("header.vm")
-		#set($explore = $labels.getString("dbase.explore"))
-		#set($edit = $labels.getString("dbase.edit"))
-		
-		<div class="row" id="subnav">
-      <!-- List of sub-navigation 'buttons' -->
-			<dl id="search-nav" class="sub-nav" data-tab>
-      <!-- Sub-navigation item: [overview] -->
-			#if($tabdb == "overview")
-				<dd id="explore_link" class="active"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_explore', '${recentdb}')">$explore</a></dd>
-			#else
-				<dd id="explore_link"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_explore', '${recentdb}')">$explore</a></dd>
-			#end
-      <!-- Sub-navigation item: [edit] -->
-			#if($tabdb == "edit")
-				<dd id="edit_link" class="active"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_editor')">$edit</a></dd>
-			#else
-				<dd id="edit_link"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_editor')">$edit</a></dd>
-			#end
-			</dl>
-		</div>
-		
-		<div class="row tabs-content" id="search">
-			#set($explore_active = "")
-      #set($edit_active = "")
-      <!-- Determine the meta and corpus list selection from the main tab -->
-			#if($tabdb == "overview")
-				#set($explore_active = "active")
-			#elseif($tabdb == "edit")
-				#set($edit_active = "active")
-      #end
-		
-			<div id="dbase_explore" class="large-16 medium-16 small-16 content $explore_active">
-        #set( $explorespec = $explorespecs.get(4) )
-        #set( $item_rec = $recentdb )
-        #set( $item_list = $dbasetable )
-        #parse("selector.vm")
-				#parse("dbmain.vm")
-			</div>
-			<div id="dbase_editor" class="large-16 medium-16 small-16 content $edit_active">
-        #set( $explorespec = $explorespecs.get(4) )
-        #set( $item_rec = $recentdb )
-        #set( $item_list = $dbasetable )
-        #parse("selector.vm")
-				#parse("dbedit.vm")
-			</div>
-			
-		</div>
+#set($explore = $labels.getString("dbase.panel.explore"))
+#set($edit = $labels.getString("dbase.panel.edit"))
+#set($listview = $labels.getString("dbase.panel.list"))
+#set($details = $labels.getString("dbase.panel.details"))
+
+<div class="row" id="subnav">
+<!-- List of sub-navigation 'buttons' -->
+  <dl id="search-nav" class="sub-nav" data-tab>
+  <!-- Sub-navigation item: [overview] -->
+  #if($tabdb == "overview")
+    <dd id="dbase_explore_link" class="active"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_explore', '${recentdb}')">$explore</a></dd>
+  #else
+    <dd id="dbase_explore_link"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_explore', '${recentdb}')">$explore</a></dd>
+  #end
+
+  <!-- Sub-navigation item: [edit] -->
+<!--
+  #if($tabdb == "edit")
+    <dd id="dbase_editor_link" class="active"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_editor')">$edit</a></dd>
+  #else
+    <dd id="dbase_editor_link"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_editor')">$edit</a></dd>
+  #end
+-->
+
+  <!-- Sub-navigation item: [listview] -->
+  #if($tabdb == "listview")
+    <dd id="dbase_listview_link" class="active"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_listview')">$listview</a></dd>
+  #else
+    <dd id="dbase_listview_link"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_listview')">$listview</a></dd>
+  #end
+  <!-- Sub-navigation item: [detailsview] -->
+  #if($tabdb == "details")
+    <dd id="dbase_details_link" class="active"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_details')">$details</a></dd>
+  #else
+    <dd id="dbase_details_link"><a class="tablink" onclick="crpstudio.dbase.switchTab('dbase_details')">$details</a></dd>
+  #end
+  </dl>
+</div>
+
+<div class="row tabs-content" id="dbase_main">
+  #set($explore_active = "")
+  #set($edit_active = "")
+  #set($listv_active = "")
+  #set($details_active = "")
+  <!-- Determine the meta and corpus list selection from the main tab -->
+  #if($tabdb == "overview")
+    #set($explore_active = "active")
+  #elseif($tabdb == "edit")
+    #set($edit_active = "active")
+  #elseif($tabdb == "edit")
+    #set($listv_active = "active")
+  #elseif($tabdb == "edit")
+    #set($details_active = "active")
+  #end
+
+  <div id="dbase_explore" class="large-16 medium-16 small-16 content $explore_active">
+    #set( $explorespec = $explorespecs.get(4) )
+    #set( $item_rec = $recentdb )
+    #set( $item_list = $dbasetable )
+    #parse("selector.vm")
+    #parse("dbmain.vm")
+  </div>
+  <div id="dbase_editor" class="large-16 medium-16 small-16 content $edit_active">
+    #set( $explorespec = $explorespecs.get(4) )
+    #set( $item_rec = $recentdb )
+    #set( $item_list = $dbasetable )
+    #parse("selector.vm")
+    #parse("dbedit.vm")
+  </div>
+  <div id="dbase_listview" class="large-16 medium-16 small-16 content $listv_active">
+    #parse("dblist.vm")
+  </div>
+  <div id="dbase_details" class="large-16 medium-16 small-16 content $details_active">
+    #parse("dbdetails.vm")
+  </div>
+
+</div>
 #parse("footer.vm")
