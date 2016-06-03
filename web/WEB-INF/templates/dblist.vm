@@ -1,5 +1,5 @@
 <!-- side bar: NO side-bar should be shown for the list view -->
 
-  <div id="dbase_expl_results" class="large-16 medium-16 small-16 result-qc row">
+  <div id="dbaseview_list" class="large-16 medium-16 small-16 result-qc row">
     <i>(no results available)</i>
   </div>

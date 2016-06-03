@@ -297,9 +297,13 @@ var crpstudio = (function ($, crpstudio) {
                   // Keep the results within [crpstudio.dbase]
                   loc_oResults = oContent;
                   // Show the results on the correct page
-                  crpstudio.dbase.listViewShow("dbase_expl_results", oContent);
+                  crpstudio.dbase.listViewShow("dbaseview_list", oContent);
                   break;
-                case "detail":  // Detail view
+                case "detail":  // Details view
+                  // Keep the results within [crpstudio.dbase]
+                  loc_oResults = oContent;
+                  // Show the results on the correct page
+                  crpstudio.dbase.listViewShow("dbaseview_details", oContent);
                   break;
               }
               
@@ -428,8 +432,9 @@ var crpstudio = (function ($, crpstudio) {
         if (iStart !== undefined) start = iStart;
         if (iCount !== undefined) count = iCount;
         // Pass on the listview request to the /crpstudio server
-        var oArgs = { "dbase": sDbName,
-          "type": "list", "start": start, "count": count, "userid": crpstudio.currentUser };
+        var oArgs = { "dbase": sDbName, "type": "list", 
+          "start": start, "count": count, 
+          "userid": crpstudio.currentUser };
         var params = JSON.stringify(oArgs);
 
         crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
@@ -444,20 +449,35 @@ var crpstudio = (function ($, crpstudio) {
        */
       getListViewColumnOptions : function(arResFields, arFeatures) {
         var arHtml = [];
-        arHtml.push("<select>");
         for (var sKeyName in arResFields) {
           arHtml.push("<option value=\""+sKeyName+"\">"+sKeyName+"</option>");
         }
-        /*
-        for (var i=0;i<arResFields.length;i++) {
-          // Get key name
-          var sKeyName = Object.keys(arResFields[i])[0];
-          arHtml.push("<option value=\""+sKeyName+"\">"+sKeyName+"</option>");
-        } */
         for (var i=0;i<arFeatures.length;i++) {
-          arHtml.push("<option value=\""+arFeatures[i]+"\">"+arFeatures[i]+"</option>");
+          arHtml.push("<option value=\"ft:"+i+":"+arFeatures[i]+"\">f: "+arFeatures[i]+"</option>");
         }
-        arHtml.push("</select>");
+        return arHtml.join("\n");
+      },
+      
+      /**
+       * getListViewColumnSort 
+       *    Provide the Descending/Ascending sort order buttons
+       *    
+       * @param {string} sColName
+       * @param {bool}   bIncludeDel
+       * @param {string} sType        - EMpty, 'asc' or 'desc'
+       * @returns {String}
+       */
+      getListViewColumnSort : function(sColName, bIncludeDel, sType) {
+        var arHtml = [];
+        sColName = sColName.replace(/^ft\./g, "");
+        if (sType === undefined) sType = "";
+        arHtml.push("<a href=\"#\" onclick=\"crpstudio.dbase.listview_sort_column('"+sColName+"','asc')\"><font color=\""+
+                ((sType==='asc') ? "red" : "blue")+"\">▲</font></a>");
+        arHtml.push("<a href=\"#\" onclick=\"crpstudio.dbase.listview_sort_column('"+sColName+"','desc')\"><font color=\""+
+                ((sType==='desc') ? "red" : "blue")+"\">▼</font></a>");
+        if (bIncludeDel) {
+          arHtml.push("<a href=\"#\" onclick=\"crpstudio.dbase.listview_sort_column('"+sColName+"','del')\">x</a>");
+        }
         return arHtml.join("\n");
       },
       
@@ -476,11 +496,26 @@ var crpstudio = (function ($, crpstudio) {
         var sOptions = crpstudio.dbase.getListViewColumnOptions(arResults[0], oContent.features);
         // Set the initial 
         // Produce header for table
-        arHtml.push("<table><thead>");
+        arHtml.push("<table><thead><tr>");
         for (var i=0;i<arColumns.length;i++) {
-          arHtml.push("<th id=\"db_list_column_"+(i+1)+"\">"+sOptions+"</th>");
+          arHtml.push("<th id=\"db_list_column_"+(i+1)+"\">");
+          // The first column must always be [ResId]
+          if (i===0) {
+            arHtml.push("ResId</th>");
+          } else {
+            arHtml.push("<select class=\"show-select meta-small\" ");
+            arHtml.push("onchange=\"crpstudio.dbase.set_list_column(");
+            arHtml.push( (i+1)+", $(this).val()");
+            arHtml.push(")\">"+sOptions+"</select></th>");
+          }
         }
-        arHtml.push("</thead><tbody>");
+        // Add a row for sorting
+        arHtml.push("<tr class=\"db_list\">");
+        for (var i=0;i<arColumns.length;i++) {
+          var sSortThis = crpstudio.dbase.getListViewColumnSort(arColumns[i], false);
+          arHtml.push("<th id=\"db_list_sort_"+(i+1)+"\">"+sSortThis+"</th>");
+        }
+        arHtml.push("</tr></thead><tbody>");
         // arHtml.push("<table><thead><th>#</th><th>Cat</th><th>Text</th><th>Sentence</th><th>Constituent</th></thead><tbody>");
         // Process each individual result
         for (var i=0;i<iCount;i++) {
@@ -493,16 +528,17 @@ var crpstudio = (function ($, crpstudio) {
           for (var j=0;j<arColumns.length;j++) {
             var sValue = "";
             if (arColumns[j] !== "") {
-              sValue = oResult[arColumns[j]];
+              var sColName = arColumns[j]
+              if (sColName.startsWith("ft:")) {
+                // Get the number of the features column
+                var arCol = sColName.split(":");
+                sValue = oResult.Features[parseInt(arCol[1],10)];
+              } else {
+                sValue = oResult[sColName];
+              }
             }
             arHtml.push("<td>"+sValue+"</td>");
           }
-          
-          /*
-          "<td>"+oResult.ResId+"</td><td>"+oResult.Cat+"</td><td>"+
-                  oResult.TextId+"</td><td>"+oResult.sentId+"</td><td>"+
-                  oResult.constId+"</td></tr>");
-          */
           arHtml.push("</tr>");
           
           // Add the features in a hidden row??
@@ -523,9 +559,77 @@ var crpstudio = (function ($, crpstudio) {
         // Select the values for the listview columns
         for (var i=0;i<arColumns.length;i++) {
           var sColumnName = "db_list_column_" + (i+1);
-          $("#"+sColumnName).val(arColumns[i]);
+          $("#"+sColumnName+" select").val(arColumns[i]);
         }
         
+        // Send the new constellation to /crpstudio for keeps
+        var oDbSet = {"columns": arColumns};
+        crpstudio.dbase.store_list_settings(oDbSet);
+      },
+      
+      /**
+       * store_list_settings
+       *    Store the listview settings from [oSettings] in /crpstudio
+       * 
+       * @param {object} oSettings
+       * @returns {void}
+       */
+      store_list_settings : function(oSettings) {
+        // Get the currently selected database
+        var sDbName = loc_currentDbase;
+        // Pass on the listview request to the /crpstudio server
+        var oArgs = { "dbase": sDbName, "type": "list_settings", 
+          "userid": crpstudio.currentUser };
+        
+        // Add elements, depending on what we receive
+        if (oSettings.hasOwnProperty('columns')) oArgs.columns = oSettings.columns;
+        if (oSettings.hasOwnProperty('start')) oArgs.start = oSettings.start;
+        if (oSettings.hasOwnProperty('count')) oArgs.count = oSettings.count;
+        if (oSettings.hasOwnProperty('sort')) oArgs.sort = oSettings.sort;
+        
+        // NOTE: [sort] can be
+        //   ascending:        column name
+        //   descending: '-' + column name
+        //   default:    (empty)
+
+        // Send to /crpstudio: we do NOT expect to be called back!!
+        var params = JSON.stringify(oArgs);        
+        crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");            
+        
+      },
+      
+      /**
+       * set_list_column
+       *    Fill column number [iColNum] with values from [sColName]
+       *    
+       * @param {type} iColNum
+       * @param {type} sColName
+       * @returns {undefined}
+       */
+      set_list_column : function(iColNum, sColName) {
+        // Get access to the local copy of the listview contents
+        var oContent = loc_oResults;
+        // Take the columns from there
+        var arColumns = oContent.columns;
+        // Adapt the correct column
+        arColumns[iColNum-1] = sColName;
+        // Put it all back
+        oContent.columns = arColumns;
+        loc_oResults = oContent;
+        // Call the listview show function
+        crpstudio.dbase.listViewShow("dbaseview_list", oContent);
+      },
+      
+      /**
+       * listview_sort_column
+       *    Sort the column with the indicated type: ascending, descending, delete
+       * 
+       * @param {type} sColName
+       * @param {type} sSortType
+       * @returns {undefined}
+       */
+      listview_sort_column : function(sColName, sSortType) {
+        // Prepare a request to re-create the listview results in the indicated way
       },
       
       /*
@@ -1083,7 +1187,7 @@ var crpstudio = (function ($, crpstudio) {
             $("#dbase_expl").removeClass("hidden");
             $("#dbase_expl_status").removeClass("hidden");
             $("#dbase_expl_status").html("Preparing file for downloading"+
-                    "<br><i>(Databases are compressed for downloading)</i>");
+                    "<br><i>(This may take some while, depending on the size...)</i>");
             // Find out which one is currently selected
             sItemName = loc_currentDbase;
             break;

@@ -264,6 +264,10 @@ ul.nav.nav-tabs > li > a {
   height: 100%;
 }
 
+.dbase_list_header {
+  height: 25px;
+}
+
 #subnav {
   margin-top: 5px;
   height: 30px;
@@ -1241,16 +1245,6 @@ img.icon.spinner {
 	height: 18px;
 }
 
-/* ------ not for corpusstudio 
-#results {
-	margin-top: 40px;
-}
-
-#results h4 {
-	margin-bottom: 16px;
-}
- ------------------------ */
-
 #contentTabs, #queries {
 	display: block;
 	margin-top: 20px;
@@ -1532,31 +1526,36 @@ ul.dropdown-menu {
 	display: inline-block;
 }
 
-#results select, #results input {
-	height: 22px;
-	line-height: 18px;
-	font-size: small;
-    padding:1px;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	margin-bottom: 3px;
-	padding-left: 5px;
+#results select, #results input, #dbaseview_list select {
+  height: 22px;
+  line-height: 18px;
+  font-size: small;
+  padding:1px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  padding-left: 5px;
+}
+
+/* Make sure that the sort-order column in dbase listview is not too high */
+table thead tr.db_list th {
+  line-height:0.5rem;
 }
 
 #results input {
-	width: 60px;
-	display: inline-block;
+  width: 60px;
+  display: inline-block;
 }
 
 #results div.select, #results div.qlabel {
-	display: inline-block;
+  display: inline-block;
 }
 
 .pull-right-box {
-	height: 60px;
-	font-size: small;
-	margin-top: 20px;
+  height: 60px;
+  font-size: small;
+  margin-top: 20px;
 }
 
 div > table {

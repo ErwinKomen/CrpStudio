@@ -1723,7 +1723,9 @@ public abstract class BaseResponse {
         arDbList = oResp.getJSONArray("content");
         // Transform the list
         for (int i=0;i<arDbList.length();i++) {
+          // First of all: copy any settings that are already supplied by /crpp/dblist
           JSONObject oDbItem = arDbList.getJSONObject(i);
+          // Second: add my own settings
           oDbItem.put("DbaseId", i+1);
           oDbItem.put("Name", oDbItem.getString("dbase"));
           // Add to new list
@@ -1776,6 +1778,79 @@ public abstract class BaseResponse {
   }
   
   /**
+   * getDbSettings
+   *    Find out what is user-specific for this dbase
+   *    E.g. sort column, head column names etc
+   * 
+   * @param sUser
+   * @param sDbName
+   * @return 
+   */
+  public JSONObject getDbSettings(String sUser, String sDbName) {
+    try {
+      // Get the user settings
+      JSONObject oSettings = getUserSettings(sUser);
+      if (oSettings == null || !oSettings.has("dbases")) return null;
+      JSONArray arDbases = oSettings.getJSONArray("dbases");
+      // Find my dbase
+      for (int i=0;i<arDbases.length(); i++) {
+        JSONObject oDbase = arDbases.getJSONObject(i);
+        if (oDbase.getString("dbase").equals(sDbName)) {
+          // Return this information
+          return oDbase;
+        }
+      }
+      // Getting here means failure
+      return null;
+    } catch (Exception ex) {
+      logger.DoError("getDbSettings: could not complete", ex);
+      return null;
+    }
+  }
+  
+  /**
+   * setDbSettings
+   *    Adapt the [dbase] part of the settings for a particular user
+   * 
+   * @param sUser
+   * @param sDbName
+   * @param oDbase
+   * @return 
+   */
+  public JSONObject setDbSettings(String sUser, String sDbName, JSONObject oDbase) {
+    try {
+        // Prepare the parameters for this request
+      this.params.clear();
+      this.params.put("userid", sUser);
+      if (!oDbase.has("name")) oDbase.put("name", sDbName);
+      this.params.put("dbase", oDbase);
+      // Get the JSON object from /crpp containing the projects of this user
+      String sResp = getCrppResponse("settings", "", this.params,null);
+      // Interpret the response
+      JSONObject oResp = new JSONObject(sResp);
+      if (!oResp.has("status") || !oResp.has("content") || 
+          !oResp.getJSONObject("status").getString("code").equals("completed")) return null;
+      // Get the list of CRPs
+      JSONObject oSettings = oResp.getJSONObject("content");
+      if (oSettings == null || !oSettings.has("dbases")) return null;
+      JSONArray arDbases = oSettings.getJSONArray("dbases");
+      // Find my dbase
+      for (int i=0;i<arDbases.length(); i++) {
+        oDbase = arDbases.getJSONObject(i);
+        if (oDbase.getString("dbase").equals(sDbName)) {
+          // Return this information
+          return oDbase;
+        }
+      }
+      // Getting here means failure
+      return null;
+    } catch (Exception ex) {
+      logger.DoError("setDbSettings: could not complete", ex);
+      return null;
+    }  
+  }
+  
+  /**
    * getUserSettings
    *    Request the "settings.json" object from the /crpp server
    * 
@@ -1784,7 +1859,7 @@ public abstract class BaseResponse {
    */
   public JSONObject getUserSettings(String sUser) {
     try {
-            // Prepare the parameters for this request
+      // Prepare the parameters for this request
       this.params.clear();
       this.params.put("userid", sUser);
       // Get the JSON object from /crpp containing the projects of this user

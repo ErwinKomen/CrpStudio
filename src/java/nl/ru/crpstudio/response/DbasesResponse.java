@@ -11,8 +11,8 @@ import nl.ru.util.json.JSONObject;
 
 public class DbasesResponse extends BaseResponse {
 
-	@Override
-	protected void completeRequest() {
+  @Override
+  protected void completeRequest() {
     try {
       // Get the user's settings
       JSONObject oSettings = this.getUserSettings(this.sUserId);
@@ -39,7 +39,7 @@ public class DbasesResponse extends BaseResponse {
       logger.DoError("DbasesResponse: could not complete", ex);
       this.displayError("DbasesResponse error: " + ex.getMessage());
     }
-	}
+  }
 
 	@Override
 	protected void logRequest() {
