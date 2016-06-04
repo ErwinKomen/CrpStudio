@@ -286,6 +286,9 @@ var crpstudio = (function ($, crpstudio) {
                   arHtml.push("<tr><td>Database created</td><td colspan=2>"+sDateCreated+"</td></tr>");
                   arHtml.push("<tr><td>Corpus used</td><td colspan=2>"+sCorpus+"</td></tr>");
                   arHtml.push("<tr><td>Notes</td><td colspan=2>"+sComments+"</td></tr>");
+                  if (oContent.total !== undefined) {
+                    arHtml.push("<tr><td>Result entries</td><td colspan=2>"+oContent.total+"</td></tr>");
+                  }
                   var arFeats = oContent.features;
                   for (var i=0;i<arFeats.length;i++) {
                     arHtml.push("<tr><td>Feature</td><td>"+(i+1)+"</td><td>"+arFeats[i]+"</td></tr>");

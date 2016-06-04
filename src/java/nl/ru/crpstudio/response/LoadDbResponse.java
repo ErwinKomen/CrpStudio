@@ -24,6 +24,7 @@ public class LoadDbResponse extends BaseResponse {
   private String loadType;  // Type of information to be loaded
   private int iStart;       // Starting number
   private int iCount;       // Number of items
+  private int iTotal;       // TOtal number of results in database
   String sSort;             // COlumn to sort on
   JSONObject oInfo = null;
   JSONObject oDbSettings = null;
@@ -128,6 +129,7 @@ public class LoadDbResponse extends BaseResponse {
             oContent.put("count", oInfo.getInt("count"));
             oContent.put("results", oInfo.getJSONArray("results"));
           }
+          if (oInfo.has("Size")) oContent.put("total", oInfo.getInt("Size"));
           // Check which information should be passed on to the /crpp storage
           oDbSettings = new JSONObject();
           boolean bPassOn = false;
@@ -149,6 +151,7 @@ public class LoadDbResponse extends BaseResponse {
           oContent.put("namedb", dbName);
           // Retrieve the <General> parameters from [oInfo] and put them into [oContent]
           if (!addGeneral(oInfo, oContent)) { sendErrorResponse("Could not copy <General> part"); return;}
+          if (oInfo.has("Size")) oContent.put("total", oInfo.getInt("Size"));
           break;
         default:
           sendErrorResponse("Unknown loadtype["+loadType+"]");

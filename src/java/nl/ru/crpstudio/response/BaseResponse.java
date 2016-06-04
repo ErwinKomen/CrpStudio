@@ -2158,6 +2158,8 @@ public abstract class BaseResponse {
         oInfo.put("Notes", oGeneral.getString("Notes"));
         oInfo.put("Features", oGeneral.getJSONArray("Features"));
       }
+      if (oContent.has("Size"))
+        oInfo.put("Size", oContent.getInt("Size"));
     
       return oInfo;
     } catch (Exception ex) {
