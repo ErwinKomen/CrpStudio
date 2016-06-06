@@ -2100,6 +2100,9 @@ public abstract class BaseResponse {
         oInfo.put("Part", oGeneral.getString("Part"));
         oInfo.put("Notes", oGeneral.getString("Notes"));
         oInfo.put("Features", oGeneral.getJSONArray("Features"));
+        int iQC = 1;
+        if (oInfo.has("QC")) iQC = oGeneral.getInt("QC");
+        oInfo.put("QC", iQC);
       }
       // Get results, if there are any
       if (oContent.has("Count") && oContent.has("Results")) {
