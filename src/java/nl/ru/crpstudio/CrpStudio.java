@@ -444,11 +444,16 @@ public class CrpStudio extends HttpServlet {
    * @param request 
    */
   public void handleLogoff(HttpServletRequest request) {
-    // REmove the user/session from the stack
-    setUserRemove(this.sUserId);
-    // Make sure we have no current user anymore
-    this.bUserOkay = false;
-    this.sUserId = "";
+    try {
+      // REmove the user/session from the stack
+      setUserRemove(this.sUserId);
+      // Make sure we have no current user anymore
+      this.bUserOkay = false;
+      this.sUserId = "";
+    } catch (Exception ex) {
+      // logger.error(e); 
+      errHandle.DoError("handleLogoff: ", ex);
+    }
   }
   
   /**

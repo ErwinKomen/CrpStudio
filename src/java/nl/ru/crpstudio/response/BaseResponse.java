@@ -1285,6 +1285,9 @@ public abstract class BaseResponse {
    * @param bOkay 
    */
   public void setUserOkay(String sUserId, boolean bOkay) {
+    // Validate: the user must exist, or else things go wrong
+    if (sUserId.isEmpty()) return;
+    // There is a non-empty user, so continue
     this.getContext().put("userid", sUserId);
     this.getContext().put("userokay", bOkay ? "true" : "false");
   }

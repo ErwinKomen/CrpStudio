@@ -355,16 +355,37 @@ var crpstudio = (function ($, crpstudio) {
       /**
        * showListItem -- show or hide an item from the database list
        * 
-       * @param {type} element
-       * @param {type} update
+       * @param {type}  element
+       * @param {int}   idx     - index within arResults
+       * @param {type}  update
        * @returns {undefined}
        */
-      showListItem : function(element, update) {
+      showListItem : function(element, idx, update) {
         // Check whether we need to show or hide
         if ($(element).hasClass("hidden") || (update)) {
+          // Tell user to please wait until information is ready
+          var sExmpId = element.substring(1) + "_ex";
+          $("#"+sExmpId).html("<i>(Please wait while the text is fetched)</i>");
           // Make sure the <div> is now being shown
           $(element).removeClass("hidden");
-          
+          // Now try to fetch the text
+          // (1) Get the entry from [arResults]
+          var oContent = loc_oResults;
+          var arResults = oContent.results;
+          var oResult = arResults[idx];
+          var iQC = 1;
+          if (oContent.qc !== undefined ) iQC = oContent.qc;
+          // (2) Determine the parameters
+          var oQuery = { "qc": iQC, "sub": "", "view": 1,
+              "userid": crpstudio.currentUser, "prj": oContent.nameprj, 
+              "lng": oContent.lng, "dir": oContent.dir, 
+              "type": "context_syntax", "start": oResult.ResId, 
+              "count": 1, "files": [ oResult.File ]};
+
+          var params = JSON.stringify(oQuery);
+          crpstudio.main.getCrpStudioData("update", 
+                             params,
+                             crpstudio.result.processFileHits, element);   
         } else {
           // Hide the details
           $(element).addClass("hidden");
@@ -527,7 +548,7 @@ var crpstudio = (function ($, crpstudio) {
           // Create an id for this result
           var sId = "dbase_list_"+oResult.ResId;
           // Add the results from this row
-          arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\")'>");
+          arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\", "+ i + ")'>");
           for (var j=0;j<arColumns.length;j++) {
             var sValue = "";
             if (arColumns[j] !== "") {
@@ -545,7 +566,13 @@ var crpstudio = (function ($, crpstudio) {
           arHtml.push("</tr>");
           
           // Add the features in a hidden row??
-          arHtml.push("<tr id="+sId+" class='citationrow hidden'><td colspan='5'><table><tr><td>Feature</td><td>Value</td></tr>");
+          arHtml.push("<tr id="+sId+" class='citationrow hidden'><td colspan='5'>");
+          // Insert an overruling div with a traceable ID
+          arHtml.push("<div id="+sId+"_s class=\"collapse inline-concordance\">");
+          // Insert a div with a 'please wait' message
+          arHtml.push("<div id="+sId+"_ex><i>(Please wait while the text is being fetched)</i></div>");
+          // Insert a table with information
+          arHtml.push("<table><tr><td>Feature</td><td>Value</td></tr>");
           // Create table with key/value for features
           var arFeats = oResult.Features;
           for (var j=0;j<arFeats.length;j++) {
@@ -553,7 +580,7 @@ var crpstudio = (function ($, crpstudio) {
             arHtml.push("<tr><td>"+sFeatName+"</td><td>"+arFeats[j]+"</td></tr>");
           }
           // Finish this cell
-          arHtml.push("</table></td></tr>");
+          arHtml.push("</table></td></tr></div>");
         }
         // Finish the table
         arHtml.push("</tbody></table>");

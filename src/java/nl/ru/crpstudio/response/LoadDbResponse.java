@@ -187,6 +187,7 @@ public class LoadDbResponse extends BaseResponse {
       JSONArray arFt = new JSONArray();
       String sNamePrj = ""; String sLng = ""; String sDir = "";
       String sDateCreated = ""; String sComments = "";
+      int iQC = 1;
       if (oInfo != null) {
         sNamePrj = oInfo.getString("ProjectName");
         sLng = oInfo.getString("Language");
@@ -194,10 +195,12 @@ public class LoadDbResponse extends BaseResponse {
         sDateCreated = oInfo.getString("Created");
         sComments = oInfo.getString("Notes");
         arFt = oInfo.getJSONArray("Features");
+        if (oInfo.has("QC")) iQC = oInfo.getInt("QC");
       }
       oContent.put("nameprj", sNamePrj);
       oContent.put("lng", sLng);
       oContent.put("dir", sDir);
+      oContent.put("qc", iQC);
       oContent.put("datecreated", sDateCreated);
       oContent.put("comments", sComments);
       oContent.put("features", arFt);
