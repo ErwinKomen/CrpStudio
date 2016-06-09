@@ -110,6 +110,9 @@ public class UpdateResponse extends BaseResponse {
       if (oQuery.has("files")) { oMyQuery.put("files", oQuery.getJSONArray("files")); } 
       // Specification of grouping division (this is Xquery code, which we compress for safe passage)
       if (oQuery.has("div")) { oMyQuery.put("div", StringUtil.compressSafe(oQuery.getString("div"))); } 
+      // Optional: locs and locw specification
+      if (oQuery.has("locs")) { oMyQuery.put("locs", oQuery.getString("locs")); }
+      if (oQuery.has("locw")) { oMyQuery.put("locw", oQuery.getString("locw")); }
       
       // Put my query into the request
       this.params.put("query", oMyQuery);

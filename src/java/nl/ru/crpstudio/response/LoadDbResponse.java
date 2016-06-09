@@ -129,7 +129,9 @@ public class LoadDbResponse extends BaseResponse {
             oContent.put("count", oInfo.getInt("count"));
             oContent.put("results", oInfo.getJSONArray("results"));
           }
+          // Get the total number of results and the QC number
           if (oInfo.has("Size")) oContent.put("total", oInfo.getInt("Size"));
+          if (oInfo.has("QC")) oContent.put("qc", oInfo.getInt("QC"));
           // Check which information should be passed on to the /crpp storage
           oDbSettings = new JSONObject();
           boolean bPassOn = false;

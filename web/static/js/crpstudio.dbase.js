@@ -45,8 +45,30 @@ var crpstudio = (function ($, crpstudio) {
           // Set the correct styles for these elements
           divStarted.setAttribute("style", "width: "+fPtc+"%");
         }        
+      },
+      /**
+       * getSyntax
+       *    Given a syntax object, construct an HTML syntax representation
+       *    
+       * @param {type} oSyntax
+       * @returns {String}
+       */
+      getSyntax : function(oSyntax) {
+        var html = [];
+        // Get the main part
+        html.push("<font face='Courier New' size='2'>");
+        html.push("[<font color=#800000 size=1>" + oSyntax.main + "</font> ");
+        var oChildren = oSyntax.children;
+        for (var i=0;i<oChildren.length;i++) {
+          var sTxt = oChildren[i].txt;
+          sTxt = sTxt.replace(/\</g, '&lt;');
+          sTxt = sTxt.replace(/\>/g, '&gt;');
+          html.push("[<font color=#800000 size=1>" + oChildren[i].pos + "</font> ");
+          html.push(sTxt + "]");
+        }
+        html.push("]</font>");
+        return html.join("\n");
       }
-      
     };
     // Methods that are exported by [crpstudio.project] for others
     return {
@@ -365,7 +387,8 @@ var crpstudio = (function ($, crpstudio) {
         if ($(element).hasClass("hidden") || (update)) {
           // Tell user to please wait until information is ready
           var sExmpId = element.substring(1) + "_ex";
-          $("#"+sExmpId).html("<i>(Please wait while the text is fetched)</i>");
+          // Remove waiting notification in project description
+          $("#"+sExmpId).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Please wait while the text is fetched...");
           // Make sure the <div> is now being shown
           $(element).removeClass("hidden");
           // Now try to fetch the text
@@ -379,19 +402,105 @@ var crpstudio = (function ($, crpstudio) {
           var oQuery = { "qc": iQC, "sub": "", "view": 1,
               "userid": crpstudio.currentUser, "prj": oContent.nameprj, 
               "lng": oContent.lng, "dir": oContent.dir, 
-              "type": "context_syntax", "start": oResult.ResId, 
+              "type": "context_syntax", "start": -1, 
+              "locs": oResult.sentId, "locw": oResult.constId,
               "count": 1, "files": [ oResult.File ]};
 
           var params = JSON.stringify(oQuery);
           crpstudio.main.getCrpStudioData("update", 
                              params,
-                             crpstudio.result.processFileHits, element);   
+                             crpstudio.dbase.processOneHit, sExmpId);   
         } else {
           // Hide the details
           $(element).addClass("hidden");
         }
         
       },
+      
+      /**
+       * processOneHit
+       *    Process the information requested with an /update request
+       *    We are expecting information to show the line and the syntax of the hit line
+       *    
+       * @param {type} response   JSON object returned from /crpstudio/update
+       * @param {type} target
+       * @returns {undefined}
+       */
+      processOneHit : function(response, target) {
+        var iFirstN = -1;
+        if (response !== null) {
+          // The response is a standard object containing "status" (code) and "content" (code, message)
+          var oStatus = response.status;
+          var sStatusCode = oStatus.code;
+          var oContent = response.content;
+          // Remove waiting notification in project description
+          $("#"+target).html("Receiving response: "+sStatusCode);
+          switch (sStatusCode) {
+            case "completed":
+              // The result is in [oContent] as an array of 'hit' values
+              var html = [];
+              for (var i=0;i<oContent.length;i++) {
+                // One result is one div
+                var sRowType = (i % 2 === 0) ? " row-even" : "row-odd";            
+                html.push("<div class=\"one-example " + sRowType + "\">"+
+                          "<div class=\"one-example-context\">");
+                // Access this object
+                var oRow = oContent[i];
+                // Possibly get the first "n" value --> this helps determine pagination resetting
+                if (iFirstN<0) iFirstN = oRow.n;
+                // Add the number of the example            
+                html.push("<b>"+oRow.n+"</b> ");
+                /*
+                // Possibly add filename
+                if (iView === 1) {
+                  // Need to add the name of the file
+                  html.push("[<span class=\"one-example-filename\">"+oRow.file+"</span>]");
+                } */
+                // Add preceding context
+                html.push(oRow.preC);
+                html.push("<span class=\"one-example-hit\">"+oRow.hitC+" </span>");
+                // Close "one-example-context"
+                html.push(oRow.folC+"</div>");
+                // Get the syntax result
+                var sSyntax = private_methods.getSyntax(oRow.hitS);
+                html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
+                // Is there any 'msg' result?
+                if (oRow.msg) {
+                  // Adapt the message
+                  var sMsg = oRow.msg;
+                  sMsg = sMsg.replace(/\</g, '&lt;');
+                  sMsg = sMsg.replace(/\>/g, '&gt;');
+                  // Add it to the output
+                  html.push("<div class=\"one-example-msg\">"+ sMsg +"</div>");
+                }
+                // Finish the "one-example" <div>
+                html.push("</div>");
+              }
+              // Join the results to one string
+              var sJoinedExample = html.join("\n");
+              // put the results in the target
+              $("#"+target).html(sJoinedExample);
+              // Set the amount of hits
+              // loc_numResults = oContent.length;
+              // Show the correct <li> items under "result_pagebuttons_"
+              /*
+              if (iFirstN<0 || iFirstN===1) {
+                private_methods.doPagination(iView, loc_numResults);
+              } */
+              break;
+            case "error":
+              var sErrorCode = (oContent && oContent.code) ? oContent.code : "(no code)";
+              var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
+              $("#"+target).html("Error: " + sErrorMsg);
+              break;
+            default:
+              $("#"+target).html("Error: no reply received from the /crpstudio server");
+              break;
+          }
+        } else {
+          $("#"+target).html("ERROR - Failed to process /update on crpstudio server.");
+        }    
+      },          
       
       /**
        * switchDbaseView --
