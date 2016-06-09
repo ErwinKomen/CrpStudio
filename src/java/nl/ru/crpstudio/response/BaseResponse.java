@@ -2061,9 +2061,11 @@ public abstract class BaseResponse {
    * @param sDbName
    * @param iStart
    * @param iCount
+   * @param sSort
    * @return 
    */
-  public JSONObject getDbaseInfo(String sUser, String sDbName, int iStart, int iCount) {
+  public JSONObject getDbaseInfo(String sUser, String sDbName, int iStart, 
+          int iCount, String sSort) {
     JSONObject oInfo = null;
     
     try {
@@ -2073,6 +2075,7 @@ public abstract class BaseResponse {
       this.params.put("name", sDbName);
       this.params.put("start", iStart);
       this.params.put("count", iCount);
+      this.params.put("sort", sSort);
       String sResp = getCrppPostResponse("dbinfo", "", this.params);
       
       // Check the result

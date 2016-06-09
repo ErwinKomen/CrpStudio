@@ -99,7 +99,7 @@ public class LoadDbResponse extends BaseResponse {
           if (iCount <=0) iCount = this.servlet.getDbPage();
           if (iStart <=0) iStart = 1;
           // Get the requested information from the CRPP
-          oInfo = this.getDbaseInfo(sUserId, dbName, iStart, iCount);
+          oInfo = this.getDbaseInfo(sUserId, dbName, iStart, iCount, sSort);
           oContent.put("namedb", dbName);
           // Retrieve the <General> parameters
           if (!addGeneral(oInfo, oContent)) { sendErrorResponse("Could not copy <General> part"); return;}
