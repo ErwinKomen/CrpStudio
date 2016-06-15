@@ -97,7 +97,7 @@ public class LoadDbResponse extends BaseResponse {
           if (oDbSettings.has("columns")) arColumns = oDbSettings.getJSONArray("columns");
           // Other validations
           if (iCount <=0) iCount = this.servlet.getDbPage();
-          if (iStart <=0) iStart = 1;
+          if (iStart <=0) iStart = 0;   // Startpoint at '0' means: first entry in database-list
           // Get the requested information from the CRPP
           oInfo = this.getDbaseInfo(sUserId, dbName, iStart, iCount, sSort);
           oContent.put("namedb", dbName);

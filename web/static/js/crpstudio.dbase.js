@@ -582,12 +582,22 @@ var crpstudio = (function ($, crpstudio) {
        */
       getListViewColumnOptions : function(arResFields, arFeatures) {
         var arHtml = [];
+        // First process the non-features
         for (var sKeyName in arResFields) {
-          arHtml.push("<option value=\""+sKeyName+"\">"+sKeyName+"</option>");
+          if (!sKeyName.startsWith("ft_"))
+            arHtml.push("<option value=\""+sKeyName+"\">"+sKeyName+"</option>");
         }
+        // Now process the features
+        for (var sKeyName in arResFields) {
+          if (sKeyName.startsWith("ft_")) {
+            var sDisplay = sKeyName.substring(3);
+            arHtml.push("<option value=\""+sKeyName+"\">"+sDisplay+"</option>");
+          }
+        }
+        /*
         for (var i=0;i<arFeatures.length;i++) {
           arHtml.push("<option value=\"ft:"+i+":"+arFeatures[i]+"\">f: "+arFeatures[i]+"</option>");
-        }
+        } */
         return arHtml.join("\n");
       },
       
@@ -661,11 +671,12 @@ var crpstudio = (function ($, crpstudio) {
           for (var j=0;j<arColumns.length;j++) {
             var sValue = "";
             if (arColumns[j] !== "") {
-              var sColName = arColumns[j]
+              var sColName = arColumns[j];
               if (sColName.startsWith("ft:")) {
                 // Get the number of the features column
                 var arCol = sColName.split(":");
-                sValue = oResult.Features[parseInt(arCol[1],10)];
+                //  OLD: sValue = oResult.Features[parseInt(arCol[1],10)];
+                sValue = oResult["ft_"+arCol[2]];
               } else {
                 sValue = oResult[sColName];
               }
@@ -681,13 +692,18 @@ var crpstudio = (function ($, crpstudio) {
           // Insert a div with a 'please wait' message
           arHtml.push("<div id="+sId+"_ex><i>(Please wait while the text is being fetched)</i></div>");
           // Insert a table with information
-          arHtml.push("<table><tr><td>Feature</td><td>Value</td></tr>");
+          arHtml.push("<table><tr><td>Field</td><td>Value</td></tr>");
           // Create table with key/value for features
+          for (var sKey in oResult) {
+            arHtml.push("<tr><td>"+sKey+"</td><td>"+oResult[sKey]+"</td></tr>");
+          }
+          /*
           var arFeats = oResult.Features;
           for (var j=0;j<arFeats.length;j++) {
             var sFeatName = oContent.features[j];
             arHtml.push("<tr><td>"+sFeatName+"</td><td>"+arFeats[j]+"</td></tr>");
           }
+          */
           // Finish this cell
           arHtml.push("</table></td></tr></div>");
         }
