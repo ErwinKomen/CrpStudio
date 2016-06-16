@@ -25,6 +25,7 @@ public class LoadDbResponse extends BaseResponse {
   private int iStart;       // Starting number
   private int iCount;       // Number of items
   private int iTotal;       // TOtal number of results in database
+  private final int MAX_COLS = 8;
   String sSort;             // COlumn to sort on
   JSONObject oInfo = null;
   JSONObject oDbSettings = null;
@@ -117,9 +118,9 @@ public class LoadDbResponse extends BaseResponse {
             arColumns.put("SubType");
             arColumns.put("");
             arColumns.put("");
-          } else if (arColumns.length() > 8) {
+          } else if (arColumns.length() > MAX_COLS) {
             // Delete what is above 8
-            for (int j=arColumns.length()-1; j>=8;j--) {
+            for (int j=arColumns.length()-1; j>=MAX_COLS;j--) {
               arColumns.remove(j);
             }
           }

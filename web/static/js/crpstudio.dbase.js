@@ -659,7 +659,6 @@ var crpstudio = (function ($, crpstudio) {
           arHtml.push("<th id=\"db_list_sort_"+(i+1)+"\">"+sSortThis+"</th>");
         }
         arHtml.push("</tr></thead><tbody>");
-        // arHtml.push("<table><thead><th>#</th><th>Cat</th><th>Text</th><th>Sentence</th><th>Constituent</th></thead><tbody>");
         // Process each individual result
         for (var i=0;i<iCount;i++) {
           // Get this result
