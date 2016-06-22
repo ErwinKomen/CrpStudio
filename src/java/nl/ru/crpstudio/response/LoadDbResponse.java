@@ -113,8 +113,8 @@ public class LoadDbResponse extends BaseResponse {
             arColumns.put("ResId");
             arColumns.put("Cat");
             arColumns.put("TextId");
-            arColumns.put("sentId");
-            arColumns.put("constId");
+            arColumns.put("Locs");
+            arColumns.put("Locw");
             arColumns.put("SubType");
             arColumns.put("");
             arColumns.put("");

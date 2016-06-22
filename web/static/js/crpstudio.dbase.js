@@ -403,7 +403,7 @@ var crpstudio = (function ($, crpstudio) {
               "userid": crpstudio.currentUser, "prj": oContent.nameprj, 
               "lng": oContent.lng, "dir": oContent.dir, 
               "type": "context_syntax", "start": -1, 
-              "locs": oResult.sentId, "locw": oResult.constId,
+              "locs": oResult.Locs, "locw": oResult.Locw,
               "count": 1, "files": [ oResult.File ]};
 
           var params = JSON.stringify(oQuery);
@@ -588,16 +588,19 @@ var crpstudio = (function ($, crpstudio) {
             arHtml.push("<option value=\""+sKeyName+"\">"+sKeyName+"</option>");
         }
         // Now process the features
+        /*
         for (var sKeyName in arResFields) {
           if (sKeyName.startsWith("ft_")) {
             var sDisplay = sKeyName.substring(3);
             arHtml.push("<option value=\""+sKeyName+"\">"+sDisplay+"</option>");
           }
-        }
-        /*
+        }*/
         for (var i=0;i<arFeatures.length;i++) {
-          arHtml.push("<option value=\"ft:"+i+":"+arFeatures[i]+"\">f: "+arFeatures[i]+"</option>");
-        } */
+          // CHange feature name
+          var sFeatName = arFeatures[i];
+          if (sFeatName.startsWith("ft_")) {sFeatName = sFeatName.substring(3);}
+          arHtml.push("<option value=\"ft:"+i+":"+sFeatName+"\">f: "+sFeatName+"</option>");
+        }
         return arHtml.join("\n");
       },
       
@@ -675,7 +678,9 @@ var crpstudio = (function ($, crpstudio) {
                 // Get the number of the features column
                 var arCol = sColName.split(":");
                 //  OLD: sValue = oResult.Features[parseInt(arCol[1],10)];
-                sValue = oResult["ft_"+arCol[2]];
+                // sValue = oResult["ft_"+arCol[2]];
+                // sValue = oResult.Features["ft_"+arCol[2]];
+                sValue = oResult.Features[arCol[1]]["ft_"+arCol[2]];
               } else {
                 sValue = oResult[sColName];
               }
