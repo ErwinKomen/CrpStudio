@@ -699,15 +699,16 @@ var crpstudio = (function ($, crpstudio) {
           arHtml.push("<table><tr><td>Field</td><td>Value</td></tr>");
           // Create table with key/value for features
           for (var sKey in oResult) {
-            arHtml.push("<tr><td>"+sKey+"</td><td>"+oResult[sKey]+"</td></tr>");
+            if (sKey !== "Features") {
+              arHtml.push("<tr><td>"+sKey+"</td><td>"+oResult[sKey]+"</td></tr>");
+            }
           }
-          /*
+          // Now treat the features separately
           var arFeats = oResult.Features;
           for (var j=0;j<arFeats.length;j++) {
             var sFeatName = oContent.features[j];
-            arHtml.push("<tr><td>"+sFeatName+"</td><td>"+arFeats[j]+"</td></tr>");
+            arHtml.push("<tr><td>"+sFeatName+"</td><td>"+arFeats[j][sFeatName]+"</td></tr>");
           }
-          */
           // Finish this cell
           arHtml.push("</table></td></tr></div>");
         }
