@@ -94,7 +94,11 @@ public class LoadDbResponse extends BaseResponse {
           oDbSettings = this.getDbSettings(sUserId, dbName);
           if (oDbSettings.has("start")) iStart = oDbSettings.getInt("start");
           if (oDbSettings.has("count")) iCount = oDbSettings.getInt("count");
-          if (oDbSettings.has("sort")) sSort = oDbSettings.getString("sort");
+          if (oQuery.has("sort")) {
+            sSort = oQuery.getString("sort");
+          } else {
+            if (oDbSettings.has("sort")) sSort = oDbSettings.getString("sort");
+          }
           if (oDbSettings.has("columns")) arColumns = oDbSettings.getJSONArray("columns");
           // Other validations
           if (iCount <=0) iCount = this.servlet.getDbPage();

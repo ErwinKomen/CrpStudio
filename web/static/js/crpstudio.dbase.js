@@ -555,9 +555,10 @@ var crpstudio = (function ($, crpstudio) {
        * @param {element} target
        * @param {integer} iStart
        * @param {integer} iCount
+       * @param {string}  sSort   - Name of column to be sorted
        * @returns {undefined}
        */
-      listView : function(target, iStart, iCount) {
+      listView : function(target, iStart, iCount, sSort) {
         // Get the currently selected database
         var sDbName = loc_currentDbase;
         // INterpret the parameters
@@ -568,6 +569,12 @@ var crpstudio = (function ($, crpstudio) {
         var oArgs = { "dbase": sDbName, "type": "list", 
           "start": start, "count": count, 
           "userid": crpstudio.currentUser };
+        // Check if sort should be added
+        if (sSort !== undefined) {
+          // Add it
+          oArgs["sort"] = sSort;
+        }
+        // Prepare for sending
         var params = JSON.stringify(oArgs);
 
         crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
@@ -784,12 +791,37 @@ var crpstudio = (function ($, crpstudio) {
        * listview_sort_column
        *    Sort the column with the indicated type: ascending, descending, delete
        * 
-       * @param {type} sColName
-       * @param {type} sSortType
+       * @param {string} sColName   - Name of the column (for feature: [ft:16:TypeResAdvMain]
+       * @param {string} sSortType  - Either 'asc' or 'desc'
        * @returns {undefined}
        */
       listview_sort_column : function(sColName, sSortType) {
         // Prepare a request to re-create the listview results in the indicated way
+        var target = this;
+        var sSort = sColName;
+        // Check if the column name is a feature
+        if (sColName.substring(0,3) === "ft:") {
+          var arCol = sColName.split(":");
+          sSort = "ft_" + arCol[2];        }
+        
+        // Evaluate the sort-type
+        switch(sSortType) {
+          case "desc":
+            // Indicate other order
+            sSort = "-" + sSort;
+            break;
+          case "del":
+            // Indicate removal is required
+            sSort = "x_" + sSort;
+            break;
+          case "asc":
+            // No need for further action
+            break;
+        }
+        // Send the new constellation to /crpstudio for keeps
+        // var oDbSet = {"sort": sSort};
+        // crpstudio.dbase.store_list_settings(oDbSet);
+        crpstudio.dbase.listView(target, 1, -1, sSort);
       },
       
       /*
