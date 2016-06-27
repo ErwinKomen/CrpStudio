@@ -821,8 +821,7 @@ var crpstudio = (function ($, crpstudio) {
             sSort = "x_" + sSort;
             break;
           case "asc":
-            // Make sure the picture is adapted
-            crpstudio.dbase.getListViewColumnSort();
+            // No action is needed here
             break;
         }
         // Send the new constellation to /crpstudio for keeps
