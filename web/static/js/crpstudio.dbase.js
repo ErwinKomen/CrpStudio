@@ -665,7 +665,13 @@ var crpstudio = (function ($, crpstudio) {
         // Add a row for sorting
         arHtml.push("<tr class=\"db_list\">");
         for (var i=0;i<arColumns.length;i++) {
-          var sSortThis = crpstudio.dbase.getListViewColumnSort(arColumns[i], false);
+          var sSortThis = "";
+          // Check out the situation
+          if (oContent.sorttype !== undefined && oContent.sorttype !== "" && oContent.sortcolumn === arColumns[i]) {
+            sSortThis = crpstudio.dbase.getListViewColumnSort(arColumns[i], true, oContent.sorttype);
+          } else {
+            sSortThis = crpstudio.dbase.getListViewColumnSort(arColumns[i], false);
+          }
           arHtml.push("<th id=\"db_list_sort_"+(i+1)+"\">"+sSortThis+"</th>");
         }
         arHtml.push("</tr></thead><tbody>");
@@ -815,7 +821,8 @@ var crpstudio = (function ($, crpstudio) {
             sSort = "x_" + sSort;
             break;
           case "asc":
-            // No need for further action
+            // Make sure the picture is adapted
+            crpstudio.dbase.getListViewColumnSort();
             break;
         }
         // Send the new constellation to /crpstudio for keeps

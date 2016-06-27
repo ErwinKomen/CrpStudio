@@ -106,6 +106,25 @@ public class LoadDbResponse extends BaseResponse {
           // Get the requested information from the CRPP
           oInfo = this.getDbaseInfo(sUserId, dbName, iStart, iCount, sSort);
           oContent.put("namedb", dbName);
+          if (!sSort.isEmpty()) {
+            // Include it in the results
+            String sSortColumn = sSort;
+            String sSortType = "asc";
+            if (sSortColumn.startsWith("-")) { sSortType = "desc"; sSortColumn = sSortColumn.substring(1); }
+            if (sSortColumn.startsWith("ft_")) {
+              int iFtNum = 0;
+              JSONArray arFt = oInfo.getJSONArray("Features");
+              for (int j=0;j<arFt.length();j++) {
+                if (arFt.getString(j).equals(sSortColumn)) {
+                  iFtNum = j;
+                  break;
+                }
+              }
+              sSortColumn = "ft:" + iFtNum + ":" + sSortColumn.substring(3);
+            }
+            oContent.put("sortcolumn", sSortColumn);
+            oContent.put("sorttype", sSortType);
+          }
           // Retrieve the <General> parameters
           if (!addGeneral(oInfo, oContent)) { sendErrorResponse("Could not copy <General> part"); return;}
           // Set the columns that should be displayed
