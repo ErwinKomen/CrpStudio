@@ -753,6 +753,10 @@ form .row .row .column, form .row .row .columns {
   padding: 0 0.2rem;
   /* margin-bottom: -8px; */ }
 
+/* dbresult */
+#dbdetails textarea {
+  min-height: 5px !important; }
+
 input, textarea {
   margin: 0 0 0.2rem !important;
   padding: 0.2rem !important; }
@@ -1120,6 +1124,14 @@ img.icon.spinner {
   border-radius: 3px;
   border: 1px solid #CCC; }
 
+.dbresult-pane {
+  width: 100%;
+  margin-top: 0px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #CCC; }
+
 #results .result-pane {
   margin-top: 0; }
 
@@ -1256,7 +1268,7 @@ ul.dropdown-menu {
 .inline-concordance .loading.active {
   display: inline-block; }
 
-#results select, #results input, #dbaseview_list select {
+#results select, #results input, #dbresults input, #dbresults select, #dbaseview_list select {
   height: 22px;
   line-height: 18px;
   font-size: small;
@@ -1271,7 +1283,7 @@ ul.dropdown-menu {
 table thead tr.db_list th {
   line-height: 0.5rem; }
 
-#results input {
+#results input, #dbresults input {
   width: 60px;
   display: inline-block; }
 
@@ -1285,6 +1297,15 @@ table thead tr.db_list th {
 
 div > table {
   width: 100%; }
+
+#dbresults, #dbase_listview {
+  width: 100%; }
+
+#dbresults table thead tr th {
+  padding-top: 0.2rem;
+  padding-right: 0;
+  padding-bottom: 0.2rem;
+  padding-left: 0; }
 
 #results .group_bySelect {
   margin: 20px;
@@ -1672,5 +1693,52 @@ textarea, .CodeMirror {
 .warning {
   background-color: lightblue;
   font-weight: bold; }
+
+/*
+.range-slider {
+  height: 25px;
+  color: red;
+  background: #008cba;
+}
+.range-slider-handle {
+  height: 20px;
+  width: 5px;
+  color: green;
+}
+*/
+.range-slider {
+  border: 1px solid #DDDDDD;
+  margin: 1.11111rem 0;
+  position: relative;
+  display: block;
+  height: 0.88889rem;
+  width: 100%;
+  -ms-touch-action: none;
+  touch-action: none;
+  background: #FAFAFA; }
+
+.range-slider-handle:hover {
+  background: #007ba4; }
+
+.range-slider-handle {
+  border: 1px solid none;
+  cursor: pointer;
+  display: inline-block;
+  height: 1.22222rem;
+  position: absolute;
+  top: -0.27778rem;
+  width: 1.77778rem;
+  z-index: 1;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  background: #008CBA; }
+
+.range-slider-active-segment {
+  background: #e5e5e5;
+  border-bottom-left-radius: inherit;
+  border-top-left-radius: inherit;
+  display: inline-block;
+  height: 0.77778rem;
+  position: absolute; }
 
 /*# sourceMappingURL=crpstudio.css.map */

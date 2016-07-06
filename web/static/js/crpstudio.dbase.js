@@ -16,6 +16,11 @@ var crpstudio = (function ($, crpstudio) {
         interval =  200,        // Number of milliseconds
         loc_uploadSize = 512 * 1024, // Size of one chunk for uploading
         sDbUplStatus = "",      // Database upload status request
+        loc_view = "db",        // The only view we have is "dbase" view
+        loc_numResults = 0,     // Number of results
+        loc_numPerPage = 0,     // Number of results selected per page
+        loc_numPages = 0,
+        loc_currentPage = 0,
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
         loc_uploadText = "",    // Text of file that is being uploaded
@@ -45,6 +50,28 @@ var crpstudio = (function ($, crpstudio) {
           // Set the correct styles for these elements
           divStarted.setAttribute("style", "width: "+fPtc+"%");
         }        
+      },
+      /**
+       * doPagination
+       *    Process pagination
+       * 
+       * @param {string} iView  - Denotator of this view
+       * @param {int} iNumber   - Number of this page
+       * @returns {undefined}
+       */
+      doPagination : function(iView, iNumber) {
+        // In all cases: calculate page numbers
+        var iPages = Math.floor(iNumber / loc_numPerPage);
+        // Make sure we can at least show ONE page
+        if (iPages <=0) iPages = 1;
+        // Check if we've got the last match
+        if (iPages * loc_numPerPage < iNumber) iPages++;
+        loc_numPages = iPages;   // total number of pages that can be shown
+        loc_currentPage = 1;     // currently selected page
+        // Set the max pages
+        $("#result_numpages_"+iView).html(iPages);
+        $("#result_numpages_"+iView).prev().attr("max",iPages);
+        $("#result_numpages_"+iView).prev().val(1);
       },
       /**
        * getSyntax
@@ -317,16 +344,29 @@ var crpstudio = (function ($, crpstudio) {
                   }
                   arHtml.push("</table>");
                   $("#dbase_expl_summary").html(arHtml.join("\n"));
+                  // Make sure the TOTAL is kept
+                  loc_numResults = oContent.total;
+                  // Initialize the page-size
+                  if (loc_numPerPage === 0) {
+                    // Retrieve the number from the value of the control
+                    loc_numPerPage = parseInt($("#page_size").val());
+                  }
+                  // Initialize pagination: tell we want to go to page #1
+                  private_methods.doPagination('db', loc_numResults);
                   break;
                 case "list":    // Listview
                   // Keep the results within [crpstudio.dbase]
                   loc_oResults = oContent;
+                  // Make sure the TOTAL is kept
+                  if (oContent.total !== undefined) loc_numResults = oContent.total;
                   // Show the results on the correct page
                   crpstudio.dbase.listViewShow("dbaseview_list", oContent);
                   break;
                 case "detail":  // Details view
                   // Keep the results within [crpstudio.dbase]
                   loc_oResults = oContent;
+                  // Make sure the TOTAL is kept
+                  if (oContent.total !== undefined) loc_numResults = oContent.total;
                   // Show the results on the correct page
                   crpstudio.dbase.listViewShow("dbaseview_details", oContent);
                   break;
@@ -682,7 +722,8 @@ var crpstudio = (function ($, crpstudio) {
           // Create an id for this result
           var sId = "dbase_list_"+oResult.ResId;
           // Add the results from this row
-          arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\", "+ i + ")'>");
+          // arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\", "+ i + ")'>");
+          arHtml.push("<tr class='concordance' >");
           for (var j=0;j<arColumns.length;j++) {
             var sValue = "";
             if (arColumns[j] !== "") {
@@ -694,6 +735,9 @@ var crpstudio = (function ($, crpstudio) {
                 // sValue = oResult["ft_"+arCol[2]];
                 // sValue = oResult.Features["ft_"+arCol[2]];
                 sValue = oResult.Features[arCol[1]]["ft_"+arCol[2]];
+              } else if (j===0) {
+                // The first item is the ResId, and it should receive a link
+                sValue = "<a href=\"#\" onclick=\"crpstudio.dbase.detailview("+oResult.ResId+", "+i+")\">"+oResult[sColName]+"</a>";
               } else {
                 sValue = oResult[sColName];
               }
@@ -740,6 +784,162 @@ var crpstudio = (function ($, crpstudio) {
         crpstudio.dbase.store_list_settings(oDbSet);
       },
       
+      /**
+       * detailview
+       *    Go to detail view and show the information on the indicated result
+       * 
+       * @param {int} iResId
+       * @param {int} iRow
+       * @returns {undefined}
+       */
+      detailview : function(iResId, iRow) {
+        // Make sure we go to the detail view page
+        if (loc_tab !== 'dbase_details') crpstudio.dbase.switchTab('dbase_details');
+        // Get the results
+        var oContent = loc_oResults;
+        var arResults = oContent.results;
+        var arColumns = oContent.columns;
+        // Fetch the correct result
+        var oResult = arResults[iRow];
+        // Create table with key/value for features
+        var arHtml = [];
+        arHtml.push("<table>");
+        arHtml.push("<tr><td>Text id:</td><td>"+oResult["TextId"]+"</td></tr>");
+        arHtml.push("<tr><td>Sentence id:</td><td>"+oResult["Locs"]+"</td></tr>");
+        arHtml.push("<tr><td>Constituent id:</td><td>"+oResult["Locw"]+"</td></tr>");
+        arHtml.push("<tr><td>Category:</td><td>"+oResult["Cat"]+"</td></tr>");
+        arHtml.push("</table>");
+        $("#dbdetails_rdonly").html(arHtml.join("\n"));
+        $("#dbdetails_resid").text(iResId);
+        
+        // Collect the features
+        arHtml = [];
+        var arFeats = oResult.Features;
+        for (var j=0;j<arFeats.length;j++) {
+          var sFeatName = oContent.features[j];
+          var sFeatShort = sFeatName;
+          if (sFeatShort.substring(0,3) === "ft_") sFeatShort = sFeatShort.substring(3);
+          arHtml.push("<div class='row'><div class='large-2 medium-3 small-4 columns'>");
+          arHtml.push("<label class='left inline' for='right-label'>"+sFeatShort+"</label></div>");
+          arHtml.push("<div class='large-14 medium-13 small-12 columns'>");
+          arHtml.push("<textarea id='dbdetail_"+sFeatName+"' class='left' spellcheck='false' rows='1'>");
+          arHtml.push("</textarea></div></div>");
+        }
+        $("#dbdetails_feats").html(arHtml.join("\n"));
+        // Add the feature values
+        for (var j=0;j<arFeats.length;j++) {
+          var sFeatName = oContent.features[j];
+          var sFtId = "dbdetail_" + sFeatName;
+          $("#"+sFtId).val(arFeats[j][sFeatName]);
+        }
+        // Add the range slider
+        /*
+        arHtml = [];
+        arHtml.push("<!-- (3) Center-aligned page-chooser and \"GO\" button -->");
+        arHtml.push("<div class=\"small-10 medium-11 centered columns\">");
+        arHtml.push("  <div class=\"range-slider\" data-slider data-options=\"display_selector: #dbdetails_resid;\">");
+        arHtml.push("    <span class=\"range-slider-handle\" role=\"slider\" tabindex=\"0\"></span>");
+        arHtml.push("    <span class=\"range-slider-active-segment\"></span>");
+        arHtml.push("  </div>");
+        arHtml.push("</div>");
+        arHtml.push("<div class=\"small-2 medium-1 columns\">");
+        arHtml.push("  <input type=\"number\" id=\"dbdetails_resid\" value=\"28\" />");
+        arHtml.push("</div>");
+        $("#dbdetails_select").html(arHtml.join("\n"));
+        */
+        $(document).foundation('slider', 'reflow');
+        
+        // Reset the status
+        $("#dbdetails_status").addClass("hidden");
+      },
+      
+     /**
+       * goToPage
+       *    Go to the page that has been selected
+       * 
+       * @param {type} item
+       * @returns {undefined}
+       */
+      goToPage : function(item) {
+        // Find out which page has been selected
+        var page = $(item).parent().find(".page-select").val();
+        // Get the number per page
+        var number = loc_numPerPage;
+        // Deal with this just in case
+        if (number < 0) number = loc_numResults;
+        // Calculate which item number needs to be presented first
+        var first = ((page-1) * number) + 1;
+        // Provide the user with a path where he can download the file from
+        $("#results_export_"+loc_view).addClass("hidden");
+        // Make a request for this number
+        crpstudio.dbase.update(loc_view, { first : first, number : number } );
+      },
+      
+      /* ---------------------------------------------------------------------------
+       * Name: update
+       * Goal: Change result-view:
+       *        db = list view for database
+       * History:
+       * 30/jun/2015  ERK Created
+       * 23/jul/2015  ERK Added [oPageChoice]
+       */
+      update : function(iView, oPageChoice) {
+        // Make sure the view variable is filled in
+        loc_view = iView;  
+
+        // Any pagination information?
+        if (oPageChoice && oPageChoice.number && oPageChoice.number !== loc_numPerPage) {
+          // Set the amount of results per page
+          loc_numPerPage = oPageChoice.number;
+          // Adapt the pagination
+          private_methods.doPagination(iView,loc_numResults);
+        }
+        // Double check
+        if (loc_numPerPage === 0) {
+          // Retrieve the number from the value of the control
+          loc_numPerPage = $("#page_size").val();
+        }
+        // If and how pagination is shown depends on the view
+        switch(iView) {
+          case 'db':
+            // Show pagination
+            $("#result_pagination_"+iView).removeClass("hidden");
+            // Determine the total number of results
+            var iResultCount = 0;
+            if (loc_oResults.total === undefined) {
+              iResultCount = loc_numResults;
+            } else {
+              iResultCount = loc_oResults.total;
+              loc_numResults = iResultCount;
+            }
+            // Determine start and finish
+            var iStart = 1;
+            var iCount = iResultCount;
+            // Possibly adapt start and count
+            if (oPageChoice) {
+              if (oPageChoice.first) iStart = oPageChoice.first;
+              if (oPageChoice.number) iCount = oPageChoice.number;
+            }
+            // Start showing hits according to the current choices
+            var oArgs = { "dbase": loc_currentDbase, "type": "list_adapt", 
+              "start": iStart, "count": iCount, 
+              "userid": crpstudio.currentUser };
+            // Prepare for sending
+            var params = JSON.stringify(oArgs);
+            // Pass on to /crpstudio
+            crpstudio.main.getCrpStudioData("loaddb", params, crpstudio.dbase.processLoad, "#dbase_description");
+            // Give information about what is being shown
+            var iRequesting = parseInt( (loc_numPerPage<0) ? iResultCount : loc_numPerPage);
+            var sInfo = "Showing #"+iStart+"-"+(iStart+iRequesting-1)+" ("+iResultCount+")";
+            $("#results_info_"+iView).html(sInfo);
+            break;
+          default:
+            // Hide pagination
+            $("#result_pagination_"+iView).addClass("hidden");
+            break;
+        }
+      },
+
       /**
        * store_list_settings
        *    Store the listview settings from [oSettings] in /crpstudio

@@ -83,6 +83,9 @@ public class LoadDbResponse extends BaseResponse {
           // TODO: code this...
           this.setDbSettings(sUserId, dbName, oLvSettings);
           break;
+        case "list_adapt":
+          // Adapt the load type
+          oContent.put("type", "list");
         case "list":    // Request for a list-view segment
           // Validate obligatory parameters
           if (!oQuery.has("dbase") || !oQuery.has("start") || !oQuery.has("count")) 
@@ -90,10 +93,20 @@ public class LoadDbResponse extends BaseResponse {
           // Retrieve the parameters
           dbName = oQuery.getString("dbase"); if (dbName.isEmpty()) { sendErrorResponse("Name of database not specified"); return;}
           iStart = oQuery.getInt("start"); iCount = oQuery.getInt("count");
-          // Retrieve the parameters that were stored from last time
-          oDbSettings = this.getDbSettings(sUserId, dbName);
-          if (oDbSettings.has("start")) iStart = oDbSettings.getInt("start");
-          if (oDbSettings.has("count")) iCount = oDbSettings.getInt("count");
+          // Check if we need to retrieve or to adjust the settings from last time
+          if (loadType.equals("list_adapt")) {
+            JSONObject oAdapted = new JSONObject();
+            oAdapted.put("start", iStart);
+            oAdapted.put("count", iCount);
+            this.setDbSettings(sUserId, dbName, oAdapted);
+            // Also make sure that we actually have access to teh settings
+            oDbSettings = this.getDbSettings(sUserId, dbName);
+          } else {
+            // Retrieve the parameters that were stored from last time
+            oDbSettings = this.getDbSettings(sUserId, dbName);
+            if (oDbSettings.has("start")) iStart = oDbSettings.getInt("start");
+            if (oDbSettings.has("count")) iCount = oDbSettings.getInt("count");
+          }
           if (oQuery.has("sort")) {
             sSort = oQuery.getString("sort");
           } else {

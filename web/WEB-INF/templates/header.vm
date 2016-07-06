@@ -14,77 +14,82 @@
 #set($projectSaved = $labels.getString("project.saved"))
 <!doctype html>
 <html>
-	<head>
-		<meta http-equiv="X-UA-Compatible" content="IE=10">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=10">
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="expires" content="0" />
     <meta http-equiv="pragma" content="no-cache" />
-		<meta charset="utf-8">
-		<meta name="description" content="$!d">
-		<meta name="viewport" content="width=device-width">
-		<meta property="og:image" content="./static/img/apple-touch-icon-144x144-precomposed.png" />
-		<meta property="og:description" content="$!d"/>
-		<title>$!t</title>
-		<link rel="icon" type="image/png" href="./static/img/favicon.png">
-		<link rel="apple-touch-icon" href="./static/img/apple-touch-icon.png">
-		<link rel="stylesheet" href="./static/css/foundation.min.css" type='text/css' />
-		<link rel="stylesheet" href="./static/css/foundation-datepicker.min.css" type='text/css' />
-		<link rel="stylesheet" href="./static/css/crpstudio.css" type='text/css' />
-		<link rel="stylesheet" href="./static/css/introjs.css" type='text/css' />
+    <meta charset="utf-8">
+    <meta name="description" content="$!d">
+    <meta name="viewport" content="width=device-width">
+    <meta property="og:image" content="./static/img/apple-touch-icon-144x144-precomposed.png" />
+    <meta property="og:description" content="$!d"/>
+    <title>$!t</title>
+    <link rel="icon" type="image/png" href="./static/img/favicon.png">
+    <link rel="apple-touch-icon" href="./static/img/apple-touch-icon.png">
+    <link rel="stylesheet" href="./static/css/foundation.min.css" type='text/css' />
+    <!-- <link rel="stylesheet" href="./static/css/foundation.css" type='text/css' /> -->
+    <link rel="stylesheet" href="./static/css/foundation-datepicker.min.css" type='text/css' />
+    <link rel="stylesheet" href="./static/css/crpstudio.css" type='text/css' />
+    <link rel="stylesheet" href="./static/css/introjs.css" type='text/css' />
 
-		<link rel="stylesheet" href="./static/css/codemirror.css" type='text/css' />
-		<link rel="stylesheet" href="./static/css/xq-dark.css" type='text/css' />
-		<link rel="stylesheet" href="./static/css/xq-light.css" type='text/css' />
-		<link rel="stylesheet" href="./static/css/xq-light2.css" type='text/css' />
+    <link rel="stylesheet" href="./static/css/codemirror.css" type='text/css' />
+    <link rel="stylesheet" href="./static/css/xq-dark.css" type='text/css' />
+    <link rel="stylesheet" href="./static/css/xq-light.css" type='text/css' />
+    <link rel="stylesheet" href="./static/css/xq-light2.css" type='text/css' />
 
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
-		<script type="text/javascript" src="./static/js/foundation.min.js"></script>
-		<script type="text/javascript" src="./static/js/foundation.accordion.js"></script>
-		<script type="text/javascript" src="./static/js/foundation-datepicker.min.js"></script>
-		<script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
-		<script type="text/javascript" src="./static/js/scrollTableBody.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+    <script type="text/javascript" src="./static/js/foundation.min.js"></script>
+    <!-- -->
+    <script type="text/javascript" src="./static/js/foundation.js"></script>
+    <script type="text/javascript" src="./static/js/foundation.slider.js"></script> 
+    <!--  -->
+    <script type="text/javascript" src="./static/js/foundation.accordion.js"></script>
+    <script type="text/javascript" src="./static/js/foundation-datepicker.min.js"></script>
+    <script type="text/javascript" src="./static/js/ajax_retriever.js"></script>
+    <script type="text/javascript" src="./static/js/scrollTableBody.js"></script>
 
-		<script type="text/javascript" src="./static/js/codemirror.js"></script>
-		<script type="text/javascript" src="./static/js/xquery.js"></script>
+    <script type="text/javascript" src="./static/js/codemirror.js"></script>
+    <script type="text/javascript" src="./static/js/xquery.js"></script>
 <!-- ============================ WEG ========================================
-		<script type="text/javascript" src="./static/js/parsexquery.js"></script>
-		<script type="text/javascript" src="./static/js/tokenizexquery.js"></script>
+    <script type="text/javascript" src="./static/js/parsexquery.js"></script>
+    <script type="text/javascript" src="./static/js/tokenizexquery.js"></script>
     ========================================================================== -->
 
-		<script type="text/javascript" src="./static/js/crpstudio.config.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.list.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.dbase.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.project.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.input.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.xquery.js"></script>
-		<script type="text/javascript" src="./static/js/crpstudio.result.js"></script>
-		<script type="text/javascript" src="./static/js/intro.js"></script>
-		<script>
-			function initTreemap() {
-				console.log("Initializing treemap");
-				Crpstudio.explore.treemap = document.getElementById('treemap-display').contentWindow;
-				Crpstudio.explore.treemap.setLanguage('$lang');
-				$("#treemap input[value='$!field']").prop("checked",true);
-				Crpstudio.explore.getTreemapData('$!field');
-			}
-		</script>
-	</head>
-  <body>
-		<!--[if lt IE 9]>
-		<br/><br/><br/>
-		<div class="alert alert-warning">
-		<h1>Error: Incompatible browser.</h1>
-		<p>You are using an <strong>outdated</strong> browser which cannot display this website correctly. Please use the latest version of <a href="http://www.mozilla.org/en-US/firefox/new/">Mozilla Firefox</a> or <a href="https://www.google.com/intl/en/chrome/browser/">Google Chrome</a> instead.</p>
-		</div>
-		<![endif]-->
-		<div class="cookies">
-			<span class="info">$labels.getString("cookies.line1") <a href="$" onclick="crpstudio.main.cookies.accept();" class="button radius tiny">OK</button></a>
-			<span class="info">$labels.getString("cookies.line2")</span>
-		</div>
+    <script type="text/javascript" src="./static/js/crpstudio.config.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.list.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.dbase.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.project.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.input.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.xquery.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.result.js"></script>
+    <script type="text/javascript" src="./static/js/intro.js"></script>
+    <script>
+      function initTreemap() {
+        console.log("Initializing treemap");
+        Crpstudio.explore.treemap = document.getElementById('treemap-display').contentWindow;
+        Crpstudio.explore.treemap.setLanguage('$lang');
+        $("#treemap input[value='$!field']").prop("checked",true);
+        Crpstudio.explore.getTreemapData('$!field');
+      }
+    </script>
+  </head>
+<body>
+<!--[if lt IE 9]>
+<br/><br/><br/>
+<div class="alert alert-warning">
+<h1>Error: Incompatible browser.</h1>
+<p>You are using an <strong>outdated</strong> browser which cannot display this website correctly. Please use the latest version of <a href="http://www.mozilla.org/en-US/firefox/new/">Mozilla Firefox</a> or <a href="https://www.google.com/intl/en/chrome/browser/">Google Chrome</a> instead.</p>
+</div>
+<![endif]-->
+<div class="cookies">
+        <span class="info">$labels.getString("cookies.line1") <a href="$" onclick="crpstudio.main.cookies.accept();" class="button radius tiny">OK</button></a>
+        <span class="info">$labels.getString("cookies.line2")</span>
+</div>
     <!-- Keep the navigation in a special section -->
     <div class="contain-to-grid sticky">
       <!-- Highest top-bar with user/corpus/project information -->

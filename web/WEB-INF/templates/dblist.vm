@@ -1,5 +1,81 @@
-<!-- side bar: NO side-bar should be shown for the list view -->
+<!-- Define the PAGINATION stuff -->
+#set( $result_pagination_show = $labels.getString("result.pagination.show") )
+#set( $result_pagination_perpage = $labels.getString("result.per_page") )
+#set( $result_titles = 'Toggle ' + $labels.getString("result.titles") )
+#set( $result_page = $labels.getString("result.page") )
+#set( $result_of = $labels.getString("result.of") )
+#set( $result_go = $labels.getString("result.go") )
+#set( $result_back = $labels.getString("result.back") )
+#set( $result_all = $labels.getString("result.all") )
+#set( $view = 'db' )
 
-  <div id="dbaseview_list" class="large-16 medium-16 small-16 result-qc row">
-    <i>(no results available)</i>
+<!-- side bar: NO side-bar should be shown for the list view -->
+  <div id="dbresults" class="large-16 medium-16 small-16 dbresult-pane tab-pane lightbg haspadding">
+    <!-- Horizontal line -->
+    <div class="gradient"></div>
+    <!-- provide PAGINATION options -->
+    <div id="result_pagination_db" class="pagination large-16 medium-16 small-16 row">
+
+      <!-- (1) Left COMBOBOX allowing for 'resultsperpage' choosing -->
+      <div class="small-text jump-left large-3 medium-3 small-4 columns"> 
+        <!-- Allow user to choose sizes  -->
+        <div class="large-16 medium-16 small-16 row">
+          $result_pagination_show
+          <select id="page_size" class="show-select meta-small" onchange="crpstudio.dbase.update( $view, {number: $(this).val(), sort: ''})">
+            <!-- Default option: 20 results per page -->
+            <option value="10">10</option>
+            <option value="20" selected="true">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="-1">$result_all</option>
+          </select>
+          $result_pagination_perpage
+        </div>
+        <!-- EXPORT button  -->
+<!-- THIS IS NOT NEEDED HERE
+        <div class="export large-16 medium-16 small-16 row">
+          <div class="large-offset-1 medium-offset-1 small-offset-1 large-3 medium-3 small-4 columns">
+            <a href="#" class="button radius small" onclick="crpstudio.result.doExport($view);">$labels.getString("result.export")</a>
+          </div>
+          <div id="results_export_db" class="large-9 medium-9 small-8 columns hidden">
+            <span>$labels.getString("result.export.intro"): </span>
+            <span id="results_export_file_db"></span>
+          </div>
+        </div>
+-->
+      </div>
+
+      <!-- (2) Centered page buttons [<< < n > >>] + Result info -->
+      <div class="large-9 medium-9 small-8 centered columns">
+        <!-- (2a) page buttons -->
+        <div class="large-16 medium-16 small-16 row">
+          <ul id="result_pagebuttons_db" class="pagebuttons">
+          </ul>
+        </div>
+        <!-- (2b) Information about these results -->
+        <div class="large-16 medium-16 small-16 row">  
+          <div id="results_info_db" class="result-info large-8 medium-8-small-8 large-centered medium-centered small-centered columns"></div>
+        </div>
+      </div>
+
+      <!-- (3) Right-aligned page-chooser and "GO" button -->
+      <div class="small-text large-4 medium-4 small-4 columns">
+        $result_page
+        <input type="hidden" class="max-results" value="20"></input>
+        <input class="page-select meta-small" type="number" min="1" max="1" value="1"></input>
+        &#160;$result_of <span id="result_numpages_db"></span>
+        <a href="#"  class="button radius small go" onclick="crpstudio.dbase.goToPage(this)">$result_go</a>
+      </div>
+
+    </div>
+
+    <!-- Show the STATUS -->
+    <div id="result_status_db" class="large-16 medium-16 small-16 row"></div>
+
+    <div id="dbaseview_list" class="large-16 medium-16 small-16 result-qc row">
+      <i>(no results available)</i>
+    </div>
+
   </div>
+

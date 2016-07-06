@@ -1,6 +1,57 @@
 <!-- side bar: NO side-bar should be shown for the list view -->
 
-  <div id="dbase_expl_details" class="large-16 medium-16 small-16 row">
-    <i>(no details available)</i>
+<!-- Define the result-id selection stuff -->
+#set( $result_item = $labels.getString("result.page") )
+#set( $result_of = $labels.getString("result.of") )
+#set( $result_go = $labels.getString("result.go") )
+#set( $view = 'detail' )
+
+
+  <div id="dbdetails" class="large-16 medium-16 small-16 dbresult-pane tab-pane lightbg haspadding">
+    <div id="dbdetails_status" class="row">
+      <i>(no details available)</i>
+    </div>
+    <!-- Horizontal line -->
+    <div class="gradient"></div>
+    <!-- Provide options to go to one particular result -->
+    <div id="dbdetails_select" class="large-16 medium-16 small-16 row">
+      <!-- (3) Center-aligned page-chooser and "GO" button -->
+      <div class="small-10 medium-11 centered columns">
+        <div class="range-slider" data-slider data-options="display_selector: #dbdetails_selId;">
+          <span class="range-slider-handle" role="slider" tabindex="0"></span>
+          <span class="range-slider-active-segment" ></span>
+        </div>
+      </div>
+      <div class="small-2 medium-1 columns">
+        <input type="number" id="dbdetails_selId" value="28" />
+      </div>
+    </div>
+    <!-- Fieldset of the information the user can edit -->
+    <div id="dbdetails_editable">
+      <form>
+        <fieldset>
+          <legend>Result: <span id="dbdetails_resid"></span></legend>
+          <div class='row large-16 medium-16 small-16'>
+            <!-- General information that can not be changed -->
+            <div id="dbdetails_rdonly" class='large-7 medium-7 small-7 columns'></div>
+            <div class='large-9 medium-9 small-9 columns'>
+              <!-- Notes -->
+              <div class="row">
+                <label>$labels.getString("dbase.details.notes"):
+                  <textarea id="dbase_details_notes"  spellcheck="false" placeholder="Notes on this entry" rows="5"></textarea>
+                </label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <!-- Features -->
+        <fieldset>
+          <legend>Features</legend>
+          <!-- Dynamically adaptable place for features -->
+          <div id="dbdetails_feats">
+          </div>
+        </fieldset>
+      </form>
+    </div>
   </div>
 

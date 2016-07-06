@@ -38,7 +38,8 @@
   </dl>
 </div>
 
-<div class="row tabs-content" id="dbase_main">
+<!-- <div class="row tabs-content" id="dbase_main"> -->
+<div class="large-16 medium-16 small-16 row tabs-content" id="dbase_main">
   #set($explore_active = "")
   #set($edit_active = "")
   #set($listv_active = "")
