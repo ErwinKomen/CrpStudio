@@ -176,6 +176,7 @@ var crpstudio = (function ($, crpstudio) {
             case "dbase_details":
               // Show the details tab-page
               $("#dbase_details").show();
+              $(document).foundation('reflow');
               break;
             default:
               break;
