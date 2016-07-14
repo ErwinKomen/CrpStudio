@@ -3388,7 +3388,7 @@ var crpstudio = (function ($, crpstudio) {
         private_methods.histAdd("dbfeat", iDbFeatId, currentPrj, "FtNum", iFtSwap.toString());
         private_methods.histAdd("dbfeat", iDbFeatSwapId, currentPrj, "FtNum", iFtNum.toString());
         // Make sure the list is being re-drawn
-        crpstudio.list.itemListShow("dbfeat", iDbFeatId);
+        crpstudio.list.itemListShow("dbfeat", iDbFeatId, oCondition);
       },
 
       /**
@@ -3591,7 +3591,14 @@ var crpstudio = (function ($, crpstudio) {
         var oDescr = crpstudio.list.getItemDescr(oItem.type);
         if (oItem.key === oDescr.listfield) {
           // Make sure the list is re-drawn
-          crpstudio.list.itemListShow(oItem.type, iItemId);
+          switch(oItem.type) {
+            case "dbfeat":
+              crpstudio.list.itemListShow(oItem.type, iItemId, {"QCid": iNewValue.toString()});
+              break;
+            default:
+              crpstudio.list.itemListShow(oItem.type, iItemId);
+              break;
+          }
         }
         // Special follow-up matters after some items have changed
         switch (oItem.type) {
@@ -3616,7 +3623,7 @@ var crpstudio = (function ($, crpstudio) {
                 // Perform re-numbering of the dbfeat list
                 private_methods.dbfRenumber(-1);
                 // Show the list again
-                crpstudio.list.itemListShow("dbfeat", iItemId);
+                crpstudio.list.itemListShow("dbfeat", iItemId, {"QCid": iNewValue.toString()});
                 break;
             }
             break;
