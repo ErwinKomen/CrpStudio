@@ -176,7 +176,7 @@ var crpstudio = (function ($, crpstudio) {
             case "dbase_details":
               // Show the details tab-page
               $("#dbase_details").show();
-              $(document).foundation('reflow');
+              $(document).foundation('slider', 'reflow');
               break;
             default:
               break;
@@ -1107,7 +1107,7 @@ var crpstudio = (function ($, crpstudio) {
               // Initialise itemmain
               var sItemMain = "";
               // Preparations for all the sending...
-              var sUrl = config.baseUrl + "dbupload";
+              var sUrl = crpstudio.config.baseUrl + "dbupload";
               // Calculate the parameters and put them into a string
               var oArgs = loc_uploadArgs;
               var params = "";

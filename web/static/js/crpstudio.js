@@ -137,7 +137,7 @@ var crpstudio = (function ($, crpstudio) {
       getCrpStudioData : function(sCommand, sData, callback, target) {
         // Create search UgetCrpStudioData:RL
         // var urlSearch = baseUrl + sCommand + "/";
-        var urlSearch = config.baseUrl + sCommand ;
+        var urlSearch = crpstudio.config.baseUrl + sCommand ;
         // Send the query /crpstudio for processing
         $.ajax({
           type: 'POST',
@@ -175,7 +175,7 @@ var crpstudio = (function ($, crpstudio) {
        * 22/jun/2015 ERK Copied from WhiteLab
        */
       postRequest : function(type, params, callback, target, update) {
-        var xhr = private_methods.createRequest('POST', config.crppUrl+type);
+        var xhr = private_methods.createRequest('POST', crpstudio.config.crppUrl+type);
         if (!xhr) {
           return;
         }
