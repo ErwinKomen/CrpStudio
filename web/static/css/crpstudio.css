@@ -1491,7 +1491,8 @@ div.hitscroll {
 
 .side-nav li a:not(.button) {
   color: darkblue;
-  background: whitesmoke !important; }
+  background: whitesmoke !important;
+  padding: 0rem; }
 
 .side-nav li a:not(.button):hover {
   color: white;

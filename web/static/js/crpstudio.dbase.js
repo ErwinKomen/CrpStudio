@@ -723,7 +723,6 @@ var crpstudio = (function ($, crpstudio) {
           // Create an id for this result
           var sId = "dbase_list_"+oResult.ResId;
           // Add the results from this row
-          // arHtml.push("<tr class='concordance' onclick='crpstudio.dbase.showListItem(\"#"+sId+"\", "+ i + ")'>");
           arHtml.push("<tr class='concordance' >");
           for (var j=0;j<arColumns.length;j++) {
             var sValue = "";
@@ -732,9 +731,6 @@ var crpstudio = (function ($, crpstudio) {
               if (sColName.startsWith("ft:")) {
                 // Get the number of the features column
                 var arCol = sColName.split(":");
-                //  OLD: sValue = oResult.Features[parseInt(arCol[1],10)];
-                // sValue = oResult["ft_"+arCol[2]];
-                // sValue = oResult.Features["ft_"+arCol[2]];
                 sValue = oResult.Features[arCol[1]]["ft_"+arCol[2]];
               } else if (j===0) {
                 // The first item is the ResId, and it should receive a link
@@ -834,20 +830,22 @@ var crpstudio = (function ($, crpstudio) {
           $("#"+sFtId).val(arFeats[j][sFeatName]);
         }
         // Add the range slider
-        /*
         arHtml = [];
         arHtml.push("<!-- (3) Center-aligned page-chooser and \"GO\" button -->");
-        arHtml.push("<div class=\"small-10 medium-11 centered columns\">");
-        arHtml.push("  <div class=\"range-slider\" data-slider data-options=\"display_selector: #dbdetails_resid;\">");
+        arHtml.push("<div class=\"small-10 medium-11 columns\">");
+        arHtml.push("  <div id=\"dbdetails_range\" class=\"range-slider\" data-slider data-options=\"start:"+
+                arResults[0].ResId+
+                "; end:"+arResults[arResults.length-1].ResId+
+                "; initial:"+iResId+
+                "; display_selector: #dbdetails_resid;\">");
         arHtml.push("    <span class=\"range-slider-handle\" role=\"slider\" tabindex=\"0\"></span>");
         arHtml.push("    <span class=\"range-slider-active-segment\"></span>");
         arHtml.push("  </div>");
         arHtml.push("</div>");
-        arHtml.push("<div class=\"small-2 medium-1 columns\">");
-        arHtml.push("  <input type=\"number\" id=\"dbdetails_resid\" value=\"28\" />");
+        arHtml.push("<div class=\"small-2 medium-1 left columns\">");
+        arHtml.push("  <input type=\"number\" id=\"dbdetails_resid\" value=\""+iResId+"\" />");
         arHtml.push("</div>");
         $("#dbdetails_select").html(arHtml.join("\n"));
-        */
         $(document).foundation('slider', 'reflow');
         
         // Reset the status

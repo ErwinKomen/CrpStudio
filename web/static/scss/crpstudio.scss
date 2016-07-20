@@ -1807,7 +1807,8 @@ div.hitscroll {
 
 .side-nav li a:not(.button) {
     color: darkblue;
-    background: whitesmoke !important;   
+    background: whitesmoke !important;  
+    padding: 0rem;
 }
 
 .side-nav li a:not(.button):hover {
@@ -2039,6 +2040,7 @@ textarea, .CodeMirror {
   color: green;
 }
 */
+
 .range-slider {
     border: 1px solid #DDDDDD;
     margin: 1.11111rem 0;

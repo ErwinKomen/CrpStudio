@@ -27,8 +27,8 @@
     <title>$!t</title>
     <link rel="icon" type="image/png" href="./static/img/favicon.png">
     <link rel="apple-touch-icon" href="./static/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="./static/css/foundation.min.css" type='text/css' />
-    <!-- <link rel="stylesheet" href="./static/css/foundation.css" type='text/css' /> -->
+    <link rel="stylesheet" href="./static/css/foundation.css" type='text/css' /> <!-- -->
+    <link rel="stylesheet" href="./static/css/foundation.min.css" type='text/css' /> <!-- -->
     <link rel="stylesheet" href="./static/css/foundation-datepicker.min.css" type='text/css' />
     <link rel="stylesheet" href="./static/css/crpstudio.css" type='text/css' />
     <link rel="stylesheet" href="./static/css/introjs.css" type='text/css' />
