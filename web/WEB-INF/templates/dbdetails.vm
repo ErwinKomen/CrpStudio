@@ -5,13 +5,6 @@
 #set( $result_of = $labels.getString("result.of") )
 #set( $result_go = $labels.getString("result.go") )
 #set( $view = 'detail' )
-<!-- 
-<div id="range1" class="range-slider" data-slider>
-  <span class="range-slider-handle" role="slider" tabindex="0"></span>
-  <span class="range-slider-active-segment"></span>
-  <input type="hidden">
-</div>
--->
 
   <div id="dbdetails" class="large-16 medium-16 small-16 dbresult-pane tab-pane lightbg haspadding">
     <div id="dbdetails_status" class="row">
@@ -22,23 +15,12 @@
     <!-- Provide options to go to one particular result -->
     <div id="dbdetails_select" class="large-16 medium-16 small-16 row">
       <!-- (3) Center-aligned page-chooser and "GO" button -->
-<!--
-      <div class="small-10 medium-11 columns">
-        <div id="dbdetails_range" class="range-slider" data-slider data-options="start:1; end:100; initial:28; display_selector: #dbdetails_selId;">
-          <span class="range-slider-handle" role="slider" tabindex="0"></span>
-          <span class="range-slider-active-segment" ></span>
-        </div>
-      </div>
-      <div class="small-2 medium-1 left columns">
-        <input type="number" id="dbdetails_selId" value="28" />
-      </div>
--->
     </div>
     <!-- Fieldset of the information the user can edit -->
     <div id="dbdetails_editable">
       <form>
         <fieldset>
-          <legend>Result: <span id="dbdetails_resid"></span></legend>
+          <legend>Result: <span id="dbdetails_currentid"></span></legend>
           <div class='row large-16 medium-16 small-16'>
             <!-- General information that can not be changed -->
             <div id="dbdetails_rdonly" class='large-7 medium-7 small-7 columns'></div>

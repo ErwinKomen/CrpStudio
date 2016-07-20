@@ -24,6 +24,7 @@ var crpstudio = (function ($, crpstudio) {
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
         loc_uploadText = "",    // Text of file that is being uploaded
+        loc_detailTimer = 200,  // Timer for details view
         loc_oResults = null,    // Object containing the last details for a database list-view
         loc_uploadInfo = null,  // DbUpload information
         loc_xhrUpload = null,   // Upload XmlhttpRequest object
@@ -796,8 +797,20 @@ var crpstudio = (function ($, crpstudio) {
         var oContent = loc_oResults;
         var arResults = oContent.results;
         var arColumns = oContent.columns;
+        var oResult = null;
         // Fetch the correct result
-        var oResult = arResults[iRow];
+        if (iRow === undefined || iRow < 0) {
+          //Look for the correct row
+          for (var i=0;i<arResults.length;i++) {
+            if (arResults[i].ResId === iResId) {
+              iRow = i; oResult = arResults[iRow]; break;
+            }
+          }
+          // Sanity check: if nothing has been found, we still need to leave!
+          if (iRow<0) return;
+        } else {
+          oResult = arResults[iRow];
+        }
         // Create table with key/value for features
         var arHtml = [];
         arHtml.push("<table>");
@@ -807,7 +820,7 @@ var crpstudio = (function ($, crpstudio) {
         arHtml.push("<tr><td>Category:</td><td>"+oResult["Cat"]+"</td></tr>");
         arHtml.push("</table>");
         $("#dbdetails_rdonly").html(arHtml.join("\n"));
-        $("#dbdetails_resid").text(iResId);
+        $("#dbdetails_currentid").html(iResId.toString());
         
         // Collect the features
         arHtml = [];
@@ -847,9 +860,25 @@ var crpstudio = (function ($, crpstudio) {
         arHtml.push("</div>");
         $("#dbdetails_select").html(arHtml.join("\n"));
         $(document).foundation('slider', 'reflow');
-        
+        // Make sure changes in the value get caught
+        $('#dbdetails_range').on('change.fndtn.slider', crpstudio.dbase.change_slider);
         // Reset the status
         $("#dbdetails_status").addClass("hidden");
+      },
+      
+      /**
+       * change_slider -- process changes in the slider
+       * 
+       * @returns {undefined}
+       */
+      change_slider : function() {
+        // Get the value of the slider
+        var sResId = $('#dbdetails_range').attr('data-slider');
+        var iResId = parseInt(sResId, 10);
+        // Send a request to retrieve the required data
+        clearTimeout(loc_detailTimer);
+        loc_detailTimer = setTimeout(function() {crpstudio.dbase.detailview(iResId, -1);}, interval);
+        
       },
       
      /**

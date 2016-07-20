@@ -571,6 +571,12 @@ input.small-loadlist {
     border-left: 1px solid #000;
     border-right: 1px solid #000;  
 } */
+/* Get the login-screen non-stretched */
+#login_form .tabs-content > .content.active {
+  float: left;
+  padding: 0.5em 0;
+  width: auto; }
+
 dl.accordion {
   margin-bottom: 100px; }
 
@@ -1695,18 +1701,7 @@ textarea, .CodeMirror {
   background-color: lightblue;
   font-weight: bold; }
 
-/*
-.range-slider {
-  height: 25px;
-  color: red;
-  background: #008cba;
-}
-.range-slider-handle {
-  height: 20px;
-  width: 5px;
-  color: green;
-}
-*/
+/* range-slider-bar */
 .range-slider {
   border: 1px solid #DDDDDD;
   margin: 1.11111rem 0;
@@ -1714,10 +1709,20 @@ textarea, .CodeMirror {
   display: block;
   height: 0.88889rem;
   width: 100%;
+  background: #FAFAFA;
   -ms-touch-action: none;
-  touch-action: none;
-  background: #FAFAFA; }
+  touch-action: none; }
 
+/* active segment of range-slider */
+.range-slider-active-segment {
+  background: #e5e5e5;
+  border-bottom-left-radius: inherit;
+  border-top-left-radius: inherit;
+  display: inline-block;
+  height: 0.77778rem;
+  position: absolute; }
+
+/* range-slider-handle */
 .range-slider-handle:hover {
   background: #007ba4; }
 
@@ -1730,16 +1735,46 @@ textarea, .CodeMirror {
   top: -0.27778rem;
   width: 1.77778rem;
   z-index: 1;
+  background: #008CBA;
   -ms-touch-action: manipulation;
-  touch-action: manipulation;
-  background: #008CBA; }
+  touch-action: manipulation; }
 
+/*
+.range-slider {
+    border: 1px solid #DDDDDD;
+    margin: 1.11111rem 0;
+    position: relative;
+    display: block;
+    height: 0.88889rem;
+    width: 100%;
+    -ms-touch-action: none;
+    touch-action: none;
+    background: #FAFAFA;
+}
+.range-slider-handle:hover {
+    background: #007ba4;
+}
+.range-slider-handle {
+    border: 1px solid none;
+    cursor: pointer;
+    display: inline-block;
+    height: 1.22222rem;
+    position: absolute;
+    top: -0.27778rem;
+    width: 1.77778rem;
+    z-index: 1;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    background: #008CBA;
+}
 .range-slider-active-segment {
-  background: #e5e5e5;
-  border-bottom-left-radius: inherit;
-  border-top-left-radius: inherit;
-  display: inline-block;
-  height: 0.77778rem;
-  position: absolute; }
+    background: #e5e5e5;
+    border-bottom-left-radius: inherit;
+    border-top-left-radius: inherit;
+    display: inline-block;
+    height: 0.77778rem;
+    position: absolute;
+}
+*/
 
 /*# sourceMappingURL=crpstudio.css.map */
