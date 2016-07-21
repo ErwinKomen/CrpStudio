@@ -425,14 +425,16 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       showListItem : function(element, idx, update) {
+        var target = $("#"+element);
         // Check whether we need to show or hide
-        if ($(element).hasClass("hidden") || (update)) {
+        if ($(target).hasClass("hidden") || (update)) {
           // Tell user to please wait until information is ready
-          var sExmpId = element.substring(1) + "_ex";
+          // var sExmpId = element.substring(1) + "_ex";
+          // var sExmpId = element;
           // Remove waiting notification in project description
-          $("#"+sExmpId).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Please wait while the text is fetched...");
+          $(target).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Please wait while the text is fetched...");
           // Make sure the <div> is now being shown
-          $(element).removeClass("hidden");
+          $(target).removeClass("hidden");
           // Now try to fetch the text
           // (1) Get the entry from [arResults]
           var oContent = loc_oResults;
@@ -451,10 +453,10 @@ var crpstudio = (function ($, crpstudio) {
           var params = JSON.stringify(oQuery);
           crpstudio.main.getCrpStudioData("update", 
                              params,
-                             crpstudio.dbase.processOneHit, sExmpId);   
+                             crpstudio.dbase.processOneHit, element);   
         } else {
           // Hide the details
-          $(element).addClass("hidden");
+          $(target).addClass("hidden");
         }
         
       },
@@ -864,6 +866,8 @@ var crpstudio = (function ($, crpstudio) {
         $('#dbdetails_range').on('change.fndtn.slider', crpstudio.dbase.change_slider);
         // Reset the status
         $("#dbdetails_status").addClass("hidden");
+        // Fetch the text
+        crpstudio.dbase.showListItem("dbdetails_text", iRow, true);
       },
       
       /**

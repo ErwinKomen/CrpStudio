@@ -31,6 +31,9 @@
                   <textarea id="dbase_details_notes"  spellcheck="false" placeholder="Notes on this entry" rows="5"></textarea>
                 </label>
               </div>
+              <div id="dbdetails_text" class="row hidden">
+                <!-- Programmatically determined text of the currently selected item -->
+              </div>
             </div>
           </div>
         </fieldset>
