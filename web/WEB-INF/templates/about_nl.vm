@@ -24,7 +24,7 @@
  
 		<p>
       De handleiding van de CorpusStudio <b>webapplicatie</b>: <a href="$helpManualPdf" target="_blank">pdf</a>.
-      <br />De Engelstalige <b>API</b>: <a href="http://corpus-studio-web.cttnww-meertens.vm.surfsara.nl/export/CrpStudioWeb-API.pdf" target="_blank">pdf</a>.
+      <br />De Engelstalige <b>API</b>: <a href="http://corpus-studio-web.cttnww-meertens.surf-hosted.nl/export/CrpStudioWeb-API.pdf" target="_blank">pdf</a>.
       <br />De Engelstalige handleiding van het CorpusStudio programma (Windows): <a href="$aboutKomenWin" target="_blank">pdf</a>.
       <br />Sommige edities van de CorpusStudio webapplicatie bevatten een deel van het SoNaR corpus.
       De Engelstalige handleiding van dit corpus: <a href="$aboutSonarManual" target="_blank">pdf</a>.</p>
