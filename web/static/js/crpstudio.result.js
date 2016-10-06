@@ -269,6 +269,7 @@ var crpstudio = (function ($, crpstudio) {
           switch (iView) {
             case 1:
             case 2:
+            case 5:
               // Validate: if no QC line is selected, return the WHOLE table
               if (idxQc < 0) {
                 oBack = arTable;
@@ -316,6 +317,9 @@ var crpstudio = (function ($, crpstudio) {
                         "table": loc_oGrouping };
               break;
           }
+          
+          // Clean the file name showing
+          $("#results_export_file_"+iView).html("<i>(working on view "+iView+"...)</i>");
 
 
           // Pack what we have into a string
