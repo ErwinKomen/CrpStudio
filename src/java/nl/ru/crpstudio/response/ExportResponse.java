@@ -49,13 +49,13 @@ public class ExportResponse extends BaseResponse {
       switch (servlet.getRequestMethod()) {
         case "GET":
           // Make a filename for the file to be exported (tab-separated)
-          fileName = project + "-" + new BigInteger(130, random).toString(32)+"-v"+sView + ".txt";
+          fileName = project + "-" + new BigInteger(130, random).toString(32)+"-view"+sView + ".txt";
           // Save the string into a file that is returned as attachment to the user
           sendFileResponse(result, fileName);
           // NOTE: if GET sends a file, then the "view" must be derived from the filename
           break;
         case "POST":
-          fileName = "/" + servlet.getUserId() +"/"+project+"-v"+sView+"-export.txt" ;
+          fileName = "/" + servlet.getUserId() +"/"+project+"-view"+sView+"_export.txt" ;
           // Save the string into a file locally, and return the URL to the user
           sendFileLocResponse(result, fileName, sView);
           break;

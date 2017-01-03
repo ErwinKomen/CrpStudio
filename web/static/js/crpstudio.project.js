@@ -1996,6 +1996,8 @@ var crpstudio = (function ($, crpstudio) {
               // Make sure correct project-tab is selected
               crpstudio.project.setProjectTab("result");
               $("#result_link").removeClass("hide");
+              // Hide the export stuff
+              $("#results_export_5").addClass("hidden");
               // $("#result_link").addClass("active");
               // Fill the groupings combobox
               crpstudio.result.fillGroupings();
