@@ -85,7 +85,7 @@ public class UpdateResponse extends BaseResponse {
       //      qc:     The Query Constructor line for which we want information
       //      start:  Results should start with @start
       //      count:  The total number of results to be returned
-      //      type:   The kind of info (hits, context, syntax -- or combination)
+      //      type:   The kind of info (hits, context, syntax, svg -- or combination)
       //   Optional parameters:   
       //      dir:    Directory under the "lng" where the corpus we want to consult resides
       //      sub:    Name of the sub category for which we want results

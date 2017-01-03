@@ -807,6 +807,9 @@ public abstract class BaseResponse {
           //      all:  JSON object with syntax of the whole clause
           //      hit:  JSON object with syntax of the "hit" constituent
           //      NOTE: an example of 'all' + 'hit' is given at the bottom of this page
+          //    type="svg"
+          //      all:  SVG object with syntax of the whole clause
+          //      hit:  SVG object with syntax of the "hit" constituent
           if (oResp.has("content")) {
             arContent = oResp.getJSONArray("content");
             output.put("content", arContent);

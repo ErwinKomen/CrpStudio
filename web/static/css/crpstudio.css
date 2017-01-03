@@ -1389,7 +1389,8 @@ table tr > td {
   /* background-color: white !important;*/
   color: black !important;
   font-family: Courier New;
-  font-size: 12px; }
+  font-size: 12px;
+  margin-top: 2px; }
 
 .one-example-filename {
   color: darkslategrey !important; }

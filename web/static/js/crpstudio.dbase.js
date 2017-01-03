@@ -446,7 +446,7 @@ var crpstudio = (function ($, crpstudio) {
           var oQuery = { "qc": iQC, "sub": "", "view": 1,
               "userid": crpstudio.currentUser, "prj": oContent.nameprj, 
               "lng": oContent.lng, "dir": oContent.dir, 
-              "type": "context_syntax", "start": -1, 
+              "type": "context_syntax_svg", "start": -1, 
               "locs": oResult.Locs, "locw": oResult.Locw,
               "count": 1, "files": [ oResult.File ]};
 

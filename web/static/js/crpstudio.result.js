@@ -98,7 +98,7 @@ var crpstudio = (function ($, crpstudio) {
         // Set "fetching" indicator
         $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Fetching data...");
         // Get the data for this combination of QC/Subcat/View
-        var sType = "context_syntax";
+        var sType = "context_syntax_svg";
         // Set the amount we are requesting
         var iRequesting = (loc_numPerPage<0) ? loc_numResults : loc_numPerPage;
         // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
@@ -530,7 +530,7 @@ var crpstudio = (function ($, crpstudio) {
           // Remove waiting notification in project description
           $("#result_status_"+iView).html("<img class=\"icon spinner\" src=\"./static/img/spinner.gif\"> Fetching data...");
           // Get the data for this combination of QC/Subcat/View
-          var sType = "context_syntax";
+          var sType = "context_syntax_svg";
           // Set the amount we are requesting
           var iRequesting = (loc_numPerPage<0) ? loc_numResults : loc_numPerPage;
           // NOTE: make sure the "prj", "lng" and "dir" parameters are passed on
@@ -606,7 +606,9 @@ var crpstudio = (function ($, crpstudio) {
                 }
                 // Add preceding context
                 html.push(oRow.preC);
-                html.push("<span class=\"one-example-hit\">"+oRow.hitC+" </span>");
+                // Add the hit itself and the possibility to push for visualization
+                var sVisualize = "crpstudio.result.showOneHit";
+                html.push("<span class=\"one-example-hit\" onclick=\""+sVisualize+"\">"+oRow.hitC+" </span>");
                 // Close "one-example-context"
                 html.push(oRow.folC+"</div>");
                 // Get the syntax result
