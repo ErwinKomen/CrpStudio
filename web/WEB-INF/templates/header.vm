@@ -64,6 +64,7 @@
     <script type="text/javascript" src="./static/js/crpstudio.list.js"></script>
     <script type="text/javascript" src="./static/js/crpstudio.js"></script>
     <script type="text/javascript" src="./static/js/crpstudio.corpora.js"></script>
+    <script type="text/javascript" src="./static/js/crpstudio.tree.js"></script>
     <script type="text/javascript" src="./static/js/crpstudio.dbase.js"></script>
     <script type="text/javascript" src="./static/js/crpstudio.project.js"></script>
     <script type="text/javascript" src="./static/js/crpstudio.input.js"></script>

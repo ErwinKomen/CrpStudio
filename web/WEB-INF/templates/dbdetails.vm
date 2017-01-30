@@ -31,9 +31,21 @@
                   <textarea id="dbase_details_notes"  spellcheck="false" placeholder="Notes on this entry" rows="5"></textarea>
                 </label>
               </div>
-              <div id="dbdetails_text" class="row hidden">
-                <!-- Programmatically determined text of the currently selected item -->
-              </div>
+            </div>
+          </div>
+          <div class='row large-16 medium-16 small-16'>
+            <div id="dbdetails_text" class="row hidden">
+              <!-- Programmatically determined text of the currently selected item -->
+            </div>
+            <!-- Room for the graphics to be displayed when user wants to -->
+            <div id="dbdetails_svg" class="row">
+              <dl class="sub-nav">
+                <dt>Show the tree of:</dt>
+                <dd><a onclick="crpstudio.dbase.showDetailSvg(this, 'all')">Sentence</a></dd>
+                <dd><a onclick="crpstudio.dbase.showDetailSvg(this, 'hit')">Hit</a></dd>
+              </dl>
+              <div id="dbdetails_svg_all" class="row hidden"></div>
+              <div id="dbdetails_svg_hit" class="row hidden"></div>
             </div>
           </div>
         </fieldset>

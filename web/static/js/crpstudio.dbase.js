@@ -75,6 +75,18 @@ var crpstudio = (function ($, crpstudio) {
         $("#result_numpages_"+iView).prev().val(1);
       },
       /**
+       * getSvg
+       *    Given graphics information, return a HTML representation 
+       *    of this graphics
+       *    
+       * @param {type} sGraphics
+       * @returns {undefined}
+       */
+      getSvg : function(sGraphics) {
+        // This already is the graphics *(SVG)
+        return sGraphics;
+      },
+      /**
        * getSyntax
        *    Given a syntax object, construct an HTML syntax representation
        *    
@@ -460,7 +472,49 @@ var crpstudio = (function ($, crpstudio) {
         }
         
       },
-      
+      showDetailSvg : function(el, sSection) {
+        // Get the <dd> parent of me
+        var parentDD = $(el).parent();
+        var bActive = $(parentDD).hasClass('active');
+        var tree = null;
+        // Initially remove all activateions
+        $(parentDD).parent().find("dd").removeClass("active");
+        switch(sSection) {
+          case "all":
+            // Action depends on the state we are in
+            if (bActive) {
+              // Hide the graphics
+              $("#dbdetails_svg_all").addClass("hidden");
+              $("#dbdetails_svg_hit").addClass("hidden");
+            } else {
+              // Show the 'all' graphics
+              $("#dbdetails_svg_all").removeClass("hidden");
+              $("#dbdetails_svg_hit").addClass("hidden");
+              tree = $("#dbdetails_svg_all");
+              // Make the button active
+              $(parentDD).addClass('active');
+            }
+            break;
+          case "hit":
+            // Action depends on the state we are in
+            if (bActive) {
+              // Hide the graphics
+              $("#dbdetails_svg_all").addClass("hidden");
+              $("#dbdetails_svg_hit").addClass("hidden");
+            } else {
+              // Show the 'hit' graphics
+              $("#dbdetails_svg_hit").removeClass("hidden");
+              $("#dbdetails_svg_all").addClass("hidden");
+              tree = $("#dbdetails_svg_hit");
+              // Make the button active
+              $(parentDD).addClass('active');
+            }
+            break;
+        }
+        if (tree !== null) {
+          crpstudio.tree.drawTree(tree);
+        }
+      },
       /**
        * processOneHit
        *    Process the information requested with an /update request
@@ -508,6 +562,13 @@ var crpstudio = (function ($, crpstudio) {
                 // Get the syntax result
                 var sSyntax = private_methods.getSyntax(oRow.hitS);
                 html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
+                // Get the Graphics results
+                var sGraphicsAll = private_methods.getSvg(oRow.allG);
+                var sGraphicsHit = private_methods.getSvg(oRow.hitG);
+                $("#dbdetails_svg_all").html(sGraphicsAll);
+                $("#dbdetails_svg_hit").html(sGraphicsHit);
+                // html.push("<div class=\"one-example-graphics-all\">" + sGraphicsAll + "</div>");
+                // html.push("<div class=\"one-example-graphics-hit\">" + sGraphicsHit + "</div>");
                 // Is there any 'msg' result?
                 if (oRow.msg) {
                   // Adapt the message
@@ -1818,7 +1879,7 @@ var crpstudio = (function ($, crpstudio) {
         }
       }
         
-    }
+    };
   }($, crpstudio.config));
   
   return crpstudio;
