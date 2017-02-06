@@ -13,6 +13,7 @@ var crpstudio = (function ($, crpstudio) {
     var marginLeft = 10,      // Margin of whole figure
         wordSpacing = 12,     // Space between nodes
         branchHeight = 70,    // Height between branches
+        shadowDepth = 3,      // How thick the shadow is
         graphAbstract = {},   // Representation of the total
         width = 1025,         // Initial canvas width
         height = 631,         // Initial canvas height
@@ -337,6 +338,8 @@ var crpstudio = (function ($, crpstudio) {
         var returned = 0;
         var thisX = 0;
         var thisY = 0;
+        var parWidth = 0;
+        var shiftAdd = 0;
         
         // Fit node around text and get its width/height
         var containerNode = private_methods.fitRectangle(el);
@@ -368,10 +371,25 @@ var crpstudio = (function ($, crpstudio) {
           }
         });
         
-        // Rectify zero
+        // Terminal nodes: Rectify zero
         if (childrenWidth === 0) {
+          shiftAdd = 0;
+          // Terminal nodes: calculate [shiftAdd] if parent is wider
+          if ($(el).parent().is(".lithium-tree")) {
+            // Find out what the width of the <g> 'lithium-tree' parent is
+            parWidth = parseInt($(el).parent().attr("width"), 10);
+            // Compare this width with 'my' original container width
+            if (parWidth >= childrenWidth ) {
+              shiftAdd = parWidth - containerNode['width'] + shadowDepth;
+            }
+          }
           // Terminal nodes need to have 'wordSpacing' added for beauty...
-          childrenWidth = containerNode['width'] + wordSpacing;
+          childrenWidth = containerNode['width'] + wordSpacing; //  + shiftAdd;
+        }
+        
+        // Rectify large containers
+        if (containerNode['width'] > childrenWidth) {
+          childrenWidth = containerNode['width'] + shadowDepth;
         }
         
         // ========== Positioning ===============
@@ -387,7 +405,7 @@ var crpstudio = (function ($, crpstudio) {
           if (iChildNodes === 1) {
             // There is only one child
             // get this child
-            thisX = firstLoc['x'] + Math.ceil((firstLoc['width'] - containerNode['width'])/2);
+            thisX = firstLoc['x'] + Math.ceil((firstLoc['width'] - containerNode['width'])/2) + shiftAdd;
           } else {
             var firstCenter = firstLoc['x'] + Math.ceil(firstLoc['width']/2);
             var last = $(el).children(".lithium-tree").last();
@@ -395,12 +413,14 @@ var crpstudio = (function ($, crpstudio) {
             var lastCenter = lastLoc['x'] + Math.ceil(lastLoc['width']/2);
             thisX = Math.max(firstCenter,
               firstCenter + Math.ceil((lastCenter - firstCenter - containerNode['width'])/2));
-            thisX -= Math.ceil(firstLoc['width']/2);
+            // NOTE: the following is not good; it causes the connection not to center.
+            // thisX -= Math.ceil(firstLoc['width']/2);
+            thisX += shiftAdd;
           }
         } else {
-          thisX = shiftLeft;
+          thisX = shiftLeft + shiftAdd;
         }
-        
+
         // Set the new position of the container node
         containerNode['x'] = thisX;
         containerNode['y'] = thisY;
