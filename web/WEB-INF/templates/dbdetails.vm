@@ -46,6 +46,8 @@
               </dl>
               <div id="dbdetails_svg_all" class="row hidden"></div>
               <div id="dbdetails_svg_hit" class="row hidden"></div>
+              <div id="dbdetails_svg_dummy" class="row hidden"></div>
+              <div id="ruler" style="visibility:hidden; white-space:nowrap;"><svg><text id="svgtext"></text></svg></div>
             </div>
           </div>
         </fieldset>

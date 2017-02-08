@@ -374,7 +374,7 @@ var crpstudio = (function ($, crpstudio) {
             returned = private_methods.verticalDrawTree(
                     this,
                     shiftLeft + childrenWidth,
-                    shiftTop + verticalDelta );                    
+                    shiftTop + verticalDelta);                    
             // Add the returned value
             childrenWidth += returned;
           }
@@ -468,13 +468,23 @@ var crpstudio = (function ($, crpstudio) {
        */
       fitRectangle : function(el) {
         var oRect = {};
+        var textWidth =0;
         // Validate
         if (el === undefined) return oRect;
         if ( $(el).is(".lithium-tree")) {
           // Get the node element
           var node = $(el).children(".lithium-node").first();
-          // Get to the text element
-          var textWidth = $(node).children("text").first().get(0).getBBox().width;
+          // Is it visible?
+          if (!private_methods.isVisible(el)) {
+            // Get to the text
+            var sText = $(node).children("text").first().text();
+            $("#svgtext").text(sText);
+            textWidth = $("#svgtext").get(0).getBBox().width;
+          } else {
+            textWidth = $(node).children("text").first().get(0).getBBox().width;
+          }
+          // var textWidth = $(node).children("text").first().get(0).getBBox().width;
+          // Continue
           textWidth += 8;
           var myHeight = 0;
           // Set the width of the box to the correct value 
@@ -540,7 +550,9 @@ var crpstudio = (function ($, crpstudio) {
       },
       
       isVisible : function(el) {
-        return ($(el).css("display") !== "none");
+        var sDisplay = $(el).css("display");
+        // && sDisplay !== "inline" && sDisplay !== ""
+        return (sDisplay !== "none" );
       },
       
       /**
@@ -612,7 +624,7 @@ var crpstudio = (function ($, crpstudio) {
        * drawTree
        *    Mimic the LithiumControl.DrawTree() method, starting at [el]
        * 
-       * @param {type} svgDiv
+       * @param {element} svgDiv
        * @returns {undefined}
        */
       drawTree : function(svgDiv) {
@@ -644,14 +656,16 @@ var crpstudio = (function ($, crpstudio) {
           // Calculate maxY
           var maxY = 0;
           $(parent).find(".lithium-tree").each(function() {
-            if (private_methods.isVisible(this) && $(this).children(".lithium-tree").length === 0) {
+            if ((private_methods.isVisible(this)) && 
+                    $(this).children(".lithium-tree").length === 0) {
               var this_y = parseInt($(this).attr("y"),10);
               if (this_y > maxY) maxY = this_y;
             }
           });
           // Move all items in the y-direction
           $(parent).find(".lithium-tree").each(function() {
-            if (private_methods.isVisible(this) && $(this).children(".lithium-tree").length === 0) {
+            if ( (private_methods.isVisible(this)) && 
+                    $(this).children(".lithium-tree").length === 0) {
               $(this).attr("y", maxY);
               // Debugging: immediately apply this location
               private_methods.applyOneLocation(this);

@@ -83,6 +83,16 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       getSvg : function(sGraphics) {
+        /*
+        var sDummyLoc = "dbdetails_svg_dummy";
+        // Set the SVG graphics in the dummy
+        $("#" + sDummyLoc).html(sGraphics);
+        var tree = $("#" + sDummyLoc);
+        // Calculate the tree better
+        crpstudio.tree.drawTree(tree);
+        // Extract the tree as html
+        sGraphics = $("#" + sDummyLoc).html();
+        */
         // This already is the graphics *(SVG)
         return sGraphics;
       },
@@ -567,6 +577,13 @@ var crpstudio = (function ($, crpstudio) {
                 var sGraphicsHit = private_methods.getSvg(oRow.hitG);
                 $("#dbdetails_svg_all").html(sGraphicsAll);
                 $("#dbdetails_svg_hit").html(sGraphicsHit);
+                // Check if either of them is visible
+                if (!$("#dbdetails_svg_all").hasClass("hidden")) {
+                  crpstudio.tree.drawTree($("#dbdetails_svg_all"));
+                }
+                if (!$("#dbdetails_svg_hit").hasClass("hidden")) {
+                  crpstudio.tree.drawTree($("#dbdetails_svg_hit"));
+                }
                 // html.push("<div class=\"one-example-graphics-all\">" + sGraphicsAll + "</div>");
                 // html.push("<div class=\"one-example-graphics-hit\">" + sGraphicsHit + "</div>");
                 // Is there any 'msg' result?
