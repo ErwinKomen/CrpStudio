@@ -83,16 +83,6 @@ var crpstudio = (function ($, crpstudio) {
        * @returns {undefined}
        */
       getSvg : function(sGraphics) {
-        /*
-        var sDummyLoc = "dbdetails_svg_dummy";
-        // Set the SVG graphics in the dummy
-        $("#" + sDummyLoc).html(sGraphics);
-        var tree = $("#" + sDummyLoc);
-        // Calculate the tree better
-        crpstudio.tree.drawTree(tree);
-        // Extract the tree as html
-        sGraphics = $("#" + sDummyLoc).html();
-        */
         // This already is the graphics *(SVG)
         return sGraphics;
       },

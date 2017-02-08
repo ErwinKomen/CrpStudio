@@ -478,8 +478,7 @@ var crpstudio = (function ($, crpstudio) {
           if (!private_methods.isVisible(el)) {
             // Get to the text
             var sText = $(node).children("text").first().text();
-            $("#svgtext").text(sText);
-            textWidth = $("#svgtext").get(0).getBBox().width;
+            textWidth = sText.length * 4;
           } else {
             textWidth = $(node).children("text").first().get(0).getBBox().width;
           }
