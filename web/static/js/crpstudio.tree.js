@@ -13,7 +13,8 @@ var crpstudio = (function ($, crpstudio) {
     var marginLeft = 10,      // Margin of whole figure
         wordSpacing = 12,     // Space between nodes
         branchHeight = 70,    // Height between branches
-        shadowDepth = 3,      // How thick the shadow is
+        shadowDepth = 5,      // How thick the shadow is
+        level = 0,            // Recursion level of vertical draw tree
         graphAbstract = {},   // Representation of the total
         width = 1025,         // Initial canvas width
         height = 631,         // Initial canvas height
@@ -37,6 +38,12 @@ var crpstudio = (function ($, crpstudio) {
                      width: parseInt($(el).attr("width"), 10),
                      height: parseInt($(el).attr("height"), 10)};
         private_methods.setLocation(el, oRect);
+      },
+      getText : function(el) {
+        // Validate
+        if (el === undefined) return "";
+        if (!$(el).is(".lithium-tree")) return "";
+        return $(el).children(".lithium-node").children("text").first().text();
       },
       /**
        * setLocation
@@ -340,6 +347,17 @@ var crpstudio = (function ($, crpstudio) {
         var thisY = 0;
         var parWidth = 0;
         var shiftAdd = 0;
+        var space = " ";
+        
+        // Adapt the recursion level
+        level+= 1;
+        
+        // Get the text of this element
+        var sElText = private_methods.getText(el);
+        
+        // =========== Debugging ========================
+        console.log(level + ":" + space.repeat(level) + sElText + " sl=" + shiftLeft);
+        // ==============================================
         
         // Fit node around text and get its width/height
         var containerNode = private_methods.fitRectangle(el);
@@ -379,13 +397,17 @@ var crpstudio = (function ($, crpstudio) {
             // Find out what the width of the <g> 'lithium-tree' parent is
             parWidth = parseInt($(el).parent().attr("width"), 10);
             // Compare this width with 'my' original container width
-            if (parWidth >= childrenWidth ) {
-              shiftAdd = parWidth - containerNode['width'] + shadowDepth;
+            if (parWidth >= childrenWidth && parWidth > containerNode['width']) {
+              shiftAdd = (parWidth - containerNode['width'])/2 + shadowDepth;
             }
           }
           // Terminal nodes need to have 'wordSpacing' added for beauty...
           childrenWidth = containerNode['width'] + wordSpacing; //  + shiftAdd;
         }
+        
+        // =========== Debugging ========================
+        console.log(level + ":" + space.repeat(level) + sElText + " cw=" + childrenWidth);
+        // ==============================================
         
         // Rectify large containers
         if (containerNode['width'] > childrenWidth) {
@@ -421,11 +443,18 @@ var crpstudio = (function ($, crpstudio) {
           thisX = shiftLeft + shiftAdd;
         }
 
+        // =========== Debugging ========================
+        console.log(level + ":" + space.repeat(level) + sElText + " thisX=" + thisX);
+        // ==============================================
+
         // Set the new position of the container node
         containerNode['x'] = thisX;
         containerNode['y'] = thisY;
         private_methods.setLocation(el, containerNode);
-        
+
+        // Adapt the recursion level
+        level-= 1;
+       
         // Return the calculated childrenwidth
         return childrenWidth;
       },
@@ -604,6 +633,7 @@ var crpstudio = (function ($, crpstudio) {
           // Set the graphabstract to the root
           graphAbstract['root'] = p;
           // Perform a re-drawing, starting from the root downwards
+          level = 0;
           private_methods.verticalDrawTree(root, marginLeft, p['y']);
           // Calculate how much must be moved
           oMove['x'] = p['x'] - parseInt($(root).attr('x'), 10);
