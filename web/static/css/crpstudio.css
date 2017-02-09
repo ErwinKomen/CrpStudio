@@ -1780,4 +1780,31 @@ textarea, .CodeMirror {
 #query_new_cns select {
   margin: 0 0 0rem; }
 
+/* Material for the LithiumController - svg pictures */
+svg {
+  background-color: smoke;
+  stroke-width: 1; }
+
+svg .lithium-conn path:hover {
+  stroke: red;
+  stroke-width: 2; }
+
+svg .lithium-node rect:hover {
+  stroke: darkred;
+  stroke-width: 2; }
+
+svg .lithium-shadow rect:hover {
+  /* no special stuff here */
+  stroke: transparent;
+  stroke-width: 1; }
+
+svg .lithium-toggle rect:hover {
+  stroke: darkred;
+  stroke-width: 1;
+  fill: yellow; }
+
+svg .lithium-node text:hover {
+  /* font-weight: bold; */
+  fill: darkgreen; }
+
 /*# sourceMappingURL=crpstudio.css.map */
