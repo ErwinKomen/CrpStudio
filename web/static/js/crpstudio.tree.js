@@ -711,10 +711,43 @@ var crpstudio = (function ($, crpstudio) {
           $(svg).attr("width", maxSize['width'].toString() + 'px');
           $(svg).attr("height", maxSize['height'].toString()  + 'px');
           
+          // Attach an event handler to all the toggles
+          $(svg).find(".lithium-toggle").on("click", crpstudio.tree.toggle());
         }
         // All went well
         return true;
+      },
+      
+      /**
+       * toggle
+       *    Behaviour when I am toggled
+       * 
+       * @returns {undefined}
+       */
+      toggle : function() {
+        var bVisible,   // VIsibility
+          elVbar,       // My own vertical bar
+          elTree;       // The tree I am in
+  
+        // Get vertical bar and my tree
+        elVbar = $(this).children(".lithium-vbar");
+        elTree = $(this).parent();
+        // Get my status
+        bVisible = private_methods.isVisible(elVbar);
+        // Action depends on visibility
+        if (bVisible) {
+          // Bar is visible: close it
+          $(elVbar).addClass("hidden");
+          // Make all children visible again
+          $(elTree).find(".lithium-tree").removeClass("hidden");
+        } else {
+          // Bar is invisible: show it
+          $(elVbar).removeClass("hidden");
+          // Make all children invisible
+          $(elTree).find(".lithium-tree").addClass("hidden");
+        }
       }
+      
     };
   }($, crpstudio.config));
   
