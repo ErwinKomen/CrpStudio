@@ -45,6 +45,20 @@ var crpstudio = (function ($, crpstudio) {
         if (!$(el).is(".lithium-tree")) return "";
         return $(el).children(".lithium-node").children("text").first().text();
       },
+      classAdd : function(el, sClass) {
+        var arClass=[], idx;
+        arClass = $(el).attr("class").split(" ");
+        idx = arClass.indexOf(sClass);
+        if (idx <0) { arClass.push(sClass);}
+        $(el).attr("class", arClass.join(" "));            
+      },
+      classRemove : function(el, sClass) {
+        var arClass=[], idx;
+        arClass = $(el).attr("class").split(" ");
+        idx = arClass.indexOf(sClass);
+        if (idx >=0) { arClass.splice(idx,1); }
+        $(el).attr("class", arClass.join(" "));
+      },
       /**
        * setLocation
        *    If this is a <g> element from 'lithium-tree', then
@@ -168,8 +182,11 @@ var crpstudio = (function ($, crpstudio) {
           // Start building up again: add the correct rect
           var sRect = private_methods.svgRect(oToggle);
           
+          // The visibility of the vertical bar depends on whether one or more children are invisible
+          var bPlus = private_methods.isVisible($(gThis).children(".lithium-tree").first());
+          
           // Create new content
-          var sLines = private_methods.crossInRect(oToggle);
+          var sLines = private_methods.crossInRect(oToggle, bPlus);
           // Add this content
           $(toggle).html(sRect + sLines);
         }
@@ -269,9 +286,10 @@ var crpstudio = (function ($, crpstudio) {
        *    Make the SVG (string) for a vertical and horizontal bar within [oRect]
        * 
        * @param {type} oRect
+       * @param {type} bPlus
        * @returns {undefined}
        */
-      crossInRect : function(oRect) {
+      crossInRect : function(oRect, bPlus) {
         var lHtml = [];
         // Horizontal line: not hidden
         lHtml.push(private_methods.svgLine(oRect['x']+1, 
@@ -285,7 +303,7 @@ var crpstudio = (function ($, crpstudio) {
             oRect['y'] + 1,
             oRect['x'] + Math.ceil(oRect['width']/2),
             oRect['y'] + oRect['height'] - 1, 
-            true));
+            bPlus));
         // Return the combination
         return lHtml.join("\n");
       },
@@ -711,7 +729,7 @@ var crpstudio = (function ($, crpstudio) {
           $(svg).attr("height", maxSize['height'].toString()  + 'px');
           
           // Attach an event handler to all the toggles
-          $(svg).find(".lithium-toggle").on("click", crpstudio.tree.toggle());
+          $(svg).find(".lithium-toggle rect").click(function() {crpstudio.tree.toggle(this);});
         }
         // All went well
         return true;
@@ -721,30 +739,41 @@ var crpstudio = (function ($, crpstudio) {
        * toggle
        *    Behaviour when I am toggled
        * 
+       * @param {element} elRect
        * @returns {undefined}
        */
-      toggle : function() {
+      toggle : function(elRect) {
         var bVisible,   // VIsibility
+          elSvg,        // The SVG root of the tree
+          elToggle,     // The .lithium-toggle element
           elVbar,       // My own vertical bar
           elTree;       // The tree I am in
   
         // Get vertical bar and my tree
-        elVbar = $(this).children(".lithium-vbar");
-        elTree = $(this).parent();
+        elToggle = $(elRect).parent();
+        elVbar = $(elToggle).children(".lithium-vbar");
+        elTree = $(elToggle).parent();
+        elSvg = $(elRect).closest("svg");
         // Get my status
         bVisible = private_methods.isVisible(elVbar);
         // Action depends on visibility
         if (bVisible) {
           // Bar is visible: close it
-          $(elVbar).addClass("hidden");
+          private_methods.classAdd(elVbar, "hidden"); 
           // Make all children visible again
-          $(elTree).find(".lithium-tree").removeClass("hidden");
+          $(elTree).find(".lithium-tree").each(function() {
+            private_methods.classRemove(this, "hidden");            
+          });
         } else {
           // Bar is invisible: show it
-          $(elVbar).removeClass("hidden");
+          private_methods.classRemove(elVbar, "hidden"); 
           // Make all children invisible
-          $(elTree).find(".lithium-tree").addClass("hidden");
+          $(elTree).find(".lithium-tree").each(function() {
+            private_methods.classAdd(this, "hidden");            
+          });
         }
+        // Now make sure the whole tree is re-drawn
+        crpstudio.tree.drawTree($(elSvg).parent());
       }
       
     };
