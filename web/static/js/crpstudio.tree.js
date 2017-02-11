@@ -14,6 +14,7 @@ var crpstudio = (function ($, crpstudio) {
         wordSpacing = 12,     // Space between nodes
         branchHeight = 70,    // Height between branches
         shadowDepth = 5,      // How thick the shadow is
+        bDebug = false,       // Debugging set or not
         level = 0,            // Recursion level of vertical draw tree
         graphAbstract = {},   // Representation of the total
         width = 1025,         // Initial canvas width
@@ -46,15 +47,21 @@ var crpstudio = (function ($, crpstudio) {
         return $(el).children(".lithium-node").children("text").first().text();
       },
       classAdd : function(el, sClass) {
-        var arClass=[], idx;
-        arClass = $(el).attr("class").split(" ");
+        var arClass=[], idx, sList;
+        sList = $(el).attr("class");
+        if (sList !== undefined && sList !== "") {
+          arClass = sList.split(" ");
+        }
         idx = arClass.indexOf(sClass);
         if (idx <0) { arClass.push(sClass);}
         $(el).attr("class", arClass.join(" "));            
       },
       classRemove : function(el, sClass) {
-        var arClass=[], idx;
-        arClass = $(el).attr("class").split(" ");
+        var arClass=[], idx, sList;
+        sList = $(el).attr("class");
+        if (sList !== undefined && sList !== "") {
+          arClass = sList.split(" ");
+        }
         idx = arClass.indexOf(sClass);
         if (idx >=0) { arClass.splice(idx,1); }
         $(el).attr("class", arClass.join(" "));
@@ -374,7 +381,7 @@ var crpstudio = (function ($, crpstudio) {
         var sElText = private_methods.getText(el);
         
         // =========== Debugging ========================
-        console.log(level + ":" + space.repeat(level) + sElText + " sl=" + shiftLeft);
+        if (bDebug) console.log(level + ":" + space.repeat(level) + sElText + " sl=" + shiftLeft);
         // ==============================================
         
         // Fit node around text and get its width/height
@@ -415,7 +422,7 @@ var crpstudio = (function ($, crpstudio) {
             // Find out what the width of the <g> 'lithium-tree' parent is
             parWidth = parseInt($(el).parent().attr("width"), 10);
             // Compare this width with 'my' original container width
-            if (parWidth >= childrenWidth && parWidth > containerNode['width']) {
+            if (parWidth >= childrenWidth && parWidth >= containerNode['width']) {
               shiftAdd = (parWidth - containerNode['width'])/2 + shadowDepth;
             }
           }
@@ -424,7 +431,7 @@ var crpstudio = (function ($, crpstudio) {
         }
         
         // =========== Debugging ========================
-        console.log(level + ":" + space.repeat(level) + sElText + " cw=" + childrenWidth);
+        if (bDebug) console.log(level + ":" + space.repeat(level) + sElText + " cw=" + childrenWidth);
         // ==============================================
         
         // Rectify large containers
@@ -462,7 +469,7 @@ var crpstudio = (function ($, crpstudio) {
         }
 
         // =========== Debugging ========================
-        console.log(level + ":" + space.repeat(level) + sElText + " thisX=" + thisX);
+        if (bDebug) console.log(level + ":" + space.repeat(level) + sElText + " thisX=" + thisX);
         // ==============================================
 
         // Set the new position of the container node
@@ -512,7 +519,7 @@ var crpstudio = (function ($, crpstudio) {
           });
           oRect['width'] = textWidth;
           oRect['height'] = myHeight;
-          oRect['expanded'] = private_methods.isVisible(el);
+          oRect['expanded'] = private_methods.getExpanded(el);
           // Set these parameters in the <g> 
           $(el).attr("width", oRect['width']);
           $(el).attr("height", oRect['height']);
@@ -570,6 +577,26 @@ var crpstudio = (function ($, crpstudio) {
         var sDisplay = $(el).css("display");
         // && sDisplay !== "inline" && sDisplay !== ""
         return (sDisplay !== "none" );
+      },
+      
+      getExpanded : function(el) {
+        // Validate
+        if (!$(el).is(".lithium-tree")) return false;
+        // Do I have the feature?
+        if ($(el).hasOwnProperty("expanded")) {
+          // Get its value
+          return $(el).attr("expanded");
+        } else {
+          // Are my children visible?
+          var oChildren = $(el).children(".lithium-tree");
+          if (oChildren.length === 0) {
+            // No children, so not expanded?
+            return false;
+          } else {
+            // REturn the invisibility of the first child
+            return private_methods.isVisible($(oChildren).first());
+          }
+        }
       },
       
       /**
@@ -729,7 +756,7 @@ var crpstudio = (function ($, crpstudio) {
           $(svg).attr("height", maxSize['height'].toString()  + 'px');
           
           // Attach an event handler to all the toggles
-          $(svg).find(".lithium-toggle rect").click(function() {crpstudio.tree.toggle(this);});
+          $(svg).find(".lithium-toggle rect, line").click(function() {crpstudio.tree.toggle(this);});
         }
         // All went well
         return true;
@@ -764,6 +791,8 @@ var crpstudio = (function ($, crpstudio) {
           $(elTree).find(".lithium-tree").each(function() {
             private_methods.classRemove(this, "hidden");            
           });
+          // Adapt [expanded] state
+          $(elTree).attr("expanded", true);
         } else {
           // Bar is invisible: show it
           private_methods.classRemove(elVbar, "hidden"); 
@@ -771,6 +800,8 @@ var crpstudio = (function ($, crpstudio) {
           $(elTree).find(".lithium-tree").each(function() {
             private_methods.classAdd(this, "hidden");            
           });
+          // Adapt [expanded] state
+          $(elTree).attr("expanded", false);
         }
         // Now make sure the whole tree is re-drawn
         crpstudio.tree.drawTree($(elSvg).parent());
