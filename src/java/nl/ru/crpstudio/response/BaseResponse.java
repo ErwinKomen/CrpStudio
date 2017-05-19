@@ -591,12 +591,12 @@ public abstract class BaseResponse {
     this.displayHtmlTemplate(this.templateMan.getTemplate("error"));
   }
 
-	/**
+  /**
    * processRequest 
    * 
-	 * Calls the completeRequest and logRequest implementations
-	 */
-	final public void processRequest() {
+   * Calls the completeRequest and logRequest implementations
+   */
+  final public void processRequest() {
     // Initialize the user id and the user okay
     this.sUserId = servlet.getUserId();
     this.bUserOkay = servlet.getUserOkay(this.sUserId);
@@ -616,15 +616,15 @@ public abstract class BaseResponse {
     }
       
     // Get the locale from the request
-		this.locale = request.getLocale();
-		// OLD: this.lang = this.request.getParameter("lang");
-		try {
-			this.servlet.log("("+this.getClass()+
-              ", user=["+sUserId+","+bUserOkay+"]"+
-              ", patt="+this.getParameter("query", "")+") Start memory usage: "+this.servlet.getCurrentMemUsage());
-		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
-			e.printStackTrace();
-		}
+    this.locale = request.getLocale();
+    // OLD: this.lang = this.request.getParameter("lang");
+    try {
+      this.servlet.log("("+this.getClass()+
+        ", user=["+sUserId+","+bUserOkay+"]"+
+        ", patt="+this.getParameter("query", "")+") Start memory usage: "+this.servlet.getCurrentMemUsage());
+    } catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
+      e.printStackTrace();
+    }
 		
     try {
       if (this.lang != null && !this.lang.equals(this.locale)) {
@@ -646,9 +646,9 @@ public abstract class BaseResponse {
       completeRequest();
     } catch (Exception ex) {
       logger.DoError("BaseResponse.processRequest error", ex);
-			ex.printStackTrace();
+      ex.printStackTrace();
     }
-	}
+  }
   
   /**
    * processQueryResponse
@@ -1168,32 +1168,32 @@ public abstract class BaseResponse {
    * 
    * @param output 
    */
-	protected void sendResponse(Map<String,Object> output) {
-		long timePassed = new Date().getTime() - this.startTime;
-		try {
-			this.servlet.log("("+this.getClass()+", patt="+this.getParameter("query", "")+") End memory usage: "+this.servlet.getCurrentMemUsage()+", execution time: "+timePassed);
-		} catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
-			e.printStackTrace();
-		}
+  protected void sendResponse(Map<String,Object> output) {
+    long timePassed = new Date().getTime() - this.startTime;
+    try {
+      this.servlet.log("("+this.getClass()+", patt="+this.getParameter("query", "")+") End memory usage: "+this.servlet.getCurrentMemUsage()+", execution time: "+timePassed);
+    } catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
+      e.printStackTrace();
+    }
     output.put("timePassed", timePassed);
-		JSONObject resp = new JSONObject();
-		try {
-			for (String key : output.keySet()) {
-				resp.put(key, output.get(key));
-			}
-			response.setHeader("Access-Control-Allow-Origin", "*");
+    JSONObject resp = new JSONObject();
+    try {
+      for (String key : output.keySet()) {
+        resp.put(key, output.get(key));
+      }
+      response.setHeader("Access-Control-Allow-Origin", "*");
       response.setHeader("Access-Control-Allow-Methods", "POST");
       response.setHeader("Access-Control-Allow-Headers", "Content-Type");
       response.setHeader("Access-Control-Max-Age", "3600");
-			response.setContentType("application/x-javascript; charset=utf-8");
-			response.getWriter().write(resp.toString());
-			response.getWriter().close();
-		} catch (JSONException | IOException e) {
-			e.printStackTrace();
-		}
-	}
+      response.setContentType("application/x-javascript; charset=utf-8");
+      response.getWriter().write(resp.toString());
+      response.getWriter().close();
+    } catch (JSONException | IOException e) {
+      e.printStackTrace();
+    }
+  }
 	
-	protected void sendCsvResponse(String csv) {
+  protected void sendCsvResponse(String csv) {
     response.setHeader("Access-Control-Allow-Methods", "GET");
     response.setHeader("Access-Control-Allow-Headers", "Content-Type");
     response.setHeader("Access-Control-Max-Age", "3600");
@@ -1201,15 +1201,15 @@ public abstract class BaseResponse {
     response.setHeader("Content-Disposition", "attachment;filename=\"file.csv\"");
 
     BufferedWriter writer;
-		try {
-			writer = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "UTF-8"));
+    try {
+      writer = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "UTF-8"));
       writer.append(csv);
       writer.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	/**
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  /**
    * sendFileLocResponse
    *    Create a file named [fileName] from the data in [contents]
    *    As soon as "outStream.close()" is issued, the user
