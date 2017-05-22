@@ -1458,6 +1458,13 @@ var crpstudio = (function ($, crpstudio) {
                 divStarted.innerHTML = sStart;
                 divFinished.innerHTML = sFinish;
               }
+              // Also show the numbers
+              var divProgressTable = $(divResProgress).find("tbody");
+              var lHtml = [];
+              lHtml.push("<tr><td>"+sStart+"</td><td>"+sFinish+"</td></tr>");
+              lHtml.push("<tr><td>"+iCount+ "/"+iTotal+"</td><td>"+iReady+ "/"+iTotal+"</td></tr>");
+              lHtml.push("<tr><td>"+iPtcStarted.toFixed(2)+" %</td><td>"+iPtcFinished.toFixed(2)+" %</td></tr>");
+              $(divProgressTable).html(lHtml.join("\n"));
             }
             break;
           case "completed":
