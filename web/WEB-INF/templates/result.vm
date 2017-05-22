@@ -17,15 +17,30 @@
       <div id="result_progress" class="large-16 medium-16 small-16 row">
         <!-- Progress indication -->
         <div class="small-8 medium-8 large-8 columns">
+
           <!-- Progress bar: indicating which files are started -->
           <div class="large-16 medium-16 small-16 row">
             <div class="large-2 medium-2 small-2 columns left">$labels.getString("result.progress.start")</div>
             <div class="progress round large-14 medium-14 small-14 columns left"><span id="agent007" class="meter" style="width: 0%"></span></div>
           </div>
+
           <!-- Progress bar: indicating which files are finished -->
           <div class="large-16 medium-16 small-16 row">
             <div class="large-2 medium-2 small-2 columns left">$labels.getString("result.progress.finish")</div>
             <div class="progress success round large-14 medium-14 small-14 columns left"><span id="agent008" class="meter" style="width: 0%"></span></div>
+          </div>
+
+          <!-- Progress: quantitative approach -->
+          <div class="large-16 medium-16 small-16 row">
+            <div class="large-offset-2 medium-offset-2 small-offset-2 large-14 medium-14 small-14 column">
+              <table>
+                <thead>
+                  <th>$labels.getString("result.progress.start")</th>
+                  <th>$labels.getString("result.progress.finish")</th>
+                <thead>
+                <tbody id="result_progress_table"></tbody>
+              </table>
+            </div>
           </div>
         </div>
         <!-- Stop execution -->
