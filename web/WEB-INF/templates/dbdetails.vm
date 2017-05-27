@@ -10,6 +10,8 @@
     <div id="dbdetails_status" class="row">
       <i>(no details available)</i>
     </div>
+    <div id="dbdetails_error" class="row errorcode"></div>
+    <div id="sentdetails_feats"></div>
     <!-- Horizontal line -->
     <div class="gradient"></div>
     <!-- Provide options to go to one particular result -->
