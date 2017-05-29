@@ -21,6 +21,8 @@ var crpstudio = (function ($, crpstudio) {
         loc_numPerPage = 0,     // Number of results selected per page
         loc_numPages = 0,
         loc_currentPage = 0,
+        loc_currentTreeAllT = null,
+        loc_currentTreeHitT = null,
         loc_currentDbase = "",  // Name of current database
         loc_recentDbase = "",   // Name of recent dbase
         loc_uploadText = "",    // Text of file that is being uploaded
@@ -458,7 +460,7 @@ var crpstudio = (function ($, crpstudio) {
           var oQuery = { "qc": iQC, "sub": "", "view": 1,
               "userid": crpstudio.currentUser, "prj": oContent.nameprj, 
               "lng": oContent.lng, "dir": oContent.dir, 
-              "type": "context_syntax_svg", "start": -1, 
+              "type": "context_syntax_svg_tree", "start": -1, 
               "locs": oResult.Locs, "locw": oResult.Locw,
               "count": 1, "files": [ oResult.File ]};
 
@@ -493,6 +495,8 @@ var crpstudio = (function ($, crpstudio) {
               tree = $("#dbdetails_svg_all");
               // Make the button active
               $(parentDD).addClass('active');
+              // Draw the tree
+              crpstudio.svg.treeToSvg("#dbdetails_svg_all", loc_currentTreeAllT,"#dbdetails_error" );
             }
             break;
           case "hit":
@@ -508,12 +512,16 @@ var crpstudio = (function ($, crpstudio) {
               tree = $("#dbdetails_svg_hit");
               // Make the button active
               $(parentDD).addClass('active');
+              // Draw the tree
+              crpstudio.svg.treeToSvg("#dbdetails_svg_hit", loc_currentTreeHitT,"#dbdetails_error" );
             }
             break;
         }
+        /*
+        // Tree can only be drawn correctly when it is visible...
         if (tree !== null) {
           crpstudio.tree.drawTree(tree);
-        }
+        }*/
       },
       /**
        * processOneHit
@@ -563,17 +571,30 @@ var crpstudio = (function ($, crpstudio) {
                 var sSyntax = private_methods.getSyntax(oRow.hitS);
                 html.push("<div class=\"one-example-syntax\">"+ sSyntax +"</div>");
                 // Get the Graphics results
+                
+                /* OLD METHOD
                 var sGraphicsAll = private_methods.getSvg(oRow.allG);
                 var sGraphicsHit = private_methods.getSvg(oRow.hitG);
                 $("#dbdetails_svg_all").html(sGraphicsAll);
                 $("#dbdetails_svg_hit").html(sGraphicsHit);
-                // Check if either of them is visible
+
+                                // Check if either of them is visible
                 if (!$("#dbdetails_svg_all").hasClass("hidden")) {
                   crpstudio.tree.drawTree($("#dbdetails_svg_all"));
                 }
                 if (!$("#dbdetails_svg_hit").hasClass("hidden")) {
                   crpstudio.tree.drawTree($("#dbdetails_svg_hit"));
                 }
+                */
+               
+                // Store  the trees locally too
+                loc_currentTreeAllT = oRow.allT;
+                loc_currentTreeHitT = oRow.hitT;
+                
+                // Show the trees (but they may not show correctly when not visible)               
+                crpstudio.svg.treeToSvg("#dbdetails_svg_all", oRow.allT,"#dbdetails_error" );
+                crpstudio.svg.treeToSvg("#dbdetails_svg_hit", oRow.hitT,"#dbdetails_error" );
+               
                 // html.push("<div class=\"one-example-graphics-all\">" + sGraphicsAll + "</div>");
                 // html.push("<div class=\"one-example-graphics-hit\">" + sGraphicsHit + "</div>");
                 // Is there any 'msg' result?
