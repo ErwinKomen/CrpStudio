@@ -38,6 +38,7 @@ import javax.management.ReflectionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.ru.crpstudio.CrpStudio;
+import nl.ru.crpstudio.CrpUtil;
 import nl.ru.crpstudio.crp.CrpContainer;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpstudio.util.ExploreSpecifier;
@@ -1310,7 +1311,8 @@ public abstract class BaseResponse {
       arGrpList = new JSONArray();
       
       // Check if the user has a file defined
-      File fGrpInfo = new File ("/etc/project/"+sUser+"/grp-info.json");
+      // File fGrpInfo = new File ("/etc/project/"+sUser+"/grp-info.json");
+      File fGrpInfo = new File (CrpUtil.sEtcCrpstudio + "/"+sUser+"/grp-info.json");
       if (fGrpInfo.exists()) {
         // Read the file into a string
         String sGrouping = (new FileUtil()).readFile(fGrpInfo);

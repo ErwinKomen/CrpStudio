@@ -24,8 +24,11 @@ public class CrpUtil {
   // ============= private variables ==============================
   private ErrHandle logger;
   static List<UserSession> userCache = new ArrayList<>();
+  // Fixed location for the ETC-CRPSTUDIO root
+  public static final String sEtcCrpstudio = "/etc/crpstudio";
   // Use a fixed location for the crpstudio settings file
-  private static final String sUserFile = "/etc/crpstudio/crpstudio-settings.json";
+  // private static final String sUserFile = "/etc/crpstudio/crpstudio-settings.json";
+  private static final String sUserFile = sEtcCrpstudio + "/crpstudio-settings.json";
   private static final String sDefaultUsers = "{ \"users\": [\n" +
 "    {\"name\": \"erwin\",   \"password\": \"komen\"},\n" +
 "    {\"name\": \"erkomen\", \"password\": \"ronald\"},\n" +

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import nl.ru.crpstudio.CrpUtil;
 import nl.ru.crpstudio.response.BaseResponse;
 import nl.ru.crpstudio.util.ErrHandle;
 import nl.ru.crpx.dataobject.DataObject;
@@ -337,7 +338,7 @@ public class CrpContainer {
  */
 class CrpInfo {
   // ========================= Constants =======================================
-  static String sProjectBase = "/etc/crpstudio/"; // Base directory where user-spaces are stored
+  static String sProjectBase = CrpUtil.sEtcCrpstudio + "/"; // "/etc/crpstudio/"; // Base directory where user-spaces are stored
   // ==================== Variables belonging to one CrpUser object ============
   CorpusResearchProject prjThis;  // The CRP to which the user has access
   BaseResponse br;
@@ -395,6 +396,7 @@ class CrpInfo {
           either load the CRP from the /etc/crpstudio/{user}/ domain,
           or fetch it from http://server/crpp, store it in the user domain,
           and load it from there.
+   Note:  Now use CrpUtil.sEtcCrpstudio (instead of /etc/crpstudio )
    Parameters:  @br - the LoadResponse object from which [getCrppResponse]
                       can be executed
    History:

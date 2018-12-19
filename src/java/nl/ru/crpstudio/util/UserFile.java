@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.Part;
+import nl.ru.crpstudio.CrpUtil;
 import nl.ru.util.FileUtil;
 import nl.ru.util.StringUtil;
 
@@ -33,7 +34,7 @@ import nl.ru.util.StringUtil;
  */
 public class UserFile {
   // ========================= Constants =======================================
-  static String sProjectBase = "/etc/crpstudio/"; // Base directory where user-spaces are stored
+  static String sProjectBase = CrpUtil.sEtcCrpstudio + "/"; // "/etc/crpstudio/"; // Base directory where user-spaces are stored
   // ================ Private variables ==============
   private ErrHandle errHandle;
   // ================ Public variables ===============
