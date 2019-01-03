@@ -25,7 +25,11 @@ public class CrpUtil {
   private ErrHandle logger;
   static List<UserSession> userCache = new ArrayList<>();
   // Fixed location for the ETC-CRPSTUDIO root
-  public static final String sEtcCrpstudio = "/etc/crpstudio";
+  // SurfSara VM:
+  // public static final String sEtcCrpstudio = "/etc/crpstudio";
+  // Ponyland deployment:
+  public static final String sEtcCrpstudio = "/var/www/tomcat8/live/tomcat8/crpstudio";
+
   // Use a fixed location for the crpstudio settings file
   // private static final String sUserFile = "/etc/crpstudio/crpstudio-settings.json";
   private static final String sUserFile = sEtcCrpstudio + "/crpstudio-settings.json";
