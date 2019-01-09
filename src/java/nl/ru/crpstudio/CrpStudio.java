@@ -203,7 +203,7 @@ public class CrpStudio extends HttpServlet {
    * @param request
    * @param response 
    */
-	private void processRequest(HttpServletRequest request, HttpServletResponse response) {
+  private void processRequest(HttpServletRequest request, HttpServletResponse response) {
     ByRef<String> sMsg = new ByRef("");
 		try {
       // Reset errors
