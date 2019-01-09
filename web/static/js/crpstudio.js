@@ -26,6 +26,8 @@ var crpstudio = (function ($, crpstudio) {
   crpstudio.crp_mvrlist = null,       // List of metavar definitions2
   crpstudio.dbs_dbslist = null,       // List of databases
   crpstudio.dbs_edtlist = null;       // List of databases for editing
+  crpstudio.app_prefix = window.location.protocol + "//" + window.location.host + "/corpusstudio/";
+  // crpstudio.app_prefix = "/";
   
   // Define module 'main'
   crpstudio.main = (function ($, config){
@@ -264,7 +266,7 @@ var crpstudio = (function ($, crpstudio) {
           // Set the parameter
           loc_tab = target;
           // Switch to the 'target' page using the lang parameter
-          window.location = window.location.protocol+target+sLang;
+          window.location = crpstudio.app_prefix+target+sLang;
         }
       },
 
@@ -290,7 +292,7 @@ var crpstudio = (function ($, crpstudio) {
         // Issue a request to /crpstudio to get the relevant help section
         var params = "logoff?userid=" + crpstudio.currentUser;
         if (crpstudio.config.language !== null) params += "&lang="+crpstudio.config.language;
-        window.location = window.location.protocol+params;
+        window.location = crpstudio.app_prefix+params;
       },
 
       /**
@@ -309,7 +311,7 @@ var crpstudio = (function ($, crpstudio) {
           // Set the page
           loc_tab = "j_security_check";
           // Switch there
-          window.location = window.location.protocol+loc_tab;
+          window.location = crpstudio.app_prefix+loc_tab;
         },
         
         /**
@@ -340,7 +342,7 @@ var crpstudio = (function ($, crpstudio) {
           var oArgs = { "userid": sUserName, "pass": sPassWord, "email": sEmail };
           var params = JSON.stringify(oArgs);
           crpstudio.main.getCrpStudioData("j_user_new", params, crpstudio.main.processLoginNew, "#login_error");        
-          // window.location = window.location.protocol+loc_tab;
+          // window.location = crpstudio.app_prefix+loc_tab;
         },
         
         /**
@@ -395,7 +397,7 @@ var crpstudio = (function ($, crpstudio) {
               $(target).html(sWelcome);
               // Perform 'standard' login
               loc_tab = "j_security_check";
-              window.location = window.location.protocol+loc_tab;
+              window.location = crpstudio.app_prefix+loc_tab;
               break;
             case "error":
               var sErrorMsg = (oContent && oContent.message) ? oContent.message : "(no description)";
@@ -415,9 +417,9 @@ var crpstudio = (function ($, crpstudio) {
         crpstudio.config.language = lang;
         var tabPrj = crpstudio.project.getTab();
         if (loc_tab === "search" && tabPrj !== "result" && tabPrj !== "document") {
-          window.location = window.location.protocol+loc_tab+"?lang="+crpstudio.config.language+"&tab="+tabPrj;
+          window.location = crpstudio.app_prefix+loc_tab+"?lang="+crpstudio.config.language+"&tab="+tabPrj;
         } else {
-          window.location = window.location.protocol+loc_tab+"?lang="+crpstudio.config.language;
+          window.location = crpstudio.app_prefix+loc_tab+"?lang="+crpstudio.config.language;
         }
       },
 
