@@ -2,7 +2,7 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:javaee="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="CrpStudioWeb" version="3.0">
   <display-name>Corpus Studio Web</display-name>
   <servlet>
-    <servlet-name>crpstudio</servlet-name>
+    <servlet-name>corpusstudio</servlet-name>
     <servlet-class>nl.ru.crpstudio.CrpStudio</servlet-class>
   </servlet>
   <servlet-mapping>
@@ -12,40 +12,19 @@
     <url-pattern>/files/*</url-pattern> 
     <!-- -->
   </servlet-mapping>
-<!--
   <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.js</url-pattern>
-    <url-pattern>*.css</url-pattern>
-    <url-pattern>*.ico</url-pattern>
-    <url-pattern>*.png</url-pattern>
-    <url-pattern>*.jpg</url-pattern>
-    <url-pattern>*.gif</url-pattern>
-    <url-pattern>*.html</url-pattern>
-  </servlet-mapping>  
-  -->  
-  <servlet-mapping>
-    <servlet-name>crpstudio</servlet-name>
+    <servlet-name>corpusstudio</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
   <session-config>
     <session-timeout>100</session-timeout>
+    <cookie-config>
+      <name>JSESSIONID</name>
+      <path>/</path>
+      <http-only>true</http-only>
+      <secure>true</secure>
+    </cookie-config>
   </session-config>
-  <!--
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>searching</web-resource-name>
-      <url-pattern>/search/*</url-pattern>
-      <url-pattern>/projects/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>PARTNER</role-name>
-    </auth-constraint>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-  </security-constraint>
-  -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
