@@ -1247,6 +1247,7 @@ public abstract class BaseResponse {
    */
   public String makeFileLocResponse(String contents, String fileName) {
     String sExportPath = "/files";
+    boolean bRadboud = true;
     try {
       // Create the file location name
       String sWebRoot = servlet.getRealPath();
@@ -1265,8 +1266,14 @@ public abstract class BaseResponse {
         fileName = fileName.substring(0, fileName.length()-3);
       }
       // Create the URL for this file
-      String sFileUrl = "http://" + request.getServerName() + ":"+ 
-              request.getServerPort() + servlet.getContextRoot() + sExportPath+ fileName;
+      String sFileUrl = "";
+      if (bRadboud) {
+        sFileUrl = "https://applejack.science.ru.nl/corpusstudio";
+      } else {
+        sFileUrl = "http://" + request.getServerName() + ":"+ 
+                request.getServerPort() + servlet.getContextRoot();
+      }
+      sFileUrl += sExportPath+ fileName;
       // Return the location
       return sFileUrl;
     } catch (Exception ex) {
