@@ -106,7 +106,16 @@ var crpstudio = (function ($, crpstudio) {
         if (!bAdded) {
           // Make sure 'project' stuff does *NOT* get an id
           var iPushId = iId;
-          if (sType === "project") iPushId = -1;
+          if (sType === "project") {
+            switch (sKey) {
+              case "Part":
+              case "Language":
+                   break;
+              default:
+                   iPushId = -1;
+                   break;
+            }
+          }
           // We need to *add* a new element: create the element
           var oNew = {type: sType, id: iPushId, crp: sCrp, key: sKey, value: sValue, old: sOld, saved: false};
           // Add the new element to the list
