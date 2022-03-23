@@ -1912,10 +1912,13 @@ var crpstudio = (function ($, crpstudio) {
                     $("#input_lng").val(sLng + ":" + sDir);
                   } else {
                     // No sub-part of the corpus is specified
-                    $("#input_lng").val(sLng).first();
-                    // Now we need to set the global sDir variable
-                    var arCrp = $("#input_lng").val().split(":");
-                    currentDir = arCrp[1];
+                    $("#input_lng").val(sLng + ":").first();
+                    // Now we need to set the global sDir variable [currentDir]
+                    currentDir = "";
+                    if ($("#input_lng").val() !== null && $("#input_lng").val().indexOf(":") >= 0) {
+                        var arCrp = $("#input_lng").val().split(":");
+                        currentDir = arCrp[1];
+                    }
                   }
                 }
               }
@@ -3189,7 +3192,27 @@ var crpstudio = (function ($, crpstudio) {
         } else {
           $("#"+sItemType+"_status").html("ERROR - Failed to download the item.");
         }    
-      },     
+      }, 
+      
+      /**
+       * setProjectCorpus
+       *    Figure out which option is selected, and set that option
+       * 
+       * @param {type} elStart
+       * @returns {undefined}
+       */
+      setProjectCorpus : function(elStart) {
+          var val = null,
+              arCrp = null,
+              idx = -1;
+          
+          idx = $(elStart)[0].selectedIndex;
+          if (idx >= 0) {
+              val = elStart.options[idx].value;
+              arCrp = val.split(":");
+              crpstudio.project.setCorpus("lng_dir", arCrp[0], arCrp[1]);
+          }
+      },
 
       /**
        * setCorpus
