@@ -603,7 +603,7 @@ class CrpInfo {
       // Set the project path straight
       if (!sProjectPath.contains("/")) {
         sProjectPath = FileUtil.nameNormalize(sProjectBase  + this.userId + "/" + sProjectPath);
-        if (!sProjectPath.contains(".")) {
+        if (!sProjectPath.contains(".crpx")) {
           sProjectPath += ".crpx";
         }
       }
