@@ -2,7 +2,7 @@
 /build/
 /dist/
 /spare/
-*.xml
+#*.xml
 *.properties
 *.jsp
 *.json
