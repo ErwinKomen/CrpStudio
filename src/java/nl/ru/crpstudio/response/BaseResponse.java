@@ -2489,7 +2489,7 @@ public abstract class BaseResponse {
             String sValue = sLng + ":";
             // Enter the combobox line
             sb.append("<option class=\"noprefix\" value=\"" + sValue + 
-                    "\" onclick='crpstudio.project.setCorpus(\"lng_dir\", \"" + sLng + "\", \"\")' >" +
+                    "\" onchange='crpstudio.project.setCorpus(\"lng_dir\", \"" + sLng + "\", \"\")' >" +
                     sShow + "</option>\n");
           }
           // Walk all the parts
@@ -2505,7 +2505,7 @@ public abstract class BaseResponse {
             String sValue = sLng + ":" + sDir;
             // Enter the combobox line
             sb.append("<option class=\"noprefix\" value=\"" + sValue + 
-                    "\" onclick='crpstudio.project.setCorpus(\"lng_dir\", \"" + sLng + "\", \""+ sDir + "\")' >" +
+                    "\" onchange='crpstudio.project.setCorpus(\"lng_dir\", \"" + sLng + "\", \""+ sDir + "\")' >" +
                     sShow + "</option>\n");
           }
         }      
