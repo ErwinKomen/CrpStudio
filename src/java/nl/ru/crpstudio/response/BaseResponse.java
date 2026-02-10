@@ -1268,7 +1268,7 @@ public abstract class BaseResponse {
       // Create the URL for this file
       String sFileUrl = "";
       if (bRadboud) {
-        sFileUrl = "https://applejack.science.ru.nl/corpusstudio";
+        sFileUrl = "/corpusstudio";
       } else {
         sFileUrl = "http://" + request.getServerName() + ":"+ 
                 request.getServerPort() + servlet.getContextRoot();
