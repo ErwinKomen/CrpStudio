@@ -28,8 +28,21 @@ public class CrpUtil {
   // SurfSara VM:
   // public static final String sEtcCrpstudio = "/etc/crpstudio";
   // Ponyland deployment:
-  public static final String sEtcCrpstudio = "/var/www/tomcat8/live/tomcat8/crpstudio";
+  public static String getAppRoot() {
+    try {
+        return CrpUtil.class
+            .getProtectionDomain()
+            .getCodeSource()
+            .getLocation()
+            .toURI()
+            .getPath();
+    } catch (Exception e) {
+        throw new RuntimeException(e);
+    }
+  }
 
+  public static final String sEtcCrpstudio = getAppRoot() + "/../../../../crpstudio/";
+  
   // Use a fixed location for the crpstudio settings file
   // private static final String sUserFile = "/etc/crpstudio/crpstudio-settings.json";
   private static final String sUserFile = sEtcCrpstudio + "/crpstudio-settings.json";
